@@ -66,12 +66,11 @@ class StudentArchiveController extends Controller
             // Verificar se já existe matrícula ativa
             $existing = Enrollment::where('student_id', $student->id)
                 ->where('school_year', $currentYear)
-                ->whereIn('status', ['active', 'pending'])
                 ->first();
 
             if ($existing) {
                 return redirect()->back()
-                    ->with('error', 'Este aluno já tem matrícula ativa para '.$currentYear.'.');
+                    ->with('error', 'Este aluno já tem uma matrícula para o ano '.$currentYear.'.');
             }
 
             // Criar nova matrícula

@@ -5,20 +5,24 @@ namespace App\Http\Controllers;
 use App\Models\Student;
 use App\Models\Grade;
 use App\Models\Setting;
+use App\Models\ClassRoom;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class CertificateController extends Controller
 {
     /**
-     * Lista de alunos elegíveis para emissão de Certidões e Certificados.
+     * Centro Inteligente de Emissão de Certidões e Certificados com Verificação de Elegibilidade.
      */
     public function index(Request $request)
     {
         $this->authorize('view_students');
 
-        $query = Student::with(['currentEnrollment.class', 'enrollments.class']);
+        $query = Student::with(['currentEnrollment.class', 'enrollments.class'])
+            ->withCount('grades')
+            ->withAvg('grades', 'grade');
 
+        // Filtro por termo de pesquisa
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -28,13 +32,53 @@ class CertificateController extends Controller
             });
         }
 
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
+        // Filtro por Turma
+        if ($request->filled('class_id')) {
+            $query->whereHas('currentEnrollment', function ($q) use ($request) {
+                $q->where('class_id', $request->class_id);
+            });
         }
 
-        $students = $query->orderBy('first_name')->paginate(15);
+        // Filtro de Elegibilidade inteligente
+        if ($request->filled('eligibility')) {
+            if ($request->eligibility === 'with_grades') {
+                $query->has('grades');
+            } elseif ($request->eligibility === 'without_grades') {
+                $query->doesntHave('grades');
+            } elseif ($request->eligibility === 'approved') {
+                $query->where(function ($q) {
+                    $q->where('status', 'graduated')
+                      ->orWhereHas('grades', function ($g) {
+                          $g->selectRaw('student_id, AVG(grade) as avg_grade')
+                            ->groupBy('student_id')
+                            ->havingRaw('avg_grade >= 10');
+                      });
+                });
+            }
+        }
 
-        return view('certificates.index', compact('students'));
+        // Estatísticas para KPI Cards
+        $totalStudents = Student::count();
+        $studentsWithGrades = Student::has('grades')->count();
+        $pendingStudents = Student::doesntHave('grades')->count();
+        $approvedStudents = Student::where('status', 'graduated')
+            ->orWhereHas('grades', function ($g) {
+                $g->selectRaw('student_id, AVG(grade) as avg_grade')
+                  ->groupBy('student_id')
+                  ->havingRaw('avg_grade >= 10');
+            })->count();
+
+        $students = $query->orderBy('first_name')->paginate(15);
+        $classes = ClassRoom::active()->orderBy('name')->get();
+
+        return view('certificates.index', compact(
+            'students',
+            'classes',
+            'totalStudents',
+            'studentsWithGrades',
+            'approvedStudents',
+            'pendingStudents'
+        ));
     }
 
     /**
@@ -44,10 +88,17 @@ class CertificateController extends Controller
     {
         $this->authorize('view_students');
 
+        // Validação de segurança: Impede documento vazio se não houver notas
+        $gradesCount = Grade::where('student_id', $student->id)->count();
+        if ($gradesCount === 0) {
+            return redirect()->back()
+                ->with('error', "Impossível emitir Certidão: O(A) estudante {$student->full_name} não possui notas ou avaliações registadas no sistema.");
+        }
+
         $student->load(['enrollments.class', 'parent']);
-        $schoolName = Setting::get('school_name', 'ESCOLA SECUNDÁRIA ZAMEDU');
-        $province = Setting::get('province', 'MAPUTO');
-        $district = Setting::get('district', 'CIDADE DE MAPUTO');
+        $schoolName = Setting::get('school_name', 'ESCOLA SECUNDÁRIA VISIONÁRIOS');
+        $province = Setting::get('school_province', Setting::get('province', 'ZAMBÉZIA'));
+        $district = Setting::get('school_district', Setting::get('district', 'NAMACURRA'));
         $directorName = Setting::get('director_name', 'O Director da Escola');
         $secretaryName = Setting::get('secretary_name', 'O Chefe da Secretaria');
 
@@ -93,16 +144,23 @@ class CertificateController extends Controller
     }
 
     /**
-     * Emitir Certificado Oficial de Conclusão do Ensino (6ª ou 12ª Classe).
+     * Emitir Certificado Oficial de Conclusão do Ensino (MINEDH).
      */
     public function certificado(Student $student)
     {
         $this->authorize('view_students');
 
+        // Validação de segurança: Impede documento de conclusão vazio se não houver notas
+        $gradesCount = Grade::where('student_id', $student->id)->count();
+        if ($gradesCount === 0) {
+            return redirect()->back()
+                ->with('error', "Impossível emitir Certificado de Conclusão: O(A) estudante {$student->full_name} não possui avaliações lançadas.");
+        }
+
         $student->load(['enrollments.class']);
-        $schoolName = Setting::get('school_name', 'ESCOLA SECUNDÁRIA ZAMEDU');
-        $province = Setting::get('province', 'MAPUTO');
-        $district = Setting::get('district', 'CIDADE DE MAPUTO');
+        $schoolName = Setting::get('school_name', 'ESCOLA SECUNDÁRIA VISIONÁRIOS');
+        $province = Setting::get('school_province', Setting::get('province', 'ZAMBÉZIA'));
+        $district = Setting::get('school_district', Setting::get('district', 'NAMACURRA'));
         $directorName = Setting::get('director_name', 'O Director da Escola');
 
         $lastEnrollment = $student->enrollments->last();

@@ -32,29 +32,29 @@
             font-size: {{ $bodyFont }}px;
             margin: 0;
             padding: 0;
-            color: #111;
+            color: #0f172a;
         }
         .header {
             text-align: center;
-            margin-bottom: 8px;
-            border-bottom: 2px solid #1a365d;
-            padding-bottom: 6px;
+            margin-bottom: 6px;
+            border-bottom: 2px solid #0f172a;
+            padding-bottom: 5px;
         }
-        .header h2 { margin: 0; font-size: 12px; color: #1a365d; text-transform: uppercase; letter-spacing: 1px; }
-        .header h3 { margin: 2px 0; font-size: 10px; font-weight: normal; color: #2d3748; }
-        .header p  { margin: 2px 0; font-size: 8px; color: #4a5568; }
+        .header h2 { margin: 0; font-size: 11px; font-weight: bold; color: #0f172a; text-transform: uppercase; letter-spacing: 1px; }
+        .header h3 { margin: 1px 0; font-size: 9px; font-weight: normal; color: #334155; text-transform: uppercase; }
+        .header p  { margin: 2px 0; font-size: 8.5px; font-weight: bold; color: #047857; text-transform: uppercase; }
 
-        .meta-info { width: 100%; margin-bottom: 8px; font-size: {{ $bodyFont }}px; border-collapse: collapse; }
-        .meta-info td { padding: 3px 5px; border: 1px solid #cbd5e0; background-color: #f7fafc; }
+        .meta-info { width: 100%; margin-bottom: 6px; font-size: {{ $bodyFont }}px; border-collapse: collapse; }
+        .meta-info td { padding: 3px 5px; border: 1px solid #cbd5e1; background-color: #f8fafc; }
 
         table.pauta {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             table-layout: fixed;
         }
         table.pauta th, table.pauta td {
-            border: 1px solid #4a5568;
+            border: 1px solid #334155;
             padding: {{ $cellPad }};
             text-align: center;
             font-size: {{ $cellFont }}px;
@@ -62,15 +62,15 @@
             overflow: hidden;
         }
         table.pauta th {
-            background-color: #1a365d;
-            color: #fff;
+            background-color: #0f172a;
+            color: #ffffff;
             text-transform: uppercase;
             font-size: {{ $headerFont }}px;
             font-weight: bold;
         }
         table.pauta th.sub-header {
-            background-color: #edf2f7;
-            color: #1a202c;
+            background-color: #e2e8f0;
+            color: #0f172a;
             font-weight: bold;
             font-size: {{ $headerFont }}px;
         }
@@ -84,34 +84,37 @@
         }
         table.pauta td.avg-col {
             font-weight: bold;
-            background-color: #ebf8ff;
+            background-color: #f0fdf4;
+            color: #166534;
         }
 
         .text-left { text-align: left !important; padding-left: 3px !important; }
-        .approved { color: #22543d; font-weight: bold; background-color: #c6f6d5; padding: 1px 3px; border-radius: 2px; font-size: {{ $cellFont - 0.5 }}px; }
-        .failed   { color: #742a2a; font-weight: bold; background-color: #fed7d7; padding: 1px 3px; border-radius: 2px; font-size: {{ $cellFont - 0.5 }}px; }
-        .pending  { color: #744210; font-weight: bold; background-color: #feebc8; padding: 1px 3px; border-radius: 2px; font-size: {{ $cellFont - 0.5 }}px; }
+        .approved { color: #166534; font-weight: bold; background-color: #dcfce7; padding: 1px 3px; border-radius: 2px; font-size: {{ $cellFont - 0.5 }}px; }
+        .failed   { color: #991b1b; font-weight: bold; background-color: #fee2e2; padding: 1px 3px; border-radius: 2px; font-size: {{ $cellFont - 0.5 }}px; }
+        .pending  { color: #854d0e; font-weight: bold; background-color: #fef9c3; padding: 1px 3px; border-radius: 2px; font-size: {{ $cellFont - 0.5 }}px; }
 
-        .footer-signatures { width: 100%; margin-top: 20px; text-align: center; }
-        .footer-signatures td { width: 33%; padding-top: 25px; font-size: 8px; }
-        .signature-line { border-top: 1px solid #2d3748; width: 80%; margin: 0 auto; padding-top: 3px; font-weight: bold; }
-
-        .graded-indicator { font-size: {{ $cellFont - 1 }}px; color: #718096; }
+        .footer-signatures { width: 100%; margin-top: 15px; text-align: center; }
+        .footer-signatures td { width: 33%; padding-top: 20px; font-size: 8px; }
+        .signature-line { border-top: 1px solid #0f172a; width: 80%; margin: 0 auto; padding-top: 3px; font-weight: bold; }
     </style>
 </head>
 <body>
+    <!-- Header Oficial MINEDH -->
     <div class="header">
+        <div style="text-align: center; margin-bottom: 4px;">
+            <img src="{{ public_path('images/emblema-mocambique.png') }}" style="height: 40px; width: auto;" alt="Emblema de Moçambique">
+        </div>
         <h2>REPÚBLICA DE MOÇAMBIQUE</h2>
         <h3>MINISTÉRIO DA EDUCAÇÃO E DESENVOLVIMENTO HUMANO</h3>
         <h3>{{ strtoupper(\App\Models\Setting::get('school_name', 'ESCOLA SECUNDÁRIA ZAMEDU')) }}</h3>
-        <p><strong>PAUTA OFICIAL DE FREQUÊNCIA E AVALIAÇÃO — ANO LECTIVO {{ $year }}</strong></p>
+        <p>PAUTA OFICIAL DE FREQUÊNCIA E AVALIAÇÃO — ANO LECTIVO {{ $year }}</p>
     </div>
 
     <table class="meta-info">
         <tr>
             <td><strong>Nível:</strong> {{ $class->education_level_name }}</td>
             <td><strong>Turma:</strong> {{ $class->name }} ({{ $class->grade_level_name }})</td>
-            <td><strong>Tipo:</strong> {{ strtoupper($type) }} {{ $type === 'trimestral' ? "({$term}º Trim.)" : '' }}</td>
+            <td><strong>Tipo:</strong> {{ strtoupper($type) }} {{ $type === 'trimestral' ? "({$term}º Trimestre)" : '' }}</td>
             <td><strong>Emissão:</strong> {{ date('d/m/Y') }}</td>
             <td><strong>Formato:</strong> {{ strtoupper($paperSize) }}</td>
         </tr>
@@ -177,9 +180,6 @@
                     @endforeach
                     <td class="avg-col">
                         {{ $item['overall_average'] > 0 ? number_format($item['overall_average'], 1) : '-' }}
-                        @if(isset($item['graded_count']) && isset($item['total_subjects']) && $item['graded_count'] < $item['total_subjects'] && $item['graded_count'] > 0)
-                            <br><span class="graded-indicator">({{ $item['graded_count'] }}/{{ $item['total_subjects'] }})</span>
-                        @endif
                     </td>
                     <td>
                         @if($item['final_status'] === 'Aprovado')
@@ -200,19 +200,21 @@
             <td>
                 <div class="signature-line">
                     O Director da Turma<br>
-                    <strong>{{ $class->teacher ? ($class->teacher->first_name . ' ' . $class->teacher->last_name) : 'O Director da Turma' }}</strong>
+                    <strong>{{ ($class->teacher && !str_starts_with($class->teacher->first_name, 'O Director')) ? ($class->teacher->first_name . ' ' . $class->teacher->last_name) : '' }}</strong>
                 </div>
             </td>
             <td>
                 <div class="signature-line">
                     O Director Pedagógico<br>
-                    <strong>{{ \App\Models\Setting::get('pedagogical_director_name', 'O Director Pedagógico') }}</strong>
+                    @php $pedName = \App\Models\Setting::get('pedagogical_director_name', ''); @endphp
+                    <strong>{{ ($pedName && !str_starts_with($pedName, 'O Director')) ? $pedName : '' }}</strong>
                 </div>
             </td>
             <td>
                 <div class="signature-line">
                     O Director da Escola<br>
-                    <strong>{{ \App\Models\Setting::get('director_name', 'O Director da Escola') }}</strong>
+                    @php $dirName = \App\Models\Setting::get('director_name', ''); @endphp
+                    <strong>{{ ($dirName && !str_starts_with($dirName, 'O Director')) ? $dirName : '' }}</strong>
                 </div>
             </td>
         </tr>

@@ -1,275 +1,329 @@
-
 @extends('layouts.app')
 
 @section('title', 'Novo Aluno')
 @section('page-title', 'Cadastrar Novo Aluno')
-@section('title-icon', 'fas fa-user-plus')
+@section('page-title-icon', 'fas fa-user-plus')
 
 @section('breadcrumbs')
-    <li class="breadcrumb-item"><a href="{{ route('students.index') }}">Alunos</a></li>
-    <li class="breadcrumb-item active">Novo Aluno</li>
+    <li class="breadcrumb-item"><a href="{{ route('students.index') }}" class="no-underline">Alunos</a></li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Novo Aluno</li>
 @endsection
 
 @section('content')
-<div class="row">
-    <div class="col-12">
-        <div class="school-card">
-            <div class="school-card-header">
-                <i class="fas fa-user-plus"></i>
-                Cadastrar Novo Aluno
+<div class="max-w-full mx-auto space-y-4" x-data="{
+    specialNeeds: {{ old('has_special_needs') ? 'true' : 'false' }},
+    parentModalOpen: false,
+    newParentFirstName: '',
+    newParentLastName: '',
+    newParentEmail: '',
+    newParentPhone: '',
+    parentSubmitting: false,
+    parentMessage: '',
+    async submitQuickParent() {
+        if (!this.newParentFirstName || !this.newParentLastName || !this.newParentPhone) {
+            this.parentMessage = 'Por favor preencha Nome, Sobrenome e Telefone.';
+            return;
+        }
+        this.parentSubmitting = true;
+        this.parentMessage = '';
+        try {
+            const res = await fetch('{{ route('parents.store') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    first_name: this.newParentFirstName,
+                    last_name: this.newParentLastName,
+                    email: this.newParentEmail,
+                    phone: this.newParentPhone
+                })
+            });
+            const data = await res.json();
+            if (data.success && data.parent) {
+                const selectEl = document.getElementById('parent_id');
+                const opt = document.createElement('option');
+                opt.value = data.parent.id;
+                opt.textContent = `${data.parent.full_name} (${data.parent.phone})`;
+                opt.selected = true;
+                selectEl.appendChild(opt);
+                selectEl.value = data.parent.id;
+
+                this.newParentFirstName = '';
+                this.newParentLastName = '';
+                this.newParentEmail = '';
+                this.newParentPhone = '';
+                this.parentModalOpen = false;
+            } else {
+                this.parentMessage = data.message || 'Erro ao cadastrar encarregado.';
+            }
+        } catch (e) {
+            this.parentMessage = 'Erro de ligação ao servidor.';
+        } finally {
+            this.parentSubmitting = false;
+        }
+    }
+}">
+
+    <!-- Header Row -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-slate-200">
+        <div>
+            <h1 class="text-xl font-black text-slate-800 tracking-tight flex items-center gap-2">
+                <i class="fas fa-user-plus text-emerald-600"></i> Cadastrar Novo Aluno
+            </h1>
+            <p class="text-xs text-slate-500 mt-0.5">Preencha a ficha do estudante e associe o encarregado de educação.</p>
+        </div>
+        <a href="{{ route('students.index') }}" class="no-underline inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 shadow-2xs transition">
+            <i class="fas fa-arrow-left"></i> Voltar à Lista
+        </a>
+    </div>
+
+    <!-- Form Container Card with Emerald Accent -->
+    <div class="bg-white rounded-xl border border-slate-200 border-t-4 border-t-emerald-600 shadow-2xs p-5">
+        <form method="POST" action="{{ route('students.store') }}" enctype="multipart/form-data" class="space-y-6">
+            @csrf
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Informações Pessoais -->
+                <div class="space-y-4">
+                    <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2 pb-2 border-b border-slate-100">
+                        <i class="fas fa-user text-emerald-600"></i> Informações Pessoais
+                    </h3>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label for="first_name" class="block text-xs font-bold text-slate-700 mb-1">Nome *</label>
+                            <input type="text" id="first_name" name="first_name" value="{{ old('first_name') }}" required
+                                   class="w-full rounded-lg border border-slate-200 bg-white text-slate-800 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500 @error('first_name') border-rose-500 @enderror">
+                            @error('first_name')
+                                <span class="text-[10px] text-rose-600 font-semibold">{{ $message }}</span>
+                            @enderror
+                        </div>
+                        <div>
+                            <label for="last_name" class="block text-xs font-bold text-slate-700 mb-1">Sobrenome *</label>
+                            <input type="text" id="last_name" name="last_name" value="{{ old('last_name') }}" required
+                                   class="w-full rounded-lg border border-slate-200 bg-white text-slate-800 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500 @error('last_name') border-rose-500 @enderror">
+                            @error('last_name')
+                                <span class="text-[10px] text-rose-600 font-semibold">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label for="gender" class="block text-xs font-bold text-slate-700 mb-1">Gênero *</label>
+                            <select id="gender" name="gender" required
+                                    class="w-full rounded-lg border border-slate-200 bg-white text-slate-800 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
+                                <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>Masculino</option>
+                                <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>Feminino</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="birthdate" class="block text-xs font-bold text-slate-700 mb-1">Data de Nascimento *</label>
+                            <input type="date" id="birthdate" name="birthdate" value="{{ old('birthdate') }}" required
+                                   class="w-full rounded-lg border border-slate-200 bg-white text-slate-800 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="birth_place" class="block text-xs font-bold text-slate-700 mb-1">Naturalidade / Local de Nascimento</label>
+                        <input type="text" id="birth_place" name="birth_place" value="{{ old('birth_place', 'Maputo') }}"
+                               class="w-full rounded-lg border border-slate-200 bg-white text-slate-800 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500 @error('birth_place') border-rose-500 @enderror">
+                        @error('birth_place')
+                            <span class="text-[10px] text-rose-600 font-semibold">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label for="passport_photo" class="block text-xs font-bold text-slate-700 mb-1">Fotografia Passe</label>
+                            <input type="file" id="passport_photo" name="passport_photo" accept="image/*"
+                                   class="w-full rounded-lg border border-slate-200 bg-white text-slate-800 py-1.5 px-3 text-xs font-semibold focus:border-emerald-500">
+                            <span class="text-[10px] text-slate-400">JPG, PNG (Máx 2MB)</span>
+                        </div>
+                        <div>
+                            <label for="medical_certificate" class="block text-xs font-bold text-slate-700 mb-1">Atestado Médico (Doc)</label>
+                            <input type="file" id="medical_certificate" name="medical_certificate" accept=".pdf,.png,.jpg,.jpeg"
+                                   class="w-full rounded-lg border border-slate-200 bg-white text-slate-800 py-1.5 px-3 text-xs font-semibold focus:border-emerald-500">
+                            <span class="text-[10px] text-slate-400">PDF, JPG (Máx 5MB)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Encarregado de Educação & Contacto de Emergência -->
+                <div class="space-y-4">
+                    <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2 pb-2 border-b border-slate-100">
+                        <i class="fas fa-users-cog text-emerald-600"></i> Encarregado de Educação & Contactos
+                    </h3>
+
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <label for="parent_id" class="block text-xs font-bold text-slate-700">Encarregado de Educação</label>
+                            <div class="flex items-center gap-1">
+                                <button type="button" @click.prevent="parentModalOpen = true" class="no-underline text-[11px] font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 bg-emerald-50 hover:bg-emerald-100 px-2 py-1 rounded-lg border border-emerald-200 shadow-2xs transition cursor-pointer">
+                                    <i class="fas fa-user-plus"></i> + Novo Encarregado
+                                </button>
+                                <a href="{{ route('parents.create') }}" target="_blank" class="no-underline text-[10px] text-slate-400 hover:text-slate-600 p-1" title="Abrir formulário completo em nova aba">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <select id="parent_id" name="parent_id"
+                                class="w-full rounded-lg border border-slate-200 bg-white text-slate-800 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500 @error('parent_id') border-rose-500 @enderror">
+                            <option value="">Nenhum (Cadastrar Encarregado Depois)</option>
+                            @foreach($parents as $parent)
+                                <option value="{{ $parent->user_id }}" {{ (string) old('parent_id') === (string) $parent->user_id ? 'selected' : '' }}>
+                                    {{ $parent->full_name }} ({{ $parent->phone ?? 'Sem Telefone' }})
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('parent_id')
+                            <span class="text-[10px] text-rose-600 font-semibold">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="address" class="block text-xs font-bold text-slate-700 mb-1">Endereço / Bairro</label>
+                        <input type="text" id="address" name="address" value="{{ old('address') }}"
+                               class="w-full rounded-lg border border-slate-200 bg-white text-slate-800 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500 @error('address') border-rose-500 @enderror">
+                        @error('address')
+                            <span class="text-[10px] text-rose-600 font-semibold">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label for="emergency_contact" class="block text-xs font-bold text-slate-700 mb-1">Contacto de Emergência (Nome)</label>
+                            <input type="text" id="emergency_contact" name="emergency_contact" value="{{ old('emergency_contact') }}"
+                                   class="w-full rounded-lg border border-slate-200 bg-white text-slate-800 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500 @error('emergency_contact') border-rose-500 @enderror">
+                            @error('emergency_contact')
+                                <span class="text-[10px] text-rose-600 font-semibold">{{ $message }}</span>
+                            @enderror
+                        </div>
+                        <div>
+                            <label for="emergency_phone" class="block text-xs font-bold text-slate-700 mb-1">Telefone de Emergência</label>
+                            <input type="text" id="emergency_phone" name="emergency_phone" value="{{ old('emergency_phone') }}"
+                                   class="w-full rounded-lg border border-slate-200 bg-white text-slate-800 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500 @error('emergency_phone') border-rose-500 @enderror">
+                            @error('emergency_phone')
+                                <span class="text-[10px] text-rose-600 font-semibold">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <!-- Enrollment & Fee (Conditional for Private School Only) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-100">
+                        <div>
+                            <label for="class_id" class="block text-xs font-bold text-slate-700 mb-1">Turma Inicial (Opcional)</label>
+                            <select id="class_id" name="class_id"
+                                    class="w-full rounded-lg border border-slate-200 bg-white text-slate-800 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
+                                <option value="">Não matricular agora</option>
+                                @foreach($classes as $class)
+                                    <option value="{{ $class->id }}" {{ old('class_id') == $class->id ? 'selected' : '' }}>
+                                        {{ $class->name }} ({{ $class->grade_level_name }})
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        @if(is_private_school())
+                            <div>
+                                <label for="monthly_fee" class="block text-xs font-bold text-slate-700 mb-1">Mensalidade (MT)</label>
+                                <input type="number" step="0.01" id="monthly_fee" name="monthly_fee" value="{{ old('monthly_fee', 0) }}"
+                                       class="w-full rounded-lg border border-slate-200 bg-white text-slate-800 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
+                            </div>
+                        @endif
+                    </div>
+                </div>
             </div>
 
-            <div class="school-card-body">
-                <form method="POST" action="{{ route('students.store') }}" enctype="multipart/form-data">
-                    @csrf
+            <!-- Necessidades Especiais & Observações -->
+            <div class="pt-4 border-t border-slate-100 space-y-3">
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="has_special_needs" name="has_special_needs" value="1" x-model="specialNeeds"
+                           class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                    <label for="has_special_needs" class="text-xs font-bold text-slate-700 cursor-pointer">Aluno possui necessidades educativas especiais (NEE)</label>
+                </div>
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h5 class="mb-3 text-primary">
-                                <i class="fas fa-user me-2"></i>Informações Pessoais
-                            </h5>
-                            
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="first_name" class="form-label">Nome *</label>
-                                        <input type="text" class="form-control @error('first_name') is-invalid @enderror" 
-                                               id="first_name" name="first_name" value="{{ old('first_name') }}" required>
-                                        @error('first_name')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="last_name" class="form-label">Sobrenome *</label>
-                                        <input type="text" class="form-control @error('last_name') is-invalid @enderror" 
-                                               id="last_name" name="last_name" value="{{ old('last_name') }}" required>
-                                        @error('last_name')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
+                <div x-show="specialNeeds" x-transition>
+                    <label for="special_needs_description" class="block text-xs font-bold text-slate-700 mb-1">Descrição das Necessidades Especiais</label>
+                    <textarea id="special_needs_description" name="special_needs_description" rows="2"
+                              class="w-full rounded-lg border border-slate-200 bg-white text-slate-800 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500"
+                              placeholder="Descreva as adaptações pedagógicas ou necessidades do aluno.">{{ old('special_needs_description') }}</textarea>
+                </div>
 
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="gender" class="form-label">Gênero *</label>
-                                        <select class="form-select @error('gender') is-invalid @enderror" 
-                                                id="gender" name="gender" required>
-                                            <option value="">Selecione...</option>
-                                            <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>Masculino</option>
-                                            <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>Feminino</option>
-                                        </select>
-                                        @error('gender')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="birthdate" class="form-label">Data de Nascimento *</label>
-                                        <input type="date" class="form-control @error('birthdate') is-invalid @enderror" 
-                                               id="birthdate" name="birthdate" value="{{ old('birthdate') }}" required>
-                                        @error('birthdate')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
+                <div>
+                    <label for="observations" class="block text-xs font-bold text-slate-700 mb-1">Observações Gerais</label>
+                    <textarea id="observations" name="observations" rows="2"
+                              class="w-full rounded-lg border border-slate-200 bg-white text-slate-800 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500"
+                              placeholder="Outras informações relevantes sobre o aluno.">{{ old('observations') }}</textarea>
+                </div>
+            </div>
 
-                            <div class="mb-3">
-                                <label for="birth_place" class="form-label">Local de Nascimento *</label>
-                                <input type="text" class="form-control @error('birth_place') is-invalid @enderror" 
-                                       id="birth_place" name="birth_place" value="{{ old('birth_place') }}" 
-                                       placeholder="Cidade, Província" required>
-                                @error('birth_place')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
+            <!-- Botões de Ação -->
+            <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-2">
+                <a href="{{ route('students.index') }}" class="no-underline inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 transition">
+                    Cancelar
+                </a>
+                <button type="submit" class="inline-flex items-center gap-1.5 px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-xs font-bold text-white shadow-sm transition">
+                    <i class="fas fa-check"></i> Cadastrar Aluno
+                </button>
+            </div>
+        </form>
+    </div>
 
-                            <div class="mb-3">
-                                <label for="passport_photo" class="form-label">Foto do Aluno</label>
-                                <input type="file" class="form-control @error('passport_photo') is-invalid @enderror" 
-                                       id="passport_photo" name="passport_photo" accept="image/*">
-                                @error('passport_photo')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                                <small class="text-muted">Formatos: JPG, PNG, GIF. Máx: 2MB</small>
-                            </div>
+    <!-- Quick Register Guardian Modal (Absolute Top Teleport) -->
+    <template x-teleport="body">
+        <div x-show="parentModalOpen" x-transition.opacity
+             style="position: fixed; inset: 0; z-index: 999999 !important; display: none;"
+             class="flex items-center justify-center bg-slate-900/70 backdrop-blur-xs p-4">
+            <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl space-y-4 text-left border border-slate-100" @click.outside="parentModalOpen = false">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <h3 class="text-sm font-extrabold text-slate-800 flex items-center gap-2">
+                        <i class="fas fa-user-plus text-emerald-600"></i> Cadastrar Encarregado Rápido
+                    </h3>
+                    <button type="button" @click="parentModalOpen = false" class="text-slate-400 hover:text-slate-600 text-lg font-bold leading-none">&times;</button>
+                </div>
+
+                <template x-if="parentMessage">
+                    <div class="p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold" x-text="parentMessage"></div>
+                </template>
+
+                <div class="space-y-3 text-xs">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Primeiro Nome *</label>
+                            <input type="text" x-model="newParentFirstName" class="w-full rounded-lg border-slate-200 py-1.5 px-2.5 text-xs font-semibold focus:ring-emerald-500 focus:border-emerald-500" placeholder="Ex: João">
                         </div>
-
-                        <div class="col-md-6">
-                            <h5 class="mb-3 text-primary">
-                                <i class="fas fa-address-card me-2"></i>Contactos e Morada
-                            </h5>
-
-                            <div class="mb-3">
-                                <label for="address" class="form-label">Morada Completa *</label>
-                                <textarea class="form-control @error('address') is-invalid @enderror" 
-                                          id="address" name="address" rows="2" required>{{ old('address') }}</textarea>
-                                @error('address')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="phone" class="form-label">Telefone</label>
-                                        <input type="text" class="form-control @error('phone') is-invalid @enderror" 
-                                               id="phone" name="phone" value="{{ old('phone') }}"
-                                               placeholder="+258 84 000 0000">
-                                        @error('phone')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="email" class="form-label">Email</label>
-                                        <input type="email" class="form-control @error('email') is-invalid @enderror" 
-                                               id="email" name="email" value="{{ old('email') }}">
-                                        @error('email')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="parent_id" class="form-label">Encarregado de Educação *</label>
-                                <select class="form-select @error('parent_id') is-invalid @enderror" 
-                                        id="parent_id" name="parent_id" required>
-                                    <option value="">Selecione o encarregado...</option>
-                                    @foreach($parents as $parent)
-                                        <option value="{{ $parent->user_id }}" {{ old('parent_id') == $parent->user_id ? 'selected' : '' }}>
-                                            {{ $parent->first_name }} {{ $parent->last_name }} 
-                                            ({{ $parent->user->email }})
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('parent_id')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                                <small class="text-muted">
-                                    <a href="#" class="text-decoration-none">Cadastrar novo encarregado</a>
-                                </small>
-                            </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Sobrenome *</label>
+                            <input type="text" x-model="newParentLastName" class="w-full rounded-lg border-slate-200 py-1.5 px-2.5 text-xs font-semibold focus:ring-emerald-500 focus:border-emerald-500" placeholder="Ex: Sitoe">
                         </div>
                     </div>
-
-                    <hr>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h5 class="mb-3 text-primary">
-                                <i class="fas fa-shield-alt me-2"></i>Informações de Emergência
-                            </h5>
-
-                            <div class="mb-3">
-                                <label for="emergency_contact" class="form-label">Contacto de Emergência *</label>
-                                <input type="text" class="form-control @error('emergency_contact') is-invalid @enderror" 
-                                       id="emergency_contact" name="emergency_contact" 
-                                       value="{{ old('emergency_contact') }}" required>
-                                @error('emergency_contact')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="emergency_phone" class="form-label">Telefone de Emergência *</label>
-                                <input type="text" class="form-control @error('emergency_phone') is-invalid @enderror" 
-                                       id="emergency_phone" name="emergency_phone" 
-                                       value="{{ old('emergency_phone') }}" required>
-                                @error('emergency_phone')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <h5 class="mb-3 text-primary">
-                                <i class="fas fa-file-medical me-2"></i>Informações Médicas & Financeiras
-                            </h5>
-
-                            <div class="mb-3">
-                                <label for="medical_certificate" class="form-label">Atestado Médico (PDF/JPG)</label>
-                                <input type="file" class="form-control @error('medical_certificate') is-invalid @enderror" 
-                                       id="medical_certificate" name="medical_certificate" accept=".pdf,.jpg,.jpeg,.png">
-                                @error('medical_certificate')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="mb-3">
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="has_special_needs" name="has_special_needs" value="1" {{ old('has_special_needs') ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="has_special_needs">Necessidades Especiais?</label>
-                                </div>
-                            </div>
-
-                            <div class="mb-3" id="special_needs_div" style="display: {{ old('has_special_needs') ? 'block' : 'none' }};">
-                                <label for="special_needs_description" class="form-label">Descrição das Necessidades</label>
-                                <textarea class="form-control @error('special_needs_description') is-invalid @enderror" 
-                                          id="special_needs_description" name="special_needs_description" rows="2">{{ old('special_needs_description') }}</textarea>
-                                @error('special_needs_description')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="monthly_fee" class="form-label">Mensalidade (MT) *</label>
-                                <input type="number" class="form-control @error('monthly_fee') is-invalid @enderror" 
-                                       id="monthly_fee" name="monthly_fee" value="{{ old('monthly_fee', 2000) }}" 
-                                       min="0" step="0.01" required>
-                                @error('monthly_fee')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="class_id" class="form-label">Turma (Opcional)</label>
-                                <select class="form-select @error('class_id') is-invalid @enderror" 
-                                        id="class_id" name="class_id">
-                                    <option value="">Selecione a turma...</option>
-                                    @foreach($classes as $class)
-                                        <option value="{{ $class->id }}" {{ old('class_id') == $class->id ? 'selected' : '' }}>
-                                            {{ $class->name }} ({{ $class->grade_level }}º Ano)
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('class_id')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Telefone / WhatsApp *</label>
+                        <input type="text" x-model="newParentPhone" class="w-full rounded-lg border-slate-200 py-1.5 px-2.5 text-xs font-semibold focus:ring-emerald-500 focus:border-emerald-500" placeholder="Ex: 841234567">
                     </div>
-
-                    <div class="d-flex justify-content-between mt-4">
-                        <a href="{{ route('students.index') }}" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left me-2"></i> Voltar
-                        </a>
-                        <button type="submit" class="btn btn-school btn-primary-school">
-                            <i class="fas fa-save me-2"></i> Cadastrar Aluno
-                        </button>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">E-mail (Opcional - Gerado Automático)</label>
+                        <input type="email" x-model="newParentEmail" class="w-full rounded-lg border-slate-200 py-1.5 px-2.5 text-xs font-semibold focus:ring-emerald-500 focus:border-emerald-500" placeholder="Deixe em branco para automático">
                     </div>
-                </form>
+                    <div class="p-2 rounded-lg bg-emerald-50/80 border border-emerald-100 text-[11px] text-emerald-800 font-medium flex items-center gap-1.5">
+                        <i class="fas fa-shield-alt text-emerald-600"></i> A palavra-passe de acesso ao portal é gerada automaticamente pelo sistema.
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+                    <button type="button" @click="parentModalOpen = false" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 transition">Cancelar</button>
+                    <button type="button" @click="submitQuickParent()" :disabled="parentSubmitting" class="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-xs font-bold text-white shadow-sm transition flex items-center gap-1.5">
+                        <i class="fas fa-save"></i>
+                        <span x-text="parentSubmitting ? 'A guardar...' : 'Guardar Encarregado'"></span>
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const hasSpecialNeedsCheckbox = document.getElementById('has_special_needs');
-    const specialNeedsDiv = document.getElementById('special_needs_div');
+    </template>
 
-    if (hasSpecialNeedsCheckbox && specialNeedsDiv) {
-        hasSpecialNeedsCheckbox.addEventListener('change', function() {
-            specialNeedsDiv.style.display = this.checked ? 'block' : 'none';
-        });
-    }
-});
-</script>
-@endpush
+</div>
 @endsection

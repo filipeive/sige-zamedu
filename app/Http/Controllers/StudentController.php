@@ -7,6 +7,7 @@ use App\Models\Student;
 use App\Models\ClassRoom;
 use App\Models\Enrollment;
 use App\Models\ParentModel;
+use App\Notifications\GenericNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -79,13 +80,13 @@ class StudentController extends Controller
             'last_name' => 'required|string|max:255',
             'gender' => 'required|in:male,female',
             'birthdate' => 'required|date',
-            'birth_place' => 'required|string|max:255',
-            'address' => 'required|string|max:500',
-            'parent_id' => 'required|exists:parents,user_id',
-            'emergency_contact' => 'required|string|max:255',
-            'emergency_phone' => 'required|string|max:20',
+            'birth_place' => 'nullable|string|max:255',
+            'address' => 'nullable|string|max:500',
+            'parent_id' => 'nullable|exists:parents,user_id',
+            'emergency_contact' => 'nullable|string|max:255',
+            'emergency_phone' => 'nullable|string|max:20',
             'medical_certificate' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'monthly_fee' => 'required|numeric|min:0',
+            'monthly_fee' => 'nullable|numeric|min:0',
             'has_special_needs' => 'boolean',
             'special_needs_description' => 'nullable|string|max:1000',
             'observations' => 'nullable|string|max:1000',
@@ -116,8 +117,19 @@ class StudentController extends Controller
 
             $student = Student::create($studentData);
 
-            // Se foi selecionada uma turma, criar matrícula
+            // Notificar o Encarregado sobre o cadastro do aluno se estiver associado
+            if ($student->parent_id && $student->parent && $student->parent->user) {
+                $student->parent->user->notify(new GenericNotification([
+                    'title' => 'Registo de Estudante',
+                    'message' => "O seu educando {$student->first_name} {$student->last_name} foi cadastrado com sucesso no sistema.",
+                    'action_url' => route('parent-portal.dashboard'),
+                    'type' => 'info'
+                ]));
+            }
+
+            // Se foi selecionada uma turma, criar matrícula e notificar
             if ($request->filled('class_id')) {
+                $class = ClassRoom::find($request->class_id);
                 Enrollment::create([
                     'student_id' => $student->id,
                     'class_id' => $request->class_id,
@@ -126,6 +138,15 @@ class StudentController extends Controller
                     'monthly_fee' => $request->monthly_fee,
                     'status' => 'active',
                 ]);
+
+                if ($student->parent_id && $student->parent && $student->parent->user && $class) {
+                    $student->parent->user->notify(new GenericNotification([
+                        'title' => 'Matrícula & Turma Atribuída',
+                        'message' => "A matrícula de {$student->first_name} {$student->last_name} foi concluída na turma {$class->name}.",
+                        'action_url' => route('parent-portal.dashboard'),
+                        'type' => 'payment'
+                    ]));
+                }
             }
 
             DB::commit();
@@ -355,13 +376,13 @@ class StudentController extends Controller
             'last_name' => 'required|string|max:255',
             'gender' => 'required|in:male,female',
             'birthdate' => 'required|date',
-            'birth_place' => 'required|string|max:255',
-            'address' => 'required|string|max:500',
-            'parent_id' => 'required|exists:parents,user_id',
-            'emergency_contact' => 'required|string|max:255',
-            'emergency_phone' => 'required|string|max:20',
+            'birth_place' => 'nullable|string|max:255',
+            'address' => 'nullable|string|max:500',
+            'parent_id' => 'nullable|exists:parents,user_id',
+            'emergency_contact' => 'nullable|string|max:255',
+            'emergency_phone' => 'nullable|string|max:20',
             'medical_certificate' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'monthly_fee' => 'required|numeric|min:0',
+            'monthly_fee' => 'nullable|numeric|min:0',
             'status' => 'required|in:active,inactive,transferred,graduated',
             'has_special_needs' => 'boolean',
             'special_needs_description' => 'nullable|string|max:1000',

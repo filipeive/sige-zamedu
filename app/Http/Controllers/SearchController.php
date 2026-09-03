@@ -77,8 +77,8 @@ class SearchController extends Controller
                 ->get();
         }
 
-        // Buscar pagamentos (se tiver permissão)
-        if (auth()->user()->can('view_payments')) {
+        // Buscar pagamentos (se escola for privada e tiver permissão)
+        if (is_private_school() && auth()->user()->can('view_payments')) {
             $results['payments'] = Payment::where('reference_number', 'like', "%{$query}%")
                 ->orWhereHas('student', function($q) use ($query) {
                     $q->where('first_name', 'like', "%{$query}%")
@@ -221,8 +221,8 @@ class SearchController extends Controller
             $results = array_merge($results, $classes->toArray());
         }
 
-        // 4. Pagamentos
-        if (auth()->user()->can('view_payments')) {
+        // 4. Pagamentos (apenas escola privada)
+        if (is_private_school() && auth()->user()->can('view_payments')) {
             $payments = Payment::where('reference_number', 'like', "%{$query}%")
                 ->orWhereHas('student', function($q) use ($query) {
                     $q->where('first_name', 'like', "%{$query}%")

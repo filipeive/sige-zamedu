@@ -57,7 +57,7 @@ class ParentController extends Controller
         $validated = $request->validate([
             'first_name' => 'required|string|max:100',
             'last_name' => 'required|string|max:100',
-            'email' => 'required|email|unique:users,email',
+            'email' => 'nullable|email|unique:users,email',
             'phone' => 'required|string|max:30',
             'bi_number' => 'nullable|string|max:30',
             'address' => 'nullable|string|max:255',
@@ -65,14 +65,19 @@ class ParentController extends Controller
             'workplace' => 'nullable|string|max:100',
             'emergency_contact' => 'nullable|string|max:100',
             'emergency_phone' => 'nullable|string|max:30',
-            'password' => 'required|string|min:6',
+            'password' => 'nullable|string|min:6',
         ]);
 
-        DB::transaction(function () use ($validated, &$parent) {
+        $plainPassword = $request->filled('password') ? $request->password : '12345678';
+        $email = $request->filled('email') ? $request->email : ('encarregado.' . time() . rand(100, 999) . '@escola.local');
+
+        $parent = null;
+
+        DB::transaction(function () use ($validated, $plainPassword, $email, &$parent) {
             $user = User::create([
                 'name' => $validated['first_name'] . ' ' . $validated['last_name'],
-                'email' => $validated['email'],
-                'password' => Hash::make($validated['password']),
+                'email' => $email,
+                'password' => Hash::make($plainPassword),
             ]);
 
             $user->assignRole('parent');
@@ -81,7 +86,7 @@ class ParentController extends Controller
                 'user_id' => $user->id,
                 'first_name' => $validated['first_name'],
                 'last_name' => $validated['last_name'],
-                'email' => $validated['email'],
+                'email' => $email,
                 'phone' => $validated['phone'],
                 'bi_number' => $validated['bi_number'] ?? null,
                 'address' => $validated['address'] ?? null,
@@ -91,6 +96,18 @@ class ParentController extends Controller
                 'emergency_phone' => $validated['emergency_phone'] ?? null,
             ]);
         });
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Encarregado de Educação registado com sucesso!',
+                'parent' => [
+                    'id' => $parent->user_id,
+                    'full_name' => $parent->full_name,
+                    'phone' => $parent->phone,
+                ]
+            ]);
+        }
 
         return redirect()->route('parents.index')
             ->with('success', 'Encarregado de Educação registado com sucesso!');
@@ -123,11 +140,9 @@ class ParentController extends Controller
     /**
      * Atualizar encarregado de educação.
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, ParentModel $parent)
     {
         $this->authorize('edit_students');
-
-        $parent = ParentModel::findOrFail($id);
 
         $validated = $request->validate([
             'first_name' => 'required|string|max:100',

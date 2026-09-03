@@ -11,172 +11,121 @@
 @endsection
 
 @section('content')
-<div class="row">
-    <div class="col-12">
-        <div class="school-card">
-            <div class="school-card-header">
-                <h3 class="school-card-title">
-                    <i class="fas fa-edit"></i>
-                    Editar Turma: {{ $class->name }}
-                </h3>
-            </div>
-            <div class="school-card-body">
-                <form action="{{ route('classes.update', $class->id) }}" method="POST">
-                    @csrf
-                    @method('PATCH')
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="name" class="form-label">Nome da Turma *</label>
-                                <input type="text" class="form-control @error('name') is-invalid @enderror" 
-                                       id="name" name="name" value="{{ old('name', $class->name) }}" required>
-                                @error('name')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="grade_level" class="form-label">Nível de Ensino *</label>
-                                <select class="form-select @error('grade_level') is-invalid @enderror" 
-                                        id="grade_level" name="grade_level" required>
-                                    <option value="">Selecione o nível...</option>
-                                    @foreach($gradeLevels as $key => $level)
-                                        <option value="{{ $key }}" {{ old('grade_level', $class->grade_level) == $key ? 'selected' : '' }}>
-                                            {{ $level }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('grade_level')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="shift" class="form-label">Turno *</label>
-                                <select class="form-select @error('shift') is-invalid @enderror" 
-                                        id="shift" name="shift" required>
-                                    <option value="">Selecione o turno...</option>
-                                    <option value="morning" {{ old('shift', $class->shift) == 'morning' ? 'selected' : '' }}>Manhã</option>
-                                    <option value="afternoon" {{ old('shift', $class->shift) == 'afternoon' ? 'selected' : '' }}>Tarde</option>
-                                    <option value="night" {{ old('shift', $class->shift) == 'night' ? 'selected' : '' }}>Noite</option>
-                                </select>
-                                @error('shift')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="teacher_id" class="form-label">Professor Responsável</label>
-                                <select class="form-select @error('teacher_id') is-invalid @enderror" 
-                                        id="teacher_id" name="teacher_id">
-                                    <option value="">-- Sem Professor Responsável (Remover) --</option>
-                                    @foreach($teachers as $teacher)
-                                        <option value="{{ $teacher->id }}" {{ old('teacher_id', $class->teacher_id) == $teacher->id ? 'selected' : '' }}>
-                                            {{ $teacher->first_name }} {{ $teacher->last_name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <div class="form-text text-muted small mt-1">
-                                    Selecione a opção sem professor caso deseje remover a atribuição atual.
-                                </div>
-                                @error('teacher_id')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="max_students" class="form-label">Capacidade Máxima *</label>
-                                <input type="number" class="form-control @error('max_students') is-invalid @enderror" 
-                                       id="max_students" name="max_students" 
-                                       value="{{ old('max_students', $class->max_students) }}" 
-                                       min="1" max="50" required>
-                                @error('max_students')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="classroom" class="form-label">Sala de Aula</label>
-                                <input type="text" class="form-control @error('classroom') is-invalid @enderror" 
-                                       id="classroom" name="classroom" value="{{ old('classroom', $class->classroom) }}">
-                                @error('classroom')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="school_year" class="form-label">Ano Letivo *</label>
-                                <input type="number" class="form-control @error('school_year') is-invalid @enderror" 
-                                       id="school_year" name="school_year" 
-                                       value="{{ old('school_year', $class->school_year) }}" 
-                                       min="2020" max="2030" required>
-                                @error('school_year')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Disciplinas</label>
-                        <div class="row">
-                            @foreach($subjects as $subject)
-                                <div class="col-md-4 mb-2">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" 
-                                               name="subjects[]" value="{{ $subject->id }}" 
-                                               id="subject_{{ $subject->id }}"
-                                               {{ in_array($subject->id, old('subjects', $currentSubjectIds)) ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="subject_{{ $subject->id }}">
-                                            {{ $subject->name }} ({{ $subject->code }})
-                                        </label>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                        @error('subjects')
-                            <div class="text-danger small">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="mb-3">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="is_active" name="is_active" value="1" 
-                                   {{ old('is_active', $class->is_active) ? 'checked' : '' }}>
-                            <label class="form-check-label" for="is_active">Turma Ativa</label>
-                        </div>
-                    </div>
-
-                    <div class="d-flex justify-content-between">
-                        <a href="{{ route('classes.show', $class->id) }}" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left"></i> Cancelar
-                        </a>
-                        <div>
-                            <button type="submit" class="btn btn-primary-school">
-                                <i class="fas fa-save"></i> Atualizar Turma
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
+<div class="space-y-4">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-slate-200">
+        <div>
+            <h1 class="text-xl font-black text-slate-800 tracking-tight flex items-center gap-2">
+                <i class="fas fa-edit text-amber-600"></i> Editar Turma: {{ $class->name }}
+            </h1>
+            <p class="text-xs text-slate-500 mt-0.5">Atualize os dados da turma, disciplinas e professor responsável.</p>
         </div>
+        <a href="{{ route('classes.show', $class->id) }}" class="no-underline inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 shadow-2xs transition">
+            <i class="fas fa-arrow-left"></i> Cancelar
+        </a>
+    </div>
+
+    <div class="bg-white rounded-xl border border-slate-200 border-t-4 border-t-amber-500 shadow-2xs p-5">
+        <form action="{{ route('classes.update', $class->id) }}" method="POST" class="space-y-4">
+            @csrf
+            @method('PATCH')
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Nome da Turma *</label>
+                    <input type="text" name="name" id="name" value="{{ old('name', $class->name) }}" required
+                           class="w-full rounded-lg border border-slate-200 bg-white text-slate-800 py-2 px-3 text-xs font-semibold focus:border-amber-500 focus:ring-amber-500 @error('name') border-rose-500 @enderror">
+                    @error('name')<p class="mt-1 text-[10px] text-rose-600 font-semibold">{{ $message }}</p>@enderror
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Nível de Ensino *</label>
+                    <select name="grade_level" id="grade_level" required
+                            class="w-full rounded-lg border border-slate-200 bg-white text-slate-800 py-2 px-3 text-xs font-semibold focus:border-amber-500 focus:ring-amber-500 @error('grade_level') border-rose-500 @enderror">
+                        <option value="">Selecione o nível...</option>
+                        @foreach($gradeLevels as $key => $level)
+                            <option value="{{ $key }}" {{ old('grade_level', $class->grade_level) == $key ? 'selected' : '' }}>{{ $level }}</option>
+                        @endforeach
+                    </select>
+                    @error('grade_level')<p class="mt-1 text-[10px] text-rose-600 font-semibold">{{ $message }}</p>@enderror
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Turno *</label>
+                    <select name="shift" id="shift" required
+                            class="w-full rounded-lg border border-slate-200 bg-white text-slate-800 py-2 px-3 text-xs font-semibold focus:border-amber-500 focus:ring-amber-500 @error('shift') border-rose-500 @enderror">
+                        <option value="">Selecione o turno...</option>
+                        <option value="morning" {{ old('shift', $class->shift) == 'morning' ? 'selected' : '' }}>Manhã</option>
+                        <option value="afternoon" {{ old('shift', $class->shift) == 'afternoon' ? 'selected' : '' }}>Tarde</option>
+                        <option value="night" {{ old('shift', $class->shift) == 'night' ? 'selected' : '' }}>Noite</option>
+                    </select>
+                    @error('shift')<p class="mt-1 text-[10px] text-rose-600 font-semibold">{{ $message }}</p>@enderror
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Professor Responsável</label>
+                    <select name="teacher_id" id="teacher_id"
+                            class="w-full rounded-lg border border-slate-200 bg-white text-slate-800 py-2 px-3 text-xs font-semibold focus:border-amber-500 focus:ring-amber-500 @error('teacher_id') border-rose-500 @enderror">
+                        <option value="">-- Sem Professor Responsável (Remover) --</option>
+                        @foreach($teachers as $teacher)
+                            <option value="{{ $teacher->id }}" {{ old('teacher_id', $class->teacher_id) == $teacher->id ? 'selected' : '' }}>
+                                {{ $teacher->first_name }} {{ $teacher->last_name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <p class="mt-1 text-[10px] text-slate-400">Selecione a opção sem professor caso deseje remover a atribuição atual.</p>
+                    @error('teacher_id')<p class="mt-1 text-[10px] text-rose-600 font-semibold">{{ $message }}</p>@enderror
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Capacidade Máxima *</label>
+                    <input type="number" name="max_students" id="max_students" value="{{ old('max_students', $class->max_students) }}" min="1" max="50" required
+                           class="w-full rounded-lg border border-slate-200 bg-white text-slate-800 py-2 px-3 text-xs font-semibold focus:border-amber-500 focus:ring-amber-500 @error('max_students') border-rose-500 @enderror">
+                    @error('max_students')<p class="mt-1 text-[10px] text-rose-600 font-semibold">{{ $message }}</p>@enderror
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Sala de Aula</label>
+                    <input type="text" name="classroom" id="classroom" value="{{ old('classroom', $class->classroom) }}"
+                           class="w-full rounded-lg border border-slate-200 bg-white text-slate-800 py-2 px-3 text-xs font-semibold focus:border-amber-500 focus:ring-amber-500 @error('classroom') border-rose-500 @enderror">
+                    @error('classroom')<p class="mt-1 text-[10px] text-rose-600 font-semibold">{{ $message }}</p>@enderror
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Ano Letivo *</label>
+                    <input type="number" name="school_year" id="school_year" value="{{ old('school_year', $class->school_year) }}" min="2020" max="2030" required
+                           class="w-full rounded-lg border border-slate-200 bg-white text-slate-800 py-2 px-3 text-xs font-semibold focus:border-amber-500 focus:ring-amber-500 @error('school_year') border-rose-500 @enderror">
+                    @error('school_year')<p class="mt-1 text-[10px] text-rose-600 font-semibold">{{ $message }}</p>@enderror
+                </div>
+            </div>
+
+            <!-- Subjects -->
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-2">Disciplinas</label>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    @foreach($subjects as $subject)
+                    <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+                        <input type="checkbox" name="subjects[]" value="{{ $subject->id }}" id="subject_{{ $subject->id }}"
+                               {{ in_array($subject->id, old('subjects', $currentSubjectIds)) ? 'checked' : '' }}
+                               class="rounded border-slate-300 text-amber-600 focus:ring-amber-500">
+                        {{ $subject->name }} ({{ $subject->code }})
+                    </label>
+                    @endforeach
+                </div>
+                @error('subjects')<p class="mt-1 text-[10px] text-rose-600 font-semibold">{{ $message }}</p>@enderror
+            </div>
+
+            <!-- Active Toggle -->
+            <div class="flex items-center gap-2">
+                <input type="checkbox" name="is_active" id="is_active" value="1"
+                       {{ old('is_active', $class->is_active) ? 'checked' : '' }}
+                       class="rounded border-slate-300 text-amber-600 focus:ring-amber-500">
+                <label for="is_active" class="text-xs font-bold text-slate-700">Turma Ativa</label>
+            </div>
+
+            <!-- Buttons -->
+            <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                <a href="{{ route('classes.show', $class->id) }}" class="no-underline inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 transition">
+                    <i class="fas fa-arrow-left"></i> Cancelar
+                </a>
+                <button type="submit" class="inline-flex items-center gap-1.5 px-5 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-xs font-bold text-white shadow-sm transition">
+                    <i class="fas fa-save"></i> Atualizar Turma
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 @endsection

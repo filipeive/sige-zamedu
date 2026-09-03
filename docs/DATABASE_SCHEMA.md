@@ -1,25 +1,26 @@
-# Dicionário e Esquema da Base de Dados — ZamEdu
+# Dicionário e Esquema da Base de Dados — ZAMEDU - SIGE
 
-Este documento descreve a estrutura relacional de dados, os 30 modelos Eloquent, migrações e chaves estrangeiras da base de dados do **ZamEdu**.
+Este documento descreve a estrutura relacional de dados, tabelas, migrações e chaves estrangeiras da base de dados do **ZAMEDU - SIGE (Sistema Integrado de Gestão Escolar)**, desenvolvido por **Filipe dos Santos** ([http://146.235.224.99/](http://146.235.224.99/)).
 
 ---
 
 ## 📊 Diagrama Entidade-Relação Simplificado (ERD)
 
 ```
- [User] 1 <---> 0..1 [Teacher]  1 <---> N [ClassRoom]
-   |                     |                    |
-   |                     |                    +---> N [Enrollment] <---> 1 [Student]
-   v                     v                    |                              |
-[Roles/Perms]    [StaffLeaveRequest]   [ClassSubject]                         v
-                                              |                         [Payment]
-                                              v                             |
-                                           [Grade] <------------------------+
+  [User] 1 <---> 0..1 [Teacher]  1 <---> N [ClassRoom]
+    |                     |                    |
+    |                     |                    +---> N [Enrollment] <---> 1 [Student]
+    v                     v                    |                              |
+ [Roles/Perms]    [StaffLeaveRequest]   [ClassSubject]                         v
+    |                                          |                          [Payment]
+    +---> [SmsLog]                             v                              |
+    +---> [AiConversation]                 [Grade] <--------------------------+
+    +---> [GateLog]
 ```
 
 ---
 
-## 📁 Principais Tabelas & Dicionário de Dados
+## 📁 Dicionário das Principais Tabelas
 
 ### 1. `users` (Utilizadores & Autenticação)
 - `id` (BIGINT, PK): Identificador único do utilizador.
@@ -46,14 +47,14 @@ Este documento descreve a estrutura relacional de dados, os 30 modelos Eloquent,
 - `first_name`, `last_name` (VARCHAR): Nome e apelido.
 - `email`, `phone` (VARCHAR): Contactos.
 - `hire_date` (DATE): Data de admissão na instituição.
-- `qualification` (VARCHAR): Grau académico (ex: Licenciatura).
+- `qualification` (VARCHAR): Grau académico.
 - `specialization` (VARCHAR): Área de especialidade.
 - `salary` (DECIMAL 10,2): Salário base mensal.
 - `status` (ENUM: `active`, `inactive`).
 
 ### 4. `classes` (Turmas)
 - `id` (BIGINT, PK): Identificador da turma.
-- `name` (VARCHAR): Nome da turma (ex: `4ª Classe A`).
+- `name` (VARCHAR): Nome da turma (ex: `10ª Classe A`).
 - `grade_level` (VARCHAR): Nível escolar.
 - `academic_year` (INT): Ano lectivo.
 - `teacher_id` (BIGINT, FK -> `teachers.id`, Nullable): Director de turma.
@@ -80,7 +81,7 @@ Este documento descreve a estrutura relacional de dados, os 30 modelos Eloquent,
 - `payment_method` (VARCHAR, Nullable): `mpesa`, `emola`, `multicaixa`, `cash`.
 - `status` (ENUM: `pending`, `paid`, `overdue`, `cancelled`).
 
-### 7. `grades` (Notas & Avaliações)
+### 7. `grades` (Notas & Avaliações MINEDH)
 - `id` (BIGINT, PK).
 - `student_id` (BIGINT, FK -> `students.id`).
 - `subject_id` (BIGINT, FK -> `subjects.id`).
@@ -92,28 +93,26 @@ Este documento descreve a estrutura relacional de dados, os 30 modelos Eloquent,
 - `acf` (DECIMAL 4,2, Nullable): Avaliação Final.
 - `final_grade` (DECIMAL 4,2, Nullable): Média final calculada.
 
-### 8. `financial_categories` (Categorias Financeiras)
+### 8. `sms_logs` (Registos de SMS)
 - `id` (BIGINT, PK).
-- `name` (VARCHAR): Nome da categoria (ex: `Mensalidade`, `Material Escolar`).
-- `type` (ENUM: `income`, `expense`): Tipo de movimentação financeira.
-- `description` (TEXT, Nullable): Descrição da categoria.
+- `recipient_phone` (VARCHAR): Número do telefone de destino.
+- `message_body` (TEXT): Conteúdo do SMS enviado.
+- `status` (ENUM: `sent`, `failed`, `pending`).
+- `sent_by` (BIGINT, FK -> `users.id`, Nullable).
 - `created_at`, `updated_at` (TIMESTAMP).
 
-### 9. `expenses` (Despesas)
+### 9. `ai_conversations` & `messages` (Histórico do Assistente IA)
 - `id` (BIGINT, PK).
-- `financial_category_id` (BIGINT, FK -> `financial_categories.id`).
-- `description` (TEXT): Descrição da despesa.
-- `amount` (DECIMAL 10,2): Valor da despesa.
-- `expense_date` (DATE): Data da despesa.
-- `paid_by` (VARCHAR, Nullable): Método de pagamento.
-- `reference` (VARCHAR, Nullable): Referência de pagamento.
-- `created_by` (BIGINT, FK -> `users.id`).
-- `created_at`, `updated_at` (TIMESTAMP).
+- `user_id` (BIGINT, FK -> `users.id`).
+- `title` (VARCHAR): Título da conversa.
+- `content` (TEXT): Mensagem enviada ou resposta gerada pela IA.
 
-### 10. `licenses` (Licenciamento SaaS)
+### 10. `gate_logs` (Portaria Digital)
 - `id` (BIGINT, PK).
-- `client_name` (VARCHAR): Nome da escola contratante.
-- `license_key` (VARCHAR, UNIQUE): Chave cifrada da licença.
-- `expires_at` (DATETIME): Data limite de vigência.
-- `grace_period_days` (INT): Dias de tolerância pós-expiração (padrão: 7).
-- `status` (ENUM: `active`, `grace_period`, `suspended`).
+- `student_id` (BIGINT, FK -> `students.id`, Nullable).
+- `direction` (ENUM: `entry`, `exit`): Sentido do movimento.
+- `scanned_at` (TIMESTAMP): Data e hora exata do registo.
+- `operator_id` (BIGINT, FK -> `users.id`): Operador responsável.
+
+### 11. `settings` (Configurações Institucionais)
+- Configurações do tipo chave-valor (`key`, `value`): `school_name`, `school_type` (`escola_publica`/`escola_privada`), `primary_color`, `official_signature_director`, `official_signature_secretary`.

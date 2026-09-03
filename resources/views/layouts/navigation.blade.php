@@ -19,9 +19,11 @@
                         <x-nav-link :href="route('parent.children')" :active="request()->routeIs('parent.children*')">
                             {{ __('Meus Filhos') }}
                         </x-nav-link>
+                        @if(is_private_school())
                         <x-nav-link :href="route('parent.payments')" :active="request()->routeIs('parent.payments*')">
                             {{ __('Pagamentos') }}
                         </x-nav-link>
+                        @endif
                         <x-nav-link :href="route('parent.communications')" :active="request()->routeIs('parent.communications*')">
                             {{ __('Comunicados') }}
                         </x-nav-link>

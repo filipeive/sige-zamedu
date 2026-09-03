@@ -49,6 +49,21 @@ class DashboardController extends Controller
             default => 'Boa noite',
         };
 
+        $daysPt = [
+            'Sunday' => 'Domingo', 'Monday' => 'Segunda-feira', 'Tuesday' => 'Terça-feira',
+            'Wednesday' => 'Quarta-feira', 'Thursday' => 'Quinta-feira', 'Friday' => 'Sexta-feira', 'Saturday' => 'Sábado'
+        ];
+        $monthsPt = [
+            'January' => 'Janeiro', 'February' => 'Fevereiro', 'March' => 'Março',
+            'April' => 'Abril', 'May' => 'Maio', 'June' => 'Junho',
+            'July' => 'Julho', 'August' => 'Agosto', 'September' => 'Setembro',
+            'October' => 'Outubro', 'November' => 'Novembro', 'December' => 'Dezembro'
+        ];
+
+        $dayName = $daysPt[now()->format('l')] ?? now()->format('l');
+        $monthName = $monthsPt[now()->format('F')] ?? now()->format('F');
+        $formattedDate = $dayName . ', ' . now()->format('d') . ' de ' . $monthName . ' de ' . now()->format('Y');
+
         return [
             'greeting' => $greeting . ', ' . auth()->user()->name,
             'greeting_period' => match (true) {
@@ -56,7 +71,7 @@ class DashboardController extends Controller
                 $hour < 18 => 'afternoon',
                 default => 'evening',
             },
-            'current_date' => now()->translatedFormat('l, d \d\e F'),
+            'current_date' => $formattedDate,
             'school_name' => setting('school_name', 'ZamEdu'),
             'school_year' => current_school_year(),
         ];
@@ -225,7 +240,7 @@ class DashboardController extends Controller
                     'message' => "A taxa global de presença situa-se nos {$overallAttendanceRate}%, demonstrando elevado empenho dos alunos."
                 ];
             }
-            if ($revenueChange > 0) {
+            if (is_private_school() && $revenueChange > 0) {
                 $smartInsights[] = [
                     'type' => 'info',
                     'icon' => 'fa-chart-line',
@@ -233,7 +248,7 @@ class DashboardController extends Controller
                     'message' => "A receita do mês atual registou um aumento de +{$revenueChange}% em relação ao mês anterior."
                 ];
             }
-            if ($overdueAmount > 0) {
+            if (is_private_school() && $overdueAmount > 0) {
                 $smartInsights[] = [
                     'type' => 'warning',
                     'icon' => 'fa-triangle-exclamation',
@@ -259,7 +274,7 @@ class DashboardController extends Controller
                 'total_enrollments' => Enrollment::active()->where('school_year', $year)->count(),
                 'pending_enrollments' => Enrollment::where('status', 'pending')->count(),
                 'pending_leave_requests' => StaffLeaveRequest::where('status', 'pending')->count(),
-                'pending_actions' => $overduePayments + Enrollment::where('status', 'pending')->count() + StaffLeaveRequest::where('status', 'pending')->count()
+                'pending_actions' => (is_private_school() ? $overduePayments : 0) + Enrollment::where('status', 'pending')->count() + StaffLeaveRequest::where('status', 'pending')->count()
             ];
 
             return [

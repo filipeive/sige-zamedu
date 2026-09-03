@@ -1090,14 +1090,26 @@
 
     <!-- Sidebar -->
     <nav class="vision-sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <a href="{{ route('dashboard') }}" class="sidebar-brand">
-                <div class="brand-logo">
-                    <i class="fas fa-graduation-cap"></i>
+        <div class="sidebar-header p-4 border-b border-white/10 flex items-center justify-between">
+            <a href="{{ route('dashboard') }}" class="sidebar-brand flex items-center gap-3 no-underline group overflow-hidden">
+                <div class="brand-logo w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-white shadow-md border border-white/20 shrink-0 transition group-hover:scale-105">
+                    @if(setting('school_logo'))
+                        <img src="{{ setting('school_logo') }}" alt="Logo" class="w-8 h-8 object-contain rounded-xl">
+                    @else
+                        <i class="fas fa-graduation-cap text-lg"></i>
+                    @endif
                 </div>
-                <div class="brand-text">
-                    <div class="brand-name">{{ strtoupper(setting('school_short_name', 'ZamEdu')) }}</div>
-                    <div class="brand-subtitle">Sistema Escolar</div>
+                <div class="brand-text min-w-0">
+                    <div class="brand-name text-sm font-extrabold text-white truncate tracking-tight group-hover:text-emerald-300 transition">
+                        {{ setting('school_short_name', config('app.name', 'ZamEdu')) }}
+                    </div>
+                    <div class="brand-subtitle text-[10px] text-slate-300 font-medium truncate flex items-center gap-1">
+                        @if(is_public_school())
+                            <span class="inline-block w-1.5 h-1.5 rounded-full bg-blue-400"></span> Escola Pública
+                        @else
+                            <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Escola Privada
+                        @endif
+                    </div>
                 </div>
             </a>
         </div>
@@ -1200,7 +1212,7 @@
             <!-- Gestão Financeira -->
             @canany(['manage_payments', 'view_payments', 'manage_expenses', 'view_financial_reports'])
             <div class="nav-section">
-                <div class="nav-section-title">Gestão Financeira</div>
+                <div class="nav-section-title">{{ is_public_school() ? 'Gestão Financeira & Taxas' : 'Gestão Financeira' }}</div>
                 <ul class="nav-list">
                     @can('manage_expenses')
                     <li class="nav-item">
@@ -1208,52 +1220,56 @@
                             <span class="nav-icon">
                                 <i class="fas fa-receipt"></i>
                             </span>
-                            <span class="nav-text">Despesas</span>
+                            <span class="nav-text">{{ is_public_school() ? 'Despesas Operacionais' : 'Despesas' }}</span>
                         </a>
                     </li>
                     @endcan
                     <li class="nav-item">
                         <a href="{{ route('payments.index') }}" class="nav-link {{ request()->routeIs('payments.*') ? 'active' : '' }}">
                             <span class="nav-icon">
-                                <i class="fas fa-money-bill-wave"></i>
+                                <i class="fas fa-file-invoice-dollar"></i>
                             </span>
-                            <span class="nav-text">Mensalidades</span>
-                            @php
-                                $overduePayments = \App\Models\Payment::where('status', 'overdue')->count();
-                            @endphp
-                            @if($overduePayments > 0)
-                                <span class="nav-badge badge-danger">{{ $overduePayments }}</span>
+                            <span class="nav-text">{{ is_public_school() ? 'Taxas de Matrícula & Exames' : 'Mensalidades' }}</span>
+                            @if(is_private_school())
+                                @php
+                                    $overduePayments = \App\Models\Payment::where('status', 'overdue')->count();
+                                @endphp
+                                @if($overduePayments > 0)
+                                    <span class="nav-badge badge-danger">{{ $overduePayments }}</span>
+                                @endif
                             @endif
                         </a>
                     </li>
-                    @can('generate_payment_references')
-                    <li class="nav-item">
-                        <a href="{{ route('payments.references') }}" class="nav-link {{ request()->routeIs('payments.references', 'payments.pending') ? 'active' : '' }}">
-                            <span class="nav-icon">
-                                <i class="fas fa-clock"></i>
-                            </span>
-                            <span class="nav-text">Referências & Pagamentos</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ route('payments.overdue') }}" class="nav-link {{ request()->routeIs('payments.overdue') ? 'active' : '' }}">
-                            <span class="nav-icon">
-                                <i class="fas fa-exclamation-triangle"></i>
-                            </span>
-                            <span class="nav-text">Mensalidades em Atraso</span>
-                        </a>
-                    </li>
-                    @endcan
-                    @can('view_financial_reports')
-                    <li class="nav-item">
-                        <a href="{{ route('reports.financial') }}" class="nav-link {{ request()->routeIs('reports.financial') ? 'active' : '' }}">
-                            <span class="nav-icon">
-                                <i class="fas fa-chart-line"></i>
-                            </span>
-                            <span class="nav-text">Relatório Financeiro</span>
-                        </a>
-                    </li>
-                    @endcan
+                    @if(is_private_school())
+                        @can('generate_payment_references')
+                        <li class="nav-item">
+                            <a href="{{ route('payments.references') }}" class="nav-link {{ request()->routeIs('payments.references', 'payments.pending') ? 'active' : '' }}">
+                                <span class="nav-icon">
+                                    <i class="fas fa-clock"></i>
+                                </span>
+                                <span class="nav-text">Referências & Pagamentos</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('payments.overdue') }}" class="nav-link {{ request()->routeIs('payments.overdue') ? 'active' : '' }}">
+                                <span class="nav-icon">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </span>
+                                <span class="nav-text">Mensalidades em Atraso</span>
+                            </a>
+                        </li>
+                        @endcan
+                        @can('view_financial_reports')
+                        <li class="nav-item">
+                            <a href="{{ route('reports.financial') }}" class="nav-link {{ request()->routeIs('reports.financial') ? 'active' : '' }}">
+                                <span class="nav-icon">
+                                    <i class="fas fa-chart-line"></i>
+                                </span>
+                                <span class="nav-text">Relatório Financeiro</span>
+                            </a>
+                        </li>
+                        @endcan
+                    @endif
                 </ul>
             </div>
             @endcanany
@@ -1750,6 +1766,12 @@
     </script>
 
     @stack('scripts')
+
+    {{-- Alpine.js para o widget AI flutuante --}}
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"></script>
+
+    {{-- Widget AI flutuante --}}
+    @include('partials.ai-widget')
 </body>
 
 </html>

@@ -6,6 +6,7 @@
 @section('content')
     <div class="space-y-6">
         <section class="grid gap-4 md:grid-cols-3">
+            @if(is_private_school())
             <article class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
                 <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Total a Pagar</p>
                 <p class="mt-2 text-3xl font-bold {{ $totalPendingPayments > 0 ? 'text-rose-700' : 'text-emerald-700' }}">
@@ -22,6 +23,7 @@
                     @endif
                 </div>
             </article>
+            @endif
 
             <article class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
                 <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Filhos Matriculados</p>
@@ -58,10 +60,12 @@
                                         class="rounded-lg bg-sky-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-sky-800">
                                         Detalhes
                                     </a>
+                                    @if(is_private_school())
                                     <a href="{{ route('parent.student-payments', $child) }}"
                                         class="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700">
                                         Pagamentos
                                     </a>
+                                    @endif
 
                                     @if ($child->is_eligible_for_renewal)
                                         @if ($child->renewal_application)

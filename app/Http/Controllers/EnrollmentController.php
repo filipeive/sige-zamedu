@@ -6,6 +6,7 @@ use App\Models\ClassRoom as SchoolClass;
 use App\Models\Enrollment;
 use App\Models\Payment;
 use App\Models\Student;
+use App\Notifications\GenericNotification;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -80,9 +81,9 @@ class EnrollmentController extends Controller
             'student_id' => 'required|exists:students,id',
             'class_id' => 'required|exists:classes,id',
             'school_year' => 'required|integer|min:2020|max:2030',
-            'monthly_fee' => 'required|numeric|min:0',
-            'enrollment_fee' => 'required|numeric|min:0',
-            'payment_day' => 'required|integer|min:1|max:28',
+            'monthly_fee' => 'nullable|numeric|min:0',
+            'enrollment_fee' => 'nullable|numeric|min:0',
+            'payment_day' => 'nullable|integer|min:1|max:28',
             'enrollment_date' => 'required|date',
         ]);
 
@@ -143,6 +144,18 @@ class EnrollmentController extends Controller
                 }
             }
 
+            // Notificar o encarregado sobre a matrícula e atribuição de turma
+            $student = Student::with('parent.user')->find($request->student_id);
+            $class = SchoolClass::find($request->class_id);
+            if ($student && $student->parent && $student->parent->user && $class) {
+                $student->parent->user->notify(new GenericNotification([
+                    'title' => 'Matrícula & Turma Atribuída',
+                    'message' => "A matrícula do aluno {$student->full_name} na turma {$class->name} (Ano Letivo {$request->school_year}) foi registada com sucesso.",
+                    'action_url' => route('parent-portal.dashboard'),
+                    'type' => 'success'
+                ]));
+            }
+
             DB::commit();
 
             $message = $status == 'active'
@@ -188,9 +201,8 @@ class EnrollmentController extends Controller
     public function update(Request $request, Enrollment $enrollment)
     {
         $request->validate([
-            'class_id' => 'required|exists:classes,id',
-            'monthly_fee' => 'required|numeric|min:0',
-            'payment_day' => 'required|integer|min:1|max:28',
+            'monthly_fee' => 'nullable|numeric|min:0',
+            'payment_day' => 'nullable|integer|min:1|max:28',
             'status' => 'required|in:active,pending,inactive,transferred,cancelled',
         ]);
 
@@ -235,15 +247,17 @@ class EnrollmentController extends Controller
     public function activate(Enrollment $enrollment)
     {
         try {
-            // Verifica se existe pagamento pendente da matrícula
-            $enrollmentPayment = $enrollment->payments()
-                ->where('type', 'matricula')
-                ->where('status', 'pending')
-                ->first();
+            if (is_private_school()) {
+                // Verifica se existe pagamento pendente da matrícula em escola privada
+                $enrollmentPayment = $enrollment->payments()
+                    ->where('type', 'matricula')
+                    ->where('status', 'pending')
+                    ->first();
 
-            if ($enrollmentPayment) {
-                return redirect()->back()
-                    ->with('error', 'Não é possível ativar a matrícula. Existe taxa de matrícula pendente.');
+                if ($enrollmentPayment) {
+                    return redirect()->back()
+                        ->with('error', 'Não é possível ativar a matrícula. Existe taxa de matrícula pendente.');
+                }
             }
 
             $enrollment->update([

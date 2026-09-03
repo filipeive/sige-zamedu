@@ -108,8 +108,30 @@ class NotificationController extends Controller
             'created_by' => Auth::id(),
         ]);
 
-        // Enviar notificações para o público-alvo
+        // Enviar notificações para o público-alvo no sistema
         $this->notifyTargetAudience($communication);
+
+        // Se a opção de envio por SMS estiver ativada, envia SMS aos encarregados
+        if ($request->has('send_sms')) {
+            try {
+                $smsService = app(\App\Services\Sms\SmsNotificationService::class);
+                $parents = \App\Models\ParentModel::whereNotNull('phone')->where('phone', '!=', '')->get();
+                $schoolName = \App\Models\Setting::get('school_name', 'Escola');
+                
+                foreach ($parents as $parent) {
+                    $smsMessage = "{$schoolName}: " . \Illuminate\Support\Str::limit($communication->title . " - " . $communication->message, 140);
+                    $smsService->send(
+                        phone: $parent->phone,
+                        message: $smsMessage,
+                        channel: 'guardian',
+                        context: 'communication-sms',
+                        recipientName: $parent->full_name
+                    );
+                }
+            } catch (\Throwable $e) {
+                // Log ou ignora falha de SMS secundária
+            }
+        }
 
         return redirect()->route('communications.index')
             ->with('success', 'Comunicado enviado com sucesso!');

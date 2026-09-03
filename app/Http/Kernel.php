@@ -70,5 +70,6 @@ class Kernel extends HttpKernel
         'role' => \App\Http\Middleware\RoleMiddleware::class,
         'demo_restriction' => \App\Http\Middleware\DemoRestrictionMiddleware::class,
         'license' => \App\Http\Middleware\LicenseCheckMiddleware::class,
+        'financial.access' => \App\Http\Middleware\CheckFinancialAccess::class,
     ];
 }

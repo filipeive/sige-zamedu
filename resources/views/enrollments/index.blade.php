@@ -5,296 +5,245 @@
 @section('page-title-icon', 'fas fa-clipboard-list')
 
 @section('breadcrumbs')
-    <li class="breadcrumb-item active">Matrículas</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Matrículas</li>
 @endsection
 
 @section('content')
-<div class="row">
-    <div class="col-12">
+<div class="space-y-4">
 
-        <!-- Seletor de Ano Lectivo & Ações Rápidas -->
-        <div class="school-card mb-4">
-            <div class="school-card-body">
-                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-                    <div class="d-flex align-items-center gap-3">
-                        <h6 class="mb-0 text-xs font-bold text-slate-700 uppercase tracking-wider">
-                            <i class="fas fa-calendar-alt me-2 text-primary"></i>
-                            Ano Lectivo:
-                        </h6>
-                        <div class="btn-group" role="group">
-                            @foreach($availableYears as $year)
-                                <a href="{{ route('enrollments.index', ['year' => $year]) }}"
-                                    class="btn btn-sm rounded-xl {{ $selectedYear == $year ? 'btn-primary-school' : 'btn-outline-secondary' }}">
-                                    {{ $year }}
-                                    @if($year == $currentYear)
-                                        <span class="badge bg-light text-dark ms-1" style="font-size: 0.75em;">Atual</span>
-                                    @endif
-                                </a>
-                            @endforeach
-                        </div>
-                    </div>
-                    <div class="d-flex gap-2">
-                        @can('manage_enrollments')
-                            <a href="{{ route('admin.enrollments.renewals') }}" class="btn btn-outline-warning rounded-xl">
-                                <i class="fas fa-sync me-1"></i> Renovações
-                            </a>
-                        @endcan
-                        @can('create_enrollments')
-                            <a href="{{ route('enrollments.create') }}" class="btn btn-secondary-school rounded-xl">
-                                <i class="fas fa-plus me-1"></i> Nova Matrícula
-                            </a>
-                        @endcan
-                    </div>
-                </div>
-            </div>
+    <!-- 1. Compact Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-slate-200">
+        <div>
+            <h1 class="text-xl font-black text-slate-800 tracking-tight flex items-center gap-2">
+                <i class="fas fa-id-card text-emerald-600"></i> Matrículas & Inscrições
+            </h1>
+            <p class="text-xs text-slate-500 mt-0.5">Gestão de registos de matrículas e ano lectivo {{ $selectedYear }}.</p>
         </div>
-
-        <!-- Estatísticas Rápidas (Stat KPI Cards) -->
-        @php
-            $yearEnrollments = \App\Models\Enrollment::where('school_year', $selectedYear);
-            $activeCount = (clone $yearEnrollments)->where('status', 'active')->count();
-            $pendingCount = (clone $yearEnrollments)->where('status', 'pending')->count();
-            $totalYearCount = (clone $yearEnrollments)->count();
-            $totalRevenue = (clone $yearEnrollments)->where('status', 'active')->sum('monthly_fee');
-        @endphp
-        <div class="row g-3 mb-4">
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm bg-white p-3 border-start border-4 border-success">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0 bg-success-subtle text-success rounded-circle p-3 me-3">
-                            <i class="fas fa-clipboard-check fa-lg"></i>
-                        </div>
-                        <div>
-                            <div class="text-muted small text-uppercase font-weight-bold">Matrículas Ativas</div>
-                            <h4 class="mb-0 text-success font-weight-bold">{{ $activeCount }}</h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm bg-white p-3 border-start border-4 border-warning">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0 bg-warning-subtle text-warning rounded-circle p-3 me-3">
-                            <i class="fas fa-clock fa-lg"></i>
-                        </div>
-                        <div>
-                            <div class="text-muted small text-uppercase font-weight-bold">Pendentes</div>
-                            <h4 class="mb-0 text-warning font-weight-bold">{{ $pendingCount }}</h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm bg-white p-3 border-start border-4 border-primary">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0 bg-primary-subtle text-primary rounded-circle p-3 me-3">
-                            <i class="fas fa-money-bill-wave fa-lg"></i>
-                        </div>
-                        <div>
-                            <div class="text-muted small text-uppercase font-weight-bold">Receita Mensal</div>
-                            <h4 class="mb-0 text-primary font-weight-bold">{{ number_format($totalRevenue, 0, ',', '.') }} <small class="text-xs text-muted">MT</small></h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm bg-white p-3 border-start border-4 border-info">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0 bg-info-subtle text-info rounded-circle p-3 me-3">
-                            <i class="fas fa-user-graduate fa-lg"></i>
-                        </div>
-                        <div>
-                            <div class="text-muted small text-uppercase font-weight-bold">Total no Ano</div>
-                            <h4 class="mb-0 text-info font-weight-bold">{{ $totalYearCount }}</h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Filtros Harmonizados -->
-        <div class="school-card mb-4">
-            <div class="school-card-body">
-                <form action="{{ route('enrollments.index') }}" method="GET" class="row g-3 align-items-end">
-                    <input type="hidden" name="year" value="{{ $selectedYear }}">
-                    <div class="col-md-3">
-                        <label class="form-label text-xs font-bold text-slate-700 uppercase tracking-wider">Pesquisar</label>
-                        <input type="text" name="search" class="form-control rounded-xl border-slate-200"
-                            placeholder="Nome ou nº de estudante..."
-                            value="{{ request('search') }}">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label text-xs font-bold text-slate-700 uppercase tracking-wider">Status</label>
-                        <select name="status" class="form-select rounded-xl border-slate-200">
-                            <option value="">Todos os Status</option>
-                            <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Ativas</option>
-                            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pagamento Pendente</option>
-                            <option value="pending_renewal" {{ request('status') == 'pending_renewal' ? 'selected' : '' }}>Pendente Renovação</option>
-                            <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Concluídas</option>
-                            <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inativas</option>
-                            <option value="transferred" {{ request('status') == 'transferred' ? 'selected' : '' }}>Transferidas</option>
-                            <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Canceladas</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label text-xs font-bold text-slate-700 uppercase tracking-wider">Turma</label>
-                        <select name="class_id" class="form-select rounded-xl border-slate-200">
-                            <option value="">Todas as Turmas</option>
-                            @foreach($classes as $class)
-                                <option value="{{ optional($class)->id }}" {{ request('class_id') == optional($class)->id ? 'selected' : '' }}>
-                                    {{ optional($class)->name }} ({{ optional($class)->grade_level }}º Ano)
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-3 d-flex gap-2">
-                        <button type="submit" class="btn btn-primary-school flex-grow rounded-xl">
-                            <i class="fas fa-filter me-1"></i> Filtrar
-                        </button>
-                        @if(request()->anyFilled(['search', 'status', 'class_id']))
-                            <a href="{{ route('enrollments.index', ['year' => $selectedYear]) }}" class="btn btn-outline-secondary rounded-xl" title="Limpar Filtros">
-                                <i class="fas fa-times"></i>
-                            </a>
-                        @endif
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Tabela de Matrículas -->
-        <div class="school-table-container">
-            <div class="school-table-header">
-                <h3 class="school-table-title">
-                    <i class="fas fa-list text-primary me-2"></i>
-                    Lista de Matrículas — {{ $selectedYear }}
-                    <span class="badge bg-primary ms-2" style="font-size: 0.55em;">{{ $enrollments->total() }}</span>
-                </h3>
+        <div class="flex flex-wrap items-center gap-2">
+            <!-- Year Selector Pills -->
+            <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200">
+                @foreach($availableYears as $year)
+                    <a href="{{ route('enrollments.index', ['year' => $year]) }}"
+                       class="no-underline px-2.5 py-1 rounded text-xs font-bold transition {{ $selectedYear == $year ? 'bg-emerald-800 text-white shadow-2xs' : 'text-slate-600 hover:bg-slate-200' }}">
+                        {{ $year }}
+                    </a>
+                @endforeach
             </div>
 
-            <div class="table-responsive">
-                <table class="table table-school">
-                    <thead>
-                        <tr>
-                            <th>Nº Estudante</th>
-                            <th>Aluno</th>
-                            <th>Turma</th>
-                            <th>Ano Letivo</th>
-                            <th>Data Matrícula</th>
-                            <th>Mensalidade</th>
-                            <th>Status</th>
-                            <th class="text-end">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($enrollments as $enrollment)
-                            <tr>
-                                <td>
-                                    <code>{{ $enrollment->student->student_number ?? 'N/A' }}</code>
-                                </td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="user-avatar-sm me-3" style="background: linear-gradient(135deg, var(--primary), var(--primary-dark)); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 13px;">
-                                            {{ substr($enrollment->student->first_name ?? 'A', 0, 1) }}{{ substr($enrollment->student->last_name ?? 'B', 0, 1) }}
-                                        </div>
-                                        <div>
-                                            <div class="fw-bold text-slate-800">
-                                                {{ $enrollment->student->first_name ?? '' }} {{ $enrollment->student->last_name ?? '' }}
-                                            </div>
-                                            <small class="text-muted">
-                                                @if($enrollment->student?->birthdate)
-                                                    {{ $enrollment->student->age }} anos
-                                                @else
-                                                    Idade não informada
-                                                @endif
-                                            </small>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
-                                        {{ $enrollment->class->name }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="badge bg-light text-dark border">{{ $enrollment->school_year }}</span>
-                                </td>
-                                <td>
-                                    {{ $enrollment->enrollment_date?->format('d/m/Y') ?? 'N/A' }}
-                                </td>
-                                <td>
-                                    <strong class="text-success">{{ number_format($enrollment->monthly_fee, 2, ',', '.') }} MT</strong>
-                                </td>
-                                <td>
-                                    @php
-                                        $statusSubtle = [
-                                            'active' => 'bg-success-subtle text-success border border-success-subtle',
-                                            'inactive' => 'bg-secondary-subtle text-secondary border border-secondary-subtle',
-                                            'transferred' => 'bg-info-subtle text-info border border-info-subtle',
-                                            'cancelled' => 'bg-danger-subtle text-danger border border-danger-subtle',
-                                            'pending' => 'bg-warning-subtle text-warning border border-warning-subtle',
-                                            'pending_renewal' => 'bg-info-subtle text-info border border-info-subtle',
-                                            'completed' => 'bg-secondary-subtle text-secondary border',
-                                            'suspended' => 'bg-dark-subtle text-dark border'
-                                        ];
-                                        $statusLabels = [
-                                            'active' => 'Ativa',
-                                            'inactive' => 'Inativa',
-                                            'transferred' => 'Transferida',
-                                            'cancelled' => 'Cancelada',
-                                            'pending' => 'Pendente',
-                                            'pending_renewal' => 'Renovação Pendente',
-                                            'completed' => 'Concluída',
-                                            'suspended' => 'Suspensa'
-                                        ];
-                                    @endphp
-                                    <span class="badge rounded-pill px-3 py-1 {{ $statusSubtle[$enrollment->status] ?? 'bg-secondary-subtle text-secondary border' }}">
-                                        {{ $statusLabels[$enrollment->status] ?? ucfirst($enrollment->status) }}
-                                    </span>
-                                </td>
-                                <td class="text-end">
-                                    <div class="btn-group btn-group-sm">
-                                        <a href="{{ route('enrollments.show', $enrollment->id) }}"
-                                            class="btn btn-outline-primary" title="Ver Detalhes">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        @can('edit_enrollments')
-                                            <a href="{{ route('enrollments.edit', $enrollment->id) }}"
-                                                class="btn btn-outline-warning" title="Editar">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                        @endcan
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="8" class="text-center py-5 text-muted">
-                                    <i class="fas fa-clipboard-list fa-3x text-slate-300 mb-3"></i>
-                                    <h5>Nenhuma matrícula encontrada</h5>
-                                    <p class="text-xs mb-3">Não existem matrículas para o ano lectivo {{ $selectedYear }}.</p>
-                                    @can('create_enrollments')
-                                        <div class="d-flex justify-content-center gap-2">
-                                            <a href="{{ route('admin.enrollments.renewals') }}" class="btn btn-sm btn-outline-info">
-                                                <i class="fas fa-sync me-1"></i> Renovações
-                                            </a>
-                                            <a href="{{ route('enrollments.create') }}" class="btn btn-sm btn-primary-school">
-                                                <i class="fas fa-plus me-1"></i> Criar Primeira Matrícula
-                                            </a>
-                                        </div>
-                                    @endcan
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-
-            @if($enrollments->hasPages())
-                <div class="p-3 border-top">
-                    {{ $enrollments->links() }}
-                </div>
-            @endif
+            @can('manage_enrollments')
+                <a href="{{ route('admin.enrollments.renewals') }}" class="no-underline inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 shadow-2xs transition">
+                    <i class="fas fa-sync-alt text-amber-500"></i> Renovações
+                </a>
+            @endcan
+            @can('create_enrollments')
+                <a href="{{ route('enrollments.create') }}" class="no-underline inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-xs font-bold text-white shadow-sm transition">
+                    <i class="fas fa-plus"></i> Nova Matrícula
+                </a>
+            @endcan
         </div>
     </div>
+
+    <!-- 2. Stat Cards (Pílula de Cor na Esquerda) -->
+    @php
+        $yearEnrollments = \App\Models\Enrollment::where('school_year', $selectedYear);
+        $activeCount = (clone $yearEnrollments)->where('status', 'active')->count();
+        $pendingCount = (clone $yearEnrollments)->where('status', 'pending')->count();
+        $totalYearCount = (clone $yearEnrollments)->count();
+        $totalRevenue = (clone $yearEnrollments)->where('status', 'active')->sum('monthly_fee');
+    @endphp
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <!-- Matrículas Ativas (Emerald Pill Accent) -->
+        <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex items-center gap-3 hover:shadow-sm transition">
+            <div class="w-1.5 h-8 rounded-full bg-emerald-500 shrink-0"></div>
+            <div class="w-9 h-9 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm font-bold shrink-0">
+                <i class="fas fa-clipboard-check"></i>
+            </div>
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Matrículas Ativas</span>
+                <span class="text-xl font-black text-slate-800 mt-0.5 block">{{ $activeCount }}</span>
+            </div>
+        </div>
+
+        <!-- Pendentes (Amber Pill Accent) -->
+        <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex items-center gap-3 hover:shadow-sm transition">
+            <div class="w-1.5 h-8 rounded-full bg-amber-500 shrink-0"></div>
+            <div class="w-9 h-9 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center text-sm font-bold shrink-0">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Pendentes</span>
+                <span class="text-xl font-black text-slate-800 mt-0.5 block">{{ $pendingCount }}</span>
+            </div>
+        </div>
+
+        <!-- Total Ano (Blue Pill Accent) -->
+        <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex items-center gap-3 hover:shadow-sm transition">
+            <div class="w-1.5 h-8 rounded-full bg-blue-500 shrink-0"></div>
+            <div class="w-9 h-9 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-sm font-bold shrink-0">
+                <i class="fas fa-user-graduate"></i>
+            </div>
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Total Ano {{ $selectedYear }}</span>
+                <span class="text-xl font-black text-slate-800 mt-0.5 block">{{ $totalYearCount }}</span>
+            </div>
+        </div>
+
+        <!-- Modo Escola / Receita (Teal Pill Accent) -->
+        <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex items-center gap-3 hover:shadow-sm transition">
+            <div class="w-1.5 h-8 rounded-full bg-teal-500 shrink-0"></div>
+            <div class="w-9 h-9 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center text-sm font-bold shrink-0">
+                <i class="fas {{ is_public_school() ? 'fa-landmark' : 'fa-wallet' }}"></i>
+            </div>
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">{{ is_public_school() ? 'Modo Escola' : 'Receita Mensal' }}</span>
+                <span class="text-xl font-black text-slate-800 mt-0.5 block">
+                    @if(is_public_school())
+                        Pública
+                    @else
+                        {{ number_format($totalRevenue, 0, ',', '.') }} MT
+                    @endif
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Filter Bar -->
+    <div class="bg-white rounded-xl p-3 border border-slate-200 shadow-2xs">
+        <form action="{{ route('enrollments.index') }}" method="GET" class="grid gap-2 sm:grid-cols-2 md:grid-cols-4 items-center">
+            <input type="hidden" name="year" value="{{ $selectedYear }}">
+            
+            <div>
+                <div class="relative">
+                    <input type="text" name="search" class="w-full rounded-lg border-slate-200 ps-8 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500" 
+                           placeholder="Pesquisar por nome ou número..." value="{{ request('search') }}">
+                    <i class="fas fa-search absolute left-2.5 top-2.5 text-slate-400 text-xs"></i>
+                </div>
+            </div>
+
+            <div>
+                <select name="status" class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500" onchange="this.form.submit()">
+                    <option value="">Todos os Status</option>
+                    <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Ativas</option>
+                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pendente</option>
+                    <option value="pending_renewal" {{ request('status') == 'pending_renewal' ? 'selected' : '' }}>Renovação</option>
+                    <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Concluídas</option>
+                    <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inativas</option>
+                </select>
+            </div>
+
+            <div>
+                <select name="class_id" class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500" onchange="this.form.submit()">
+                    <option value="">Todas as Turmas</option>
+                    @foreach($classes as $class)
+                        <option value="{{ optional($class)->id }}" {{ request('class_id') == optional($class)->id ? 'selected' : '' }}>
+                            {{ optional($class)->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="flex items-center gap-1.5">
+                <button type="submit" class="w-full inline-flex justify-center items-center gap-1 rounded-lg bg-emerald-700 hover:bg-emerald-800 py-1.5 px-3 text-xs font-bold text-white transition shadow-2xs">
+                    <i class="fas fa-filter text-[10px]"></i> Filtrar
+                </button>
+                @if(request()->anyFilled(['search', 'status', 'class_id']))
+                    <a href="{{ route('enrollments.index', ['year' => $selectedYear]) }}" class="no-underline inline-flex justify-center items-center rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 p-1.5 text-xs text-slate-600 transition" title="Limpar Filtros">
+                        <i class="fas fa-times"></i>
+                    </a>
+                @endif
+            </div>
+        </form>
+    </div>
+
+    <!-- 4. Table Container -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
+        <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+            <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                <i class="fas fa-clipboard-list text-emerald-600"></i> Lista de Matrículas — {{ $selectedYear }} ({{ $enrollments->total() }})
+            </h3>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                    <tr class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider text-[10px] border-b border-slate-100">
+                        <th class="py-2.5 px-4">Nº Estudante</th>
+                        <th class="py-2.5 px-3">Aluno</th>
+                        <th class="py-2.5 px-3">Turma</th>
+                        <th class="py-2.5 px-3">Data Matrícula</th>
+                        @if(is_private_school())
+                            <th class="py-2.5 px-3">Mensalidade</th>
+                        @endif
+                        <th class="py-2.5 px-3">Status</th>
+                        <th class="py-2.5 px-4 text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @forelse($enrollments as $enrollment)
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-2.5 px-4 font-mono font-bold text-slate-700">
+                                <span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-800 font-mono text-[11px]">
+                                    {{ $enrollment->student->student_number ?? 'N/A' }}
+                                </span>
+                            </td>
+                            <td class="py-2.5 px-3 font-bold text-slate-800">
+                                <a href="{{ route('students.show', $enrollment->student_id) }}" class="no-underline font-bold text-slate-800 hover:text-emerald-700 hover:no-underline transition">
+                                    {{ $enrollment->student->full_name ?? 'Estudante' }}
+                                </a>
+                            </td>
+                            <td class="py-2.5 px-3">
+                                <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px] border border-emerald-200">
+                                    {{ $enrollment->class->name }}
+                                </span>
+                            </td>
+                            <td class="py-2.5 px-3 text-slate-700">
+                                {{ $enrollment->enrollment_date?->format('d/m/Y') ?? 'N/A' }}
+                            </td>
+                            @if(is_private_school())
+                                <td class="py-2.5 px-3 font-bold text-emerald-700">
+                                    {{ number_format($enrollment->monthly_fee, 2, ',', '.') }} MT
+                                </td>
+                            @endif
+                            <td class="py-2.5 px-3">
+                                @php
+                                    $statusBadge = match($enrollment->status) {
+                                        'active' => 'bg-emerald-100 text-emerald-800 border border-emerald-200',
+                                        'pending' => 'bg-amber-100 text-amber-800 border border-amber-200',
+                                        'completed' => 'bg-slate-100 text-slate-700 border border-slate-200',
+                                        'inactive', 'cancelled' => 'bg-rose-100 text-rose-800 border border-rose-200',
+                                        default => 'bg-slate-100 text-slate-600'
+                                    };
+                                @endphp
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold {{ $statusBadge }}">
+                                    {{ ucfirst($enrollment->status) }}
+                                </span>
+                            </td>
+                            <td class="py-2.5 px-4 text-end">
+                                <div class="flex items-center justify-end gap-1">
+                                    <a href="{{ route('enrollments.show', $enrollment->id) }}" class="no-underline h-7 w-7 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 flex items-center justify-center transition" title="Ver Detalhes">
+                                        <i class="fas fa-eye text-xs"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="p-6 text-center text-slate-400">
+                                <i class="fas fa-clipboard-list text-2xl text-slate-300 mb-2"></i>
+                                <p class="text-xs font-semibold text-slate-600">Nenhuma matrícula registrada.</p>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        @if($enrollments->hasPages())
+            <div class="px-4 py-2 border-t border-slate-100">
+                {{ $enrollments->links('pagination::bootstrap-5') }}
+            </div>
+        @endif
+    </div>
+
 </div>
 @endsection

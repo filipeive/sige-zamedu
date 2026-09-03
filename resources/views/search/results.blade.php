@@ -277,7 +277,7 @@
 @endif
 
 <!-- Pagamentos -->
-@if($results['payments']->count() > 0)
+@if(is_private_school() && $results['payments']->count() > 0)
 <div class="row mb-4">
     <div class="col-12">
         <div class="school-card">

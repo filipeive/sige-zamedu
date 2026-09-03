@@ -10,229 +10,247 @@
 @endsection
 
 @section('content')
-    <div class="row">
-        <div class="col-md-8">
-            <!-- Informações Pessoais -->
-            <div class="school-card mb-4">
-                <div class="school-card-header">
-                    <i class="fas fa-info-circle"></i>
-                    Informações Pessoais
-                </div>
-                <div class="school-card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h6>Dados Pessoais</h6>
-                            <p><strong>Nome Completo:</strong> {{ $teacher->first_name }} {{ $teacher->last_name }}</p>
-                            <p><strong>BI:</strong> {{ $teacher->bi_number }}</p>
-                            <p><strong>Gênero:</strong> {{ $teacher->gender == 'male' ? 'Masculino' : 'Feminino' }}</p>
-                            <p><strong>Data Nascimento:</strong>
-                                {{ $teacher->birth_date ? $teacher->birth_date->format('d/m/Y') : 'Não informada' }}</p>
-                            <p><strong>Idade:</strong>
-                                {{ $teacher->birth_date ? $teacher->birth_date->diffInYears(now()) . ' anos' : 'Não informada' }}
-                            </p>
-                        </div>
-                        <div class="col-md-6">
-                            <h6>Contactos</h6>
-                            <p><strong>Email:</strong> {{ $teacher->email }}</p>
-                            <p><strong>Telefone:</strong> {{ $teacher->phone }}</p>
-                            <p><strong>Endereço:</strong> {{ $teacher->address }}</p>
+<div class="space-y-4">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-slate-200">
+        <div>
+            <h1 class="text-xl font-black text-slate-800 tracking-tight flex items-center gap-2">
+                <i class="fas fa-chalkboard-teacher text-emerald-600"></i> {{ $teacher->first_name }} {{ $teacher->last_name }}
+            </h1>
+            <p class="text-xs text-slate-500 mt-0.5">{{ $teacher->specialization }} · {{ $teacher->qualification }}</p>
+        </div>
+        <div class="flex items-center gap-2">
+            @can('edit_teachers')
+                <a href="{{ route('teachers.edit', $teacher->id) }}" class="no-underline inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-xs font-bold text-white shadow-sm transition">
+                    <i class="fas fa-edit"></i> Editar
+                </a>
+            @endcan
+            <a href="{{ route('teachers.index') }}" class="no-underline inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 shadow-2xs transition">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </a>
+        </div>
+    </div>
 
-                            <h6 class="mt-3">Informações Profissionais</h6>
-                            <p><strong>Data Contratação:</strong>
-                                {{ $teacher->hire_date ? $teacher->hire_date->format('d/m/Y') : 'Não informada' }}</p>
-                            <p><strong>Experiência:</strong> {{ $teacher->years_experience }} anos</p>
-                            <p><strong>Salário:</strong> {{ number_format($teacher->salary, 2, ',', '.') }} MZN</p>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <!-- Main Content (2/3) -->
+        <div class="lg:col-span-2 space-y-4">
+            <!-- Personal Info -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
+                <div class="px-4 py-3 border-b border-slate-100">
+                    <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fas fa-info-circle text-emerald-600"></i> Informações Pessoais
+                    </h3>
+                </div>
+                <div class="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <h4 class="text-xs font-bold text-slate-600 uppercase tracking-wider">Dados Pessoais</h4>
+                        <div class="space-y-1.5 text-xs">
+                            <p><span class="font-bold text-slate-700">Nome Completo:</span> <span class="text-slate-600">{{ $teacher->first_name }} {{ $teacher->last_name }}</span></p>
+                            <p><span class="font-bold text-slate-700">BI:</span> <span class="text-slate-600">{{ $teacher->bi_number }}</span></p>
+                            <p><span class="font-bold text-slate-700">Gênero:</span> <span class="text-slate-600">{{ $teacher->gender == 'male' ? 'Masculino' : 'Feminino' }}</span></p>
+                            <p><span class="font-bold text-slate-700">Data Nascimento:</span> <span class="text-slate-600">{{ $teacher->birth_date ? $teacher->birth_date->format('d/m/Y') : 'Não informada' }}</span></p>
+                            <p><span class="font-bold text-slate-700">Idade:</span> <span class="text-slate-600">{{ $teacher->birth_date ? $teacher->birth_date->diffInYears(now()) . ' anos' : 'Não informada' }}</span></p>
                         </div>
                     </div>
-
-                    <div class="row mt-3">
-                        <div class="col-md-6">
-                            <h6>Qualificação</h6>
-                            <p><strong>Formação:</strong> {{ $teacher->qualification }}</p>
-                            <p><strong>Especialização:</strong> {{ $teacher->specialization }}</p>
+                    <div class="space-y-2">
+                        <h4 class="text-xs font-bold text-slate-600 uppercase tracking-wider">Contactos</h4>
+                        <div class="space-y-1.5 text-xs">
+                            <p><span class="font-bold text-slate-700">Email:</span> <span class="text-slate-600">{{ $teacher->email }}</span></p>
+                            <p><span class="font-bold text-slate-700">Telefone:</span> <span class="text-slate-600">{{ $teacher->phone }}</span></p>
+                            <p><span class="font-bold text-slate-700">Endereço:</span> <span class="text-slate-600">{{ $teacher->address }}</span></p>
                         </div>
-                        <div class="col-md-6">
-                            <h6>Status</h6>
-                            <span class="badge bg-{{ $teacher->status == 'active' ? 'success' : 'secondary' }} fs-6">
+                        <h4 class="text-xs font-bold text-slate-600 uppercase tracking-wider mt-3">Informações Profissionais</h4>
+                        <div class="space-y-1.5 text-xs">
+                            <p><span class="font-bold text-slate-700">Data Contratação:</span> <span class="text-slate-600">{{ $teacher->hire_date ? $teacher->hire_date->format('d/m/Y') : 'Não informada' }}</span></p>
+                            <p><span class="font-bold text-slate-700">Experiência:</span> <span class="text-slate-600">{{ $teacher->years_experience }} anos</span></p>
+                            <p><span class="font-bold text-slate-700">Salário:</span> <span class="text-slate-600">{{ number_format($teacher->salary, 2, ',', '.') }} MZN</span></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="px-4 py-3 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="space-y-1.5 text-xs">
+                        <h4 class="text-xs font-bold text-slate-600 uppercase tracking-wider">Qualificação</h4>
+                        <p><span class="font-bold text-slate-700">Formação:</span> <span class="text-slate-600">{{ $teacher->qualification }}</span></p>
+                        <p><span class="font-bold text-slate-700">Especialização:</span> <span class="text-slate-600">{{ $teacher->specialization }}</span></p>
+                    </div>
+                    <div class="space-y-1.5 text-xs">
+                        <h4 class="text-xs font-bold text-slate-600 uppercase tracking-wider">Status</h4>
+                        <div class="flex items-center gap-2">
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold {{ $teacher->status == 'active' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200' }}">
                                 {{ $teacher->status == 'active' ? 'Ativo' : 'Inativo' }}
                             </span>
                             @if($teacher->user)
-                                <span class="badge bg-success ms-2">Conta de Usuário Ativa</span>
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200">Conta de Usuário Ativa</span>
                             @endif
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Turmas do Professor -->
+            <!-- Classes Table -->
             @if($teacher->classes->count() > 0)
-                <div class="school-card mb-4">
-                    <div class="school-card-header">
-                        <i class="fas fa-chalkboard"></i>
-                        Turmas Atribuídas
-                    </div>
-                    <div class="school-card-body">
-                        <div class="table-responsive">
-                            <table class="table table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>Turma</th>
-                                        <th>Ano Letivo</th>
-                                        <th>Nível</th>
-                                        <th>Capacidade</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($teacher->classes as $class)
-                                        <tr>
-                                            <td>
-                                                <strong>{{ $class->name }}</strong>
-                                            </td>
-                                            <td>{{ $class->school_year }}</td>
-                                            <td>{{ $class->grade_level_name }}</td>
-                                            <td>
-                                                {{ $class->current_students }}/{{ $class->max_students }}
-                                                <div class="progress mt-1" style="height: 5px;">
-                                                    <div class="progress-bar bg-{{ $class->capacity_percentage > 80 ? 'danger' : ($class->capacity_percentage > 60 ? 'warning' : 'success') }}"
-                                                        style="width: {{ $class->capacity_percentage }}%"></div>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-{{ $class->is_active ? 'success' : 'secondary' }}">
-                                                    {{ $class->is_active ? 'Ativa' : 'Inativa' }}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+            <div class="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
+                <div class="px-4 py-3 border-b border-slate-100">
+                    <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fas fa-chalkboard text-emerald-600"></i> Turmas Atribuídas
+                    </h3>
                 </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider text-[10px] border-b border-slate-100">
+                                <th class="py-2.5 px-4">Turma</th>
+                                <th class="py-2.5 px-3">Ano Letivo</th>
+                                <th class="py-2.5 px-3">Nível</th>
+                                <th class="py-2.5 px-3">Capacidade</th>
+                                <th class="py-2.5 px-3">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            @foreach($teacher->classes as $class)
+                            <tr class="hover:bg-slate-50/80 transition">
+                                <td class="py-2.5 px-4 font-bold text-slate-800">{{ $class->name }}</td>
+                                <td class="py-2.5 px-3 text-slate-600">{{ $class->school_year }}</td>
+                                <td class="py-2.5 px-3 text-slate-600">{{ $class->grade_level_name }}</td>
+                                <td class="py-2.5 px-3">
+                                    <span class="text-slate-700 font-semibold">{{ $class->current_students }}/{{ $class->max_students }}</span>
+                                    <div class="w-full bg-slate-100 rounded-full h-1 mt-1">
+                                        <div class="h-1 rounded-full {{ $class->capacity_percentage > 80 ? 'bg-rose-500' : ($class->capacity_percentage > 60 ? 'bg-amber-500' : 'bg-emerald-500') }}" style="width: {{ $class->capacity_percentage }}%"></div>
+                                    </div>
+                                </td>
+                                <td class="py-2.5 px-3">
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold {{ $class->is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600' }}">
+                                        {{ $class->is_active ? 'Ativa' : 'Inativa' }}
+                                    </span>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
             @endif
         </div>
 
-        <div class="col-md-4">
-            <!-- Estatísticas -->
-            <div class="school-card mb-4">
-                <div class="school-card-header">
-                    <i class="fas fa-chart-bar"></i>
-                    Estatísticas
+        <!-- Sidebar (1/3) -->
+        <div class="space-y-4">
+            <!-- Stats Card -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
+                <div class="px-4 py-3 border-b border-slate-100">
+                    <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fas fa-chart-bar text-emerald-600"></i> Estatísticas
+                    </h3>
                 </div>
-                <div class="school-card-body">
-                    <div class="text-center">
-                        <div class="user-avatar mx-auto mb-3"
-                            style="width: 80px; height: 80px; font-size: 24px; background: linear-gradient(135deg, var(--accent), #0097A7);">
+                <div class="p-4">
+                    <div class="text-center mb-4">
+                        <div class="w-16 h-16 rounded-xl bg-emerald-700 text-white font-bold text-lg flex items-center justify-center mx-auto shadow-sm">
                             {{ substr($teacher->first_name, 0, 1) }}{{ substr($teacher->last_name, 0, 1) }}
                         </div>
-                        <h5>{{ $teacher->first_name }} {{ $teacher->last_name }}</h5>
-                        <p class="text-muted">{{ $teacher->specialization }}</p>
+                        <h4 class="text-sm font-bold text-slate-800 mt-2">{{ $teacher->first_name }} {{ $teacher->last_name }}</h4>
+                        <p class="text-[10px] text-slate-500">{{ $teacher->specialization }}</p>
                     </div>
-
-                    <div class="mt-4">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Turmas Totais:</span>
-                            <strong>{{ $stats['total_classes'] }}</strong>
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-600">Turmas Totais:</span>
+                            <span class="font-bold text-slate-800">{{ $stats['total_classes'] }}</span>
                         </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Turmas Atuais:</span>
-                            <strong>{{ $stats['current_classes'] }}</strong>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-600">Turmas Atuais:</span>
+                            <span class="font-bold text-slate-800">{{ $stats['current_classes'] }}</span>
                         </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Disciplinas:</span>
-                            <strong>{{ $stats['total_subjects'] }}</strong>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-600">Disciplinas:</span>
+                            <span class="font-bold text-slate-800">{{ $stats['total_subjects'] }}</span>
                         </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Licenças Pendentes:</span>
-                            <strong class="text-{{ $stats['pending_leave_requests'] > 0 ? 'warning' : 'success' }}">
-                                {{ $stats['pending_leave_requests'] }}
-                            </strong>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-600">Licenças Pendentes:</span>
+                            <span class="font-bold {{ $stats['pending_leave_requests'] > 0 ? 'text-amber-600' : 'text-emerald-600' }}">{{ $stats['pending_leave_requests'] }}</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Ações -->
-            <div class="school-card mb-4">
-                <div class="school-card-header">
-                    <i class="fas fa-cog"></i>
-                    Ações
+            <!-- Actions Card -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
+                <div class="px-4 py-3 border-b border-slate-100">
+                    <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fas fa-cog text-emerald-600"></i> Ações
+                    </h3>
                 </div>
-                <div class="school-card-body">
-                    <div class="d-grid gap-2">
-                        @can('edit_teachers')
-                            <a href="{{ route('teachers.edit', $teacher->id) }}" class="btn btn-secondary-school">
-                                <i class="fas fa-edit"></i> Editar Professor
-                            </a>
-                        @endcan
+                <div class="p-4 space-y-2">
+                    @can('edit_teachers')
+                        <a href="{{ route('teachers.edit', $teacher->id) }}" class="no-underline w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-xs font-bold text-white shadow-sm transition">
+                            <i class="fas fa-edit"></i> Editar Professor
+                        </a>
+                    @endcan
 
-                        @can('delete_teachers')
-                            <form action="{{ route('teachers.destroy', $teacher->id) }}" method="POST" class="d-grid">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger"
-                                    data-confirm="Tem certeza que deseja excluir este professor?">
-                                    <i class="fas fa-trash"></i> Excluir Professor
-                                </button>
-                            </form>
-                        @endcan
-
-                        @can('edit_teachers')
-                            <form action="{{ route('teachers.toggle-status', $teacher->id) }}" method="POST" class="d-grid">
-                                @csrf
-                                <button type="submit"
-                                    class="btn btn-{{ $teacher->status == 'active' ? 'warning' : 'success' }}">
-                                    <i class="fas fa-{{ $teacher->status == 'active' ? 'pause' : 'play' }}"></i>
-                                    {{ $teacher->status == 'active' ? 'Desativar' : 'Ativar' }} Professor
-                                </button>
-                            </form>
-                        @endcan
-
-                        @if($teacher->user)
-                            <a href="{{ route('admin.users.edit', $teacher->user->id) }}" class="btn btn-info text-white">
-                                <i class="fas fa-user-cog"></i> Gerenciar Conta
-                            </a>
-                        @endif
-                    </div>
-                </div>
-            </div>
-
-            <!-- Atribuir Turma -->
-            @can('edit_teachers')
-                <div class="school-card">
-                    <div class="school-card-header">
-                        <i class="fas fa-link"></i>
-                        Atribuir Turma
-                    </div>
-                    <div class="school-card-body">
-                        <form action="{{ route('teachers.assign-class', $teacher->id) }}" method="POST">
+                    @can('delete_teachers')
+                        <form action="{{ route('teachers.destroy', $teacher->id) }}" method="POST">
                             @csrf
-                            <div class="mb-3">
-                                <label class="form-label">Turma</label>
-                                <select name="class_id" class="form-select" required>
-                                    <option value="">Selecione uma turma</option>
-                                    @foreach($classes as $class)
-                                        <option value="{{ $class->id }}">
-                                            {{ $class->name }} - {{ $class->grade_level_name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Função</label>
-                                <select name="role" class="form-select" required>
-                                    <option value="main">Professor Principal</option>
-                                    <option value="assistant">Professor Auxiliar</option>
-                                </select>
-                            </div>
-                            <button type="submit" class="btn btn-primary-school w-100">
-                                <i class="fas fa-link"></i> Atribuir Turma
+                            @method('DELETE')
+                            <button type="submit" data-confirm="Tem certeza que deseja excluir este professor?"
+                                    class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-xs font-bold text-white shadow-sm transition">
+                                <i class="fas fa-trash"></i> Excluir Professor
                             </button>
                         </form>
-                    </div>
+                    @endcan
+
+                    @can('edit_teachers')
+                        <form action="{{ route('teachers.toggle-status', $teacher->id) }}" method="POST">
+                            @csrf
+                            <button type="submit"
+                                    class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg {{ $teacher->status == 'active' ? 'bg-amber-500 hover:bg-amber-600' : 'bg-emerald-600 hover:bg-emerald-700' }} text-xs font-bold text-white shadow-sm transition">
+                                <i class="fas fa-{{ $teacher->status == 'active' ? 'pause' : 'play' }}"></i>
+                                {{ $teacher->status == 'active' ? 'Desativar' : 'Ativar' }} Professor
+                            </button>
+                        </form>
+                    @endcan
+
+                    @if($teacher->user)
+                        <a href="{{ route('admin.users.edit', $teacher->user->id) }}" class="no-underline w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-xs font-bold text-white shadow-sm transition">
+                            <i class="fas fa-user-cog"></i> Gerenciar Conta
+                        </a>
+                    @endif
                 </div>
+            </div>
+
+            <!-- Assign Class Card -->
+            @can('edit_teachers')
+            <div class="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
+                <div class="px-4 py-3 border-b border-slate-100">
+                    <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fas fa-link text-emerald-600"></i> Atribuir Turma
+                    </h3>
+                </div>
+                <div class="p-4">
+                    <form action="{{ route('teachers.assign-class', $teacher->id) }}" method="POST" class="space-y-3">
+                        @csrf
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Turma</label>
+                            <select name="class_id" required
+                                    class="w-full rounded-lg border border-slate-200 bg-white text-slate-800 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
+                                <option value="">Selecione uma turma</option>
+                                @foreach($classes as $class)
+                                    <option value="{{ $class->id }}">{{ $class->name }} - {{ $class->grade_level_name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Função</label>
+                            <select name="role" required
+                                    class="w-full rounded-lg border border-slate-200 bg-white text-slate-800 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
+                                <option value="main">Professor Principal</option>
+                                <option value="assistant">Professor Auxiliar</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-xs font-bold text-white shadow-sm transition">
+                            <i class="fas fa-link"></i> Atribuir Turma
+                        </button>
+                    </form>
+                </div>
+            </div>
             @endcan
         </div>
     </div>
+</div>
 @endsection

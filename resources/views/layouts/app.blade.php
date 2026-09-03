@@ -32,6 +32,13 @@
     <style>
         {!! \App\Helpers\ThemeHelper::getCssVariables() !!}
 
+        a {
+            text-decoration: none !important;
+        }
+        a:hover {
+            text-decoration: none !important;
+        }
+
         /* ===== DARK MODE COMPLETE HARMONIZATION ===== */
         [data-bs-theme="dark"] body,
         [data-bs-theme="dark"] .main-content,
@@ -1379,18 +1386,28 @@
 
     <!-- Sidebar Escolar -->
     <nav class="school-sidebar" id="sidebar">
-        <div class="school-header">
-            <div class="school-logo" style="margin: -10px;">
-                @if(setting('school_logo'))
-                    <img src="{{ setting('school_logo') }}" alt="Logo" style="max-height: 36px; max-width: 36px; object-fit: contain;">
-                @else
-                    <i class="fas fa-graduation-cap"></i>
-                @endif
-            </div>
-            <div class="school-brand" style="margin: 10% ">
-                <div class="school-name">{{ strtoupper(setting('school_short_name', 'ZamEdu')) }}</div>
-                <div class="school-subtitle">Sistema de Gestão Escolar</div>
-            </div>
+        <div class="school-header p-4 border-b border-white/10 flex items-center justify-between">
+            <a href="{{ route('dashboard') }}" class="flex items-center gap-3 no-underline group overflow-hidden">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-white shadow-md border border-white/20 shrink-0 transition group-hover:scale-105">
+                    @if(setting('school_logo'))
+                        <img src="{{ setting('school_logo') }}" alt="Logo" class="w-8 h-8 object-contain rounded-xl">
+                    @else
+                        <i class="fas fa-graduation-cap text-lg"></i>
+                    @endif
+                </div>
+                <div class="school-brand min-w-0">
+                    <div class="school-name text-sm font-extrabold text-success truncate tracking-tight font-heading group-hover:text-emerald-300 transition">
+                        {{ setting('school_short_name', config('app.name', 'ZamEdu')) }}
+                    </div>
+                    <div class="school-subtitle text-[10px] text-slate-300 font-medium truncate flex items-center gap-1">
+                        @if(is_public_school())
+                            <span class="inline-block w-1.5 h-1.5 rounded-full bg-blue-400"></span> Escola Pública
+                        @else
+                            <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Escola Privada
+                        @endif
+                    </div>
+                </div>
+            </a>
         </div>
 
         <div class="school-nav">
@@ -1495,7 +1512,7 @@
                                 @endif
                             </a>
                         </li>
-        <li class="nav-item">
+                        <li class="nav-item">
                             @if ($firstClass)
                                 <a href="{{ route('teacher.gradebook', $firstClass->id) }}"
                                     class="nav-link {{ request()->routeIs('teacher.gradebook') ? 'active' : '' }}">
@@ -1527,7 +1544,40 @@
                     </ul>
                 </div>
             @endif
-                <!-- 2. GESTÃO DE ESTUDANTES & MATRÍCULAS -->
+
+            <!-- PORTAL DO PAIS / RESPONSÁVEL -->
+            @if (auth()->user()->role === 'parent')
+                <div class="nav-section">
+                    <div class="nav-section-title">Portal do Encarregado</div>
+                    <ul class="nav-list">
+                        <li class="nav-item">
+                            <a href="{{ route('parent.dashboard') }}"
+                                class="nav-link {{ request()->routeIs('parent.dashboard') ? 'active' : '' }}">
+                                <span class="nav-icon"><i class="fas fa-home"></i></span>
+                                <span class="nav-text">Painel Principal</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('parent.children') }}"
+                                class="nav-link {{ request()->routeIs('parent.children') ? 'active' : '' }}">
+                                <span class="nav-icon"><i class="fas fa-child"></i></span>
+                                <span class="nav-text">Meus Educandos</span>
+                            </a>
+                        </li>
+                        @if(is_private_school())
+                        <li class="nav-item">
+                            <a href="{{ route('parent.payments') }}"
+                                class="nav-link {{ request()->routeIs('parent.payments') ? 'active' : '' }}">
+                                <span class="nav-icon"><i class="fas fa-money-bill-wave"></i></span>
+                                <span class="nav-text">Propinas & Recibos</span>
+                            </a>
+                        </li>
+                        @endif
+                    </ul>
+                </div>
+            @endif
+
+            <!-- 2. GESTÃO DE ESTUDANTES & MATRÍCULAS -->
             @canany(['manage_students', 'view_students'])
                 @if (auth()->user()->role !== 'teacher')
                     <div class="nav-section">
@@ -1561,22 +1611,6 @@
                                         <span class="nav-text">Renovação de Matrículas</span>
                                     </a>
                                 </li>
-                            @endcan
-                            <li class="nav-item">
-                                <a href="{{ route('parents.index') }}"
-                                    class="nav-link {{ request()->routeIs('parents.*') ? 'active' : '' }}">
-                                    <span class="nav-icon"><i class="fas fa-users-cog"></i></span>
-                                    <span class="nav-text">Encarregados de Educação</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ route('gatekeeper.index') }}"
-                                    class="nav-link {{ request()->routeIs('gatekeeper.*') ? 'active' : '' }}">
-                                    <span class="nav-icon"><i class="fas fa-id-card-clip"></i></span>
-                                    <span class="nav-text">Portaria Digital (Cartões)</span>
-                                </a>
-                            </li>
-                            @can('manage_enrollments')
                                 <li class="nav-item">
                                     <a href="{{ route('admin.promotion.index') }}"
                                         class="nav-link {{ request()->routeIs('admin.promotion.*') ? 'active' : '' }}">
@@ -1592,6 +1626,20 @@
                                     </a>
                                 </li>
                             @endcan
+                            <li class="nav-item">
+                                <a href="{{ route('parents.index') }}"
+                                    class="nav-link {{ request()->routeIs('parents.*') ? 'active' : '' }}">
+                                    <span class="nav-icon"><i class="fas fa-users-cog"></i></span>
+                                    <span class="nav-text">Encarregados de Educação</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('gatekeeper.index') }}"
+                                    class="nav-link {{ request()->routeIs('gatekeeper.*') ? 'active' : '' }}">
+                                    <span class="nav-icon"><i class="fas fa-id-card-clip"></i></span>
+                                    <span class="nav-text">Portaria Digital (Cartões)</span>
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 @endif
@@ -1682,37 +1730,7 @@
                 </div>
             @endcanany
 
-            <!-- 8. ENCARREGADOS DE EDUCAÇÃO -->
-            @if (auth()->user()->role === 'parent')
-                <div class="nav-section">
-                    <div class="nav-section-title">Encarregados de Educação</div>
-                    <ul class="nav-list">
-                        <li class="nav-item">
-                            <a href="{{ route('parent.dashboard') }}"
-                                class="nav-link {{ request()->routeIs('parent.dashboard') ? 'active' : '' }}">
-                                <span class="nav-icon"><i class="fas fa-home"></i></span>
-                                <span class="nav-text">Painel do Responsável</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ route('parent.children') }}"
-                                class="nav-link {{ request()->routeIs('parent.children') ? 'active' : '' }}">
-                                <span class="nav-icon"><i class="fas fa-child"></i></span>
-                                <span class="nav-text">Meus Educandos</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ route('parent.payments') }}"
-                                class="nav-link {{ request()->routeIs('parent.payments') ? 'active' : '' }}">
-                                <span class="nav-icon"><i class="fas fa-money-bill-wave"></i></span>
-                                <span class="nav-text">Propinas & Recibos</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            @endif
-
-            <!-- 9. GESTÃO FINANCEIRA -->
+            <!-- 5. GESTÃO FINANCEIRA -->
             @php
                 $isAdmin = auth()->check() && (
                     auth()->user()->hasRole('admin') ||
@@ -1725,14 +1743,14 @@
             @endphp
             @if ($isAdmin || auth()->user()->canAny(['manage_payments', 'view_payments', 'manage_expenses', 'view_financial_reports', 'generate_payment_references']))
                 <div class="nav-section">
-                    <div class="nav-section-title">Gestão Financeira</div>
+                    <div class="nav-section-title">{{ is_public_school() ? 'Gestão Financeira & Taxas' : 'Gestão Financeira' }}</div>
                     <ul class="nav-list">
                         @if ($isAdmin || auth()->user()->can('manage_expenses'))
                             <li class="nav-item">
                                 <a href="{{ route('expenses.index') }}"
                                     class="nav-link {{ request()->routeIs('expenses.*') ? 'active' : '' }}">
                                     <span class="nav-icon"><i class="fas fa-receipt"></i></span>
-                                    <span class="nav-text">Despesas</span>
+                                    <span class="nav-text">{{ is_public_school() ? 'Despesas Operacionais' : 'Despesas' }}</span>
                                 </a>
                             </li>
                         @endif
@@ -1741,19 +1759,21 @@
                             <li class="nav-item">
                                 <a href="{{ route('payments.index') }}"
                                     class="nav-link {{ request()->routeIs('payments.index') ? 'active' : '' }}">
-                                    <span class="nav-icon"><i class="fas fa-money-bill-wave"></i></span>
-                                    <span class="nav-text">Mensalidades & Propinas</span>
-                                    @php
-                                        $overduePayments = \App\Models\Payment::where('status', 'overdue')->count();
-                                    @endphp
-                                    @if ($overduePayments > 0)
-                                        <span class="nav-badge badge-danger">{{ $overduePayments }}</span>
+                                    <span class="nav-icon"><i class="fas fa-file-invoice-dollar"></i></span>
+                                    <span class="nav-text">{{ is_public_school() ? 'Taxas de Matrícula & Exames' : 'Mensalidades & Propinas' }}</span>
+                                    @if(is_private_school())
+                                        @php
+                                            $overduePayments = \App\Models\Payment::where('status', 'overdue')->count();
+                                        @endphp
+                                        @if ($overduePayments > 0)
+                                            <span class="nav-badge badge-danger">{{ $overduePayments }}</span>
+                                        @endif
                                     @endif
                                 </a>
                             </li>
                         @endif
 
-                        @if ($isAdmin || auth()->user()->can('generate_payment_references'))
+                        @if (is_private_school() && ($isAdmin || auth()->user()->can('generate_payment_references')))
                             <li class="nav-item">
                                 <a href="{{ route('payments.references') }}"
                                     class="nav-link {{ request()->routeIs('payments.references', 'payments.pending') ? 'active' : '' }}">
@@ -1770,7 +1790,7 @@
                             </li>
                         @endif
 
-                        @if ($isAdmin || auth()->user()->can('view_financial_reports'))
+                        @if (is_private_school() && ($isAdmin || auth()->user()->can('view_financial_reports')))
                             <li class="nav-item">
                                 <a href="{{ route('reports.financial') }}"
                                     class="nav-link {{ request()->routeIs('reports.financial') ? 'active' : '' }}">
@@ -1783,10 +1803,10 @@
                 </div>
             @endif
 
-            <!-- 10 & 11. COMUNICAÇÃO & RELATÓRIOS -->
+            <!-- 6. COMUNICAÇÃO & FERRAMENTAS -->
             @canany(['manage_events', 'send_notifications', 'view_reports', 'export_reports'])
                 <div class="nav-section">
-                    <div class="nav-section-title">Comunicação & Relatórios</div>
+                    <div class="nav-section-title">Comunicação & IA</div>
                     <ul class="nav-list">
                         @can('manage_events')
                             <li class="nav-item">
@@ -1804,10 +1824,24 @@
                                 <span class="nav-text">Comunicados Escolares</span>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="{{ route('sms.index') }}"
+                                class="nav-link {{ request()->routeIs('sms.*') ? 'active' : '' }}">
+                                <span class="nav-icon"><i class="fas fa-comment-sms"></i></span>
+                                <span class="nav-text">Central de SMS</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('ai.index') }}"
+                                class="nav-link {{ request()->routeIs('ai.*') ? 'active' : '' }}">
+                                <span class="nav-icon"><i class="fas fa-robot text-emerald-400"></i></span>
+                                <span class="nav-text">Assistente IA</span>
+                            </a>
+                        </li>
                         @canany(['view_reports', 'export_reports'])
                             <li class="nav-item">
                                 <a href="{{ route('reports.index') }}"
-                                    class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">
+                                    class="nav-link {{ request()->routeIs('reports.*') && !request()->routeIs('reports.financial') ? 'active' : '' }}">
                                     <span class="nav-icon"><i class="fas fa-chart-bar"></i></span>
                                     <span class="nav-text">Relatórios & Estatísticas</span>
                                 </a>
@@ -1817,7 +1851,7 @@
                 </div>
             @endcanany
 
-            <!-- 12. CONFIGURAÇÕES & ADMINISTRAÇÃO -->
+            <!-- 7. CONFIGURAÇÕES & ADMINISTRAÇÃO DO SISTEMA -->
             @canany(['manage_users', 'manage_settings', 'backup_system', 'view_audit_logs', 'view_logs'])
                 <div class="nav-section">
                     <div class="nav-section-title">Configurações & Sistema</div>
@@ -1842,27 +1876,6 @@
                                     class="nav-link {{ request()->routeIs('admin.academic-years.*') ? 'active' : '' }}">
                                     <span class="nav-icon"><i class="fas fa-calendar-alt"></i></span>
                                     <span class="nav-text">Gestão do Ano Lectivo</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ route('admin.promotion.index') }}"
-                                    class="nav-link {{ request()->routeIs('admin.promotion.*') ? 'active' : '' }}">
-                                    <span class="nav-icon"><i class="fas fa-user-graduate"></i></span>
-                                    <span class="nav-text">Passagem de Classe (Promoção)</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ route('admin.enrollments.renewals') }}"
-                                    class="nav-link {{ request()->routeIs('admin.enrollments.renewals') ? 'active' : '' }}">
-                                    <span class="nav-icon"><i class="fas fa-sync-alt"></i></span>
-                                    <span class="nav-text">Renovação de Matrículas</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ route('admin.students-archive.index') }}"
-                                    class="nav-link {{ request()->routeIs('admin.students-archive.*') ? 'active' : '' }}">
-                                    <span class="nav-icon"><i class="fas fa-archive"></i></span>
-                                    <span class="nav-text">Arquivo Escolar</span>
                                 </a>
                             </li>
                         @endcan
@@ -1980,7 +1993,7 @@
         <header class="main-header">
             <div class="header-left">
                 <button class="sidebar-toggle sidebar-toggle-btn" onclick="toggleSidebar()" id="sidebar-toggle-btn"
-                    style="backdrop-filter: blur(10px); background: var(--secondary); border: 1px solid var(--border-color); margin: 0px 15px 0 -15px; color:white;">
+                    style="backdrop-filter: blur(10px); background: var(--primary); border: 1px solid var(--border-color); margin: 0px 15px 0 -15px; color: white; transition: background 0.3s ease, transform 0.2s ease;">
                     <i class="fas fa-chevron-left" id="toggle-icon"></i>
                 </button>
                 <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
@@ -2267,12 +2280,14 @@
             <div class="content-area">
                 <div class="footer-shell py-2">
                     <div class="footer-brand">
-                        <div class="brand-main"><i class="fas fa-school me-2"></i>{{ setting('school_name', 'ZamEdu') }}</div>
-                        <div class="brand-sub">© {{ current_school_year() }} Sistema de Gestão Escolar • {{ setting('address', 'Moçambique') }}</div>
+                        <div class="brand-main"><i class="fas fa-school me-2"></i>{{ setting('school_name', 'Escola Secundária Visionários') }}</div>
+                        <div class="brand-sub">
+                            © {{ current_school_year() }} Sistema de Gestão Escolar • {{ setting('school_district', setting('district', 'Namacurra')) }}, {{ setting('school_province', setting('province', 'Zambézia')) }} • Desenvolvido por <a href="http://146.235.224.99/" target="_blank" class="no-underline text-emerald-600 dark:text-emerald-400 hover:underline font-bold">Filipe dos Santos</a>
+                        </div>
                     </div>
                     <div class="footer-meta">
                         <span class="footer-pill"><i class="fas fa-code-branch"></i>v1.0.0</span>
-                        <a href="mailto:{{ setting('email', 'suporte@zamedu.co.mz') }}" class="footer-link">
+                        <a href="mailto:{{ setting('email', 'contacto@visionarios.co.mz') }}" class="footer-link">
                             <i class="fas fa-headset"></i>Suporte Técnico
                         </a>
                         <a href="#" class="footer-link" onclick="showHelpModal(); return false;">
@@ -2758,6 +2773,15 @@
     </div>
 
     @stack('scripts')
+
+    {{-- SweetAlert2 + interceptador de flash messages --}}
+    @include('partials.sweetalert')
+
+    {{-- Alpine.js para o widget AI flutuante --}}
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"></script>
+
+    {{-- Widget AI flutuante --}}
+    @include('partials.ai-widget')
 </body>
 
 </html>

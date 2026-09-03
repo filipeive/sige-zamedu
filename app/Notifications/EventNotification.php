@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\Event;
+use App\Notifications\Channels\SmsMessage;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -14,27 +15,26 @@ class EventNotification extends Notification
 
     protected $event;
 
-    /**
-     * Create a new notification instance.
-     */
     public function __construct(Event $event)
     {
         $this->event = $event;
     }
 
-    /**
-     * Get the notification's delivery channels.
-     *
-     * @return array<int, string>
-     */
     public function via(object $notifiable): array
     {
-        return ['database', 'mail'];
+        $channels = ['database'];
+
+        if (!empty($notifiable->email)) {
+            $channels[] = 'mail';
+        }
+
+        if (config('services.sms.enabled') && method_exists($notifiable, 'routeNotificationForSms')) {
+            $channels[] = 'sms';
+        }
+
+        return $channels;
     }
 
-    /**
-     * Get the mail representation of the notification.
-     */
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
@@ -48,11 +48,14 @@ class EventNotification extends Notification
             ->line('Aguardamos sua participação!');
     }
 
-    /**
-     * Get the array representation of the notification.
-     *
-     * @return array<string, mixed>
-     */
+    public function toSms(object $notifiable): SmsMessage
+    {
+        $content = "📅 {$this->event->title}\n{$this->event->event_date->format('d/m/Y')} · {$this->event->start_time->format('H:i')}\n";
+        $content .= config('app.name');
+
+        return new SmsMessage($content);
+    }
+
     public function toArray(object $notifiable): array
     {
         return [

@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Enrollment;
 use App\Models\Observation;
 use App\Models\Student;
 use App\Models\StudentRecord;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class StudentSupportController extends Controller
 {
@@ -91,5 +93,60 @@ class StudentSupportController extends Controller
         $record->delete();
 
         return back()->with('success', 'Registo removido com sucesso.');
+    }
+
+    /**
+     * Marcar o aluno como desistente / transferido / formado.
+     * Cria automaticamente um registo no histórico e move o aluno para o arquivo.
+     */
+    public function markExit(Request $request, Student $student)
+    {
+        $this->authorize('manage_student_records');
+
+        $validated = $request->validate([
+            'exit_status' => 'required|in:transferred,graduated,inactive',
+            'exit_reason' => 'required|string|max:1000',
+            'exit_date' => 'required|date',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            // 1. Criar registo no histórico (StudentRecord) — preserva o motivo
+            StudentRecord::create([
+                'student_id' => $student->id,
+                'record_type' => 'disciplinary',
+                'record_details' => 'Saída do aluno ('.$validated['exit_status'].'): '.$validated['exit_reason'],
+                'record_date' => $validated['exit_date'],
+                'created_by' => auth()->id(),
+            ]);
+
+            // 2. Encerrar matrículas activas
+            $student->enrollments()
+                ->whereIn('status', ['active', 'pending'])
+                ->update(['status' => 'completed']);
+
+            // 3. Actualizar status do aluno → vai para StudentsArchive (controller filtra por transferred/graduated/inactive)
+            $student->update([
+                'status' => $validated['exit_status'],
+                'school_exit' => $validated['exit_date'],
+                'exit_year' => date('Y', strtotime($validated['exit_date'])),
+            ]);
+
+            DB::commit();
+
+            $labels = [
+                'transferred' => 'transferido',
+                'graduated' => 'formado',
+                'inactive' => 'desistente',
+            ];
+
+            return redirect()->route('admin.students-archive.index')
+                ->with('success', "Aluno marcado como {$labels[$validated['exit_status']]} e movido para o arquivo. Histórico preservado.");
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return back()->with('error', 'Erro ao registar saída: '.$e->getMessage());
+        }
     }
 }

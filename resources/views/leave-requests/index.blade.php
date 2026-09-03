@@ -5,247 +5,185 @@
 @section('page-title-icon', 'fas fa-calendar-times')
 
 @section('breadcrumbs')
-    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Início</a></li>
-    <li class="breadcrumb-item active">Licenças</li>
-@endsection
-
-@section('page-actions')
-    <div class="d-flex gap-2">
-        <a href="{{ route('staff-leave-requests.export.csv', request()->query()) }}" class="btn btn-outline-success">
-            <i class="fas fa-file-csv me-1"></i> Exportar CSV
-        </a>
-        <a href="{{ route('staff-leave-requests.export.pdf', request()->query()) }}" class="btn btn-outline-danger">
-            <i class="fas fa-file-pdf me-1"></i> Exportar PDF
-        </a>
-    </div>
+    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="no-underline">Início</a></li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Licenças</li>
 @endsection
 
 @section('content')
-<div class="row">
-    <div class="col-12">
+<div class="space-y-4">
 
-        <!-- Stat KPI Cards -->
-        <div class="row g-3 mb-4">
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm bg-white p-3 border-start border-4 border-primary">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0 bg-primary-subtle text-primary rounded-circle p-3 me-3">
-                            <i class="fas fa-list fa-lg"></i>
-                        </div>
-                        <div>
-                            <div class="text-muted small text-uppercase font-weight-bold">Total de Pedidos</div>
-                            <h4 class="mb-0 text-primary font-weight-bold">{{ $stats['total'] }}</h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm bg-white p-3 border-start border-4 border-warning">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0 bg-warning-subtle text-warning rounded-circle p-3 me-3">
-                            <i class="fas fa-clock fa-lg"></i>
-                        </div>
-                        <div>
-                            <div class="text-muted small text-uppercase font-weight-bold">Pendentes</div>
-                            <h4 class="mb-0 text-warning font-weight-bold">{{ $stats['pending'] }}</h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm bg-white p-3 border-start border-4 border-success">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0 bg-success-subtle text-success rounded-circle p-3 me-3">
-                            <i class="fas fa-check-circle fa-lg"></i>
-                        </div>
-                        <div>
-                            <div class="text-muted small text-uppercase font-weight-bold">Aprovadas</div>
-                            <h4 class="mb-0 text-success font-weight-bold">{{ $stats['approved'] }}</h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm bg-white p-3 border-start border-4 border-danger">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0 bg-danger-subtle text-danger rounded-circle p-3 me-3">
-                            <i class="fas fa-times-circle fa-lg"></i>
-                        </div>
-                        <div>
-                            <div class="text-muted small text-uppercase font-weight-bold">Rejeitadas</div>
-                            <h4 class="mb-0 text-danger font-weight-bold">{{ $stats['rejected'] }}</h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <!-- 1. Compact Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-slate-200">
+        <div>
+            <h1 class="text-xl font-black text-slate-800 tracking-tight flex items-center gap-2">
+                <i class="fas fa-calendar-times text-emerald-600"></i> Pedidos de Licenças & Ausências
+            </h1>
+            <p class="text-xs text-slate-500 mt-0.5">Gestão e aprovação de dispensas, licenças médicas e férias de docentes.</p>
         </div>
-
-        <!-- Filtros Harmonizados -->
-        <div class="school-card mb-4">
-            <div class="school-card-body">
-                <form method="GET" action="{{ route('staff-leave-requests.index') }}" class="row g-3 align-items-end">
-                    <div class="col-md-3">
-                        <label class="form-label text-xs font-bold text-slate-700 uppercase tracking-wider">Professor / Funcionário</label>
-                        <input type="text" name="teacher"
-                            class="form-control rounded-xl border-slate-200"
-                            placeholder="Nome do docente..."
-                            value="{{ request('teacher') }}">
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label text-xs font-bold text-slate-700 uppercase tracking-wider">Status</label>
-                        <select name="status" class="form-select rounded-xl border-slate-200">
-                            <option value="">Todos os status</option>
-                            <option value="pending" @selected(request('status') === 'pending')>Pendente</option>
-                            <option value="approved" @selected(request('status') === 'approved')>Aprovada</option>
-                            <option value="rejected" @selected(request('status') === 'rejected')>Rejeitada</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label text-xs font-bold text-slate-700 uppercase tracking-wider">Tipo de Licença</label>
-                        <select name="leave_type" class="form-select rounded-xl border-slate-200">
-                            <option value="">Todos os tipos</option>
-                            <option value="sick" @selected(request('leave_type') === 'sick')>Licença Médica</option>
-                            <option value="vacation" @selected(request('leave_type') === 'vacation')>Férias</option>
-                            <option value="personal" @selected(request('leave_type') === 'personal')>Assunto Pessoal</option>
-                            <option value="maternity" @selected(request('leave_type') === 'maternity')>Maternidade</option>
-                            <option value="other" @selected(request('leave_type') === 'other')>Outro</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label text-xs font-bold text-slate-700 uppercase tracking-wider">Data Inicial</label>
-                        <input type="date" name="date_from" class="form-control rounded-xl border-slate-200" value="{{ request('date_from') }}">
-                    </div>
-                    <div class="col-md-3 d-flex gap-2">
-                        <button type="submit" class="btn btn-primary-school flex-grow rounded-xl">
-                            <i class="fas fa-filter me-1"></i> Filtrar
-                        </button>
-                        @if(request()->anyFilled(['teacher', 'status', 'leave_type', 'date_from', 'date_to']))
-                            <a href="{{ route('staff-leave-requests.index') }}" class="btn btn-outline-secondary rounded-xl" title="Limpar Filtros">
-                                <i class="fas fa-times"></i>
-                            </a>
-                        @endif
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Tabela de Pedidos de Licença -->
-        <div class="school-table-container">
-            <div class="school-table-header">
-                <h3 class="school-table-title">
-                    <i class="fas fa-calendar-times text-primary me-2"></i>
-                    Lista de Pedidos de Licença
-                    <span class="badge bg-primary ms-2" style="font-size: 0.55em;">{{ $leaveRequests->total() }}</span>
-                </h3>
-            </div>
-
-            <div class="table-responsive">
-                <table class="table table-school">
-                    <thead>
-                        <tr>
-                            <th>Funcionário / Docente</th>
-                            <th>Tipo de Licença</th>
-                            <th>Período</th>
-                            <th>Dias</th>
-                            <th>Status</th>
-                            <th>Solicitado em</th>
-                            <th class="text-end">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($leaveRequests as $leaveRequest)
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="rounded-circle bg-primary-subtle text-primary fw-bold me-3 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; font-size: 13px;">
-                                            {{ strtoupper(substr($leaveRequest->staff?->first_name ?? 'F', 0, 1) . substr($leaveRequest->staff?->last_name ?? 'D', 0, 1)) }}
-                                        </div>
-                                        <div>
-                                            <div class="fw-bold text-slate-800">
-                                                {{ $leaveRequest->staff?->first_name }} {{ $leaveRequest->staff?->last_name }}
-                                            </div>
-                                            <small class="text-muted">{{ $leaveRequest->staff?->email }}</small>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="badge bg-light text-dark border">
-                                        {{ $leaveRequest->leave_type_name }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <div class="fw-semibold text-slate-800">
-                                        {{ $leaveRequest->start_date?->format('d/m/Y') }}
-                                        <i class="fas fa-arrow-right mx-1 text-muted text-xs"></i>
-                                        {{ $leaveRequest->end_date?->format('d/m/Y') }}
-                                    </div>
-                                </td>
-                                <td>
-                                    <strong class="text-primary">{{ $leaveRequest->days_requested }} dias</strong>
-                                </td>
-                                <td>
-                                    @if ($leaveRequest->status === 'approved')
-                                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1">
-                                            <i class="fas fa-check-circle me-1"></i> Aprovada
-                                        </span>
-                                    @elseif($leaveRequest->status === 'rejected')
-                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3 py-1">
-                                            <i class="fas fa-times-circle me-1"></i> Rejeitada
-                                        </span>
-                                    @else
-                                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3 py-1">
-                                            <i class="fas fa-clock me-1"></i> Pendente
-                                        </span>
-                                    @endif
-                                </td>
-                                <td>
-                                    <small class="text-muted">{{ $leaveRequest->created_at->format('d/m/Y H:i') }}</small>
-                                </td>
-                                <td class="text-end">
-                                    <div class="d-flex justify-content-end gap-1">
-                                        <a href="{{ route('staff-leave-requests.show', $leaveRequest) }}"
-                                            class="btn btn-sm btn-outline-primary" title="Ver Detalhes">
-                                            <i class="fas fa-eye me-1"></i> Detalhes
-                                        </a>
-                                        @if ($leaveRequest->status === 'pending')
-                                            @can('approve_leave_requests')
-                                                <form method="POST" action="{{ route('staff-leave-requests.approve', $leaveRequest) }}" class="d-inline">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-sm btn-success" title="Aprovar">
-                                                        <i class="fas fa-check"></i>
-                                                    </button>
-                                                </form>
-                                                <form method="POST" action="{{ route('staff-leave-requests.reject', $leaveRequest) }}" class="d-inline" onsubmit="return confirm('Deseja rejeitar este pedido de licença?')">
-                                                    @csrf
-                                                    <input type="hidden" name="rejection_reason" value="Rejeitado via gestão rápida">
-                                                    <button type="submit" class="btn btn-sm btn-danger" title="Rejeitar">
-                                                        <i class="fas fa-times"></i>
-                                                    </button>
-                                                </form>
-                                            @endcan
-                                        @endif
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="7" class="text-center py-5 text-muted">
-                                    <i class="fas fa-calendar-times fa-3x mb-3 text-slate-300"></i>
-                                    <h5>Nenhum pedido de licença encontrado</h5>
-                                    <p class="text-xs">Não existem licenças registradas com os filtros selecionados.</p>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-
-            @if($leaveRequests->hasPages())
-                <div class="p-3 border-top">
-                    {{ $leaveRequests->links() }}
-                </div>
-            @endif
+        <div class="flex items-center gap-2">
+            <a href="{{ route('staff-leave-requests.export.csv', request()->query()) }}" class="no-underline inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 shadow-2xs transition">
+                <i class="fas fa-file-csv text-emerald-600"></i> CSV
+            </a>
+            <a href="{{ route('staff-leave-requests.export.pdf', request()->query()) }}" class="no-underline inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 shadow-2xs transition">
+                <i class="fas fa-file-pdf text-rose-600"></i> PDF
+            </a>
         </div>
     </div>
+
+    <!-- 2. Border-Accent Colored Stat Cards Grid -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <!-- Total Pedidos (Blue Accent) -->
+        <div class="bg-white rounded-xl p-3.5 border border-slate-200 border-l-4 border-l-blue-500 shadow-2xs flex items-center justify-between hover:shadow-sm transition">
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Total de Pedidos</span>
+                <span class="text-2xl font-black text-slate-800 mt-0.5">{{ $stats['total'] }}</span>
+            </div>
+            <div class="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-sm font-bold shrink-0">
+                <i class="fas fa-list"></i>
+            </div>
+        </div>
+
+        <!-- Pendentes (Amber Accent) -->
+        <div class="bg-white rounded-xl p-3.5 border border-slate-200 border-l-4 border-l-amber-500 shadow-2xs flex items-center justify-between hover:shadow-sm transition">
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Pendentes</span>
+                <span class="text-2xl font-black text-slate-800 mt-0.5">{{ $stats['pending'] }}</span>
+            </div>
+            <div class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-sm font-bold shrink-0">
+                <i class="fas fa-clock"></i>
+            </div>
+        </div>
+
+        <!-- Aprovadas (Emerald Accent) -->
+        <div class="bg-white rounded-xl p-3.5 border border-slate-200 border-l-4 border-l-emerald-500 shadow-2xs flex items-center justify-between hover:shadow-sm transition">
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Aprovadas</span>
+                <span class="text-2xl font-black text-slate-800 mt-0.5">{{ $stats['approved'] }}</span>
+            </div>
+            <div class="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm font-bold shrink-0">
+                <i class="fas fa-check-circle"></i>
+            </div>
+        </div>
+
+        <!-- Rejeitadas (Rose Accent) -->
+        <div class="bg-white rounded-xl p-3.5 border border-slate-200 border-l-4 border-l-rose-500 shadow-2xs flex items-center justify-between hover:shadow-sm transition">
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Rejeitadas</span>
+                <span class="text-2xl font-black text-slate-800 mt-0.5">{{ $stats['rejected'] }}</span>
+            </div>
+            <div class="w-9 h-9 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-sm font-bold shrink-0">
+                <i class="fas fa-times-circle"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Filter Bar -->
+    <div class="bg-white rounded-xl p-3 border border-slate-200 shadow-2xs">
+        <form method="GET" action="{{ route('staff-leave-requests.index') }}" class="grid gap-2 sm:grid-cols-2 md:grid-cols-4 items-center">
+            <div class="md:col-span-2">
+                <div class="relative">
+                    <input type="text" name="teacher" class="w-full rounded-lg border-slate-200 ps-8 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500" 
+                           placeholder="Pesquisar por nome do docente..." value="{{ request('teacher') }}">
+                    <i class="fas fa-search absolute left-2.5 top-2.5 text-slate-400 text-xs"></i>
+                </div>
+            </div>
+
+            <div>
+                <select name="status" class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500" onchange="this.form.submit()">
+                    <option value="">Todos os status</option>
+                    <option value="pending" @selected(request('status') === 'pending')>Pendente</option>
+                    <option value="approved" @selected(request('status') === 'approved')>Aprovada</option>
+                    <option value="rejected" @selected(request('status') === 'rejected')>Rejeitada</option>
+                </select>
+            </div>
+
+            <div class="flex items-center gap-1.5">
+                <button type="submit" class="w-full inline-flex justify-center items-center gap-1 rounded-lg bg-emerald-700 hover:bg-emerald-800 py-1.5 px-3 text-xs font-bold text-white transition shadow-2xs">
+                    <i class="fas fa-filter text-[10px]"></i> Filtrar
+                </button>
+                @if(request()->anyFilled(['teacher', 'status', 'leave_type']))
+                    <a href="{{ route('staff-leave-requests.index') }}" class="no-underline inline-flex justify-center items-center rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 p-1.5 text-xs text-slate-600 transition" title="Limpar Filtros">
+                        <i class="fas fa-times"></i>
+                    </a>
+                @endif
+            </div>
+        </form>
+    </div>
+
+    <!-- 4. Table Container -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
+        <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+            <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                <i class="fas fa-calendar-times text-emerald-600"></i> Pedidos Registados ({{ $leaveRequests->total() }})
+            </h3>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                    <tr class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider text-[10px] border-b border-slate-100">
+                        <th class="py-2.5 px-4">Docente</th>
+                        <th class="py-2.5 px-3">Tipo de Licença</th>
+                        <th class="py-2.5 px-3">Período</th>
+                        <th class="py-2.5 px-3">Dias</th>
+                        <th class="py-2.5 px-3">Status</th>
+                        <th class="py-2.5 px-4 text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @forelse($leaveRequests as $req)
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-2.5 px-4 font-bold text-slate-800">
+                                {{ $req->teacher->full_name ?? 'Docente' }}
+                            </td>
+                            <td class="py-2.5 px-3 font-semibold text-slate-700">
+                                {{ ucfirst($req->leave_type) }}
+                            </td>
+                            <td class="py-2.5 px-3 text-slate-600">
+                                {{ $req->start_date->format('d/m/Y') }} a {{ $req->end_date->format('d/m/Y') }}
+                            </td>
+                            <td class="py-2.5 px-3 font-bold text-slate-800">
+                                {{ $req->days_count }} dia(s)
+                            </td>
+                            <td class="py-2.5 px-3">
+                                @php
+                                    $statusBadge = match($req->status) {
+                                        'approved' => 'bg-emerald-100 text-emerald-800 border border-emerald-200',
+                                        'pending' => 'bg-amber-100 text-amber-800 border border-amber-200',
+                                        'rejected' => 'bg-rose-100 text-rose-800 border border-rose-200',
+                                        default => 'bg-slate-100 text-slate-600'
+                                    };
+                                @endphp
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold {{ $statusBadge }}">
+                                    {{ ucfirst($req->status) }}
+                                </span>
+                            </td>
+                            <td class="py-2.5 px-4 text-end">
+                                <div class="flex items-center justify-end gap-1">
+                                    <a href="{{ route('staff-leave-requests.show', $req) }}" class="no-underline h-7 w-7 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 flex items-center justify-center transition" title="Ver Detalhes">
+                                        <i class="fas fa-eye text-xs"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="p-6 text-center text-slate-400">
+                                <i class="fas fa-calendar-times text-2xl text-slate-300 mb-2"></i>
+                                <p class="text-xs font-semibold text-slate-600">Nenhum pedido de licença encontrado.</p>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        @if($leaveRequests->hasPages())
+            <div class="px-4 py-2 border-t border-slate-100">
+                {{ $leaveRequests->links('pagination::bootstrap-5') }}
+            </div>
+        @endif
+    </div>
+
 </div>
 @endsection

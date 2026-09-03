@@ -1,24 +1,27 @@
-# Especificação Funcional dos Módulos — ZamEdu (SIGE)
+# Especificação Funcional dos Módulos — ZAMEDU - SIGE
 
-Este documento contém a descrição exaustiva de todos os módulos funcionais da plataforma **ZamEdu — Sistema de Gestão Escolar (SIGE)**.
+Este documento descreve exaustivamente todos os módulos funcionais da plataforma **ZAMEDU - SIGE (Sistema Integrado de Gestão Escolar)**, desenvolvida por **Filipe dos Santos** ([http://146.235.224.99/](http://146.235.224.99/)).
 
 ---
 
 ## 📋 Índice dos Módulos
 
 1. [Dashboard Executivo & Analytics](#1-dashboard-executivo--analytics)
-2. [Gestão de Alunos](#2-gestão-de-alunos)
-3. [Gestão de Professores & Pessoal](#3-gestão-de-professores--pessoal)
-4. [Turmas, Salas & Horários](#4-turmas-salas--horários)
-5. [Disciplinas & Matriz Curricular](#5-disciplinas--matriz-curricular)
-6. [Matrículas & Inscrições](#6-matrículas--inscrições)
-7. [Propinas, Pagamentos & Multas](#7-propinas-pagamentos--multas)
-8. [Gestão de Despesas](#8-gestão-de-despesas)
-9. [Lançamento de Notas, Pautas & Boletins](#9-lançamento-de-notas-pautas--boletins)
-10. [Assiduidade & Presenças](#10-assiduidade--presenças)
-11. [Comunicações & Notificações em Massa](#11-comunicações--notificações-em-massa)
-12. [Portais Dedicados (Pais e Professores)](#12-portais-dedicados-pais-e-professores)
-13. [Gestão de Licenças & Configurações da Escola](#13-gestão-de-licenças--configurações-da-escola)
+2. [Portaria Digital & Controlo de Acesso (`/gatekeeper`)](#2-portaria-digital--controlo-de-acesso-gatekeeper)
+3. [Documentos Oficiais, Certidões & Emblema Nacional](#3-documentos-oficiais-certidões--emblema-nacional)
+4. [Central de Comunicações & Envio de SMS (`/communications` & `/sms`)](#4-central-de-comunicações--envio-de-sms-communications--sms)
+5. [Assistente Virtual com IA (`ZAMEDU AI Assistant`)](#5-assistente-virtual-com-ia-zamedu-ai-assistant)
+6. [Gestão de Alunos](#6-gestão-de-alunos)
+7. [Gestão de Professores & Pedidos de Licença](#7-gestão-de-professores--pedidos-de-licença)
+8. [Turmas, Turnos & Horários Escolares](#8-turmas-turnos--horários-escolares)
+9. [Disciplinas & Matriz Curricular](#9-disciplinas--matriz-curricular)
+10. [Matrículas, Inscrições & Pré-Inscrições Sem Filas](#10-matrículas-inscrições--pré-inscrições-sem-filas)
+11. [Propinas, Pagamentos & Modalidades (Público vs Privado)](#11-propinas-pagamentos--modalidades-público-vs-privado)
+12. [Gestão de Despesas & Resultado Líquido](#12-gestão-de-despesas--resultado-líquido)
+13. [Lançamento de Notas, Pautas MINEDH & Boletins](#13-lançamento-de-notas-pautas-minedh--boletins)
+14. [Assiduidade & Chamada Digital](#14-assiduidade--chamada-digital)
+15. [Portais Dedicados (Encarregados & Professores)](#15-portais-dedicados-encarregados--professores)
+16. [Configurações da Instituição, Licenciamento SaaS & Audit Logs](#16-configurações-da-instituição-licenciamento-saas--audit-logs)
 
 ---
 
@@ -28,7 +31,7 @@ Este documento contém a descrição exaustiva de todos os módulos funcionais d
 - **Público-alvo**: Administradores, Diretores, Secretaria, Pedagogia.
 - **Funcionalidades**:
   - Cartões de Indicadores Chave (KPIs): Receita Mensal, Alunos Ativos, Taxa Global de Assiduidade, Média Geral Académica, Propinas em Atraso, Total de Professores e Despesas do Mês.
-  - Widget de Calendário com navegação mensal, pontos de eventos e lista de eventos upcoming.
+  - Widget de Calendário com navegação mensal, pontos de eventos e lista de eventos futuros.
   - Gráfico Interativo de Evolução da Receita (Chart.js UMD) nos últimos 12 meses.
   - Gráfico de Distribuição de Alunos por Turma.
   - Quadro de Honra com o Top 5 Alunos com maior média académica global.
@@ -37,7 +40,54 @@ Este documento contém a descrição exaustiva de todos os módulos funcionais d
 
 ---
 
-## 2. Gestão de Alunos
+## 2. Portaria Digital & Controlo de Acesso (`/gatekeeper`)
+
+- **Rota**: `/gatekeeper`, `/gatekeeper/{student}/card` (`GatekeeperController`)
+- **Público-alvo**: Operadores de Portaria, Segurança, Administração.
+- **Funcionalidades**:
+  - Scanner de Código de Barras / QR Code integrado para leitores físicos USB ou câmaras web/mobile.
+  - Monitorização de entradas e saídas de estudantes e visitantes em tempo real.
+  - Indicadores ao vivo: Alunos Presentes no Recinto vs. Alunos Fora do Recinto.
+  - Emissão e impressão de Cartões de Estudante com foto tipo passe, Barcode/QR Code e **Emblema Oficial da República de Moçambique**.
+  - Modal de Trilha de Acessos (`GateLog`) com histórico detalhado por data, hora e responsável.
+
+---
+
+## 3. Documentos Oficiais, Certidões & Emblema Nacional
+
+- **Rota**: `/certificates`, `/enrollments/{id}/print`, `/pautas/pdf`
+- **Público-alvo**: Secretaria Escolar, Direção Pedagógica.
+- **Funcionalidades**:
+  - Emissão de **Certidões de Matrícula**, **Certificados de Habilitações Literárias**, **Boletins de Notas** e **Pautas de Avaliação**.
+  - Integração nativa do **Emblema Oficial da República de Moçambique** no cabeçalho de todos os documentos no formato PDF.
+  - Tratamento inteligente de assinaturas oficiais para eliminar duplicações quando os cargos coincidem com os nomes parametrizados (*O Director da Escola*, *O Chefe da Secretaria*).
+
+---
+
+## 4. Central de Comunicações & Envio de SMS (`/communications` & `/sms`)
+
+- **Rota**: `/admin/communications`, `/sms` (`NotificationController`, `SmsController`)
+- **Público-alvo**: Secretaria, Administradores.
+- **Funcionalidades**:
+  - Criação de comunicados gerais e avisos diretos por turma, encarregado ou aluno.
+  - Modal de envio de SMS rápido com suporte a tags (`{student_name}`, `{fee_amount}`, `{due_date}`).
+  - Disparo de lembretes automáticos para pagamentos de propinas em atraso, reuniões de pais e eventos.
+  - Tabela de registos de SMS (`sms_logs`) com estado do envio, destinatário, número de telefone e timestamp.
+
+---
+
+## 5. Assistente Virtual com IA (`ZAMEDU AI Assistant`)
+
+- **Rota**: `/ai` (`AiController`)
+- **Público-alvo**: Administradores, Diretores, Professores.
+- **Funcionalidades**:
+  - Widget flutuante de chat com inteligência artificial acessível em qualquer página do sistema.
+  - Auxílio na elaboração de comunicados, planos de aula, consulta de dados do sistema e estatísticas escolares.
+  - Histórico de conversas gravado nas tabelas `ai_conversations` e `messages`.
+
+---
+
+## 6. Gestão de Alunos
 
 - **Rota**: `/students` (`StudentController`)
 - **Funcionalidades**:
@@ -48,18 +98,18 @@ Este documento contém a descrição exaustiva de todos os módulos funcionais d
 
 ---
 
-## 3. Gestão de Professores & Pessoal
+## 7. Gestão de Professores & Pedidos de Licença
 
-- **Rota**: `/teachers` (`TeacherController`)
+- **Rota**: `/teachers`, `/staff-leave-requests` (`TeacherController`, `StaffLeaveRequestController`)
 - **Funcionalidades**:
   - Cadastro de docentes com número de BI, qualificação académica, especialização, data de admissão e salário.
-  - Cálculo automático e formatado dos anos de experiência docente.
+  - Cálculo automático dos anos de experiência docente.
   - Atribuição de turmas e disciplinas a cada professor.
-  - Gestão de solicitações de licença/ausência do pessoal docente e administrativo (`/staff-leave-requests`).
+  - Gestão de solicitações de licença/ausência do pessoal docente e administrativo com aprovação/rejeição.
 
 ---
 
-## 4. Turmas, Salas & Horários
+## 8. Turmas, Turnos & Horários Escolares
 
 - **Rota**: `/classes` (`ClassRoomController`)
 - **Funcionalidades**:
@@ -71,7 +121,7 @@ Este documento contém a descrição exaustiva de todos os módulos funcionais d
 
 ---
 
-## 5. Disciplinas & Matriz Curricular
+## 9. Disciplinas & Matriz Curricular
 
 - **Rota**: `/subjects` (`SubjectController`)
 - **Funcionalidades**:
@@ -80,83 +130,66 @@ Este documento contém a descrição exaustiva de todos os módulos funcionais d
 
 ---
 
-## 6. Matrículas & Inscrições
+## 10. Matrículas, Inscrições & Pré-Inscrições Sem Filas
 
-- **Rota**: `/enrollments` (`EnrollmentController` / `EnrollmentApplicationController`)
+- **Rota**: `/enrollments`, `/public/pre-enrollment` (`EnrollmentController`, `TrialRegisterController`)
 - **Funcionalidades**:
-  - Inscrições online e pré-matrículas públicas (`/public/pre-enrollment`).
+  - Portal de pré-inscrição pública online para novos alunos sem deslocação à escola.
   - Confirmação de matrículas de novos alunos e renovação anual automatizada (`/admin/enrollments/renewals`).
-  - Impressão de comprovativos de matrícula em PDF/Formatado.
+  - Impressão de comprovativos de matrícula em PDF com o Emblema da República.
 
 ---
 
-## 7. Propinas, Pagamentos & Multas
+## 11. Propinas, Pagamentos & Modalidades (Público vs Privado)
 
 - **Rota**: `/payments` (`PaymentController`)
 - **Funcionalidades**:
+  - Distinção entre **Escolas Privadas** (cobrança de propinas, mensalidades, multas por atraso) e **Escolas Públicas** (isenção de mensalidades, cobrança pontual de matrículas/exames).
   - Geração automática de propinas mensais por lote.
   - Cálculo de multas e juros por mora configuráveis.
   - Geração de referências bancárias de pagamento (M-Pesa, eMola, Multicaixa).
-  - Emissão de recibos e relatórios de liquidez financeira.
-  - Escopo de dados por role: professores veem apenas pagamentos das suas turmas; encarregados veem apenas pagamentos dos seus filhos.
+  - Emissão de recibos profissionais em PDF com Emblema e dados do pagador.
 
 ---
 
-## 8. Gestão de Despesas
+## 12. Gestão de Despesas & Resultado Líquido
 
 - **Rota**: `/expenses` (`ExpenseController`)
-- **Público-alvo**: Administradores, Secretaria.
 - **Funcionalidades**:
-  - Criação, edição, visualização e exclusão de despesas financeiras.
-  - Categorização de despesas por categoria financeira (`FinancialCategory`).
-  - Relatórios de despesas por período e categoria.
-  - Integração com relatórios financeiros para cálculo de resultado líquido (receita - despesas).
-  - Permissão granular: `manage_expenses`.
+  - Registo, edição e categorização de despesas financeiras da escola (`FinancialCategory`).
+  - Integração com o módulo financeiro para exibição do **Resultado Líquido** (Total de Receitas - Total de Despesas).
 
 ---
 
-## 9. Lançamento de Notas, Pautas & Boletins
+## 13. Lançamento de Notas, Pautas MINEDH & Boletins
 
-- **Rota**: `/grades` (`GradeController`)
+- **Rota**: `/grades`, `/pautas` (`GradeController`)
 - **Funcionalidades**:
-  - Lançamento contínuo de notas (ACS - Avaliação Contínua e Sistemática, ACP - Avaliação Parcial, ACF - Avaliação Final).
+  - Lançamento contínuo de notas: ACS (Avaliação Contínua e Sistemática), ACP (Avaliação Parcial) e ACF (Avaliação Final).
   - Entrada de notas por lote para toda a turma (`/grades/batch-create`).
-  - Emissão de pauta académica da turma e Boletim Informativo de Notas do aluno.
-  - Cálculo de médias com pesos configuráveis (MACS peso, ACP peso) e mínimo de trimestres para média final.
-  - Suporte a múltiplas escalas de avaliação (0-20, 0-10, percentagem).
+  - Emissão de Pauta Oficial da Turma e Boletim Informativo do Aluno.
+  - Cálculo automático de médias segundo as regras do MINEDH.
 
 ---
 
-## 10. Assiduidade & Presenças
+## 14. Assiduidade & Chamada Digital
 
 - **Rota**: `/attendances` (`AttendanceController`)
 - **Funcionalidades**:
   - Registo diário de presenças, faltas justificadas e faltas injustificadas por turma.
-  - Relatório consolidado de assiduidade por período e aluno.
+  - Relatórios consolidados de assiduidade.
 
 ---
 
-## 11. Comunicações & Notificações em Massa
+## 15. Portais Dedicados (Encarregados & Professores)
 
-- **Rota**: `/communications` (`NotificationController`)
-- **Funcionalidades**:
-  - Envio de comunicados gerais e avisos direcionados por turma ou encarregado.
-  - Notificações no sistema e suporte a integração SMS/Email.
+- **Portal do Encarregado (`/parent/dashboard`)**: Acompanhamento do boletim de notas, assiduidade, propinas e avisos escolares.
+- **Portal do Professor (`/teacher/dashboard`)**: Registo de chamadas, lançamento de notas e gestão de licenças.
 
 ---
 
-## 12. Portais Dedicados (Pais e Professores)
+## 16. Configurações da Instituição, Licenciamento SaaS & Audit Logs
 
-- **Portal do Encarregado (`/parent/dashboard`)**:
-  - Acompanhamento do boletim de notas, faltas, mensalidades pendentes e pagamento via M-Pesa.
-- **Portal do Professor (`/teacher/dashboard`)**:
-  - Registo de sumários, chamada digital, lançamento de notas e solicitação de dispensas.
-
----
-
-## 13. Gestão de Licenças & Configurações da Escola
-
-- **Painel de Licenças (`/admin/license`)**:
-  - Validação de chave SaaS, validade do contrato e estado de vigência (`active`, `grace_period`, `suspended`).
-- **Configurações Globais (`/admin/settings`)**:
-  - Personalização de nome da instituição, logótipo, cores primárias/secundárias e parâmetros académicos.
+- **Configurações Globais (`/admin/settings`)**: Definição do nome da instituição, logótipo, cores primárias/secundárias, tipo de escola (pública/privada) e parâmetros académicos.
+- **Painel de Licenças (`/admin/license`)**: Validação da vigência SaaS (`active`, `grace_period`, `suspended`).
+- **Registo de Auditoria (`/admin/audit`)**: Rastreamento completo das ações de utilizadores no sistema.

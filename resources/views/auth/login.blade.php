@@ -1,21 +1,21 @@
 <x-guest-layout>
     <style>
         :root {
-            --green-900: #1B5E20;
-            --green-800: #2E7D32;
-            --green-700: #388E3C;
-            --green-600: #43A047;
-            --green-100: #E8F5E9;
-            --green-50: #F1F8E9;
-            --yellow-500: #FFB300;
-            --yellow-400: #FFC107;
-            --gray-900: #212121;
-            --gray-800: #424242;
-            --gray-700: #616161;
-            --gray-500: #9E9E9E;
-            --gray-200: #EEEEEE;
-            --gray-100: #F5F5F5;
-            --gray-50: #FAFAFA;
+            --green-900: #064E3B;
+            --green-800: #047857;
+            --green-700: #059669;
+            --green-600: #10B981;
+            --green-100: #D1FAE5;
+            --green-50: #ECFDF5;
+            --yellow-500: #F59E0B;
+            --yellow-400: #FBBF24;
+            --gray-900: #0F172A;
+            --gray-800: #1E293B;
+            --gray-700: #334155;
+            --gray-500: #64748B;
+            --gray-200: #E2E8F0;
+            --gray-100: #F1F5F9;
+            --gray-50: #F8FAFC;
             --white: #FFFFFF;
         }
 
@@ -41,8 +41,8 @@
         /* ===== LEFT VISUAL BANNER ===== */
         .banner-side {
             flex: 1;
-            background: linear-gradient(135deg, rgba(27, 94, 32, 0.92), rgba(46, 125, 50, 0.85)),
-                        url('https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat;
+            background: linear-gradient(135deg, rgba(6, 78, 59, 0.93), rgba(4, 120, 87, 0.88)),
+                        url('https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -54,7 +54,7 @@
         .banner-brand {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 16px;
         }
 
         .banner-brand-icon {
@@ -62,29 +62,33 @@
             height: 52px;
             background: var(--white);
             color: var(--green-900);
-            border-radius: 12px;
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 24px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            flex-shrink: 0;
         }
 
         .banner-brand-text h1 {
-            font-size: 22px;
-            font-weight: 800;
-            line-height: 1.2;
+            font-size: 24px;
+            font-weight: 900;
+            line-height: 1.1;
             color: var(--white);
+            letter-spacing: 0.5px;
         }
 
         .banner-brand-text span {
-            font-size: 13px;
-            color: rgba(255, 255, 255, 0.85);
-            font-weight: 400;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .banner-center-content {
-            max-width: 480px;
+            max-width: 500px;
         }
 
         .banner-badge {
@@ -95,20 +99,17 @@
             background: rgba(255, 255, 255, 0.15);
             border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
+            font-size: 11px;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
             margin-bottom: 20px;
             backdrop-filter: blur(4px);
-        }
-
-        .banner-badge i {
-            color: var(--yellow-400);
+            color: #FDE68A;
         }
 
         .banner-headline {
-            font-size: 36px;
+            font-size: 34px;
             font-weight: 800;
             line-height: 1.25;
             margin-bottom: 18px;
@@ -116,14 +117,14 @@
         }
 
         .banner-headline .highlight {
-            color: var(--yellow-400);
+            color: #FBBF24;
         }
 
         .banner-description {
-            font-size: 16px;
+            font-size: 15px;
             color: rgba(255, 255, 255, 0.9);
             line-height: 1.6;
-            margin-bottom: 30px;
+            margin-bottom: 28px;
         }
 
         .banner-features {
@@ -137,7 +138,7 @@
             align-items: center;
             gap: 12px;
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 600;
             color: rgba(255, 255, 255, 0.95);
         }
 
@@ -146,7 +147,7 @@
             height: 24px;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.2);
-            color: var(--yellow-400);
+            color: #FBBF24;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -154,12 +155,14 @@
         }
 
         .banner-footer {
-            font-size: 13px;
-            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.8);
         }
 
-        .banner-footer strong {
-            color: var(--white);
+        .banner-footer a {
+            color: #FBBF24;
+            font-weight: 700;
+            text-decoration: underline;
         }
 
         /* ===== RIGHT FORM SIDE ===== */
@@ -188,20 +191,20 @@
         }
 
         .mobile-brand-icon {
-            width: 36px;
-            height: 36px;
+            width: 38px;
+            height: 38px;
             background: var(--green-800);
             color: var(--white);
-            border-radius: 8px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 18px;
         }
 
         .mobile-brand-title {
             font-size: 16px;
-            font-weight: 700;
+            font-weight: 800;
             color: var(--gray-900);
         }
 
@@ -214,7 +217,7 @@
             color: var(--gray-700);
             border-radius: 8px;
             font-size: 13px;
-            font-weight: 600;
+            font-weight: 700;
             text-decoration: none;
             transition: all 0.2s ease;
             margin-left: auto;
@@ -232,31 +235,49 @@
         }
 
         .form-header {
-            margin-bottom: 32px;
+            margin-bottom: 28px;
+            text-align: center;
+        }
+
+        .form-header-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            background: var(--green-800);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin: 0 auto 16px auto;
+            box-shadow: 0 4px 15px rgba(4, 120, 87, 0.25);
         }
 
         .form-header h2 {
-            font-size: 26px;
-            font-weight: 800;
+            font-size: 24px;
+            font-weight: 900;
             color: var(--gray-900);
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
         .form-header p {
-            font-size: 14px;
-            color: var(--gray-700);
+            font-size: 13px;
+            color: var(--gray-500);
+            font-weight: 500;
         }
 
         .form-group {
-            margin-bottom: 22px;
+            margin-bottom: 20px;
         }
 
         .form-label {
             display: block;
-            font-size: 13px;
-            font-weight: 600;
+            font-size: 12px;
+            font-weight: 700;
             color: var(--gray-700);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .form-label i {
@@ -278,12 +299,13 @@
             background: var(--gray-50);
             transition: all 0.2s ease;
             outline: none;
+            font-weight: 600;
         }
 
         .form-input:focus {
             background: var(--white);
-            border-color: var(--green-600);
-            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15);
+            border-color: var(--green-700);
+            box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.15);
         }
 
         .input-icon-left {
@@ -316,7 +338,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 24px;
+            margin-bottom: 22px;
             font-size: 13px;
         }
 
@@ -326,6 +348,7 @@
             gap: 8px;
             color: var(--gray-700);
             cursor: pointer;
+            font-weight: 600;
         }
 
         .remember-checkbox {
@@ -336,7 +359,7 @@
 
         .forgot-link {
             color: var(--green-800);
-            font-weight: 600;
+            font-weight: 700;
             text-decoration: none;
         }
 
@@ -347,20 +370,22 @@
 
         .btn-submit {
             width: 100%;
-            padding: 14px;
+            padding: 13px;
             background: var(--green-800);
             color: var(--white);
             border: none;
             border-radius: 10px;
-            font-size: 15px;
-            font-weight: 700;
+            font-size: 14px;
+            font-weight: 800;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
             transition: background 0.2s ease, transform 0.1s ease;
-            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.25);
+            box-shadow: 0 4px 12px rgba(4, 120, 87, 0.25);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .btn-submit:hover {
@@ -382,9 +407,9 @@
         }
 
         .alert-danger-custom {
-            background: #FFEBEE;
-            border: 1px solid #FFCDD2;
-            color: #C62828;
+            background: #FEF2F2;
+            border: 1px solid #FCA5A5;
+            color: #991B1B;
         }
 
         .alert-success-custom {
@@ -395,9 +420,16 @@
 
         .form-footer {
             text-align: center;
-            font-size: 12px;
+            font-size: 11px;
             color: var(--gray-500);
             margin-top: 20px;
+            font-weight: 500;
+        }
+
+        .form-footer a {
+            color: var(--green-800);
+            font-weight: 700;
+            text-decoration: none;
         }
 
         /* ===== RESPONSIVE ===== */
@@ -425,45 +457,40 @@
                     <i class="fas fa-graduation-cap"></i>
                 </div>
                 <div class="banner-brand-text">
-                    <h1>{{ setting('school_name', config('app.name', 'ZamEdu')) }}</h1>
-                    <span>Sistema Inteligente de Gestão Escolar</span>
+                    <h1>ZAMEDU - SIGE</h1>
+                    <span>Sistema Integrado de Gestão Escolar</span>
                 </div>
             </div>
 
             <!-- Center Content -->
             <div class="banner-center-content">
                 <div class="banner-badge">
-                    <i class="fas fa-star"></i>
-                    <span>Plataforma Multitenant SaaS</span>
+                    <i class="fas fa-landmark"></i>
+                    <span>REPÚBLICA DE MOÇAMBIQUE · MINEDH</span>
                 </div>
 
                 <h2 class="banner-headline">
-                    Transformando a gestão escolar com <span class="highlight">tecnologia e inovação</span>
+                    Gestão Escolar com <span class="highlight">Eficiência, Transparência e Inovação</span>
                 </h2>
 
                 <p class="banner-description">
-                    Aceda ao portal administrativo para gerir turmas, notas, pautas de avaliação, pagamentos de propinas e comunicação direta com a comunidade escolar.
+                    Plataforma oficial para gestão académica de escolas públicas e privadas. Otimizada para eliminação de filas na secretaria e conformidade total com o Sistema Nacional de Educação.
                 </p>
 
                 <div class="banner-features">
                     <div class="banner-feature-item">
                         <i class="fas fa-check"></i>
-                        <span>Gestão Académica 100% Digital</span>
+                        <span>Onboarding para Escola Pública & Privada</span>
                     </div>
                     <div class="banner-feature-item">
                         <i class="fas fa-check"></i>
-                        <span>Integração de Pagamentos MPesa e eMola</span>
+                        <span>Pré-Inscrição Inteligente (Fim das Filas)</span>
                     </div>
                     <div class="banner-feature-item">
                         <i class="fas fa-check"></i>
-                        <span>Portal de Alunos e Encarregados de Educação</span>
+                        <span>Pautas, Boletins e Certificados Oficiais MINEDH</span>
                     </div>
                 </div>
-            </div>
-
-            <!-- Footer Bottom -->
-            <div class="banner-footer">
-                &copy; {{ date('Y') }} <strong>{{ setting('school_name', config('app.name', 'ZamEdu')) }}</strong>. Desenvolvido por <strong>FDS Software</strong>.
             </div>
         </div>
 
@@ -476,20 +503,23 @@
                     <div class="mobile-brand-icon">
                         <i class="fas fa-graduation-cap"></i>
                     </div>
-                    <span class="mobile-brand-title">{{ setting('school_name', 'ZamEdu') }}</span>
+                    <span class="mobile-brand-title">ZAMEDU - SIGE</span>
                 </a>
 
                 <a href="{{ route('welcome') }}" class="btn-back-home">
                     <i class="fas fa-arrow-left"></i>
-                    <span>Voltar ao Início</span>
+                    <span>Início</span>
                 </a>
             </div>
 
             <div class="form-container">
 
                 <div class="form-header">
+                    <div class="form-header-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
                     <h2>Portal de Acesso</h2>
-                    <p>Introduza as suas credenciais para continuar</p>
+                    <p>Autenticação do Sistema Integrado de Gestão Escolar</p>
                 </div>
 
                 <!-- Session Status -->
@@ -538,7 +568,7 @@
                                 required 
                                 autofocus 
                                 autocomplete="email" 
-                                placeholder="seu.email@escola.co.mz">
+                                placeholder="utilizador@escola.gov.mz">
                         </div>
                     </div>
 
@@ -593,7 +623,7 @@
             </div>
 
             <div class="form-footer">
-                &copy; {{ date('Y') }} {{ setting('school_name', config('app.name', 'ZamEdu')) }} — {{ setting('address', 'Moçambique') }}
+                &copy; {{ date('Y') }} <strong>ZAMEDU - SIGE</strong> · <a href="http://146.235.224.99/" target="_blank">Filipe dos Santos</a>
             </div>
 
         </div>
@@ -617,7 +647,7 @@
             const btn = document.getElementById('loginBtn');
             if (btn) {
                 btn.disabled = true;
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>A entrar...</span>';
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>A autenticar...</span>';
             }
         });
     </script>

@@ -5,176 +5,146 @@
 @section('page-title-icon', 'fas fa-calendar-check')
 
 @section('breadcrumbs')
-    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Início</a></li>
-    <li class="breadcrumb-item active">Frequências</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Frequências</li>
 @endsection
 
-@php
-    $titleIcon = 'fas fa-calendar-check';
-@endphp
-
 @section('content')
-<!-- Estatísticas Globais -->
-<div class="school-stats mb-4">
-    {{--  <div class="stat-card students">
-        <div class="stat-icon students">
-            <i class="fas fa-chalkboard"></i>
-        </div>
-        <div class="stat-content">
-            <div class="stat-value">{{ $globalStats['total_classes'] }}</div>
-            <div class="stat-label">Turmas Ativas</div>
-        </div>
-    </div> --}}
+<div class="space-y-4">
 
-    <div class="stat-card teachers">
-        <div class="stat-icon teachers">
-            <i class="fas fa-users"></i>
+    <!-- 1. Compact Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-slate-200">
+        <div>
+            <h1 class="text-xl font-black text-slate-800 tracking-tight flex items-center gap-2">
+                <i class="fas fa-calendar-check text-emerald-600"></i> Assiduidade & Frequências
+            </h1>
+            <p class="text-xs text-slate-500 mt-0.5">Controlo diário de presenças e faltas por turma.</p>
         </div>
-        <div class="stat-content">
-            <div class="stat-value">{{ $globalStats['total_students'] }}</div>
-            <div class="stat-label">Total Alunos</div>
+        <div class="flex flex-wrap items-center gap-2">
+            <form action="{{ route('attendances.index') }}" method="GET" class="flex items-center gap-1.5">
+                <input type="date" name="date" class="rounded-lg border-slate-200 text-xs font-semibold text-slate-700 py-1.5 px-2.5 focus:ring-emerald-500"
+                       value="{{ $selectedDate }}" max="{{ date('Y-m-d') }}" onchange="this.form.submit()">
+            </form>
+            <a href="{{ route('attendances.reports') }}" class="no-underline inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 shadow-2xs transition">
+                <i class="fas fa-chart-bar text-emerald-600"></i> Relatórios
+            </a>
         </div>
     </div>
 
-    <div class="stat-card payments">
-        <div class="stat-icon payments">
-            <i class="fas fa-user-check"></i>
+    <!-- 2. Stat Cards (Pílula de Cor na Esquerda) -->
+    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        <!-- Total Alunos (Slate Pill Accent) -->
+        <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex items-center gap-3 hover:shadow-sm transition">
+            <div class="w-1.5 h-8 rounded-full bg-slate-600 shrink-0"></div>
+            <div class="w-9 h-9 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-sm font-bold shrink-0">
+                <i class="fas fa-users"></i>
+            </div>
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Total Alunos</span>
+                <span class="text-xl font-black text-slate-800 mt-0.5 block">{{ $globalStats['total_students'] }}</span>
+            </div>
         </div>
-        <div class="stat-content">
-            <div class="stat-value">{{ $globalStats['total_present'] }}</div>
-            <div class="stat-label">Presentes Hoje</div>
-        </div>
-    </div>
 
-    <div class="stat-card events">
-        <div class="stat-icon events" style="background: linear-gradient(135deg, #F44336, #C62828);">
-            <i class="fas fa-user-times"></i>
+        <!-- Presentes Hoje (Emerald Pill Accent) -->
+        <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex items-center gap-3 hover:shadow-sm transition">
+            <div class="w-1.5 h-8 rounded-full bg-emerald-500 shrink-0"></div>
+            <div class="w-9 h-9 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm font-bold shrink-0">
+                <i class="fas fa-user-check"></i>
+            </div>
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Presentes Hoje</span>
+                <span class="text-xl font-black text-emerald-700 mt-0.5 block">{{ $globalStats['total_present'] }}</span>
+            </div>
         </div>
-        <div class="stat-content">
-            <div class="stat-value">{{ $globalStats['total_absent'] }}</div>
-            <div class="stat-label">Ausentes Hoje</div>
-        </div>
-    </div>
 
-    <div class="stat-card teachers">
-        <div class="stat-icon teachers">
-            <i class="fas fa-clock"></i>
+        <!-- Ausentes Hoje (Rose Pill Accent) -->
+        <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex items-center gap-3 hover:shadow-sm transition">
+            <div class="w-1.5 h-8 rounded-full bg-rose-500 shrink-0"></div>
+            <div class="w-9 h-9 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center text-sm font-bold shrink-0">
+                <i class="fas fa-user-times"></i>
+            </div>
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Ausentes Hoje</span>
+                <span class="text-xl font-black text-rose-700 mt-0.5 block">{{ $globalStats['total_absent'] }}</span>
+            </div>
         </div>
-        <div class="stat-content">
-            <div class="stat-value">{{ $globalStats['total_late'] }}</div>
-            <div class="stat-label">Atrasados Hoje</div>
-        </div>
-    </div>
 
-    <div class="stat-card students">
-        <div class="stat-icon students">
-            <i class="fas fa-calendar-day"></i>
+        <!-- Atrasados Hoje (Amber Pill Accent) -->
+        <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex items-center gap-3 hover:shadow-sm transition">
+            <div class="w-1.5 h-8 rounded-full bg-amber-500 shrink-0"></div>
+            <div class="w-9 h-9 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center text-sm font-bold shrink-0">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Atrasados Hoje</span>
+                <span class="text-xl font-black text-amber-700 mt-0.5 block">{{ $globalStats['total_late'] }}</span>
+            </div>
         </div>
-        <div class="stat-content">
-            <div class="stat-value">{{ $globalStats['total_unmarked'] }}</div>
-            <div class="stat-label">Por Marcar</div>
-        </div>
-    </div>
-</div>
 
-<!-- Filtro de Data e Ações -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="school-card">
-            <div class="school-card-body">
-                <form action="{{ route('attendances.index') }}" method="GET" class="row g-3 align-items-end">
-                    <div class="col-md-3">
-                        <label class="form-label">
-                            <i class="fas fa-calendar me-2"></i>Data
-                        </label>
-                        <input type="date" name="date" class="form-control" value="{{ $selectedDate }}" max="{{ date('Y-m-d') }}" onchange="this.form.submit()">
-                    </div>
-                    <div class="col-md-3">
-                        <div class="d-grid gap-2 d-md-flex">
-                            <a href="{{ route('attendances.reports') }}" class="btn btn-warning">
-                                <i class="fas fa-chart-bar"></i> Relatórios
-                            </a>
-                        </div>
-                    </div>
-                </form>
+        <!-- Por Marcar (Blue Pill Accent) -->
+        <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex items-center gap-3 hover:shadow-sm transition">
+            <div class="w-1.5 h-8 rounded-full bg-blue-500 shrink-0"></div>
+            <div class="w-9 h-9 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-sm font-bold shrink-0">
+                <i class="fas fa-calendar-day"></i>
+            </div>
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Por Marcar</span>
+                <span class="text-xl font-black text-slate-800 mt-0.5 block">{{ $globalStats['total_unmarked'] }}</span>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Lista de Turmas e suas Frequências -->
-<div class="row g-3">
-    @forelse($classes as $classData)
-        @php
-            $class = $classData['class'];
-            $attendanceRate = $classData['attendance_rate'];
-            $rateColor = $attendanceRate >= 90 ? 'success' : ($attendanceRate >= 75 ? 'warning' : 'danger');
-        @endphp
-        <div class="col-md-6 col-xl-4">
-            <div class="school-card h-100 hover-shadow transition">
-                <div class="school-card-header d-flex justify-content-between align-items-center">
+    <!-- 3. Turmas Cards Grid -->
+    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        @forelse($classes as $classData)
+            @php
+                $class = $classData['class'];
+                $attendanceRate = $classData['attendance_rate'];
+                $rateBadge = $attendanceRate >= 90 ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : ($attendanceRate >= 75 ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-rose-100 text-rose-800 border border-rose-200');
+            @endphp
+            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-2xs space-y-3">
+                <div class="flex items-start justify-between">
                     <div>
-                        <h5 class="mb-0">{{ $class->name }}</h5>
-                        <small class="text-muted">{{ $class->grade_level_name }} • {{ $class->shift_label }}</small>
+                        <h4 class="text-sm font-extrabold text-slate-800">{{ $class->name }}</h4>
+                        <p class="text-[11px] text-slate-400 font-medium">{{ $class->grade_level_name }} • {{ $class->shift_label }}</p>
                     </div>
-                    <span class="badge bg-{{ $rateColor }}">
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-black {{ $rateBadge }}">
                         {{ $attendanceRate }}%
                     </span>
                 </div>
-                <div class="school-card-body">
-                    <div class="row g-2 mb-3">
-                        <div class="col-6">
-                            <div class="d-flex justify-content-between">
-                                <small class="text-muted">Presentes:</small>
-                                <strong class="text-success">{{ $classData['present'] }}</strong>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="d-flex justify-content-between">
-                                <small class="text-muted">Ausentes:</small>
-                                <strong class="text-danger">{{ $classData['absent'] }}</strong>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="d-flex justify-content-between">
-                                <small class="text-muted">Atrasados:</small>
-                                <strong class="text-warning">{{ $classData['late'] }}</strong>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="d-flex justify-content-between">
-                                <small class="text-muted">Justificados:</small>
-                                <strong class="text-info">{{ $classData['excused'] }}</strong>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="progress mb-3" style="height: 8px;">
-                        <div class="progress-bar bg-{{ $rateColor }}" style="width: {{ $attendanceRate }}%"></div>
+                <div class="grid grid-cols-2 gap-1.5 text-[11px]">
+                    <div class="flex justify-between p-1.5 rounded-lg bg-slate-50 border border-slate-100">
+                        <span class="text-slate-500">Presentes:</span>
+                        <strong class="text-emerald-700 font-bold">{{ $classData['present'] }}</strong>
                     </div>
+                    <div class="flex justify-between p-1.5 rounded-lg bg-slate-50 border border-slate-100">
+                        <span class="text-slate-500">Ausentes:</span>
+                        <strong class="text-rose-700 font-bold">{{ $classData['absent'] }}</strong>
+                    </div>
+                </div>
 
-                    <div class="d-flex gap-2">
-                        <a href="{{ route('attendances.class-attendances', $class) }}?date={{ $selectedDate }}" class="btn btn-primary btn-sm flex-grow-1">
-                            <i class="fas fa-eye"></i> Ver Frequências
+                <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                    <div class="h-full rounded-full {{ $attendanceRate >= 90 ? 'bg-emerald-500' : 'bg-amber-500' }}" style="width: {{ $attendanceRate }}%;"></div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                    <a href="{{ route('attendances.class-attendances', $class) }}?date={{ $selectedDate }}" class="no-underline inline-flex justify-center items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition">
+                        <i class="fas fa-eye text-[10px]"></i> Ver
+                    </a>
+                    @can('mark_attendances')
+                        <a href="{{ route('attendances.mark-by-class', $class) }}?date={{ $selectedDate }}" class="no-underline inline-flex justify-center items-center gap-1 px-2.5 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition shadow-2xs">
+                            <i class="fas fa-edit text-[10px]"></i> Marcar
                         </a>
-                        @can('mark_attendances')
-                            <a href="{{ route('attendances.mark-by-class', $class) }}?date={{ $selectedDate }}" class="btn btn-success btn-sm flex-grow-1">
-                                <i class="fas fa-edit"></i> Marcar
-                            </a>
-                        @endcan
-                    </div>
+                    @endcan
                 </div>
             </div>
-        </div>
-    @empty
-        <div class="col-12">
-            <div class="school-card">
-                <div class="school-card-body text-center py-5">
-                    <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
-                    <p class="text-muted">Nenhuma turma ativa encontrada para o ano letivo atual.</p>
-                </div>
+        @empty
+            <div class="col-span-full bg-white rounded-xl p-8 text-center border border-slate-200 shadow-2xs">
+                <i class="fas fa-calendar-times text-3xl text-slate-300 mb-2"></i>
+                <p class="text-xs font-semibold text-slate-600">Nenhuma turma ativa encontrada.</p>
             </div>
-        </div>
-    @endforelse
+        @endforelse
+    </div>
+
 </div>
 @endsection

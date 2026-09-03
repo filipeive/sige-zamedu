@@ -1,226 +1,186 @@
 @extends('layouts.app')
 
 @section('title', 'Gestão de Disciplinas')
-@section('page-title', 'Disciplinas')
+@section('page-title', 'Disciplinas & Matriz Curricular')
 @section('page-title-icon', 'fas fa-book')
 
 @section('breadcrumbs')
-    <li class="breadcrumb-item active">Disciplinas</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Disciplinas</li>
 @endsection
 
 @section('content')
-<div class="row">
-    <div class="col-12">
-        <!-- Estatísticas -->
-        <div class="row g-3 mb-4">
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm bg-white p-3 border-start border-4 border-primary">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0 bg-primary-subtle text-primary rounded-circle p-3 me-3">
-                            <i class="fas fa-book fa-lg"></i>
-                        </div>
-                        <div>
-                            <div class="text-muted small text-uppercase font-weight-bold">Total de Disciplinas</div>
-                            <h4 class="mb-0 text-primary font-weight-bold">{{ $totalSubjects }}</h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm bg-white p-3 border-start border-4 border-success">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0 bg-success-subtle text-success rounded-circle p-3 me-3">
-                            <i class="fas fa-check-circle fa-lg"></i>
-                        </div>
-                        <div>
-                            <div class="text-muted small text-uppercase font-weight-bold">Disciplinas Ativas</div>
-                            <h4 class="mb-0 text-success font-weight-bold">{{ $activeSubjects }}</h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm bg-white p-3 border-start border-4 border-info">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0 bg-info-subtle text-info rounded-circle p-3 me-3">
-                            <i class="fas fa-chalkboard fa-lg"></i>
-                        </div>
-                        <div>
-                            <div class="text-muted small text-uppercase font-weight-bold">Turmas Atribuidas</div>
-                            <h4 class="mb-0 text-info font-weight-bold">{{ \App\Models\ClassSubject::distinct('class_id')->count() }}</h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm bg-white p-3 border-start border-4 border-warning">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0 bg-warning-subtle text-warning rounded-circle p-3 me-3">
-                            <i class="fas fa-medal fa-lg"></i>
-                        </div>
-                        <div>
-                            <div class="text-muted small text-uppercase font-weight-bold">Notas Registadas</div>
-                            <h4 class="mb-0 text-dark font-weight-bold">{{ \App\Models\Grade::count() }}</h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="space-y-4">
 
-        <!-- Filtros -->
-        <div class="school-card mb-4">
-            <div class="school-card-body">
-                <form action="{{ route('subjects.index') }}" method="GET" class="row g-3">
-                    <div class="col-md-4">
-                        <label class="form-label">Pesquisar</label>
-                        <input type="text" name="search" class="form-control" 
-                               placeholder="Nome, código..." 
-                               value="{{ request('search') }}">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Nível</label>
-                        <select name="grade_level" class="form-select">
-                            <option value="">Todos os níveis</option>
-                            @foreach($gradeLevels as $key => $level)
-                                <option value="{{ $key }}" {{ request('grade_level') == $key ? 'selected' : '' }}>
-                                    {{ $level }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Status</label>
-                        <select name="is_active" class="form-select">
-                            <option value="">Todos</option>
-                            <option value="1" {{ request('is_active') === '1' ? 'selected' : '' }}>Ativas</option>
-                            <option value="0" {{ request('is_active') === '0' ? 'selected' : '' }}>Inativas</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">&nbsp;</label>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary-school">
-                                <i class="fas fa-filter"></i> Filtrar
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
+    <!-- 1. Compact Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-slate-200">
+        <div>
+            <h1 class="text-xl font-black text-slate-800 tracking-tight flex items-center gap-2">
+                <i class="fas fa-book text-emerald-600"></i> Matriz Curricular & Disciplinas
+            </h1>
+            <p class="text-xs text-slate-500 mt-0.5">Catálogo de disciplinas lectivas, códigos e carga horária.</p>
         </div>
-
-        <!-- Tabela de Disciplinas -->
-        <div class="school-table-container">
-            <div class="school-table-header">
-                <h3 class="school-table-title">
-                    <i class="fas fa-list"></i>
-                    Lista de Disciplinas
-                </h3>
-                @can('create_subjects')
-                <a href="{{ route('subjects.create') }}" class="btn btn-secondary-school">
+        <div class="flex items-center gap-2">
+            @can('create_subjects')
+                <a href="{{ route('subjects.create') }}" class="no-underline inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-xs font-bold text-white shadow-sm transition">
                     <i class="fas fa-plus"></i> Nova Disciplina
                 </a>
-                @endcan
-            </div>
-
-            <div class="table-responsive">
-                <table class="table table-school">
-                    <thead>
-                        <tr>
-                            <th>Disciplina</th>
-                            <th>Código</th>
-                            <th>Nível</th>
-                            <th>Horas/Semana</th>
-                            <th>Turmas</th>
-                            <th>Notas</th>
-                            <th>Status</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($subjects as $subject)
-                            <tr>
-                                <td>
-                                    <strong>{{ $subject->name }}</strong>
-                                    @if($subject->description)
-                                        <br>
-                                        <small class="text-muted">{{ Str::limit($subject->description, 50) }}</small>
-                                    @endif
-                                </td>
-                                <td>
-                                    <code>{{ $subject->code }}</code>
-                                </td>
-                                <td>
-                                    <span class="badge bg-primary">{{ $gradeLevels[$subject->grade_level] ?? $subject->grade_level }}</span>
-                                </td>
-                                <td>
-                                    {{ $subject->weekly_hours }}h
-                                </td>
-                                <td>
-                                    <span class="badge bg-info">{{ $subject->classes_count }}</span>
-                                </td>
-                                <td>
-                                    <span class="badge bg-warning">{{ $subject->grades_count }}</span>
-                                </td>
-                                <td>
-                                    <span class="badge bg-{{ $subject->is_active ? 'success' : 'secondary' }}">
-                                        {{ $subject->is_active ? 'Ativa' : 'Inativa' }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <div class="btn-group">
-                                        <a href="{{ route('subjects.show', $subject->id) }}" 
-                                           class="btn btn-sm btn-primary-school" title="Ver">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        @can('edit_subjects')
-                                        <a href="{{ route('subjects.edit', $subject->id) }}" 
-                                           class="btn btn-sm btn-secondary-school" title="Editar">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        @endcan
-                                        @can('delete_subjects')
-                                        <form action="{{ route('subjects.destroy', $subject->id) }}" 
-                                              method="POST" class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger" 
-                                                    title="Excluir" data-confirm="Tem certeza que deseja excluir esta disciplina?">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
-                                        @endcan
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="8" class="text-center py-4">
-                                    <i class="fas fa-book fa-3x text-muted mb-3"></i>
-                                    <p class="text-muted">Nenhuma disciplina encontrada.</p>
-                                    @can('create_subjects')
-                                    <a href="{{ route('subjects.create') }}" class="btn btn-primary-school">
-                                        <i class="fas fa-plus"></i> Criar Primeira Disciplina
-                                    </a>
-                                    @endcan
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Paginação -->
-            @if($subjects->hasPages())
-                <div class="school-card-body border-top">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="text-muted small">
-                            Mostrando {{ $subjects->firstItem() }} a {{ $subjects->lastItem() }} de {{ $subjects->total() }} registros
-                        </div>
-                        {{ $subjects->links('pagination::bootstrap-5') }}
-                    </div>
-                </div>
-            @endif
+            @endcan
         </div>
     </div>
+
+    <!-- 2. Stat Cards (Pílula de Cor na Esquerda) -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <!-- Total Disciplinas (Emerald Pill Accent) -->
+        <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex items-center gap-3 hover:shadow-sm transition">
+            <div class="w-1.5 h-8 rounded-full bg-emerald-500 shrink-0"></div>
+            <div class="w-9 h-9 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm font-bold shrink-0">
+                <i class="fas fa-book"></i>
+            </div>
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Total Disciplinas</span>
+                <span class="text-xl font-black text-slate-800 mt-0.5 block">{{ $totalSubjects }}</span>
+            </div>
+        </div>
+
+        <!-- Disciplinas Ativas (Blue Pill Accent) -->
+        <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex items-center gap-3 hover:shadow-sm transition">
+            <div class="w-1.5 h-8 rounded-full bg-blue-500 shrink-0"></div>
+            <div class="w-9 h-9 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-sm font-bold shrink-0">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Disciplinas Ativas</span>
+                <span class="text-xl font-black text-slate-800 mt-0.5 block">{{ $activeSubjects }}</span>
+            </div>
+        </div>
+
+        <!-- Turmas Atribuídas (Teal Pill Accent) -->
+        <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex items-center gap-3 hover:shadow-sm transition">
+            <div class="w-1.5 h-8 rounded-full bg-teal-500 shrink-0"></div>
+            <div class="w-9 h-9 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center text-sm font-bold shrink-0">
+                <i class="fas fa-chalkboard"></i>
+            </div>
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Turmas Atribuídas</span>
+                <span class="text-xl font-black text-slate-800 mt-0.5 block">{{ \App\Models\ClassSubject::distinct('class_id')->count() }}</span>
+            </div>
+        </div>
+
+        <!-- Inativas (Amber Pill Accent) -->
+        <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex items-center gap-3 hover:shadow-sm transition">
+            <div class="w-1.5 h-8 rounded-full bg-amber-500 shrink-0"></div>
+            <div class="w-9 h-9 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center text-sm font-bold shrink-0">
+                <i class="fas fa-pause-circle"></i>
+            </div>
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Inativas</span>
+                <span class="text-xl font-black text-slate-800 mt-0.5 block">{{ $totalSubjects - $activeSubjects }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Filter Bar -->
+    <div class="bg-white rounded-xl p-3 border border-slate-200 shadow-2xs">
+        <form action="{{ route('subjects.index') }}" method="GET" class="grid gap-2 sm:grid-cols-2 md:grid-cols-4 items-center">
+            <div class="md:col-span-2">
+                <div class="relative">
+                    <input type="text" name="search" class="w-full rounded-lg border-slate-200 ps-8 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500" 
+                           placeholder="Pesquisar por nome ou código..." value="{{ request('search') }}">
+                    <i class="fas fa-search absolute left-2.5 top-2.5 text-slate-400 text-xs"></i>
+                </div>
+            </div>
+
+            <div>
+                <select name="status" class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500" onchange="this.form.submit()">
+                    <option value="">Todos os Status</option>
+                    <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Ativas</option>
+                    <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inativas</option>
+                </select>
+            </div>
+
+            <div class="flex items-center gap-1.5">
+                <button type="submit" class="w-full inline-flex justify-center items-center gap-1 rounded-lg bg-emerald-700 hover:bg-emerald-800 py-1.5 px-3 text-xs font-bold text-white transition shadow-2xs">
+                    <i class="fas fa-filter text-[10px]"></i> Filtrar
+                </button>
+                @if(request()->anyFilled(['search', 'status']))
+                    <a href="{{ route('subjects.index') }}" class="no-underline inline-flex justify-center items-center rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 p-1.5 text-xs text-slate-600 transition" title="Limpar Filtros">
+                        <i class="fas fa-times"></i>
+                    </a>
+                @endif
+            </div>
+        </form>
+    </div>
+
+    <!-- 4. Table Container -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
+        <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+            <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                <i class="fas fa-book text-emerald-600"></i> Lista de Disciplinas ({{ $subjects->total() }})
+            </h3>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                    <tr class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider text-[10px] border-b border-slate-100">
+                        <th class="py-2.5 px-4">Código</th>
+                        <th class="py-2.5 px-3">Nome da Disciplina</th>
+                        <th class="py-2.5 px-3">Nível</th>
+                        <th class="py-2.5 px-3">Carga Horária</th>
+                        <th class="py-2.5 px-3">Status</th>
+                        <th class="py-2.5 px-4 text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @forelse($subjects as $subject)
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-2.5 px-4 font-mono font-bold text-slate-700">
+                                <span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-800 font-mono text-[11px]">
+                                    {{ $subject->code ?? 'N/A' }}
+                                </span>
+                            </td>
+                            <td class="py-2.5 px-3 font-bold text-slate-800">
+                                <a href="{{ route('subjects.show', $subject->id) }}" class="no-underline font-bold text-slate-800 hover:text-emerald-700 hover:no-underline transition">
+                                    {{ $subject->name }}
+                                </a>
+                            </td>
+                            <td class="py-2.5 px-3 text-slate-700 font-medium">
+                                {{ $subject->education_level_label ?? 'Geral' }}
+                            </td>
+                            <td class="py-2.5 px-3 text-slate-700 font-semibold">
+                                {{ $subject->weekly_workload ? $subject->weekly_workload . 'h/semana' : '-' }}
+                            </td>
+                            <td class="py-2.5 px-3">
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold {{ $subject->is_active ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200' }}">
+                                    {{ $subject->is_active ? 'Ativa' : 'Inativa' }}
+                                </span>
+                            </td>
+                            <td class="py-2.5 px-4 text-end">
+                                <div class="flex items-center justify-end gap-1">
+                                    <a href="{{ route('subjects.show', $subject->id) }}" class="no-underline h-7 w-7 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 flex items-center justify-center transition" title="Ver Detalhes">
+                                        <i class="fas fa-eye text-xs"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="p-6 text-center text-slate-400">
+                                <i class="fas fa-book text-2xl text-slate-300 mb-2"></i>
+                                <p class="text-xs font-semibold text-slate-600">Nenhuma disciplina registrada.</p>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        @if($subjects->hasPages())
+            <div class="px-4 py-2 border-t border-slate-100">
+                {{ $subjects->links('pagination::bootstrap-5') }}
+            </div>
+        @endif
+    </div>
+
 </div>
 @endsection

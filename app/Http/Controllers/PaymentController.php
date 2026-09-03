@@ -30,6 +30,11 @@ class PaymentController extends Controller
 
         $query = $this->scopePaymentsByUserRole($query);
 
+        // Filtros por Tipo de Escola
+        if (is_public_school()) {
+            $query->where('type', '!=', 'mensalidade');
+        }
+
         // Filtros
         if ($request->filled('status')) {
             $query->where('status', $request->status);
@@ -71,17 +76,24 @@ class PaymentController extends Controller
         $payments = $query->paginate(15)->withQueryString();
 
         // Estatísticas
+        $statsQuery = Payment::query();
+        if (is_public_school()) {
+            $statsQuery->where('type', '!=', 'mensalidade');
+        }
+
         $stats = [
-            'total' => Payment::sum('amount'),
-            'paid' => Payment::where('status', 'paid')->sum('amount'),
-            'pending' => Payment::where('status', 'pending')->sum('amount'),
-            'overdue' => Payment::where('status', 'overdue')
-                ->orWhere(fn($q) => $q->where('status', 'pending')->where('due_date', '<', now()))
-                ->sum('amount'),
-            'count_pending' => Payment::where('status', 'pending')->count(),
-            'count_overdue' => Payment::where('status', 'overdue')
-                ->orWhere(fn($q) => $q->where('status', 'pending')->where('due_date', '<', now()))
-                ->count(),
+            'total' => (clone $statsQuery)->sum('amount'),
+            'paid' => (clone $statsQuery)->where('status', 'paid')->sum('amount'),
+            'pending' => (clone $statsQuery)->where('status', 'pending')->sum('amount'),
+            'overdue' => (clone $statsQuery)->where(function($q) {
+                $q->where('status', 'overdue')
+                  ->orWhere(fn($sq) => $sq->where('status', 'pending')->where('due_date', '<', now()));
+            })->sum('amount'),
+            'count_pending' => (clone $statsQuery)->where('status', 'pending')->count(),
+            'count_overdue' => (clone $statsQuery)->where(function($q) {
+                $q->where('status', 'overdue')
+                  ->orWhere(fn($sq) => $sq->where('status', 'pending')->where('due_date', '<', now()));
+            })->count(),
         ];
 
         $classes = ClassRoom::active()->orderBy('name')->get();
@@ -696,13 +708,20 @@ class PaymentController extends Controller
 
     private function getPaymentTypes()
     {
-        return [
-            'matricula' => 'Matrícula',
-            'mensalidade' => 'Mensalidade',
+        $types = [
+            'matricula' => 'Taxa de Matrícula',
+            'exame' => 'Taxa de Exame',
+            'certificado' => 'Emissão de Certificado / Declaração',
             'material' => 'Material Escolar',
             'uniforme' => 'Uniforme',
-            'outro' => 'Outro'
+            'outro' => 'Outra Taxa'
         ];
+
+        if (is_private_school()) {
+            $types['mensalidade'] = 'Mensalidade / Propina';
+        }
+
+        return $types;
     }
 
     private function scopePaymentsByUserRole($query, ?\Illuminate\Contracts\Auth\Authenticatable $user = null): \Illuminate\Database\Eloquent\Builder

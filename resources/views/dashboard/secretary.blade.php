@@ -154,6 +154,7 @@
             </div>
         </div>
 
+        @if(is_private_school())
         <div class="col-md-6 col-xl-3">
             <div class="dash-card" style="background:linear-gradient(135deg,#0f766e,#115e59); color:#ffffff; border-color:#115e59;">
                 <div class="d-flex justify-content-between align-items-start">
@@ -183,6 +184,7 @@
                 </div>
             </div>
         </div>
+        @endif
     </section>
 
     <!-- Ações Rápidas -->
@@ -200,12 +202,14 @@
                     <span>Novo Aluno</span>
                 </a>
             </div>
+            @if(is_private_school())
             <div class="col-6 col-md-3 col-xl-2">
                 <a href="{{ route('payments.create') }}" class="dash-quick-action">
                     <i class="fas fa-money-bill-wave"></i>
                     <span>Pagamento</span>
                 </a>
             </div>
+            @endif
             <div class="col-6 col-md-3 col-xl-2">
                 <a href="{{ route('enrollments.create') }}" class="dash-quick-action">
                     <i class="fas fa-id-card"></i>
@@ -221,6 +225,7 @@
         </div>
     </section>
 
+    @if(is_private_school())
     <!-- Tabelas -->
     <section class="row g-3">
         <div class="col-lg-6">
@@ -295,6 +300,7 @@
             </div>
         </div>
     </section>
+    @endif
 
     <!-- Matrículas Pendentes -->
     <section>

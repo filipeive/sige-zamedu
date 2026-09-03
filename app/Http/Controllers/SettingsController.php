@@ -117,6 +117,24 @@ class SettingsController extends Controller
     }
 
     /**
+     * Remover o logótipo da escola.
+     */
+    public function removeLogo()
+    {
+        $currentLogo = Setting::where('key', 'school_logo')->first();
+        if ($currentLogo) {
+            $path = str_replace('/storage/', '', $currentLogo->value);
+            if (Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
+            }
+            $currentLogo->delete();
+            Cache::forget('setting_school_logo');
+        }
+
+        return redirect()->back()->with('success', 'Logótipo da escola removido com sucesso!');
+    }
+
+    /**
      * Exibir página de backups.
      */
     public function backup()
@@ -170,7 +188,49 @@ class SettingsController extends Controller
                 ->with('error', 'Erro ao gerar backup: ' . $e->getMessage());
         }
     }
+    /** 
+     * Baixar backup do sistema.
+     */
+    public function downloadBackup($filename)
+    {
+        try {
+            $backupPath = storage_path('app/backups');
+            $filePath = $backupPath . '/' . $filename;
 
+            if (!File::exists($filePath)) {
+                return redirect()->route('admin.settings.index', ['tab' => 'system'])
+                    ->with('error', 'Backup não encontrado!');
+            }
+
+            return response()->download($filePath);
+        } catch (\Throwable $e) {
+            return redirect()->route('admin.settings.index', ['tab' => 'system'])
+                ->with('error', 'Erro ao baixar backup: ' . $e->getMessage());
+        }
+    }
+
+    /** 
+     * Eliminar backup do sistema.
+     */
+    public function deleteBackup($filename)
+    {
+        try {
+            $backupPath = storage_path('app/backups');
+            $filePath = $backupPath . '/' . $filename;
+
+            if (File::exists($filePath)) {
+                File::delete($filePath);
+                return redirect()->route('admin.settings.index', ['tab' => 'system'])
+                    ->with('success', 'Ficheiro de backup eliminado com sucesso!');
+            }
+
+            return redirect()->route('admin.settings.index', ['tab' => 'system'])
+                ->with('error', 'Ficheiro de backup não encontrado!');
+        } catch (\Throwable $e) {
+            return redirect()->route('admin.settings.index', ['tab' => 'system'])
+                ->with('error', 'Erro ao eliminar backup: ' . $e->getMessage());
+        }
+    }
     /**
      * Exibir logs do sistema.
      */

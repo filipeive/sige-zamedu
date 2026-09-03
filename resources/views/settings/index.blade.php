@@ -1,13 +1,11 @@
 @extends('layouts.app')
 
-@section('title', 'Configurações do Sistema - ZamEdu')
+@section('title', 'Configurações do Sistema')
 @section('page-title', 'Configurações do Sistema')
-@section('page-title-icon', 'fas fa-sliders-h')
+@section('page-title-icon', 'fas fa-cog')
 
 @section('breadcrumbs')
-    <li class="breadcrumb-item active text-slate-600 font-medium">
-        <i class="fas fa-cog me-1"></i> Configurações
-    </li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Configurações</li>
 @endsection
 
 @php
@@ -15,771 +13,685 @@
 @endphp
 
 @section('content')
-<div class="space-y-6">
-    <!-- Header Banner de Configurações SaaS -->
-    <div class="rounded-3xl bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-950 p-6 md:p-8 text-white shadow-xl relative overflow-hidden">
-        <div class="absolute -right-12 -bottom-12 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div class="flex items-center gap-4">
-                <div class="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-emerald-400 text-2xl border border-white/10 shadow-inner shrink-0">
-                    <i class="fas fa-cogs"></i>
-                </div>
-                <div>
-                    <h2 class="text-xl md:text-2xl font-extrabold tracking-tight font-heading text-white">
-                        Painel Geral de Configurações
-                    </h2>
-                    <p class="text-xs md:text-sm text-slate-300 max-w-2xl mt-0.5">
-                        Gerencie a identidade da escola, ano letivo, estrutura académica, permissões, alertas de comunicação e preferências globais.
-                    </p>
-                </div>
+<div class="space-y-4" x-data="{ currentTab: '{{ $activeTab }}' }">
+
+    <!-- 1. Header Row (Compact & Clean) -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-slate-200 dark:border-slate-700">
+        <div>
+            <h1 class="text-xl font-black text-slate-800 dark:text-slate-100 tracking-tight flex items-center gap-2">
+                <i class="fas fa-cog text-emerald-600"></i> Configurações & Parâmetros do Sistema
+            </h1>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Gestão integral da marca, estrutura académica, permissões RBAC, backups e comunicação.</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <button type="button" x-show="currentTab !== 'acesso'" onclick="document.getElementById('settings-main-form').submit();" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-xs font-bold text-white shadow-sm transition cursor-pointer">
+                <i class="fas fa-check"></i> Guardar Alterações
+            </button>
+            <button type="button" x-show="currentTab === 'acesso'" onclick="document.getElementById('rbac-permissions-form').submit();" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-purple-700 hover:bg-purple-800 text-xs font-bold text-white shadow-sm transition cursor-pointer">
+                <i class="fas fa-shield-alt"></i> Guardar Matriz RBAC
+            </button>
+        </div>
+    </div>
+
+    <!-- 2. Stat Summary Cards (Pílula Vertical de Cor na Esquerda + Ícone Circular) -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <!-- Tipo de Instituição (Emerald Pill Accent) -->
+        <div class="bg-white dark:bg-slate-800 rounded-xl p-3.5 border border-slate-200/80 dark:border-slate-700 shadow-2xs flex items-center gap-3 hover:shadow-sm transition">
+            <div class="w-1.5 h-8 rounded-full bg-emerald-500 shrink-0"></div>
+            <div class="w-9 h-9 rounded-full bg-emerald-50 dark:bg-emerald-950 text-emerald-600 flex items-center justify-center text-sm font-bold shrink-0">
+                <i class="fas {{ is_public_school() ? 'fa-landmark' : 'fa-building-columns' }}"></i>
             </div>
-            <div class="flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-white/10 text-xs font-medium">
-                <i class="fas fa-shield-alt text-emerald-400"></i>
-                <span>Multi-Escola / SaaS Ready</span>
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Tipo de Instituição</span>
+                <span class="text-xs font-black text-slate-800 dark:text-slate-100 mt-0.5 block">
+                    {{ is_public_school() ? 'Escola Pública' : 'Escola Privada' }}
+                </span>
+            </div>
+        </div>
+
+        <!-- Ano Lectivo Activo (Blue Pill Accent) -->
+        <div class="bg-white dark:bg-slate-800 rounded-xl p-3.5 border border-slate-200/80 dark:border-slate-700 shadow-2xs flex items-center gap-3 hover:shadow-sm transition">
+            <div class="w-1.5 h-8 rounded-full bg-blue-500 shrink-0"></div>
+            <div class="w-9 h-9 rounded-full bg-blue-50 dark:bg-blue-950 text-blue-600 flex items-center justify-center text-sm font-bold shrink-0">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Ano Lectivo Activo</span>
+                <span class="text-xs font-black text-slate-800 dark:text-slate-100 mt-0.5 block">
+                    {{ setting('academic_year', date('Y')) }} · {{ setting('academic_regime', 'Trimestral') }}
+                </span>
+            </div>
+        </div>
+
+        <!-- Logótipo da Marca (Amber Pill Accent) -->
+        <div class="bg-white dark:bg-slate-800 rounded-xl p-3.5 border border-slate-200/80 dark:border-slate-700 shadow-2xs flex items-center gap-3 hover:shadow-sm transition">
+            <div class="w-1.5 h-8 rounded-full bg-amber-500 shrink-0"></div>
+            <div class="w-9 h-9 rounded-full bg-amber-50 dark:bg-amber-950 text-amber-600 flex items-center justify-center text-sm font-bold shrink-0">
+                <i class="fas fa-image"></i>
+            </div>
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Logótipo da Marca</span>
+                <span class="text-xs font-black text-slate-800 dark:text-slate-100 mt-0.5 block">
+                    {{ setting('school_logo') ? 'Personalizado' : 'Logótipo Padrão' }}
+                </span>
+            </div>
+        </div>
+
+        <!-- Perfis RBAC (Purple Pill Accent) -->
+        <div class="bg-white dark:bg-slate-800 rounded-xl p-3.5 border border-slate-200/80 dark:border-slate-700 shadow-2xs flex items-center gap-3 hover:shadow-sm transition">
+            <div class="w-1.5 h-8 rounded-full bg-purple-500 shrink-0"></div>
+            <div class="w-9 h-9 rounded-full bg-purple-50 dark:bg-purple-950 text-purple-600 flex items-center justify-center text-sm font-bold shrink-0">
+                <i class="fas fa-user-shield"></i>
+            </div>
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Controle RBAC</span>
+                <span class="text-xs font-black text-slate-800 dark:text-slate-100 mt-0.5 block">
+                    {{ count($roles) }} Perfis Ativos
+                </span>
             </div>
         </div>
     </div>
 
+    <!-- 3. Pure Tailwind Tab Navigation Bar -->
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-1.5 shadow-2xs overflow-x-auto">
+        <div class="flex items-center gap-1.5 min-w-max">
+            <button type="button" @click="currentTab = 'escola'" 
+                    :class="currentTab === 'escola' ? 'bg-emerald-700 text-white shadow-xs' : 'bg-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'"
+                    class="px-3.5 py-2 rounded-lg text-xs font-extrabold flex items-center gap-2 transition cursor-pointer select-none">
+                <i class="fas fa-school text-xs"></i> 1. Escola & Marca
+            </button>
 
-    <!-- Container Principal com Tabs e Form -->
-    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-        <!-- Navegação das 6 Categorias de Configurações -->
-        <div class="border-b border-slate-100 bg-slate-50/50 p-2 md:p-3 overflow-x-auto">
-            <ul class="nav nav-pills flex-nowrap gap-1 md:gap-2" id="settingsTabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link text-xs md:text-sm font-semibold rounded-xl px-4 py-3 flex items-center gap-2 {{ $activeTab === 'escola' ? 'active bg-emerald-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-200/60' }}"
-                        id="escola-tab" data-bs-toggle="pill" data-bs-target="#tab-escola" type="button" role="tab">
-                        <i class="fas fa-school text-sm"></i>
-                        <span>1. Escola & Marca</span>
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link text-xs md:text-sm font-semibold rounded-xl px-4 py-3 flex items-center gap-2 {{ $activeTab === 'ano-letivo' ? 'active bg-emerald-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-200/60' }}"
-                        id="ano-letivo-tab" data-bs-toggle="pill" data-bs-target="#tab-ano-letivo" type="button" role="tab">
-                        <i class="fas fa-calendar-alt text-sm"></i>
-                        <span>2. Ano Letivo</span>
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link text-xs md:text-sm font-semibold rounded-xl px-4 py-3 flex items-center gap-2 {{ $activeTab === 'estrutura' ? 'active bg-emerald-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-200/60' }}"
-                        id="estrutura-tab" data-bs-toggle="pill" data-bs-target="#tab-estrutura" type="button" role="tab">
-                        <i class="fas fa-graduation-cap text-sm"></i>
-                        <span>3. Estrutura Académica</span>
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link text-xs md:text-sm font-semibold rounded-xl px-4 py-3 flex items-center gap-2 {{ $activeTab === 'utilizadores' ? 'active bg-emerald-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-200/60' }}"
-                        id="utilizadores-tab" data-bs-toggle="pill" data-bs-target="#tab-utilizadores" type="button" role="tab">
-                        <i class="fas fa-users-cog text-sm"></i>
-                        <span>4. Utilizadores & Auditoria</span>
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link text-xs md:text-sm font-semibold rounded-xl px-4 py-3 flex items-center gap-2 {{ $activeTab === 'comunicacao' ? 'active bg-emerald-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-200/60' }}"
-                        id="comunicacao-tab" data-bs-toggle="pill" data-bs-target="#tab-comunicacao" type="button" role="tab">
-                        <i class="fas fa-paper-plane text-sm"></i>
-                        <span>5. Comunicação</span>
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link text-xs md:text-sm font-semibold rounded-xl px-4 py-3 flex items-center gap-2 {{ $activeTab === 'system' ? 'active bg-emerald-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-200/60' }}"
-                        id="system-tab" data-bs-toggle="pill" data-bs-target="#tab-system" type="button" role="tab">
-                        <i class="fas fa-server text-sm"></i>
-                        <span>6. Sistema</span>
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link text-xs md:text-sm font-semibold rounded-xl px-4 py-3 flex items-center gap-2 {{ $activeTab === 'avaliacao' ? 'active bg-emerald-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-200/60' }}"
-                        id="avaliacao-tab" data-bs-toggle="pill" data-bs-target="#tab-avaliacao" type="button" role="tab">
-                        <i class="fas fa-calculator text-sm"></i>
-                        <span>7. Avaliação & Notas</span>
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link text-xs md:text-sm font-semibold rounded-xl px-4 py-3 flex items-center gap-2 {{ $activeTab === 'acesso' ? 'active bg-emerald-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-200/60' }}"
-                        id="acesso-tab" data-bs-toggle="pill" data-bs-target="#tab-acesso" type="button" role="tab">
-                        <i class="fas fa-user-shield text-sm"></i>
-                        <span>8. Controle de Acesso (RBAC)</span>
-                    </button>
-                </li>
-            </ul>
+            <button type="button" @click="currentTab = 'ano-letivo'" 
+                    :class="currentTab === 'ano-letivo' ? 'bg-emerald-700 text-white shadow-xs' : 'bg-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'"
+                    class="px-3.5 py-2 rounded-lg text-xs font-extrabold flex items-center gap-2 transition cursor-pointer select-none">
+                <i class="fas fa-calendar-alt text-xs"></i> 2. Ano Letivo
+            </button>
+
+            <button type="button" @click="currentTab = 'estrutura'" 
+                    :class="currentTab === 'estrutura' ? 'bg-emerald-700 text-white shadow-xs' : 'bg-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'"
+                    class="px-3.5 py-2 rounded-lg text-xs font-extrabold flex items-center gap-2 transition cursor-pointer select-none">
+                <i class="fas fa-graduation-cap text-xs"></i> 3. Estrutura Académica
+            </button>
+
+            <button type="button" @click="currentTab = 'utilizadores'" 
+                    :class="currentTab === 'utilizadores' ? 'bg-emerald-700 text-white shadow-xs' : 'bg-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'"
+                    class="px-3.5 py-2 rounded-lg text-xs font-extrabold flex items-center gap-2 transition cursor-pointer select-none">
+                <i class="fas fa-users-cog text-xs"></i> 4. Utilizadores & Auditoria
+            </button>
+
+            <button type="button" @click="currentTab = 'comunicacao'" 
+                    :class="currentTab === 'comunicacao' ? 'bg-emerald-700 text-white shadow-xs' : 'bg-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'"
+                    class="px-3.5 py-2 rounded-lg text-xs font-extrabold flex items-center gap-2 transition cursor-pointer select-none">
+                <i class="fas fa-paper-plane text-xs"></i> 5. Comunicação
+            </button>
+
+            <button type="button" @click="currentTab = 'system'" 
+                    :class="currentTab === 'system' ? 'bg-emerald-700 text-white shadow-xs' : 'bg-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'"
+                    class="px-3.5 py-2 rounded-lg text-xs font-extrabold flex items-center gap-2 transition cursor-pointer select-none">
+                <i class="fas fa-server text-xs"></i> 6. Sistema & Backups
+            </button>
+
+            <button type="button" @click="currentTab = 'avaliacao'" 
+                    :class="currentTab === 'avaliacao' ? 'bg-emerald-700 text-white shadow-xs' : 'bg-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'"
+                    class="px-3.5 py-2 rounded-lg text-xs font-extrabold flex items-center gap-2 transition cursor-pointer select-none">
+                <i class="fas fa-calculator text-xs"></i> 7. Avaliação & Notas
+            </button>
+
+            <button type="button" @click="currentTab = 'tema'" 
+                    :class="currentTab === 'tema' ? 'bg-emerald-700 text-white shadow-xs' : 'bg-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'"
+                    class="px-3.5 py-2 rounded-lg text-xs font-extrabold flex items-center gap-2 transition cursor-pointer select-none">
+                <i class="fas fa-palette text-xs"></i> 8. Cores & Ícones
+            </button>
+
+            <button type="button" @click="currentTab = 'acesso'" 
+                    :class="currentTab === 'acesso' ? 'bg-purple-700 text-white shadow-xs' : 'bg-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'"
+                    class="px-3.5 py-2 rounded-lg text-xs font-extrabold flex items-center gap-2 transition cursor-pointer select-none">
+                <i class="fas fa-user-shield text-xs"></i> 9. Controle RBAC
+            </button>
         </div>
+    </div>
 
-        <form action="{{ route('admin.settings.update') }}" method="POST" enctype="multipart/form-data">
+    <!-- 4. Form Container Card (Tabs 1-7) -->
+    <div x-show="currentTab !== 'acesso'" class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-2xs p-5">
+        <form id="settings-main-form" action="{{ route('admin.settings.update') }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PATCH')
 
-            <div class="p-6 md:p-8 tab-content" id="settingsTabContent">
+            <!-- TAB 1: ESCOLA & MARCA -->
+            <div x-show="currentTab === 'escola'" class="space-y-6">
+                <div class="pb-2 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+                    <div>
+                        <h3 class="text-xs font-extrabold text-slate-800 dark:text-slate-100 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fas fa-school text-emerald-600"></i> Identidade & Marca da Instituição
+                        </h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Informações oficiais da escola, logótipo, endereço e contactos.</p>
+                    </div>
+                </div>
 
-                <!-- TAB 1: ESCOLA -->
-                <div class="tab-pane fade {{ $activeTab === 'escola' ? 'show active' : '' }}" id="tab-escola" role="tabpanel">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
-                        <div>
-                            <h3 class="text-base font-bold text-slate-800">Dados da Instituição de Ensino</h3>
-                            <p class="text-xs text-slate-500">Informações oficiais, logótipo, endereço e direção da escola.</p>
-                        </div>
-                        <span class="badge bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-full text-xs font-semibold">Identidade Visual</span>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Nome Completo da Escola *</label>
+                        <input type="text" name="settings[school_name]" value="{{ setting('school_name', 'Escola Primária e Secundária dos Visionários') }}" required
+                               class="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Nome Completo da Escola</label>
-                            <input type="text" name="settings[school_name]" class="form-control rounded-xl border-slate-200 p-3 text-sm focus:ring-2 focus:ring-emerald-500/20"
-                                value="{{ setting('school_name', 'Escola Primária e Secundária dos Visionários') }}" required>
-                        </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Nome Curto / Sigla</label>
+                        <input type="text" name="settings[school_short_name]" value="{{ setting('school_short_name', 'ZamEdu') }}"
+                               class="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
+                    </div>
 
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Nome Curto / Sigla</label>
-                            <input type="text" name="settings[school_short_name]" class="form-control rounded-xl border-slate-200 p-3 text-sm focus:ring-2 focus:ring-emerald-500/20"
-                                value="{{ setting('school_short_name', 'ZamEdu') }}">
-                        </div>
-
-                        <div class="md:col-span-2">
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Logótipo da Escola</label>
-                            <div class="flex flex-col sm:flex-row items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                                <div class="w-20 h-20 rounded-2xl bg-white border border-slate-200 flex items-center justify-center p-2 shadow-sm shrink-0 overflow-hidden">
-                                    @if(setting('school_logo'))
-                                        <img src="{{ setting('school_logo') }}" alt="Logo" class="max-h-full max-w-full object-contain">
-                                    @else
-                                        <i class="fas fa-graduation-cap text-3xl text-emerald-600"></i>
-                                    @endif
+                    <div class="md:col-span-2 space-y-2">
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Tipo de Instituição de Ensino *</label>
+                        <input type="hidden" name="settings[institution_type]" id="institution_type_input" value="{{ setting('institution_type', 'escola_privada') }}">
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" x-data="{ selectedType: '{{ setting('institution_type', 'escola_privada') }}' }">
+                            <!-- Card Escola Privada -->
+                            <div @click="selectedType = 'escola_privada'; document.getElementById('institution_type_input').value = 'escola_privada';"
+                                 :class="selectedType === 'escola_privada' ? 'border-blue-600 bg-blue-50/50 dark:bg-blue-950/40 ring-2 ring-blue-500/20' : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-slate-300'"
+                                 class="p-4 rounded-xl border transition cursor-pointer flex items-start gap-3.5 relative shadow-2xs">
+                                <div class="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/60 text-blue-600 dark:text-blue-400 flex items-center justify-center text-lg font-bold shrink-0">
+                                    <i class="fas fa-building-columns"></i>
                                 </div>
-                                <div class="flex-grow">
-                                    <input type="file" name="school_logo_file" class="form-control rounded-xl border-slate-200 text-xs" accept="image/*">
-                                    <p class="text-[11px] text-slate-500 mt-1.5">Formatos suportados: PNG, JPG, SVG ou WebP (máx: 2MB). O logótipo será utilizado nos boletins e comprovantes.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Endereço Principal</label>
-                            <input type="text" name="settings[school_address]" class="form-control rounded-xl border-slate-200 p-3 text-sm"
-                                value="{{ setting('school_address', 'Av. das Indústrias, Nº 145, Cidade de Maputo') }}">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">E-mail Institucional</label>
-                            <input type="email" name="settings[school_email]" class="form-control rounded-xl border-slate-200 p-3 text-sm"
-                                value="{{ setting('school_email', 'contacto@escola.co.mz') }}">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Telefone Principal</label>
-                            <input type="text" name="settings[school_phone]" class="form-control rounded-xl border-slate-200 p-3 text-sm"
-                                value="{{ setting('school_phone', '+258 84 123 4567') }}">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Telefone Secundário / WhatsApp</label>
-                            <input type="text" name="settings[school_phone_secondary]" class="form-control rounded-xl border-slate-200 p-3 text-sm"
-                                value="{{ setting('school_phone_secondary', '+258 82 987 6543') }}">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Website Oficial</label>
-                            <input type="url" name="settings[school_website]" class="form-control rounded-xl border-slate-200 p-3 text-sm"
-                                value="{{ setting('school_website', 'https://www.visionarios-school.co.mz') }}">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Diretor Geral da Escola</label>
-                            <input type="text" name="settings[school_director]" class="form-control rounded-xl border-slate-200 p-3 text-sm"
-                                value="{{ setting('school_director', 'Prof. Dr. António Silva') }}">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Diretor Pedagógico</label>
-                            <input type="text" name="settings[school_pedagogical_director]" class="form-control rounded-xl border-slate-200 p-3 text-sm"
-                                value="{{ setting('school_pedagogical_director', 'Dra. Maria Fernanda Santos') }}">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">NIF / NUUIT (Número Fiscal)</label>
-                            <input type="text" name="settings[school_nif]" class="form-control rounded-xl border-slate-200 p-3 text-sm"
-                                value="{{ setting('school_nif', '400123456') }}">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Código MEC / Alvará Oficial</label>
-                            <input type="text" name="settings[school_code]" class="form-control rounded-xl border-slate-200 p-3 text-sm"
-                                value="{{ setting('school_code', 'MEC-2026-MZ-889') }}">
-                        </div>
-
-                        <!-- SUBSEÇÃO: PERSONALIZAÇÃO VISUAL & THEME ENGINE (WHITE-LABEL) -->
-                        <div class="md:col-span-2 border-t border-slate-100 pt-6 mt-2">
-                            <div class="flex items-center justify-between mb-4">
-                                <div>
-                                    <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-                                        <i class="fas fa-palette text-emerald-600"></i>
-                                        <span>Personalização de Marca & Theme Engine</span>
-                                    </h4>
-                                    <p class="text-xs text-slate-500">Defina o esquema de cores e estilo visual da instituição aplicável globalmente.</p>
-                                </div>
-                                <span class="badge bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-xs font-semibold">White-Label Ready</span>
-                            </div>
-
-                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                                <div>
-                                    <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">Cor Principal (Primary)</label>
+                                <div class="space-y-1">
                                     <div class="flex items-center gap-2">
-                                        <input type="color" name="settings[primary_color]" class="form-control form-control-color w-10 h-10 rounded-lg cursor-pointer border-0"
-                                            value="{{ setting('primary_color', '#4F46E5') }}" title="Escolher cor principal">
-                                        <input type="text" class="form-control rounded-lg text-xs font-mono uppercase"
-                                            value="{{ setting('primary_color', '#4F46E5') }}" readonly>
+                                        <span class="text-xs font-black text-slate-800 dark:text-slate-100">Escola Privada</span>
+                                        <span class="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-[10px] font-extrabold">Módulo Propinas Ativo</span>
                                     </div>
+                                    <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">Gestão financeira completa com cobrança de mensalidades, faturas, recibos e relatórios de propinas.</p>
                                 </div>
+                                <div x-show="selectedType === 'escola_privada'" class="absolute top-3 right-3 text-blue-600 text-sm">
+                                    <i class="fas fa-circle-check"></i>
+                                </div>
+                            </div>
 
-                                <div>
-                                    <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">Cor Secundária (Secondary)</label>
+                            <!-- Card Escola Pública -->
+                            <div @click="selectedType = 'escola_publica'; document.getElementById('institution_type_input').value = 'escola_publica';"
+                                 :class="selectedType === 'escola_publica' ? 'border-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/40 ring-2 ring-emerald-500/20' : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-slate-300'"
+                                 class="p-4 rounded-xl border transition cursor-pointer flex items-start gap-3.5 relative shadow-2xs">
+                                <div class="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-lg font-bold shrink-0">
+                                    <i class="fas fa-landmark"></i>
+                                </div>
+                                <div class="space-y-1">
                                     <div class="flex items-center gap-2">
-                                        <input type="color" name="settings[secondary_color]" class="form-control form-control-color w-10 h-10 rounded-lg cursor-pointer border-0"
-                                            value="{{ setting('secondary_color', '#06B6D4') }}" title="Escolher cor secundária">
-                                        <input type="text" class="form-control rounded-lg text-xs font-mono uppercase"
-                                            value="{{ setting('secondary_color', '#06B6D4') }}" readonly>
+                                        <span class="text-xs font-black text-slate-800 dark:text-slate-100">Escola Pública</span>
+                                        <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-extrabold">Isenta de Propinas</span>
                                     </div>
+                                    <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">Módulo de mensalidades desativado. Foco em taxas administrativas, despesas operacionais e boletins estatais.</p>
                                 </div>
+                                <div x-show="selectedType === 'escola_publica'" class="absolute top-3 right-3 text-emerald-600 text-sm">
+                                    <i class="fas fa-circle-check"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                                <div>
-                                    <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">Cor de Acento (Accent)</label>
-                                    <div class="flex items-center gap-2">
-                                        <input type="color" name="settings[accent_color]" class="form-control form-control-color w-10 h-10 rounded-lg cursor-pointer border-0"
-                                            value="{{ setting('accent_color', '#F59E0B') }}" title="Escolher cor de acento">
-                                        <input type="text" class="form-control rounded-lg text-xs font-mono uppercase"
-                                            value="{{ setting('accent_color', '#F59E0B') }}" readonly>
+                    <!-- Seção Logótipo da Escola com Botão de Remoção -->
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Logótipo da Escola & Marca</label>
+                        <div class="flex flex-col sm:flex-row items-center gap-4 bg-slate-50 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                            <div class="w-20 h-20 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center p-2 shadow-2xs shrink-0 overflow-hidden">
+                                @if(setting('school_logo'))
+                                    <img src="{{ setting('school_logo') }}" alt="Logo" class="max-h-full max-w-full object-contain">
+                                @else
+                                    <i class="fas fa-graduation-cap text-3xl text-emerald-600"></i>
+                                @endif
+                            </div>
+                            <div class="flex-grow space-y-2">
+                                <input type="file" name="school_logo_file" class="w-full text-xs text-slate-600 dark:text-slate-400 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-emerald-700 file:text-white hover:file:bg-emerald-800" accept="image/*">
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400">Formatos aceites: PNG, JPG, SVG ou WebP (máx: 2MB). Utilizado no cabeçalho, boletins e recibos.</p>
+                                @if(setting('school_logo'))
+                                    <div class="pt-1">
+                                        <button type="button" onclick="if(confirm('Tem certeza que deseja remover o logótipo da escola?')) document.getElementById('remove-logo-form').submit();"
+                                                class="no-underline inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 border border-rose-200 text-xs font-bold text-rose-700 transition cursor-pointer">
+                                            <i class="fas fa-trash-alt text-xs"></i> Remover Logótipo da Escola
+                                        </button>
                                     </div>
-                                </div>
-
-                                <div>
-                                    <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">Arredondamento (Border Radius)</label>
-                                    <select name="settings[border_radius]" class="form-select rounded-lg text-xs p-2.5">
-                                        <option value="16px" {{ setting('border_radius', '16px') == '16px' ? 'selected' : '' }}>Padrão (16px)</option>
-                                        <option value="12px" {{ setting('border_radius') == '12px' ? 'selected' : '' }}>Compacto (12px)</option>
-                                        <option value="20px" {{ setting('border_radius') == '20px' ? 'selected' : '' }}>Arredondado (20px)</option>
-                                        <option value="8px" {{ setting('border_radius') == '8px' ? 'selected' : '' }}>Retangular (8px)</option>
-                                    </select>
-                                </div>
+                                @endif
                             </div>
                         </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Endereço Principal</label>
+                        <input type="text" name="settings[school_address]" value="{{ setting('school_address', 'Namacurra, Zambézia, Moçambique') }}"
+                               class="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Província</label>
+                        <input type="text" name="settings[school_province]" value="{{ setting('school_province', setting('province', 'Zambézia')) }}"
+                               class="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500" placeholder="Ex: Zambézia">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Distrito / Cidade</label>
+                        <input type="text" name="settings[school_district]" value="{{ setting('school_district', setting('district', 'Namacurra')) }}"
+                               class="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500" placeholder="Ex: Namacurra">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">E-mail Institucional</label>
+                        <input type="email" name="settings[school_email]" value="{{ setting('school_email', 'contacto@escola.co.mz') }}"
+                               class="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Telefone Principal</label>
+                        <input type="text" name="settings[school_phone]" value="{{ setting('school_phone', '+258 84 123 4567') }}"
+                               class="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">WhatsApp / Contacto Secundário</label>
+                        <input type="text" name="settings[school_phone_secondary]" value="{{ setting('school_phone_secondary', '+258 82 987 6543') }}"
+                               class="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Diretor Geral</label>
+                        <input type="text" name="settings[school_director]" value="{{ setting('school_director', 'Prof. Dr. António Silva') }}"
+                               class="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">NIF / NUIT (Número Fiscal)</label>
+                        <input type="text" name="settings[school_nif]" value="{{ setting('school_nif', '400123456') }}"
+                               class="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
                     </div>
                 </div>
-
-                <!-- TAB 2: ANO LETIVO -->
-                <div class="tab-pane fade {{ $activeTab === 'ano-letivo' ? 'show active' : '' }}" id="tab-ano-letivo" role="tabpanel">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
-                        <div>
-                            <h3 class="text-base font-bold text-slate-800">Ano Letivo e Períodos Académicos</h3>
-                            <p class="text-xs text-slate-500">Definição do ano de exercício, regime de trimestres/semestres e datas chave.</p>
-                        </div>
-                        <span class="badge bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full text-xs font-semibold">Calendário Escolar</span>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Ano Letivo Ativo</label>
-                            <input type="number" name="settings[current_academic_year]" class="form-control rounded-xl border-slate-200 p-3 text-sm font-bold text-emerald-700"
-                                value="{{ setting('current_academic_year', date('Y')) }}" min="2020" max="2035">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Regime Académico</label>
-                            <select name="settings[academic_regime]" class="form-select rounded-xl border-slate-200 p-3 text-sm">
-                                <option value="trimestral" {{ setting('academic_regime', 'trimestral') == 'trimestral' ? 'selected' : '' }}>Trimestral (3 Trimestres)</option>
-                                <option value="semestral" {{ setting('academic_regime') == 'semestral' ? 'selected' : '' }}>Semestral (2 Semestres)</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Início do Ano Letivo</label>
-                            <input type="date" name="settings[academic_year_start]" class="form-control rounded-xl border-slate-200 p-3 text-sm"
-                                value="{{ setting('academic_year_start', '2026-02-01') }}">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Término do Ano Letivo</label>
-                            <input type="date" name="settings[academic_year_end]" class="form-control rounded-xl border-slate-200 p-3 text-sm"
-                                value="{{ setting('academic_year_end', '2026-11-30') }}">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Início das Matrículas</label>
-                            <input type="date" name="settings[enrollment_start_date]" class="form-control rounded-xl border-slate-200 p-3 text-sm"
-                                value="{{ setting('enrollment_start_date', '2026-01-05') }}">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Encerramento de Matrículas</label>
-                            <input type="date" name="settings[enrollment_end_date]" class="form-control rounded-xl border-slate-200 p-3 text-sm"
-                                value="{{ setting('enrollment_end_date', '2026-02-28') }}">
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 mb-6">
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-4 flex items-center gap-2">
-                            <i class="fas fa-clock text-emerald-600"></i> Horários de Atraso por Turno
-                        </h4>
-                        <p class="text-xs text-slate-500 mb-4">Defina o horário limite para cada turno. Chegadas após este horário são registadas como atraso.</p>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div class="bg-white p-4 rounded-xl border border-slate-200">
-                                <span class="block text-xs font-extrabold text-emerald-700 mb-2">Turno da Manhã</span>
-                                <input type="time" name="settings[shift_morning_late_time]" class="form-control text-xs" value="{{ setting('shift_morning_late_time', '07:30') }}">
-                            </div>
-                            <div class="bg-white p-4 rounded-xl border border-slate-200">
-                                <span class="block text-xs font-extrabold text-orange-700 mb-2">Turno da Tarde</span>
-                                <input type="time" name="settings[shift_afternoon_late_time]" class="form-control text-xs" value="{{ setting('shift_afternoon_late_time', '13:00') }}">
-                            </div>
-                            <div class="bg-white p-4 rounded-xl border border-slate-200">
-                                <span class="block text-xs font-extrabold text-indigo-700 mb-2">Turno da Noite</span>
-                                <input type="time" name="settings[shift_night_late_time]" class="form-control text-xs" value="{{ setting('shift_night_late_time', '18:00') }}">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- TAB 3: ESTRUTURA ACADÉMICA -->
-                <div class="tab-pane fade {{ $activeTab === 'estrutura' ? 'show active' : '' }}" id="tab-estrutura" role="tabpanel">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
-                        <div>
-                            <h3 class="text-base font-bold text-slate-800">Estrutura Pedagógica e Avaliações</h3>
-                            <p class="text-xs text-slate-500">Parâmetros de escala de notas, ponderações de exames e capacidade de turmas.</p>
-                        </div>
-                        <span class="badge bg-purple-50 text-purple-700 px-3 py-1.5 rounded-full text-xs font-semibold">Parâmetros Curriculares</span>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Escala de Avaliação</label>
-                            <select name="settings[grading_scale]" class="form-select rounded-xl border-slate-200 p-3 text-sm">
-                                <option value="0_20" {{ setting('grading_scale', '0_20') == '0_20' ? 'selected' : '' }}>0 a 20 Valores (Padrão Moçambique/Angola)</option>
-                                <option value="0_10" {{ setting('grading_scale') == '0_10' ? 'selected' : '' }}>0 a 10 Valores</option>
-                                <option value="percentage" {{ setting('grading_scale') == 'percentage' ? 'selected' : '' }}>Percentagem (0 - 100%)</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Nota Mínima para Aprovação</label>
-                            <input type="number" name="settings[passing_grade]" class="form-control rounded-xl border-slate-200 p-3 text-sm"
-                                value="{{ setting('passing_grade', 10) }}" min="0" max="20" step="0.5">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Mínimo de Trimestres para Média Final</label>
-                            <input type="number" name="settings[min_terms_for_final_grade]" class="form-control rounded-xl border-slate-200 p-3 text-sm"
-                                value="{{ setting('min_terms_for_final_grade', 3) }}" min="1" max="3">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Peso MACS no MT</label>
-                            <input type="number" name="settings[macs_weight]" class="form-control rounded-xl border-slate-200 p-3 text-sm"
-                                value="{{ setting('macs_weight', 2) }}" min="0" max="10">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Peso ACP no MT</label>
-                            <input type="number" name="settings[acp_weight_in_mt]" class="form-control rounded-xl border-slate-200 p-3 text-sm"
-                                value="{{ setting('acp_weight_in_mt', 1) }}" min="0" max="10">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Capacidade Máxima por Sala</label>
-                            <input type="number" name="settings[default_room_capacity]" class="form-control rounded-xl border-slate-200 p-3 text-sm"
-                                value="{{ setting('default_room_capacity', 45) }}" min="5" max="100">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Limite de Faltas Não Justificadas</label>
-                            <input type="number" name="settings[max_unexcused_absences]" class="form-control rounded-xl border-slate-200 p-3 text-sm"
-                                value="{{ setting('max_unexcused_absences', 15) }}" min="1" max="100">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- TAB 4: UTILIZADORES & AUDITORIA -->
-                <div class="tab-pane fade {{ $activeTab === 'utilizadores' ? 'show active' : '' }}" id="tab-utilizadores" role="tabpanel">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
-                        <div>
-                            <h3 class="text-base font-bold text-slate-800">Controlo de Perfis, Acessos e Auditoria</h3>
-                            <p class="text-xs text-slate-500">Gestão de papéis de utilizador, regras de sessão e histórico de atividades.</p>
-                        </div>
-                        <span class="badge bg-amber-50 text-amber-700 px-3 py-1.5 rounded-full text-xs font-semibold">Segurança & RBAC</span>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
-                            <h4 class="text-xs font-bold uppercase text-slate-700 mb-3">Políticas de Segurança de Senha</h4>
-                            <div class="space-y-3">
-                                <label class="flex items-center gap-3 cursor-pointer">
-                                    <input type="checkbox" name="settings[force_password_change]" value="1" class="rounded text-emerald-600"
-                                        {{ setting('force_password_change', 1) ? 'checked' : '' }}>
-                                    <span class="text-xs text-slate-700 font-medium">Exigir alteração de senha no primeiro login do usuário</span>
-                                </label>
-                                <label class="flex items-center gap-3 cursor-pointer">
-                                    <input type="checkbox" name="settings[enable_audit_log]" value="1" class="rounded text-emerald-600"
-                                        {{ setting('enable_audit_log', 1) ? 'checked' : '' }}>
-                                    <span class="text-xs text-slate-700 font-medium">Registar log de auditoria para todas as alterações de notas e pagamentos</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
-                            <h4 class="text-xs font-bold uppercase text-slate-700 mb-3">Atalhos de Gestão de Contas</h4>
-                            <p class="text-xs text-slate-500 mb-4">Aceda aos módulos dedicados para gestão granular de contas e logs.</p>
-                            <div class="flex flex-wrap gap-3">
-                                <a href="{{ route('admin.users.index') }}" class="btn btn-sm bg-slate-800 text-white rounded-xl text-xs font-bold px-4 py-2 hover:bg-slate-900">
-                                    <i class="fas fa-users-cog me-1"></i> Gerir Utilizadores
-                                </a>
-                                <a href="{{ route('admin.audit.index') }}" class="btn btn-sm bg-emerald-700 text-white rounded-xl text-xs font-bold px-4 py-2 hover:bg-emerald-800">
-                                    <i class="fas fa-shield-alt me-1"></i> Ver Logs de Auditoria
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- TAB 5: COMUNICAÇÃO -->
-                <div class="tab-pane fade {{ $activeTab === 'comunicacao' ? 'show active' : '' }}" id="tab-comunicacao" role="tabpanel">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
-                        <div>
-                            <h3 class="text-base font-bold text-slate-800">Canais de Comunicação & Notificações</h3>
-                            <p class="text-xs text-slate-500">Configuração de gateway de e-mail SMTP, envio de SMS e automações.</p>
-                        </div>
-                        <span class="badge bg-teal-50 text-teal-700 px-3 py-1.5 rounded-full text-xs font-semibold">Integrador SMS/Email</span>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Servidor SMTP -->
-                        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
-                            <h4 class="text-xs font-bold uppercase text-slate-700 mb-4 flex items-center gap-2">
-                                <i class="fas fa-envelope text-emerald-600"></i> Servidor de E-mail (SMTP)
-                            </h4>
-                            <div class="space-y-3">
-                                <div>
-                                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Host SMTP</label>
-                                    <input type="text" name="settings[smtp_host]" class="form-control text-xs rounded-xl"
-                                        value="{{ setting('smtp_host', 'smtp.mailtrap.io') }}">
-                                </div>
-                                <div class="grid grid-cols-2 gap-3">
-                                    <div>
-                                        <label class="block text-[11px] font-bold text-slate-700 mb-1">Porta</label>
-                                        <input type="text" name="settings[smtp_port]" class="form-control text-xs rounded-xl"
-                                            value="{{ setting('smtp_port', '587') }}">
-                                    </div>
-                                    <div>
-                                        <label class="block text-[11px] font-bold text-slate-700 mb-1">Criptografia</label>
-                                        <select name="settings[smtp_encryption]" class="form-select text-xs rounded-xl">
-                                            <option value="tls" {{ setting('smtp_encryption', 'tls') == 'tls' ? 'selected' : '' }}>TLS</option>
-                                            <option value="ssl" {{ setting('smtp_encryption') == 'ssl' ? 'selected' : '' }}>SSL</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Nome do Remetente</label>
-                                    <input type="text" name="settings[mail_from_name]" class="form-control text-xs rounded-xl"
-                                        value="{{ setting('mail_from_name', setting('school_name', 'ZamEdu')) }}">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Gateway SMS -->
-                        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
-                            <h4 class="text-xs font-bold uppercase text-slate-700 mb-4 flex items-center gap-2">
-                                <i class="fas fa-sms text-emerald-600"></i> Provedor de SMS
-                            </h4>
-                            <div class="space-y-3">
-                                <div>
-                                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Provedor Ativo</label>
-                                    <select name="settings[sms_provider]" class="form-select text-xs rounded-xl">
-                                        <option value="twilio" {{ setting('sms_provider') == 'twilio' ? 'selected' : '' }}>Twilio SMS Gateway</option>
-                                        <option value="smslocal" {{ setting('sms_provider', 'smslocal') == 'smslocal' ? 'selected' : '' }}>SMSlocal Moçambique / Angola</option>
-                                        <option value="custom" {{ setting('sms_provider') == 'custom' ? 'selected' : '' }}>API HTTP Customizada</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Chave da API / Auth Token</label>
-                                    <input type="password" name="settings[sms_api_key]" class="form-control text-xs rounded-xl"
-                                        value="{{ setting('sms_api_key', '********************') }}">
-                                </div>
-                                <div>
-                                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Sender ID (Remetente)</label>
-                                    <input type="text" name="settings[sms_sender_id]" class="form-control text-xs rounded-xl"
-                                        value="{{ setting('sms_sender_id', 'ZamEdu') }}">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- TAB 6: SISTEMA & MANUTENÇÃO -->
-                <div class="tab-pane fade {{ $activeTab === 'system' ? 'show active' : '' }}" id="tab-system" role="tabpanel">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
-                        <div>
-                            <h3 class="text-base font-bold text-slate-800">Preferências Globais e Backup</h3>
-                            <p class="text-xs text-slate-500">Definições regionais, moeda oficial e rotina de cópias de segurança.</p>
-                        </div>
-                        <span class="badge bg-slate-100 text-slate-800 px-3 py-1.5 rounded-full text-xs font-semibold">Infraestrutura SaaS</span>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Moeda Oficial</label>
-                            <select name="settings[currency_symbol]" class="form-select rounded-xl border-slate-200 p-3 text-sm font-bold">
-                                <option value="MZN" {{ setting('currency_symbol', 'MZN') == 'MZN' ? 'selected' : '' }}>MZN - Metical (Moçambique)</option>
-                                <option value="AOA" {{ setting('currency_symbol') == 'AOA' ? 'selected' : '' }}>AOA - Kwanza (Angola)</option>
-                                <option value="EUR" {{ setting('currency_symbol') == 'EUR' ? 'selected' : '' }}>EUR - Euro (€)</option>
-                                <option value="USD" {{ setting('currency_symbol') == 'USD' ? 'selected' : '' }}>USD - Dólar ($)</option>
-                                <option value="BRL" {{ setting('currency_symbol') == 'BRL' ? 'selected' : '' }}>BRL - Real (R$)</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Fuso Horário (Timezone)</label>
-                            <select name="settings[system_timezone]" class="form-select rounded-xl border-slate-200 p-3 text-sm">
-                                <option value="Africa/Maputo" {{ setting('system_timezone', 'Africa/Maputo') == 'Africa/Maputo' ? 'selected' : '' }}>Africa/Maputo (UTC+2)</option>
-                                <option value="Africa/Luanda" {{ setting('system_timezone') == 'Africa/Luanda' ? 'selected' : '' }}>Africa/Luanda (UTC+1)</option>
-                                <option value="Europe/Lisbon" {{ setting('system_timezone') == 'Europe/Lisbon' ? 'selected' : '' }}>Europe/Lisbon (UTC+0)</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Idioma do Sistema</label>
-                            <select name="settings[system_language]" class="form-select rounded-xl border-slate-200 p-3 text-sm">
-                                <option value="pt" {{ setting('system_language', 'pt') == 'pt' ? 'selected' : '' }}>Português (PT)</option>
-                                <option value="en" {{ setting('system_language') == 'en' ? 'selected' : '' }}>English (EN)</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Seção de Backups & Log Viewer -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
-                            <div class="flex items-center justify-between mb-4">
-                                <h4 class="text-xs font-bold uppercase text-slate-700 flex items-center gap-2">
-                                    <i class="fas fa-database text-emerald-600"></i> Backups do Sistema
-                                </h4>
-                                <a href="{{ route('admin.backup.create') }}" method="POST" class="btn btn-sm bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold px-3 py-1.5 inline-flex items-center gap-1.5 shadow-sm">
-                                    <i class="fas fa-download"></i> Backup Agora
-                                </a>
-                            </div>
-
-                            @if(!empty($backups))
-                                <div class="divide-y divide-slate-200 max-h-48 overflow-y-auto">
-                                    @foreach($backups as $b)
-                                        <div class="py-2 flex items-center justify-between text-xs">
-                                            <div>
-                                                <span class="font-bold text-slate-800 block">{{ $b['filename'] }}</span>
-                                                <span class="text-[10px] text-slate-500">{{ $b['date'] }} • {{ $b['size'] }}</span>
-                                            </div>
-                                            <span class="badge bg-emerald-100 text-emerald-800">Concluído</span>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            @else
-                                <p class="text-xs text-slate-500 text-center py-4">Nenhum backup manual registado recentemente.</p>
-                            @endif
-                        </div>
-
-                        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
-                            <h4 class="text-xs font-bold uppercase text-slate-700 mb-3 flex items-center gap-2">
-                                <i class="fas fa-terminal text-slate-700"></i> Visualizador de Logs Recentes
-                            </h4>
-                            <div class="bg-slate-900 text-emerald-400 font-mono text-[11px] p-3 rounded-xl max-h-48 overflow-y-auto shadow-inner leading-relaxed">
-                                @forelse($logs as $logLine)
-                                    <div class="truncate">{{ $logLine }}</div>
-                                @empty
-                                    <div class="text-slate-500">Sem registos de erro no log.</div>
-                                @endforelse
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- TAB 7: AVALIAÇÃO & NOTAS -->
-                <div class="tab-pane fade {{ $activeTab === 'avaliacao' ? 'show active' : '' }}" id="tab-avaliacao" role="tabpanel">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
-                        <div>
-                            <h3 class="text-base font-bold text-slate-800">Cálculo de Médias, Exames e Pesos Curriculares</h3>
-                            <p class="text-xs text-slate-500">Defina o método de cálculo da Média Geral, inclusão de exames (ACF) e pesos das avaliações.</p>
-                        </div>
-                        <span class="badge bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-full text-xs font-semibold">Regras Pedagógicas</span>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
-                            <h4 class="text-xs font-bold uppercase text-slate-700 mb-3 flex items-center gap-2">
-                                <i class="fas fa-calculator text-indigo-600"></i> Média Geral na Pauta
-                            </h4>
-                            <div class="mb-4">
-                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Divisor da Média Geral</label>
-                                <select name="settings[average_method]" class="form-select rounded-xl border-slate-200 p-3 text-sm font-semibold">
-                                    <option value="all_subjects" {{ setting('average_method', 'all_subjects') == 'all_subjects' ? 'selected' : '' }}>
-                                        Dividir pelo Total de Disciplinas da Turma (Ex: 9.6 / 5 = 1.9)
-                                    </option>
-                                    <option value="only_graded" {{ setting('average_method') == 'only_graded' ? 'selected' : '' }}>
-                                        Dividir Apenas pelas Disciplinas Lançadas (Ex: 9.6 / 1 = 9.6)
-                                    </option>
-                                </select>
-                                <p class="text-[11px] text-slate-500 mt-2">
-                                    <i class="fas fa-info-circle me-1"></i> Como calcular a Média Geral quando faltam notas.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
-                            <h4 class="text-xs font-bold uppercase text-slate-700 mb-3 flex items-center gap-2">
-                                <i class="fas fa-list-ol text-indigo-600"></i> Cálculo da MACS (Média ACS)
-                            </h4>
-                            <div class="mb-4">
-                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Método de Divisão da MACS</label>
-                                <select name="settings[macs_calculation_method]" class="form-select rounded-xl border-slate-200 p-3 text-sm font-semibold">
-                                    <option value="launched_only" {{ setting('macs_calculation_method', 'launched_only') == 'launched_only' ? 'selected' : '' }}>
-                                        Dinâmico — Dividir Apenas pelas ACS Lançadas (ex: 2 lançadas = divide por 2)
-                                    </option>
-                                    <option value="fixed_count" {{ setting('macs_calculation_method') == 'fixed_count' ? 'selected' : '' }}>
-                                        Fixo — Dividir Sempre pelo Total Padrão de ACS (ex: dividir por 3)
-                                    </option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Qtd Padrão de ACS por Trimestre</label>
-                                <input type="number" name="settings[default_acs_count]" class="form-control rounded-xl border-slate-200 p-3 text-sm"
-                                    value="{{ setting('default_acs_count', 3) }}" min="1" max="5">
-                            </div>
-                        </div>
-
-                        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
-                            <h4 class="text-xs font-bold uppercase text-slate-700 mb-3 flex items-center gap-2">
-                                <i class="fas fa-file-signature text-indigo-600"></i> Exames Finais (ACF)
-                            </h4>
-                            <div class="mb-4">
-                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Incluir ACF na Média Final (MFD)?</label>
-                                <select name="settings[include_acf_in_mfd]" class="form-select rounded-xl border-slate-200 p-3 text-sm">
-                                    <option value="0" {{ setting('include_acf_in_mfd', '0') == '0' ? 'selected' : '' }}>Não (MFD = Média dos 3 Trimestres)</option>
-                                    <option value="1" {{ setting('include_acf_in_mfd') == '1' ? 'selected' : '' }}>Sim (Ponderar Nota de Exame na MFD)</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Classes com Exame Obrigatório</label>
-                                <input type="text" name="settings[exam_class_levels]" class="form-control rounded-xl border-slate-200 p-3 text-sm"
-                                    value="{{ setting('exam_class_levels', '6,7,10,12') }}" placeholder="Ex: 6,7,10,12">
-                                <p class="text-[11px] text-slate-500 mt-1">Separadas por vírgula.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Ponderações e Pesos -->
-                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 mb-6">
-                        <h4 class="text-xs font-bold uppercase text-slate-700 mb-4 flex items-center gap-2">
-                            <i class="fas fa-balance-scale text-indigo-600"></i> Pesos e Ponderações das Avaliações
-                        </h4>
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <div class="bg-white p-4 rounded-xl border border-slate-200">
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Peso MACS no MT</label>
-                                <input type="number" name="settings[macs_weight]" class="form-control text-sm rounded-lg" value="{{ setting('macs_weight', 2) }}" min="1" max="10">
-                                <small class="text-[10px] text-slate-400">Avaliações Contínuas</small>
-                            </div>
-                            <div class="bg-white p-4 rounded-xl border border-slate-200">
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Peso ACP no MT</label>
-                                <input type="number" name="settings[acp_weight_in_mt]" class="form-control text-sm rounded-lg" value="{{ setting('acp_weight_in_mt', 1) }}" min="1" max="10">
-                                <small class="text-[10px] text-slate-400">Prova Trimestral</small>
-                            </div>
-                            <div class="bg-white p-4 rounded-xl border border-slate-200">
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Peso ACF na MFD</label>
-                                <input type="number" name="settings[acf_weight_in_mfd]" class="form-control text-sm rounded-lg" value="{{ setting('acf_weight_in_mfd', 1) }}" min="1" max="10">
-                                <small class="text-[10px] text-slate-400">Exame Final</small>
-                            </div>
-                            <div class="bg-white p-4 rounded-xl border border-slate-200">
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Peso Trimestres na MFD</label>
-                                <input type="number" name="settings[terms_weight_in_mfd]" class="form-control text-sm rounded-lg" value="{{ setting('terms_weight_in_mfd', 3) }}" min="1" max="10">
-                                <small class="text-[10px] text-slate-400">Componente Anual</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
             </div>
 
-            <!-- Botão Fixo de Gravação das Definições Gerais -->
-            <div class="border-t border-slate-100 bg-slate-50/80 p-4 md:p-6 flex items-center justify-between">
-                <span class="text-xs text-slate-500 font-medium">As alterações serão aplicadas imediatamente a todas as instâncias ativas.</span>
-                <button type="submit" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm px-6 py-3 rounded-2xl shadow-lg shadow-emerald-600/20 transition hover:-translate-y-0.5">
-                    <i class="fas fa-save"></i>
-                    <span>Guardar Configurações</span>
+            <!-- TAB 2: ANO LECTIVO -->
+            <div x-show="currentTab === 'ano-letivo'" class="space-y-6">
+                <div class="pb-2 border-b border-slate-100 dark:border-slate-700">
+                    <h3 class="text-xs font-extrabold text-slate-800 dark:text-slate-100 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fas fa-calendar-alt text-emerald-600"></i> Gestão do Ano Lectivo & Trimestres
+                    </h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Parâmetros de encerramento e transição de ano académico.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Ano Lectivo Activo *</label>
+                        <input type="number" name="settings[academic_year]" value="{{ setting('academic_year', date('Y')) }}" required
+                               class="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Regime Lectivo *</label>
+                        <select name="settings[academic_regime]"
+                                class="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
+                            <option value="trimestral" {{ setting('academic_regime', 'trimestral') === 'trimestral' ? 'selected' : '' }}>Trimestral (3 Trimestres)</option>
+                            <option value="semestral" {{ setting('academic_regime') === 'semestral' ? 'selected' : '' }}>Semestral (2 Semestres)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Data de Abertura do Ano Lectivo</label>
+                        <input type="date" name="settings[academic_year_start]" value="{{ setting('academic_year_start', date('Y-02-01')) }}"
+                               class="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Data de Encerramento do Ano Lectivo</label>
+                        <input type="date" name="settings[academic_year_end]" value="{{ setting('academic_year_end', date('Y-11-30')) }}"
+                               class="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: ESTRUTURA ACADÉMICA -->
+            <div x-show="currentTab === 'estrutura'" class="space-y-6">
+                <div class="pb-2 border-b border-slate-100 dark:border-slate-700">
+                    <h3 class="text-xs font-extrabold text-slate-800 dark:text-slate-100 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fas fa-graduation-cap text-emerald-600"></i> Estrutura Académica & Alunos
+                    </h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Definições globais de limites de alunos e matrículas.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Capacidade Máxima por Turma *</label>
+                        <input type="number" name="settings[default_class_capacity]" value="{{ setting('default_class_capacity', 40) }}" min="1" max="100" required
+                               class="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Média Mínima para Aprovação *</label>
+                        <input type="number" name="settings[passing_grade]" value="{{ setting('passing_grade', 10) }}" min="0" max="20" required
+                               class="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Prefixo do Número de Estudante</label>
+                        <input type="text" name="settings[student_number_prefix]" value="{{ setting('student_number_prefix', 'ZAM') }}"
+                               class="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Limite de Faltas Não Justificadas</label>
+                        <input type="number" name="settings[max_foul_limit]" value="{{ setting('max_foul_limit', 15) }}" min="1" max="100"
+                               class="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: UTILIZADORES & AUDITORIA -->
+            <div x-show="currentTab === 'utilizadores'" class="space-y-6">
+                <div class="pb-2 border-b border-slate-100 dark:border-slate-700">
+                    <h3 class="text-xs font-extrabold text-slate-800 dark:text-slate-100 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fas fa-users-cog text-emerald-600"></i> Auditoria de Acessos & Logs do Sistema
+                    </h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Registo de atividades de utilizadores e acessos recentes.</p>
+                </div>
+
+                <div class="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-700 max-h-96 overflow-y-auto font-mono text-[11px]">
+                    @forelse($logs as $log)
+                        <div class="py-1 border-b border-slate-200/50 dark:border-slate-800 text-slate-700 dark:text-slate-300">
+                            {{ $log }}
+                        </div>
+                    @empty
+                        <p class="text-slate-400">Nenhum registo de log disponível.</p>
+                    @endforelse
+                </div>
+            </div>
+
+            <!-- TAB 5: COMUNICAÇÃO -->
+            <div x-show="currentTab === 'comunicacao'" class="space-y-6">
+                <div class="pb-2 border-b border-slate-100 dark:border-slate-700">
+                    <h3 class="text-xs font-extrabold text-slate-800 dark:text-slate-100 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fas fa-paper-plane text-emerald-600"></i> Canais de Comunicação & Notificações
+                    </h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Definições de SMS, gateway WhatsApp e email.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Gateway SMS Activa</label>
+                        <select name="settings[sms_gateway]"
+                                class="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
+                            <option value="disabled" {{ setting('sms_gateway', 'disabled') === 'disabled' ? 'selected' : '' }}>Desativada (Modo Simulação)</option>
+                            <option value="twilio" {{ setting('sms_gateway') === 'twilio' ? 'selected' : '' }}>Twilio SMS Gateway</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Email de Remetente (SMTP)</label>
+                        <input type="email" name="settings[smtp_from_address]" value="{{ setting('smtp_from_address', 'nao-responder@escola.co.mz') }}"
+                               class="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 6: SISTEMA & BACKUPS -->
+            <div x-show="currentTab === 'system'" class="space-y-6">
+                <div class="pb-2 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+                    <div>
+                        <h3 class="text-xs font-extrabold text-slate-800 dark:text-slate-100 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fas fa-server text-emerald-600"></i> Manutenção & Gestão de Backups
+                        </h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Cópias de segurança da base de dados e preferências de moeda.</p>
+                    </div>
+                    <a href="{{ route('admin.backup.create') }}" onclick="event.preventDefault(); document.getElementById('create-backup-form').submit();"
+                       class="no-underline inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-xs font-bold text-white shadow-2xs transition">
+                        <i class="fas fa-download"></i> Criar Backup Agora
+                    </a>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Moeda Oficial *</label>
+                        <input type="text" name="settings[currency]" value="{{ setting('currency', 'MT') }}" required
+                               class="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Fuso Horário *</label>
+                        <input type="text" name="settings[timezone]" value="{{ setting('timezone', 'Africa/Maputo') }}" required
+                               class="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
+                    </div>
+                </div>
+
+                <!-- Tabela de Backups -->
+                <div class="bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold uppercase tracking-wider text-[10px]">
+                                <th class="py-2.5 px-4">Ficheiro</th>
+                                <th class="py-2.5 px-3">Tamanho</th>
+                                <th class="py-2.5 px-3">Data de Criação</th>
+                                <th class="py-2.5 px-3">Acções</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
+                            @forelse($backups as $b)
+                                <tr>
+                                    <td class="py-2.5 px-4 font-mono text-slate-800 dark:text-slate-200 font-bold">{{ $b['filename'] }}</td>
+                                    <td class="py-2.5 px-3 text-slate-600 dark:text-slate-400">{{ $b['size'] }}</td>
+                                    <td class="py-2.5 px-3 text-slate-600 dark:text-slate-400">{{ $b['date'] }}</td>
+                                    <td>
+                                        <a href="{{ route('admin.backup.download', $b['filename']) }}"
+                                           class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-600">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                        <a href="{{ route('admin.backup.delete', $b['filename']) }}"
+                                           class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-600">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="3" class="p-4 text-center text-slate-400">Nenhum backup encontrado.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 7: AVALIAÇÃO & NOTAS -->
+            <div x-show="currentTab === 'avaliacao'" class="space-y-6">
+                <div class="pb-2 border-b border-slate-100 dark:border-slate-700">
+                    <h3 class="text-xs font-extrabold text-slate-800 dark:text-slate-100 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fas fa-calculator text-emerald-600"></i> Ponderações & Fórmula Académica
+                    </h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Definição dos pesos das Avaliações Contínuas (MACS) e Exames (ACP).</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Peso das MACS (%) *</label>
+                        <input type="number" name="settings[macs_weight]" value="{{ setting('macs_weight', 40) }}" min="0" max="100" required
+                               class="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Peso da ACP (%) *</label>
+                        <input type="number" name="settings[acp_weight]" value="{{ setting('acp_weight', 60) }}" min="0" max="100" required
+                               class="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 8: TEMA, CORES & ÍCONES -->
+            <div x-show="currentTab === 'tema'" class="space-y-6">
+                <div class="pb-2 border-b border-slate-100 dark:border-slate-700">
+                    <h3 class="text-xs font-extrabold text-slate-800 dark:text-slate-100 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fas fa-palette text-emerald-600"></i> Personalização de Cores & Ícones do Sistema
+                    </h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Defina a cor primária da marca, o estilo de ícones e o tema visual do dashboard.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Seletor de Cores da Marca -->
+                    <div class="space-y-3">
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Cor Primária da Marca (Primary Accent) *</label>
+                        <div class="flex items-center gap-2">
+                            <input type="color" id="primary_color_picker" value="{{ setting('primary_color', '#047857') }}"
+                                   onchange="document.getElementById('primary_color_input').value = this.value"
+                                   class="h-9 w-12 rounded-lg border border-slate-200 cursor-pointer p-0.5 bg-white">
+                            <input type="text" id="primary_color_input" name="settings[primary_color]" value="{{ setting('primary_color', '#047857') }}" required
+                                   onchange="document.getElementById('primary_color_picker').value = this.value"
+                                   class="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-2 px-3 text-xs font-semibold uppercase font-mono">
+                        </div>
+                        
+                        <!-- Paletas Pré-definidas -->
+                        <div class="pt-1">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Paletas Rápidas</span>
+                            <div class="flex flex-wrap gap-2">
+                                <button type="button" onclick="document.getElementById('primary_color_input').value='#047857'; document.getElementById('primary_color_picker').value='#047857';"
+                                        class="h-7 px-2.5 rounded-md text-[10px] font-bold text-white bg-[#047857] shadow-2xs flex items-center gap-1">
+                                    <i class="fas fa-circle text-[8px]"></i> Esmeralda
+                                </button>
+                                <button type="button" onclick="document.getElementById('primary_color_input').value='#1d4ed8'; document.getElementById('primary_color_picker').value='#1d4ed8';"
+                                        class="h-7 px-2.5 rounded-md text-[10px] font-bold text-white bg-[#1d4ed8] shadow-2xs flex items-center gap-1">
+                                    <i class="fas fa-circle text-[8px]"></i> Azul Royal
+                                </button>
+                                <button type="button" onclick="document.getElementById('primary_color_input').value='#4f46e5'; document.getElementById('primary_color_picker').value='#4f46e5';"
+                                        class="h-7 px-2.5 rounded-md text-[10px] font-bold text-white bg-[#4f46e5] shadow-2xs flex items-center gap-1">
+                                    <i class="fas fa-circle text-[8px]"></i> Índigo
+                                </button>
+                                <button type="button" onclick="document.getElementById('primary_color_input').value='#7e22ce'; document.getElementById('primary_color_picker').value='#7e22ce';"
+                                        class="h-7 px-2.5 rounded-md text-[10px] font-bold text-white bg-[#7e22ce] shadow-2xs flex items-center gap-1">
+                                    <i class="fas fa-circle text-[8px]"></i> Roxo
+                                </button>
+                                <button type="button" onclick="document.getElementById('primary_color_input').value='#e11d48'; document.getElementById('primary_color_picker').value='#e11d48';"
+                                        class="h-7 px-2.5 rounded-md text-[10px] font-bold text-white bg-[#e11d48] shadow-2xs flex items-center gap-1">
+                                    <i class="fas fa-circle text-[8px]"></i> Rosa
+                                </button>
+                                <button type="button" onclick="document.getElementById('primary_color_input').value='#d97706'; document.getElementById('primary_color_picker').value='#d97706';"
+                                        class="h-7 px-2.5 rounded-md text-[10px] font-bold text-white bg-[#d97706] shadow-2xs flex items-center gap-1">
+                                    <i class="fas fa-circle text-[8px]"></i> Âmbar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Estilo de Ícones do Sistema -->
+                    <div class="space-y-3">
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Estilo de Ícones do Sistema *</label>
+                        <select name="settings[icon_style]"
+                                class="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
+                            <option value="fontawesome_pro" {{ setting('icon_style', 'fontawesome_pro') === 'fontawesome_pro' ? 'selected' : '' }}>FontAwesome 6 Modern Solid (Recomendado)</option>
+                            <option value="duotone" {{ setting('icon_style') === 'duotone' ? 'selected' : '' }}>Soft Duotone (Duas Cores)</option>
+                            <option value="regular" {{ setting('icon_style') === 'regular' ? 'selected' : '' }}>Minimalista Outline (Linhas Finas)</option>
+                        </select>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400">O estilo de ícones é aplicado a todos os botões, cartões estatísticos e menus de navegação.</p>
+                    </div>
+
+                    <!-- Tema da Barra Lateral -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Tema da Barra Lateral (Sidebar)</label>
+                        <select name="settings[sidebar_theme]"
+                                class="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
+                            <option value="light" {{ setting('sidebar_theme', 'light') === 'light' ? 'selected' : '' }}>Branco Puro / Claro (Padrão Alunos)</option>
+                            <option value="dark_slate" {{ setting('sidebar_theme') === 'dark_slate' ? 'selected' : '' }}>Slate Escuro Executivo</option>
+                            <option value="deep_emerald" {{ setting('sidebar_theme') === 'deep_emerald' ? 'selected' : '' }}>Esmeralda Profundo Institucional</option>
+                            <option value="midnight_indigo" {{ setting('sidebar_theme') === 'midnight_indigo' ? 'selected' : '' }}>Índigo Meia-Noite</option>
+                        </select>
+                    </div>
+
+                    <!-- Arredondamento dos Cantos -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Arredondamento de Cartões & Botões (Border Radius)</label>
+                        <select name="settings[border_radius]"
+                                class="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
+                            <option value="12px" {{ setting('border_radius', '12px') === '12px' ? 'selected' : '' }}>12px — Arredondado Moderno (Recomendado)</option>
+                            <option value="8px" {{ setting('border_radius') === '8px' ? 'selected' : '' }}>8px — Compacto / Suave</option>
+                            <option value="16px" {{ setting('border_radius') === '16px' ? 'selected' : '' }}>16px — Arredondado Amplo</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botões de Ação de Rodapé -->
+            <div class="pt-4 border-t border-slate-100 dark:border-slate-700 flex items-center justify-end gap-2">
+                <button type="submit" class="inline-flex items-center gap-1.5 px-5 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-xs font-bold text-white shadow-sm transition cursor-pointer">
+                    <i class="fas fa-check"></i> Guardar Alterações
                 </button>
             </div>
         </form>
-
-        <!-- TAB 8: CONTROLE DE ACESSO (RBAC MATRIX) -->
-        <div class="tab-pane fade {{ $activeTab === 'acesso' ? 'show active' : '' }}" id="tab-acesso" role="tabpanel">
-            <form action="{{ route('admin.settings.permissions.update') }}" method="POST">
-                @csrf
-                <div class="p-6 md:p-8">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
-                        <div>
-                            <h3 class="text-base font-bold text-slate-800">Matriz de Permissões por Perfil de Utilizador (RBAC)</h3>
-                            <p class="text-xs text-slate-500">Defina quais perfis do sistema (Secretária, Professor, Pedagógico, etc.) têm permissão para aceder e gerir cada módulo.</p>
-                        </div>
-                        <span class="badge bg-amber-50 text-amber-700 px-3 py-1.5 rounded-full text-xs font-semibold">Segurança & Menus</span>
-                    </div>
-
-                    @if(isset($roles) && isset($permissions))
-                        <div class="overflow-x-auto rounded-2xl border border-slate-200 shadow-sm mb-6">
-                            <table class="w-full text-left border-collapse bg-white">
-                                <thead>
-                                    <tr class="bg-slate-900 text-white text-xs uppercase tracking-wider">
-                                        <th class="p-4 font-bold border-b border-slate-800 min-w-[260px]">Módulo / Permissão</th>
-                                        @foreach($roles as $role)
-                                            <th class="p-4 text-center font-bold border-b border-slate-800 text-amber-400">
-                                                {{ ucfirst(str_replace('_', ' ', $role->name)) }}
-                                            </th>
-                                        @endforeach
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-100 text-xs">
-                                    @foreach($permissions as $groupName => $groupPermissions)
-                                        <tr class="bg-slate-100/80 font-extrabold text-slate-700 uppercase tracking-wider">
-                                            <td colspan="{{ count($roles) + 1 }}" class="p-3 px-4 text-slate-900 bg-slate-200/60 border-y border-slate-300">
-                                                <i class="fas fa-folder-open text-emerald-600 me-2"></i> {{ $groupName }}
-                                            </td>
-                                        </tr>
-                                        @foreach($groupPermissions as $perm)
-                                            <tr class="hover:bg-slate-50/80 transition-colors">
-                                                <td class="p-3 px-4 font-medium text-slate-800">
-                                                    <span class="block font-semibold text-slate-800">{{ $perm->name }}</span>
-                                                </td>
-                                                @foreach($roles as $role)
-                                                    <td class="p-3 text-center border-l border-slate-100">
-                                                        <label class="inline-flex items-center justify-center p-1 cursor-pointer">
-                                                            <input type="checkbox"
-                                                                name="role_permissions[{{ $role->id }}][{{ $perm->name }}]"
-                                                                value="1"
-                                                                class="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4"
-                                                                {{ $role->hasPermissionTo($perm->name) ? 'checked' : '' }}>
-                                                        </label>
-                                                    </td>
-                                                @endforeach
-                                            </tr>
-                                        @endforeach
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <div class="p-8 text-center text-slate-500">
-                            <i class="fas fa-exclamation-triangle fa-2x mb-2 text-amber-500"></i>
-                            <p>Não foi possível carregar a matriz de permissões.</p>
-                        </div>
-                    @endif
-                </div>
-
-                <div class="border-t border-slate-100 bg-slate-50/80 p-4 md:p-6 flex items-center justify-between">
-                    <span class="text-xs text-slate-500 font-medium">As alterações nos acessos têm efeito imediato após o utilizador recarregar a página.</span>
-                    <button type="submit" class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm px-6 py-3 rounded-2xl shadow-lg shadow-amber-600/20 transition hover:-translate-y-0.5">
-                        <i class="fas fa-shield-alt"></i>
-                        <span>Guardar Matriz de Permissões (RBAC)</span>
-                    </button>
-                </div>
-            </form>
-        </div>
-
     </div>
+
+    <!-- TAB 8: CONTROLE DE ACESSO (RBAC COMPLETO - FORMULÁRIO DEDICADO) -->
+    <div x-show="currentTab === 'acesso'" class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-2xs p-5">
+        <form id="rbac-permissions-form" action="{{ route('admin.settings.permissions.update') }}" method="POST">
+            @csrf
+            <div class="pb-3 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="text-xs font-extrabold text-slate-800 dark:text-slate-100 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fas fa-user-shield text-purple-600"></i> Matriz de Controlo de Acesso & Permissões (RBAC)
+                    </h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Defina exatamente o que cada perfil (Secretaria, Pedagogia, Professor, etc.) pode visualizar e gerir.</p>
+                </div>
+                <button type="submit" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-purple-700 hover:bg-purple-800 text-xs font-bold text-white shadow-sm transition cursor-pointer">
+                    <i class="fas fa-shield-alt"></i> Guardar Matriz RBAC
+                </button>
+            </div>
+
+            <div class="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-xl">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead>
+                        <tr class="bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200 dark:border-slate-700">
+                            <th class="py-3 px-4 w-1/3">Módulo / Permissão</th>
+                            @foreach($roles as $role)
+                                <th class="py-3 px-3 text-center">
+                                    <span class="px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950 text-purple-800 dark:text-purple-300 text-[10px] font-bold">
+                                        {{ ucfirst(str_replace('_', ' ', $role->name)) }}
+                                    </span>
+                                </th>
+                            @endforeach
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                        @foreach($permissions as $groupName => $groupPermissions)
+                            <!-- Group Category Row -->
+                            <tr class="bg-slate-50/80 dark:bg-slate-900/60 font-bold text-slate-800 dark:text-slate-200">
+                                <td colspan="{{ count($roles) + 1 }}" class="py-2 px-4 text-xs font-black tracking-wider text-emerald-700 dark:text-emerald-400 uppercase bg-slate-100/50 dark:bg-slate-800/50">
+                                    <i class="fas fa-layer-group me-1.5"></i> {{ $groupName }}
+                                </td>
+                            </tr>
+                            @foreach($groupPermissions as $permission)
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
+                                    <td class="py-2 px-4 font-semibold text-slate-700 dark:text-slate-300">
+                                        {{ $permission->name }}
+                                    </td>
+                                    @foreach($roles as $role)
+                                        <td class="py-2 px-3 text-center">
+                                            <input type="checkbox" 
+                                                   name="role_permissions[{{ $role->id }}][{{ $permission->name }}]" 
+                                                   value="1" 
+                                                   {{ $role->hasPermissionTo($permission->name) ? 'checked' : '' }}
+                                                   class="h-4 w-4 rounded border-slate-300 dark:border-slate-600 text-purple-600 focus:ring-purple-500 cursor-pointer">
+                                        </td>
+                                    @endforeach
+                                </tr>
+                            @endforeach
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pt-4 flex items-center justify-between border-t border-slate-100 dark:border-slate-700 mt-4">
+                <span class="text-xs text-slate-500 dark:text-slate-400">As permissões têm efeito imediato após guardar a matriz.</span>
+                <button type="submit" class="inline-flex items-center gap-1.5 px-5 py-2 rounded-lg bg-purple-700 hover:bg-purple-800 text-xs font-bold text-white shadow-sm transition cursor-pointer">
+                    <i class="fas fa-shield-alt"></i> Guardar Matriz RBAC
+                </button>
+            </div>
+        </form>
+    </div>
+
 </div>
+
+<!-- Formulário Oculto para Remoção do Logótipo -->
+<form id="remove-logo-form" action="{{ route('admin.settings.remove-logo') }}" method="POST" class="hidden">
+    @csrf
+</form>
+
+<!-- Formulário Oculto para Criação de Backup -->
+<form id="create-backup-form" action="{{ route('admin.backup.create') }}" method="POST" class="hidden">
+    @csrf
+</form>
 @endsection

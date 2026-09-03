@@ -81,10 +81,10 @@
 <body>
     <div class="no-print" style="text-align: center; margin-bottom: 20px;">
         <button onclick="window.print()" style="padding: 10px 20px; background: #2c5aa0; color: white; border: none; border-radius: 5px; cursor: pointer;">
-            🖨️ Imprimir Todas as Referências
+            <i class="fas fa-print me-1"></i> Imprimir Todas as Referências
         </button>
         <button onclick="window.close()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">
-            ✕ Fechar
+            <i class="fas fa-times me-1"></i> Fechar
         </button>
     </div>
 

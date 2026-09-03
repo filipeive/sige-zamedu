@@ -1,238 +1,203 @@
 @extends('layouts.app')
 
 @section('title', 'Gestão de Professores')
-@section('page-title', 'Professores')
+@section('page-title', 'Professores & Corpo Docente')
 @section('page-title-icon', 'fas fa-chalkboard-teacher')
 
 @section('breadcrumbs')
-    <li class="breadcrumb-item active">Professores</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Professores</li>
 @endsection
 
 @section('content')
-<div class="row">
-    <div class="col-12">
-        <!-- Filtros e Busca Harmonizados -->
-        <div class="school-card mb-4">
-            <div class="school-card-body">
-                <form action="{{ route('teachers.index') }}" method="GET" class="row g-3 align-items-end">
-                    <div class="col-md-5">
-                        <label class="form-label text-xs font-bold text-slate-700 uppercase tracking-wider">Pesquisar Professor</label>
-                        <div class="input-group">
-                            <input type="text" name="search" class="form-control rounded-xl border-slate-200" 
-                                   placeholder="Pesquisar por nome, email ou BI..." 
-                                   value="{{ request('search') }}">
-                            <button type="submit" class="btn btn-primary-school">
-                                <i class="fas fa-search"></i>
-                            </button>
-                        </div>
-                    </div>
+<div class="space-y-4">
 
-                    <div class="col-md-3">
-                        <label class="form-label text-xs font-bold text-slate-700 uppercase tracking-wider">Status</label>
-                        <select name="status" class="form-select rounded-xl border-slate-200" onchange="this.form.submit()">
-                            <option value="">Todos os Status</option>
-                            <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Ativos</option>
-                            <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inativos</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-4 d-flex gap-2">
-                        @if(request()->anyFilled(['search', 'status']))
-                            <a href="{{ route('teachers.index') }}" class="btn btn-outline-secondary rounded-xl" title="Limpar Filtros">
-                                <i class="fas fa-times me-1"></i> Limpar
-                            </a>
-                        @endif
-
-                        @can('create_teachers')
-                        <a href="{{ route('teachers.create') }}" class="btn btn-secondary-school rounded-xl text-nowrap w-100">
-                            <i class="fas fa-plus me-1"></i> Novo Professor
-                        </a>
-                        @endcan
-                    </div>
-                </form>
-            </div>
+    <!-- 1. Compact Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-slate-200">
+        <div>
+            <h1 class="text-xl font-black text-slate-800 tracking-tight flex items-center gap-2">
+                <i class="fas fa-chalkboard-teacher text-emerald-600"></i> Corpo Docente & Professores
+            </h1>
+            <p class="text-xs text-slate-500 mt-0.5">Gestão de professores, disciplinas atribuídas e contactos.</p>
         </div>
-
-        <!-- Cards de Estatísticas -->
-        <div class="row g-3 mb-4">
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm bg-white p-3 border-start border-4 border-primary">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0 bg-primary-subtle text-primary rounded-circle p-3 me-3">
-                            <i class="fas fa-chalkboard-teacher fa-lg"></i>
-                        </div>
-                        <div>
-                            <div class="text-muted small text-uppercase font-weight-bold">Total de Professores</div>
-                            <h4 class="mb-0 text-primary font-weight-bold">{{ \App\Models\Teacher::count() }}</h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm bg-white p-3 border-start border-4 border-success">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0 bg-success-subtle text-success rounded-circle p-3 me-3">
-                            <i class="fas fa-user-check fa-lg"></i>
-                        </div>
-                        <div>
-                            <div class="text-muted small text-uppercase font-weight-bold">Professores Ativos</div>
-                            <h4 class="mb-0 text-success font-weight-bold">{{ \App\Models\Teacher::active()->count() }}</h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm bg-white p-3 border-start border-4 border-info">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0 bg-info-subtle text-info rounded-circle p-3 me-3">
-                            <i class="fas fa-graduation-cap fa-lg"></i>
-                        </div>
-                        <div>
-                            <div class="text-muted small text-uppercase font-weight-bold">Turmas com Director/Prof.</div>
-                            <h4 class="mb-0 text-info font-weight-bold">{{ \App\Models\ClassRoom::whereNotNull('teacher_id')->count() }}</h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tabela de Professores -->
-        <div class="school-table-container">
-            <div class="school-table-header">
-                <h3 class="school-table-title">
-                    <i class="fas fa-list"></i>
-                    Lista de Professores
-                </h3>
-                <div class="text-muted">
-                    {{ $teachers->total() }} professor(es) encontrado(s)
-                </div>
-            </div>
-
-            <div class="table-responsive">
-                <table class="table table-school">
-                    <thead>
-                        <tr>
-                            <th>Professor</th>
-                            <th>Contacto</th>
-                            <th>Qualificação</th>
-                            <th>Turmas</th>
-                            <th>Salário</th>
-                            <th>Status</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($teachers as $teacher)
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="user-avatar-sm me-3" style="background: linear-gradient(135deg, var(--primary), var(--primary-dark)); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;">
-                                            {{ substr($teacher->first_name, 0, 1) }}{{ substr($teacher->last_name, 0, 1) }}
-                                        </div>
-                                        <div>
-                                            <strong>{{ $teacher->first_name }} {{ $teacher->last_name }}</strong>
-                                            <br>
-                                            <small class="text-muted">
-                                                BI: {{ $teacher->bi_number }}
-                                                @if($teacher->user)
-                                                    <span class="badge bg-success ms-1">Conta Ativa</span>
-                                                @endif
-                                            </small>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div>
-                                        <i class="fas fa-envelope text-muted me-1"></i>
-                                        {{ $teacher->email }}
-                                        <br>
-                                        <i class="fas fa-phone text-muted me-1"></i>
-                                        {{ $teacher->phone }}
-                                    </div>
-                                </td>
-                                <td>
-                                    <strong>{{ $teacher->qualification }}</strong>
-                                    <br>
-                                    <small class="text-muted">{{ $teacher->specialization }}</small>
-                                </td>
-                                <td>
-                                    @if($teacher->classes->count() > 0)
-                                        <span class="badge bg-primary">{{ $teacher->classes->count() }} turma(s)</span>
-                                        <br>
-                                        <small class="text-muted">
-                                            @foreach($teacher->classes->take(2) as $class)
-                                                {{ $class->name }}@if(!$loop->last), @endif
-                                            @endforeach
-                                            @if($teacher->classes->count() > 2)
-                                                ...
-                                            @endif
-                                        </small>
-                                    @else
-                                        <span class="badge bg-secondary">Sem turmas</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    <strong>{{ number_format($teacher->salary, 2, ',', '.') }} MZN</strong>
-                                </td>
-                                <td>
-                                    <span class="badge bg-{{ $teacher->status == 'active' ? 'success' : 'secondary' }}">
-                                        {{ $teacher->status == 'active' ? 'Ativo' : 'Inativo' }}
-                                    </span>
-                                    <br>
-                                    <small class="text-muted">
-                                        {{ $teacher->years_experience }} anos de experiência
-                                    </small>
-                                </td>
-                                <td>
-                                    <div class="btn-group">
-                                        <a href="{{ route('teachers.show', $teacher->id) }}" 
-                                           class="btn btn-sm btn-primary-school" title="Ver">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        @can('edit_teachers')
-                                        <a href="{{ route('teachers.edit', $teacher->id) }}" 
-                                           class="btn btn-sm btn-secondary-school" title="Editar">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        @endcan
-                                        @can('delete_teachers')
-                                        <form action="{{ route('teachers.destroy', $teacher->id) }}" 
-                                              method="POST" class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger" 
-                                                    title="Excluir" data-confirm="Tem certeza que deseja excluir este professor?">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
-                                        @endcan
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="7" class="text-center py-4">
-                                    <i class="fas fa-chalkboard-teacher fa-3x text-muted mb-3"></i>
-                                    <p class="text-muted">Nenhum professor encontrado.</p>
-                                    @can('create_teachers')
-                                    <a href="{{ route('teachers.create') }}" class="btn btn-primary-school">
-                                        <i class="fas fa-plus"></i> Cadastrar Primeiro Professor
-                                    </a>
-                                    @endcan
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Paginação -->
-            @if($teachers->hasPages())
-                <div class="school-card-body border-top">
-                    {{ $teachers->links() }}
-                </div>
-            @endif
+        <div class="flex items-center gap-2">
+            @can('create_teachers')
+                <a href="{{ route('teachers.create') }}" class="no-underline inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-xs font-bold text-white shadow-sm transition">
+                    <i class="fas fa-plus"></i> Novo Professor
+                </a>
+            @endcan
         </div>
     </div>
+
+    <!-- 2. Stat Cards (Pílula de Cor na Esquerda) -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <!-- Total Professores (Emerald Pill Accent) -->
+        <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex items-center gap-3 hover:shadow-sm transition">
+            <div class="w-1.5 h-8 rounded-full bg-emerald-500 shrink-0"></div>
+            <div class="w-9 h-9 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm font-bold shrink-0">
+                <i class="fas fa-user-tie"></i>
+            </div>
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Total Professores</span>
+                <span class="text-xl font-black text-slate-800 mt-0.5 block">{{ $teachers->total() }}</span>
+            </div>
+        </div>
+
+        <!-- Ativos (Blue Pill Accent) -->
+        <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex items-center gap-3 hover:shadow-sm transition">
+            <div class="w-1.5 h-8 rounded-full bg-blue-500 shrink-0"></div>
+            <div class="w-9 h-9 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-sm font-bold shrink-0">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Ativos</span>
+                <span class="text-xl font-black text-slate-800 mt-0.5 block">{{ \App\Models\Teacher::where('status', 'active')->count() }}</span>
+            </div>
+        </div>
+
+        <!-- Masculino (Teal Pill Accent) -->
+        <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex items-center gap-3 hover:shadow-sm transition">
+            <div class="w-1.5 h-8 rounded-full bg-teal-500 shrink-0"></div>
+            <div class="w-9 h-9 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center text-sm font-bold shrink-0">
+                <i class="fas fa-mars"></i>
+            </div>
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Masculino</span>
+                <span class="text-xl font-black text-slate-800 mt-0.5 block">{{ \App\Models\Teacher::where('gender', 'male')->count() }}</span>
+            </div>
+        </div>
+
+        <!-- Feminino (Pink Pill Accent) -->
+        <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex items-center gap-3 hover:shadow-sm transition">
+            <div class="w-1.5 h-8 rounded-full bg-pink-500 shrink-0"></div>
+            <div class="w-9 h-9 rounded-full bg-pink-50 text-pink-600 flex items-center justify-center text-sm font-bold shrink-0">
+                <i class="fas fa-venus"></i>
+            </div>
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Feminino</span>
+                <span class="text-xl font-black text-slate-800 mt-0.5 block">{{ \App\Models\Teacher::where('gender', 'female')->count() }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Filter Bar -->
+    <div class="bg-white rounded-xl p-3 border border-slate-200 shadow-2xs">
+        <form action="{{ route('teachers.index') }}" method="GET" class="grid gap-2 sm:grid-cols-2 md:grid-cols-4 items-center">
+            <div class="md:col-span-2">
+                <div class="relative">
+                    <input type="text" name="search" class="w-full rounded-lg border-slate-200 ps-8 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500" 
+                           placeholder="Pesquisar por nome, email ou BI..." value="{{ request('search') }}">
+                    <i class="fas fa-search absolute left-2.5 top-2.5 text-slate-400 text-xs"></i>
+                </div>
+            </div>
+
+            <div>
+                <select name="status" class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500" onchange="this.form.submit()">
+                    <option value="">Todos os Status</option>
+                    <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Ativos</option>
+                    <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inativos</option>
+                </select>
+            </div>
+
+            <div class="flex items-center gap-1.5">
+                <button type="submit" class="w-full inline-flex justify-center items-center gap-1 rounded-lg bg-emerald-700 hover:bg-emerald-800 py-1.5 px-3 text-xs font-bold text-white transition shadow-2xs">
+                    <i class="fas fa-filter text-[10px]"></i> Filtrar
+                </button>
+                @if(request()->anyFilled(['search', 'status']))
+                    <a href="{{ route('teachers.index') }}" class="no-underline inline-flex justify-center items-center rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 p-1.5 text-xs text-slate-600 transition" title="Limpar Filtros">
+                        <i class="fas fa-times"></i>
+                    </a>
+                @endif
+            </div>
+        </form>
+    </div>
+
+    <!-- 4. Table Container -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
+        <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+            <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                <i class="fas fa-chalkboard-teacher text-emerald-600"></i> Professores Registados ({{ $teachers->total() }})
+            </h3>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                    <tr class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider text-[10px] border-b border-slate-100">
+                        <th class="py-2.5 px-4">Professor</th>
+                        <th class="py-2.5 px-3">Contacto</th>
+                        <th class="py-2.5 px-3">Email</th>
+                        <th class="py-2.5 px-3">Especialidade</th>
+                        <th class="py-2.5 px-3">Status</th>
+                        <th class="py-2.5 px-4 text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @forelse($teachers as $teacher)
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-2.5 px-4 font-bold text-slate-800">
+                                <div class="flex items-center gap-2">
+                                    <div class="h-7 w-7 rounded-lg bg-emerald-700 text-white font-bold text-[10px] flex items-center justify-center shrink-0 shadow-2xs">
+                                        {{ substr($teacher->first_name, 0, 1) }}{{ substr($teacher->last_name, 0, 1) }}
+                                    </div>
+                                    <a href="{{ route('teachers.show', $teacher->id) }}" class="no-underline font-bold text-slate-800 hover:text-emerald-700 hover:no-underline transition">
+                                        {{ $teacher->full_name }}
+                                    </a>
+                                </div>
+                            </td>
+                            <td class="py-2.5 px-3 text-slate-700">
+                                {{ $teacher->phone ?? 'N/I' }}
+                            </td>
+                            <td class="py-2.5 px-3 text-slate-600">
+                                {{ $teacher->email ?? 'N/I' }}
+                            </td>
+                            <td class="py-2.5 px-3">
+                                <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-semibold text-[10px] border border-slate-200">
+                                    {{ $teacher->specialization ?? 'Geral' }}
+                                </span>
+                            </td>
+                            <td class="py-2.5 px-3">
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold {{ $teacher->status === 'active' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200' }}">
+                                    {{ $teacher->status === 'active' ? 'Ativo' : 'Inativo' }}
+                                </span>
+                            </td>
+                            <td class="py-2.5 px-4 text-end">
+                                <div class="flex items-center justify-end gap-1">
+                                    <a href="{{ route('teachers.show', $teacher->id) }}" class="no-underline h-7 w-7 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 flex items-center justify-center transition" title="Ver Detalhes">
+                                        <i class="fas fa-eye text-xs"></i>
+                                    </a>
+                                    <a href="{{ route('teachers.edit', $teacher->id) }}" class="no-underline h-7 w-7 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 flex items-center justify-center transition" title="Editar">
+                                        <i class="fas fa-edit text-xs"></i>
+                                    </a>
+                                    @if($teacher->status === 'active')
+                                        <form action="{{ route('teachers.destroy', $teacher->id) }}" method="POST" style="display: inline;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="no-underline h-7 w-7 rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 flex items-center justify-center transition" title="Apagar" onclick="return confirm('Tem certeza que deseja apagar este professor?')">
+                                                <i class="fas fa-trash text-xs"></i>
+                                            </button>
+                                        </form>
+                                    @endif
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="p-6 text-center text-slate-400">
+                                <i class="fas fa-user-tie text-2xl text-slate-300 mb-2"></i>
+                                <p class="text-xs font-semibold text-slate-600">Nenhum professor registrado.</p>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        @if($teachers->hasPages())
+            <div class="px-4 py-2 border-t border-slate-100">
+                {{ $teachers->links('pagination::bootstrap-5') }}
+            </div>
+        @endif
+    </div>
+
 </div>
 @endsection

@@ -1,184 +1,187 @@
 @extends('layouts.app')
 
-@section('title', 'Novo Pagamento')
-@section('page-title', 'Novo Pagamento')
+@section('title', is_public_school() ? 'Registrar Taxa Escolar' : 'Novo Pagamento')
+@section('page-title', is_public_school() ? 'Registrar Taxa Escolar' : 'Novo Pagamento')
+@section('page-title-icon', 'fas fa-plus-circle')
 
 @section('breadcrumbs')
     <li class="breadcrumb-item"><a href="{{ route('payments.index') }}" class="no-underline"><i class="fas fa-wallet me-1"></i>Pagamentos</a></li>
-    <li class="breadcrumb-item active">Novo</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Novo</li>
 @endsection
 
 @section('content')
-    <div class="payments-create mx-auto max-w-5xl">
-        <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-            <form action="{{ route('payments.store') }}" method="POST" id="payment-form" class="grid gap-4 md:grid-cols-12">
-                @csrf
+<div class="max-w-full mx-auto space-y-4">
 
-                <div class="md:col-span-12">
-                    <label class="mb-1 block text-xs font-semibold text-slate-600">Aluno *</label>
-                    <select name="student_id" id="student_id"
-                        class="w-full rounded-lg border-slate-300 text-sm focus:border-sky-500 focus:ring-sky-500 @error('student_id') border-rose-400 @enderror"
-                        required>
-                        <option value="">Selecione o aluno...</option>
-                        @foreach($students as $student)
-                            <option value="{{ $student->id }}" data-fee="{{ $student->currentEnrollment?->monthly_fee ?? $student->monthly_fee }}"
-                                data-class="{{ $student->currentEnrollment?->class?->name ?? 'Sem turma' }}"
-                                {{ old('student_id', $selectedStudent?->id) == $student->id ? 'selected' : '' }}>
-                                {{ $student->student_number }} - {{ $student->full_name }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('student_id')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
-                </div>
+    <!-- 1. Header Row -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-slate-200">
+        <div>
+            <h1 class="text-xl font-black text-slate-800 tracking-tight flex items-center gap-2">
+                <i class="fas fa-file-invoice-dollar text-emerald-600"></i> {{ is_public_school() ? 'Registrar Taxa Escolar' : 'Novo Pagamento de Propina / Taxa' }}
+            </h1>
+            <p class="text-xs text-slate-500 mt-0.5">Selecione o estudante, tipo de taxa e emita o recibo de pagamento.</p>
+        </div>
+        <a href="{{ route('payments.index') }}" class="no-underline inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 shadow-2xs transition">
+            <i class="fas fa-arrow-left"></i> Voltar à Lista
+        </a>
+    </div>
 
-                <div id="student-info" class="md:col-span-12 hidden rounded-lg border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
-                    <strong>Turma:</strong> <span id="info-class">-</span> |
-                    <strong>Mensalidade:</strong> <span id="info-fee">-</span> MT
-                </div>
+    <!-- 2. Form Container Card with Emerald Accent -->
+    <div class="bg-white rounded-xl border border-slate-200 border-t-4 border-t-emerald-600 shadow-2xs p-5">
+        <form action="{{ route('payments.store') }}" method="POST" id="payment-form" class="space-y-4">
+            @csrf
 
-                <div class="md:col-span-6">
-                    <label class="mb-1 block text-xs font-semibold text-slate-600">Tipo de Pagamento *</label>
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Selecione o Aluno *</label>
+                <input type="text" id="student_search" placeholder="Pesquisar aluno..." class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500 mb-2" />
+                <select name="student_id" id="student_id"
+                        class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500 @error('student_id') border-rose-500 @enderror" required>
+                    <option value="">Selecione o aluno...</option>
+                    @foreach($students as $student)
+                        <option value="{{ $student->id }}" data-fee="{{ $student->currentEnrollment?->monthly_fee ?? $student->monthly_fee }}"
+                            data-class="{{ $student->currentEnrollment?->class?->name ?? 'Sem turma' }}"
+                            {{ old('student_id', $selectedStudent?->id) == $student->id ? 'selected' : '' }}>
+                            {{ $student->student_number }} - {{ $student->full_name }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('student_id')<p class="mt-1 text-[10px] text-rose-600 font-semibold">{{ $message }}</p>@enderror
+            </div>
+
+            <div id="student-info" class="hidden rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-800 font-semibold">
+                <strong>Turma:</strong> <span id="info-class">-</span>
+                @if(is_private_school())
+                    | <strong>Mensalidade:</strong> <span id="info-fee">-</span> MT
+                @endif
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Tipo de Pagamento *</label>
                     <select name="type" id="payment_type"
-                        class="w-full rounded-lg border-slate-300 text-sm focus:border-sky-500 focus:ring-sky-500 @error('type') border-rose-400 @enderror"
-                        required>
+                            class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500" required>
                         <option value="">Selecione...</option>
                         @foreach($types as $value => $label)
                             <option value="{{ $value }}" {{ old('type') == $value ? 'selected' : '' }}>{{ $label }}</option>
                         @endforeach
                     </select>
-                    @error('type')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
                 </div>
 
-                <div class="md:col-span-6">
-                    <label class="mb-1 block text-xs font-semibold text-slate-600">Valor (MT) *</label>
-                    <input type="number" step="0.01" name="amount" id="amount" value="{{ old('amount') }}"
-                        class="w-full rounded-lg border-slate-300 text-sm focus:border-sky-500 focus:ring-sky-500 @error('amount') border-rose-400 @enderror"
-                        required>
-                    @error('amount')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
-                </div>
-
-                <div class="md:col-span-4">
-                    <label class="mb-1 block text-xs font-semibold text-slate-600">Mes</label>
+                <div id="month-group">
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Mês de Referência</label>
                     <select name="month" id="month"
-                        class="w-full rounded-lg border-slate-300 text-sm focus:border-sky-500 focus:ring-sky-500 @error('month') border-rose-400 @enderror">
-                        <option value="">N/A</option>
+                            class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500">
+                        <option value="">Selecione...</option>
                         @foreach($months as $num => $name)
                             <option value="{{ $num }}" {{ old('month', date('n')) == $num ? 'selected' : '' }}>{{ $name }}</option>
                         @endforeach
                     </select>
-                    @error('month')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
                 </div>
 
-                <div class="md:col-span-4">
-                    <label class="mb-1 block text-xs font-semibold text-slate-600">Ano *</label>
-                    <select name="year"
-                        class="w-full rounded-lg border-slate-300 text-sm focus:border-sky-500 focus:ring-sky-500 @error('year') border-rose-400 @enderror"
-                        required>
-                        @for($y = current_school_year() - 1; $y <= current_school_year() + 1; $y++)
-                            <option value="{{ $y }}" {{ old('year', current_school_year()) == $y ? 'selected' : '' }}>{{ $y }}</option>
-                        @endfor
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Valor (MT) *</label>
+                    <input type="number" step="0.01" min="0" name="amount" id="amount" value="{{ old('amount') }}" required
+                           class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500" placeholder="0.00">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Data de Vencimento *</label>
+                    <input type="date" name="due_date" id="due_date" value="{{ old('due_date', date('Y-m-d')) }}" required
+                           class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Status de Pagamento *</label>
+                    <select name="status" id="payment_status"
+                            class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500" required>
+                        <option value="paid" {{ old('status', 'paid') == 'paid' ? 'selected' : '' }}>Pago (Liquidado)</option>
+                        <option value="pending" {{ old('status') == 'pending' ? 'selected' : '' }}>Pendente</option>
                     </select>
-                    @error('year')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
                 </div>
 
-                <div class="md:col-span-4">
-                    <label class="mb-1 block text-xs font-semibold text-slate-600">Vencimento *</label>
-                    <input type="date" name="due_date" value="{{ old('due_date', current_school_year() . '-' . date('m') . '-10') }}"
-                        class="w-full rounded-lg border-slate-300 text-sm focus:border-sky-500 focus:ring-sky-500 @error('due_date') border-rose-400 @enderror"
-                        required>
-                    @error('due_date')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
+                <div id="payment-method-group">
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Método de Pagamento</label>
+                    <select name="payment_method" id="payment_method"
+                            class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500">
+                        <option value="numerario" {{ old('payment_method') == 'numerario' ? 'selected' : '' }}>Numerário (Dinheiro)</option>
+                        <option value="mpesa" {{ old('payment_method') == 'mpesa' ? 'selected' : '' }}>M-Pesa</option>
+                        <option value="emola" {{ old('payment_method') == 'emola' ? 'selected' : '' }}>e-Mola</option>
+                        <option value="pos" {{ old('payment_method') == 'pos' ? 'selected' : '' }}>Cartão POS / TPA</option>
+                        <option value="transferencia" {{ old('payment_method') == 'transferencia' ? 'selected' : '' }}>Transferência Bancária</option>
+                    </select>
                 </div>
+            </div>
 
-                <div class="md:col-span-6">
-                    <label class="mb-1 block text-xs font-semibold text-slate-600">Desconto (MT)</label>
-                    <input type="number" step="0.01" name="discount" value="{{ old('discount', 0) }}" min="0"
-                        class="w-full rounded-lg border-slate-300 text-sm focus:border-sky-500 focus:ring-sky-500 @error('discount') border-rose-400 @enderror">
-                    @error('discount')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
-                </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Observações / Descrição</label>
+                <textarea name="description" rows="2"
+                          class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500" placeholder="Observações adicionais...">{{ old('description') }}</textarea>
+            </div>
 
-                <div class="md:col-span-6">
-                    <label class="mb-1 block text-xs font-semibold text-slate-600">Total a Pagar</label>
-                    <div id="total-display" class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-800">0,00 MT</div>
-                </div>
-
-                <div class="md:col-span-12">
-                    <label class="mb-1 block text-xs font-semibold text-slate-600">Observacoes</label>
-                    <textarea name="notes" rows="3"
-                        class="w-full rounded-lg border-slate-300 text-sm focus:border-sky-500 focus:ring-sky-500 @error('notes') border-rose-400 @enderror"
-                        placeholder="Observacoes adicionais...">{{ old('notes') }}</textarea>
-                    @error('notes')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
-                </div>
-
-                <div class="md:col-span-12 flex items-center justify-between pt-2">
-                    <a href="{{ route('payments.index') }}" class="inline-flex items-center rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700 no-underline hover:bg-slate-50"><i class="fas fa-arrow-left me-2"></i>Voltar</a>
-                    <button type="submit" class="inline-flex items-center rounded-lg bg-sky-700 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-800"><i class="fas fa-floppy-disk me-2"></i>Registrar Pagamento</button>
-                </div>
-            </form>
-        </section>
+            <!-- Botões de Ação -->
+            <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-2">
+                <a href="{{ route('payments.index') }}" class="no-underline px-4 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 transition">
+                    Cancelar
+                </a>
+                <button type="submit" class="inline-flex items-center gap-1.5 px-5 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-xs font-bold text-white shadow-sm transition">
+                    <i class="fas fa-check"></i> Registar Pagamento
+                </button>
+            </div>
+        </form>
     </div>
-@endsection
 
-@push('styles')
-    <style>
-        [data-bs-theme="dark"] .payments-create .bg-white { background-color: var(--card-bg) !important; }
-        [data-bs-theme="dark"] .payments-create .bg-slate-50 { background-color: rgba(148, 163, 184, 0.08) !important; }
-        [data-bs-theme="dark"] .payments-create .border-slate-200,
-        [data-bs-theme="dark"] .payments-create .border-slate-300 { border-color: var(--border-color) !important; }
-        [data-bs-theme="dark"] .payments-create .text-slate-800,
-        [data-bs-theme="dark"] .payments-create .text-slate-700,
-        [data-bs-theme="dark"] .payments-create .text-slate-600 { color: var(--text-secondary) !important; }
-    </style>
-@endpush
+</div>
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const studentSelect = document.getElementById('student_id');
-    const typeSelect = document.getElementById('payment_type');
-    const amountInput = document.getElementById('amount');
-    const discountInput = document.querySelector('input[name="discount"]');
-    const studentInfo = document.getElementById('student-info');
-    const totalDisplay = document.getElementById('total-display');
+    document.addEventListener('DOMContentLoaded', function() {
+        const studentSelect = document.getElementById('student_id');
+        const studentSearch = document.getElementById('student_search');
+        const infoDiv = document.getElementById('student-info');
+        const infoClass = document.getElementById('info-class');
+        const infoFee = document.getElementById('info-fee');
+        const typeSelect = document.getElementById('payment_type');
+        const amountInput = document.getElementById('amount');
 
-    studentSelect.addEventListener('change', function() {
-        const selected = this.options[this.selectedIndex];
-        if (this.value) {
-            document.getElementById('info-class').textContent = selected.dataset.class;
-            document.getElementById('info-fee').textContent = parseFloat(selected.dataset.fee || 0).toLocaleString('pt-MZ');
-            studentInfo.classList.remove('hidden');
-
-            if (typeSelect.value === 'mensalidade') {
-                amountInput.value = selected.dataset.fee;
+        // Filter options based on search input
+        function filterStudentOptions() {
+            const query = studentSearch.value.toLowerCase();
+            for (let i = 0; i < studentSelect.options.length; i++) {
+                const opt = studentSelect.options[i];
+                const text = opt.text.toLowerCase();
+                opt.style.display = text.includes(query) ? '' : 'none';
             }
-        } else {
-            studentInfo.classList.add('hidden');
+            // If current selected option is hidden, reset selection
+            if (studentSelect.selectedIndex >= 0) {
+                const selectedOpt = studentSelect.options[studentSelect.selectedIndex];
+                if (selectedOpt && selectedOpt.style.display === 'none' && selectedOpt.value !== "") {
+                    studentSelect.value = '';
+                    updateStudentInfo();
+                }
+            }
         }
-        calculateTotal();
-    });
 
-    typeSelect.addEventListener('change', function() {
-        const selected = studentSelect.options[studentSelect.selectedIndex];
-        if (this.value === 'mensalidade' && selected && selected.dataset.fee) {
-            amountInput.value = selected.dataset.fee;
-        } else if (this.value === 'matricula') {
-            amountInput.value = 500;
+        function updateStudentInfo() {
+            const opt = studentSelect.options[studentSelect.selectedIndex];
+            if (opt && opt.value) {
+                infoClass.textContent = opt.dataset.class || '-';
+                if (infoFee) infoFee.textContent = opt.dataset.fee ? parseFloat(opt.dataset.fee).toLocaleString('pt-MZ') : '-';
+                infoDiv.classList.remove('hidden');
+                
+                if (typeSelect.value === 'mensalidade' && opt.dataset.fee) {
+                    amountInput.value = opt.dataset.fee;
+                }
+            } else {
+                infoDiv.classList.add('hidden');
+            }
         }
-        calculateTotal();
+
+        studentSearch.addEventListener('input', filterStudentOptions);
+        studentSelect.addEventListener('change', updateStudentInfo);
+        
+        // Initialize filtering in case of pre-filled value
+        filterStudentOptions();
+        if (studentSelect.value) updateStudentInfo();
     });
-
-    function calculateTotal() {
-        const amount = parseFloat(amountInput.value) || 0;
-        const discount = parseFloat(discountInput.value) || 0;
-        const total = amount - discount;
-        totalDisplay.textContent = `${total.toLocaleString('pt-MZ', {minimumFractionDigits: 2})} MT`;
-    }
-
-    amountInput.addEventListener('input', calculateTotal);
-    discountInput.addEventListener('input', calculateTotal);
-
-    if (studentSelect.value) {
-        studentSelect.dispatchEvent(new Event('change'));
-    }
-});
 </script>
 @endpush
+@endsection

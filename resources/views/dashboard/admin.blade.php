@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Dashboard Executivo & Analytics')
-@section('page-title', 'Dashboard Executivo & Analytics')
+@section('page-title', 'Dashboard')
 @section('page-title-icon', 'fas fa-chart-pie')
 
 @section('breadcrumbs')
@@ -10,6 +10,15 @@
 
 @section('page-actions')
     <div class="flex items-center gap-3">
+        @if(is_public_school())
+            <span class="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-3 py-1.5 text-xs font-bold text-blue-700">
+                <i class="fas fa-landmark"></i> Escola Pública
+            </span>
+        @else
+            <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1.5 text-xs font-bold text-emerald-700">
+                <i class="fas fa-school"></i> Escola Privada
+            </span>
+        @endif
         <button type="button"
             class="inline-flex items-center gap-2 rounded-full bg-emerald-700 px-5 py-2.5 text-xs font-bold text-white shadow-md transition hover:bg-emerald-800"
             onclick="location.reload()">
@@ -500,13 +509,49 @@
             <div class="text-end">
                 <p class="dash-kpi-label" style="margin-bottom:0.25rem;">Hoje</p>
                 <p style="font-size:0.95rem; font-weight:700; color: var(--dash-slate-700); margin:0;">
+                    <!-- Em portugues. exemplo  03 Setembro, 2026 -->
                     {{ $greetingData['current_date'] }}
                 </p>
             </div>
         </div>
     </div>
 
-    <!-- Bloco 2: Alertas Inteligentes -->
+    <!-- Bloco 2: Ações Rápidas (No Topo para Acesso Imediato) -->
+    <section class="dash-animate dash-animate-d1">
+        <div class="flex flex-wrap items-center gap-2">
+            <a href="{{ route('students.create') }}" class="no-underline inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-sm transition">
+                <i class="fas fa-user-plus text-xs"></i> Novo Aluno
+            </a>
+            <!-- encarregado com escola publica -->
+            <a href="{{ route('parents.create') }}" class="no-underline inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-yellow-700 hover:bg-yellow-800 text-white font-bold text-xs shadow-sm transition">
+                <i class="fas fa-user-plus text-xs"></i> Registrar Novo Encarregado
+            </a>
+            @if(is_public_school())
+            <a href="{{ route('teachers.create') }}" class="no-underline inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-yellow-700 hover:bg-yellow-800 text-white font-bold text-xs shadow-sm transition">
+                <i class="fas fa-user-plus text-xs"></i> Novo Professor
+            </a>
+            @endif
+            @if(is_private_school())
+                <a href="{{ route('payments.create') }}" class="no-underline inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-sm transition">
+                    <i class="fas fa-file-invoice-dollar text-xs"></i> Registrar Pagamento
+                </a>
+            @endif
+            <a href="{{ route('enrollments.create') }}" class="no-underline inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs shadow-sm transition">
+                <i class="fas fa-id-card text-xs"></i> Nova Matrícula
+            </a>
+            <a href="{{ route('grades.index') }}" class="no-underline inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-sm transition">
+                <i class="fas fa-pen-nib text-xs"></i> Lançar Notas
+            </a>
+            <a href="{{ route('expenses.create') }}" class="no-underline inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-sm transition">
+                <i class="fas fa-receipt text-xs"></i> Nova Despesa
+            </a>
+            <a href="{{ route('communications.create') }}" class="no-underline inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-700 hover:bg-slate-800 text-white font-bold text-xs shadow-sm transition">
+                <i class="fas fa-bullhorn text-xs"></i> Comunicado
+            </a>
+        </div>
+    </section>
+
+    <!-- Bloco 3: Alertas Inteligentes -->
     @if (!empty($smartInsights))
         <div class="d-flex flex-wrap gap-3 dash-animate dash-animate-d1">
             @foreach ($smartInsights as $insight)
@@ -528,162 +573,128 @@
         </div>
     @endif
 
-    <!-- Bloco 3: KPIs Primários Premium devem caber 5 cards -->
-    <section class="row g-3 dash-animate dash-animate-d2">
-        <!-- Receita -->
-        <div class="col-6 col-xl">
-            <div class="dash-card h-100" style="border-top: 3px solid #10b981;">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div class="flex-grow-1">
-                        <p class="dash-kpi-label">Receita do Mês</p>
-                        <p class="dash-kpi-value">{{ number_format($stats['monthly_revenue'], 0, ',', '.') }} <span style="font-size:0.75rem; font-weight:600; color: var(--dash-slate-500);">MT</span></p>
-                        <span class="dash-badge mt-2" style="background: {{ $stats['revenue_change'] >= 0 ? '#dcfce7' : '#fef2f2' }}; color: {{ $stats['revenue_change'] >= 0 ? '#166534' : '#991b1b' }};">
-                            <i class="fas fa-{{ $stats['revenue_change'] >= 0 ? 'arrow-trend-up' : 'arrow-trend-down' }}"></i>
-                            {{ abs($stats['revenue_change']) }}% vs mês anterior
-                        </span>
-                    </div>
-                    <div class="dash-kpi-icon" style="background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: #059669;">
-                        <i class="fas fa-wallet"></i>
-                    </div>
-                </div>
+    <!-- Bloco 4: KPIs Primários Premium (Pílula Vertical de Cor na Esquerda) -->
+    <section class="grid grid-cols-2 sm:grid-cols-4 gap-3 dash-animate dash-animate-d2">
+        <!-- Receita (apenas escolas privadas) -->
+        @if(is_private_school())
+        <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex items-center gap-3 hover:shadow-sm transition">
+            <div class="w-1.5 h-8 rounded-full bg-emerald-500 shrink-0"></div>
+            <div class="w-9 h-9 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm font-bold shrink-0">
+                <i class="fas fa-wallet"></i>
+            </div>
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Receita Mês</span>
+                <span class="text-xl font-black text-slate-800 mt-0.5 block">{{ number_format($stats['monthly_revenue'], 0, ',', '.') }} MT</span>
             </div>
         </div>
+        @endif
 
         <!-- Alunos -->
-        <div class="col-6 col-xl">
-            <div class="dash-card h-100" style="border-top: 3px solid #6366f1;">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div class="flex-grow-1">
-                        <p class="dash-kpi-label">Alunos Ativos</p>
-                        <p class="dash-kpi-value">{{ number_format($stats['total_students']) }}</p>
-                        <span class="dash-badge mt-2" style="background: #e0e7ff; color: #4338ca;">
-                            <i class="fas fa-users" style="font-size:0.6rem;"></i>
-                            {{ $stats['total_classes'] }} Turmas activas
-                        </span>
-                    </div>
-                    <div class="dash-kpi-icon" style="background: linear-gradient(135deg, #e0e7ff, #c7d2fe); color: #4f46e5;">
-                        <i class="fas fa-user-graduate"></i>
-                    </div>
-                </div>
+        <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex items-center gap-3 hover:shadow-sm transition">
+            <div class="w-1.5 h-8 rounded-full bg-blue-500 shrink-0"></div>
+            <div class="w-9 h-9 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-sm font-bold shrink-0">
+                <i class="fas fa-user-graduate"></i>
+            </div>
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Alunos Ativos</span>
+                <span class="text-xl font-black text-slate-800 mt-0.5 block">{{ number_format($stats['total_students']) }}</span>
             </div>
         </div>
 
         <!-- Assiduidade -->
-        <div class="col-6 col-xl">
-            <div class="dash-card h-100" style="border-top: 3px solid #14b8a6;">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div class="flex-grow-1">
-                        <p class="dash-kpi-label">Assiduidade Global</p>
-                        <p class="dash-kpi-value">{{ $stats['overall_attendance_rate'] }}<span style="font-size:1rem; color: var(--dash-slate-400);">%</span></p>
-                        <span class="dash-badge mt-2" style="background: #ccfbf1; color: #0f766e;">
-                            <i class="fas fa-check-circle" style="font-size:0.6rem;"></i>
-                            Taxa de presença
-                        </span>
-                    </div>
-                    <div class="dash-ring-container">
-                        <svg class="dash-ring-svg" viewBox="0 0 36 36">
-                            <circle class="dash-ring-bg" cx="18" cy="18" r="15.9155" />
-                            <circle class="dash-ring-progress" cx="18" cy="18" r="15.9155" 
-                                stroke-dasharray="{{ $stats['overall_attendance_rate'] }}, 100" />
-                        </svg>
-                        <div class="dash-ring-label">
-                            <i class="fas fa-check"></i>
-                        </div>
-                    </div>
-                </div>
+        <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex items-center gap-3 hover:shadow-sm transition">
+            <div class="w-1.5 h-8 rounded-full bg-teal-500 shrink-0"></div>
+            <div class="w-9 h-9 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center text-sm font-bold shrink-0">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Assiduidade</span>
+                <span class="text-xl font-black text-emerald-700 mt-0.5 block">{{ $stats['overall_attendance_rate'] }}%</span>
             </div>
         </div>
 
         <!-- Média -->
-        <div class="col-6 col-xl">
-            <div class="dash-card h-100" style="border-top: 3px solid #f59e0b;">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div class="flex-grow-1">
-                        <p class="dash-kpi-label">Média Académica</p>
-                        <p class="dash-kpi-value">{{ $stats['global_grade_avg'] }}<span style="font-size:0.85rem; font-weight:600; color: var(--dash-slate-400);">/20</span></p>
-                        <span class="dash-badge mt-2" style="background: #fef3c7; color: #92400e;">
-                            <i class="fas fa-star" style="font-size:0.6rem; color: #f59e0b;"></i>
-                            Bom Desempenho
-                        </span>
-                    </div>
-                    <div class="dash-kpi-icon" style="background: linear-gradient(135deg, #fef3c7, #fde68a); color: #d97706;">
-                        <i class="fas fa-award"></i>
-                    </div>
-                </div>
+        <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex items-center gap-3 hover:shadow-sm transition">
+            <div class="w-1.5 h-8 rounded-full bg-amber-500 shrink-0"></div>
+            <div class="w-9 h-9 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center text-sm font-bold shrink-0">
+                <i class="fas fa-award"></i>
+            </div>
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Média Geral</span>
+                <span class="text-xl font-black text-slate-800 mt-0.5 block">{{ $stats['global_grade_avg'] }}/20</span>
             </div>
         </div>
 
         <!-- Despesas -->
-        <div class="col-6 col-xl">
-            <div class="dash-card h-100" style="border-top: 3px solid #ef4444;">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div class="flex-grow-1">
-                        <p class="dash-kpi-label">Despesas do Mês</p>
-                        <p class="dash-kpi-value">{{ number_format($stats['this_month_expenses'] ?? 0, 0, ',', '.') }}<span style="font-size:0.85rem; font-weight:600; color: var(--dash-slate-400);"> MT</span></p>
-                        <span class="dash-badge mt-2" style="background: #fee2e2; color: #991b1b;">
-                            <i class="fas fa-receipt" style="font-size:0.6rem; color: #ef4444;"></i>
-                            Total: {{ number_format($stats['total_expenses'] ?? 0, 0, ',', '.') }} MT
+        <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex items-center gap-3 hover:shadow-sm transition">
+            <div class="w-1.5 h-8 rounded-full bg-rose-500 shrink-0"></div>
+            <div class="w-9 h-9 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center text-sm font-bold shrink-0">
+                <i class="fas fa-arrow-trend-down"></i>
+            </div>
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Despesas Mês</span>
+                <span class="text-xl font-black text-rose-700 mt-0.5 block">{{ number_format($stats['this_month_expenses'] ?? 0, 0, ',', '.') }} MT</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bloco 5: Gráficos & Análises (Visto de Primeira para Impacto Executivo) -->
+    <section class="dash-animate dash-animate-d3">
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-4 space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div>
+                    <h3 class="text-sm font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fas fa-chart-line text-emerald-600"></i> Análises & Gráficos Executivos
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Evolução financeira e distribuição de alunos</p>
+                </div>
+                <span class="px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 font-bold text-[10px] border border-slate-200">
+                    6 Meses
+                </span>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                @if(is_private_school())
+                <div class="lg:col-span-8 bg-slate-50/50 rounded-xl p-3 border border-slate-100">
+                    <div class="flex items-center justify-between mb-3">
+                        <div>
+                            <span class="text-xs font-bold text-slate-800 block">Evolução da Receita</span>
+                            <span class="text-[10px] text-slate-500">Últimos 6 meses em Meticais</span>
+                        </div>
+                        <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                            <i class="fas fa-arrow-trend-up text-[9px]"></i> Crescimento
                         </span>
                     </div>
-                    <div class="dash-kpi-icon" style="background: linear-gradient(135deg, #fee2e2, #fecaca); color: #dc2626;">
-                        <i class="fas fa-arrow-trend-down"></i>
+                    <div class="dash-chart-container" style="height: 220px;">
+                        <canvas id="revenueChart"></canvas>
                     </div>
                 </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Bloco 4: Calendário Interativo -->
-    <section class="row g-3 dash-animate dash-animate-d3">
-        <div class="col-lg-12">
-            @include('partials.admin-calendar')
-        </div>
-    </section>
-
-    <!-- Bloco 5: Ações Rápidas Premium -->
-    <section class="dash-animate dash-animate-d4">
-        <div class="dash-section" style="border-bottom:0; padding-bottom:0;">
-            <div>
-                <p class="dash-section-title">Ações Rápidas</p>
-                <p class="dash-section-subtitle">Acesso directo às tarefas mais frequentes</p>
-            </div>
-        </div>
-        <div class="row g-2">
-            <div class="col-6 col-md-3 col-xl-2">
-                <a href="{{ route('students.create') }}" class="dash-quick-action">
-                    <i class="fas fa-user-plus"></i>
-                    <span>Novo Aluno</span>
-                </a>
-            </div>
-            <div class="col-6 col-md-3 col-xl-2">
-                <a href="{{ route('payments.create') }}" class="dash-quick-action">
-                    <i class="fas fa-money-bill-wave"></i>
-                    <span>Pagamento</span>
-                </a>
-            </div>
-            <div class="col-6 col-md-3 col-xl-2">
-                <a href="{{ route('classes.create') }}" class="dash-quick-action">
-                    <i class="fas fa-chalkboard"></i>
-                    <span>Nova Turma</span>
-                </a>
-            </div>
-            <div class="col-6 col-md-3 col-xl-2">
-                <a href="{{ route('enrollments.create') }}" class="dash-quick-action">
-                    <i class="fas fa-id-card"></i>
-                    <span>Matrícula</span>
-                </a>
-            </div>
-            <div class="col-6 col-md-3 col-xl-2">
-                <a href="{{ route('communications.create') }}" class="dash-quick-action">
-                    <i class="fas fa-bullhorn"></i>
-                    <span>Comunicado</span>
-                </a>
-            </div>
-            <div class="col-6 col-md-3 col-xl-2">
-                <a href="{{ route('events.create') }}" class="dash-quick-action">
-                    <i class="fas fa-calendar-plus"></i>
-                    <span>Evento</span>
-                </a>
+                @else
+                <div class="lg:col-span-8 bg-slate-50/50 rounded-xl p-3 border border-slate-100">
+                    <div class="flex items-center justify-between mb-3">
+                        <div>
+                            <span class="text-xs font-bold text-slate-800 block">Taxa de Assiduidade Escolar</span>
+                            <span class="text-[10px] text-slate-500">Frequência média mensal dos alunos</span>
+                        </div>
+                        <span class="px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 text-[10px] font-bold">
+                            <i class="fas fa-user-check text-[9px]"></i> Frequência Global
+                        </span>
+                    </div>
+                    <div class="dash-chart-container" style="height: 220px;">
+                        <canvas id="academicAttendanceChart"></canvas>
+                    </div>
+                </div>
+                @endif
+                <div class="lg:col-span-4 bg-slate-50/50 rounded-xl p-3 border border-slate-100">
+                    <div class="flex items-center justify-between mb-3">
+                        <div>
+                            <span class="text-xs font-bold text-slate-800 block">Alunos por Turma</span>
+                            <span class="text-[10px] text-slate-500">Distribuição atual</span>
+                        </div>
+                    </div>
+                    <div class="dash-chart-container" style="height: 220px;">
+                        <canvas id="studentsChart"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -742,7 +753,7 @@
                     @endif
                 </div>
                 <div>
-                    @if ($stats['overdue_payments'] > 0)
+                    @if (is_private_school() && $stats['overdue_payments'] > 0)
                         <div class="dash-pending-card danger d-flex align-items-center justify-content-between">
                             <div class="d-flex align-items-center gap-3">
                                 <div class="rounded-xl p-2 flex-shrink-0" style="background:rgba(220,38,38,0.1); color:#dc2626;">
@@ -801,59 +812,7 @@
         </div>
     </section>
 
-    <!-- Bloco 8: Gráficos Premium -->
-    <section class="dash-animate dash-animate-d6">
-        <details class="dash-card-flat" open>
-            <summary class="dash-section dash-collapse-trigger" style="border-bottom:0; padding-bottom:0; margin-bottom:0;">
-                <div>
-                    <p class="dash-section-title">
-                        <i class="fas fa-chart-line me-2" style="color: #6366f1; font-size:0.9rem;"></i>
-                        Análises e Gráficos
-                    </p>
-                    <p class="dash-section-subtitle">Receita e distribuição de alunos</p>
-                </div>
-                <div class="d-flex align-items-center gap-2">
-                    <span class="dash-badge" style="background: var(--dash-slate-100); color: var(--dash-slate-500);">6 Meses</span>
-                    <i class="fas fa-chevron-down" style="color: var(--dash-slate-400); font-size:0.8rem;"></i>
-                </div>
-            </summary>
-            <div class="dash-collapse-content">
-                <div class="row g-3">
-                    <div class="col-lg-8">
-                        <div class="dash-card-flat" style="background: linear-gradient(to bottom, #ffffff, #fafafa);">
-                            <div class="d-flex align-items-center justify-content-between mb-4">
-                                <div>
-                                    <p class="fw-bold mb-1" style="font-size:0.95rem; color: var(--dash-slate-900);">Evolução da Receita</p>
-                                    <p class="mb-0" style="font-size:0.78rem; color: var(--dash-slate-500);">Últimos 6 meses em Meticais</p>
-                                </div>
-                                <div class="d-flex gap-2">
-                                    <span class="dash-badge" style="background:#ecfdf5; color:#059669;">
-                                        <i class="fas fa-arrow-trend-up" style="font-size:0.6rem;"></i> Crescimento
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="dash-chart-container">
-                                <canvas id="revenueChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="dash-card-flat" style="background: linear-gradient(to bottom, #ffffff, #fafafa);">
-                            <div class="d-flex align-items-center justify-content-between mb-4">
-                                <div>
-                                    <p class="fw-bold mb-1" style="font-size:0.95rem; color: var(--dash-slate-900);">Alunos por Turma</p>
-                                    <p class="mb-0" style="font-size:0.78rem; color: var(--dash-slate-500);">Distribuição actual</p>
-                                </div>
-                            </div>
-                            <div class="dash-chart-container">
-                                <canvas id="studentsChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </details>
-    </section>
+
 
     <!-- Bloco 9: Rankings Premium -->
     <section class="dash-animate dash-animate-d6">
@@ -979,6 +938,37 @@
             // Chart.js defaults premium
             Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
             Chart.defaults.color = '#64748b';
+
+            const academicAttendanceCtx = document.getElementById('academicAttendanceChart')?.getContext('2d');
+            if (academicAttendanceCtx) {
+                const gradientFill = academicAttendanceCtx.createLinearGradient(0, 0, 0, 280);
+                gradientFill.addColorStop(0, 'rgba(16, 185, 129, 0.2)');
+                gradientFill.addColorStop(1, 'rgba(16, 185, 129, 0)');
+
+                new Chart(academicAttendanceCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+                        datasets: [{
+                            label: 'Taxa de Assiduidade (%)',
+                            data: [92, 95, 94, 96, 93, 97],
+                            borderColor: '#10b981',
+                            backgroundColor: gradientFill,
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#ffffff',
+                            pointBorderColor: '#10b981',
+                            pointRadius: 5
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: { y: { min: 80, max: 100 } }
+                    }
+                });
+            }
 
             const revenueCtx = document.getElementById('revenueChart')?.getContext('2d');
             if (revenueCtx) {

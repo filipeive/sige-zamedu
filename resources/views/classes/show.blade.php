@@ -10,266 +10,244 @@
 @endsection
 
 @section('content')
-<div class="row">
-    <div class="col-md-4">
-        <!-- Card de Informações da Turma -->
-        <div class="school-card mb-4">
-            <div class="school-card-header">
-                <h3 class="school-card-title">
-                    <i class="fas fa-info-circle"></i>
-                    Informações da Turma
-                </h3>
-            </div>
-            <div class="school-card-body">
-                <div class="mb-3">
-                    <strong>Nome:</strong> {{ $class->name }}
-                </div>
-                <div class="mb-3">
-                    <strong>Nível:</strong> 
-                    <span class="badge bg-primary">{{ $class->grade_level_name }}</span>
-                </div>
-                <div class="mb-3">
-                    <strong>Turno:</strong> 
-                    @php
-                        $shiftBadge = match($class->shift) {
-                            'afternoon' => 'bg-warning text-dark',
-                            'night' => 'bg-info',
-                            default => 'bg-primary',
-                        };
-                    @endphp
-                    <span class="badge {{ $shiftBadge }}">{{ $class->shift_label }}</span>
-                </div>
-                <div class="mb-3">
-                    <strong>Ano Letivo:</strong> {{ $class->school_year }}
-                </div>
-                <div class="mb-3">
-                    <strong>Sala:</strong> {{ $class->classroom ?? 'N/A' }}
-                </div>
-                <div class="mb-3">
-                    <strong>Professor:</strong>
-                    @if($class->teacher)
-                        <div class="d-flex align-items-center mt-1">
-                            <div class="user-avatar-sm me-2">
-                                {{ substr($class->teacher->first_name, 0, 1) }}{{ substr($class->teacher->last_name, 0, 1) }}
-                            </div>
-                            <div>
-                                {{ $class->teacher->first_name }} {{ $class->teacher->last_name }}
-                            </div>
-                        </div>
-                    @else
-                        <span class="text-muted">Não atribuído</span>
-                    @endif
-                </div>
-                <div class="mb-3">
-                    <strong>Status:</strong>
-                    <span class="badge bg-{{ $class->is_active ? 'success' : 'secondary' }}">
-                        {{ $class->is_active ? 'Ativa' : 'Inativa' }}
-                    </span>
-                </div>
-                
-                @can('edit_classes')
-                <div class="mt-4">
-                    <a href="{{ route('classes.edit', $class->id) }}" class="btn btn-secondary-school btn-sm">
-                        <i class="fas fa-edit"></i> Editar Turma
-                    </a>
-                </div>
-                @endcan
-            </div>
+<div class="space-y-4">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-slate-200">
+        <div>
+            <h1 class="text-xl font-black text-slate-800 tracking-tight flex items-center gap-2">
+                <i class="fas fa-chalkboard-teacher text-emerald-600"></i> Turma: {{ $class->name }}
+            </h1>
+            <p class="text-xs text-slate-500 mt-0.5">Detalhes da turma, estatísticas de alunos e ações rápidas.</p>
         </div>
-
-        <!-- Card de Estatísticas -->
-        <div class="school-card">
-            <div class="school-card-header">
-                <h3 class="school-card-title">
-                    <i class="fas fa-chart-bar"></i>
-                    Estatísticas
-                </h3>
-            </div>
-            <div class="school-card-body">
-                <div class="mb-3">
-                    <strong>Capacidade:</strong>
-                    <div class="d-flex align-items-center mt-1">
-                        <div class="progress flex-grow-1 me-2" style="height: 10px;">
-                            <div class="progress-bar bg-{{ $stats['capacity_percentage'] > 80 ? 'danger' : ($stats['capacity_percentage'] > 60 ? 'warning' : 'success') }}" 
-                                 style="width: {{ $stats['capacity_percentage'] }}%"></div>
-                        </div>
-                        <span class="text-muted small">{{ $stats['capacity_percentage'] }}%</span>
-                    </div>
-                    <small class="text-muted">{{ $stats['total_students'] }}/{{ $class->max_students }} alunos</small>
-                </div>
-                
-                <div class="mb-3">
-                    <strong>Gênero:</strong>
-                    <div class="mt-1">
-                        <span class="badge bg-primary me-2">♂ {{ $stats['male_students'] }}</span>
-                        <span class="badge bg-pink">♀ {{ $stats['female_students'] }}</span>
-                    </div>
-                </div>
-                
-                <div class="mb-3">
-                    <strong>Idade Média:</strong> {{ $stats['average_age'] }} anos
-                </div>
-            </div>
+        <div class="flex items-center gap-2">
+            @can('edit_classes')
+                <a href="{{ route('classes.edit', $class->id) }}" class="no-underline inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-xs font-bold text-white shadow-sm transition">
+                    <i class="fas fa-edit"></i> Editar Turma
+                </a>
+            @endcan
+            <a href="{{ route('classes.index') }}" class="no-underline inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 shadow-2xs transition">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </a>
         </div>
     </div>
 
-    <div class="col-md-8">
-        <!-- Card de Ações Rápidas -->
-        <div class="school-card mb-4">
-            <div class="school-card-body">
-                <div class="row text-center g-2">
-                    <div class="col-md-3 mb-2">
-                        <a href="{{ route('classes.students', $class->id) }}" class="btn btn-primary-school btn-lg w-100">
-                            <i class="fas fa-users fa-2x mb-2"></i><br>
-                            Alunos
-                        </a>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <!-- Sidebar Info & Stats (1/3) -->
+        <div class="space-y-4">
+            <!-- Info Card -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
+                <div class="px-4 py-3 border-b border-slate-100">
+                    <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fas fa-info-circle text-emerald-600"></i> Informações da Turma
+                    </h3>
+                </div>
+                <div class="p-4 space-y-2.5 text-xs">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-slate-700">Nome:</span>
+                        <span class="text-slate-800 font-semibold">{{ $class->name }}</span>
                     </div>
-                    <div class="col-md-3 mb-2">
-                        <a href="{{ route('attendances.mark-by-class', $class->id) }}" class="btn btn-success btn-lg w-100">
-                            <i class="fas fa-clipboard-check fa-2x mb-2"></i><br>
-                            Presenças
-                        </a>
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-slate-700">Nível:</span>
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">{{ $class->grade_level_name }}</span>
                     </div>
-                    @can('create_grades')
-                    <div class="col-md-3 mb-2">
-                        <a href="{{ route('grades.index', ['class_id' => $class->id]) }}" class="btn btn-warning-school btn-lg w-100">
-                            <i class="fas fa-edit fa-2x mb-2"></i><br>
-                            Lançar Notas
-                        </a>
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-slate-700">Turno:</span>
+                        @php
+                            $shiftClass = match($class->shift) {
+                                'afternoon' => 'bg-amber-100 text-amber-800 border border-amber-200',
+                                'night' => 'bg-indigo-100 text-indigo-800 border border-indigo-200',
+                                default => 'bg-emerald-100 text-emerald-800 border border-emerald-200',
+                            };
+                        @endphp
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold {{ $shiftClass }}">{{ $class->shift_label }}</span>
                     </div>
-                    @endcan
-                    @can('view_grades')
-                    <div class="col-md-3 mb-2">
-                        <a href="{{ route('pautas.trimestral', $class->id) }}" class="btn btn-info btn-lg w-100 text-white">
-                            <i class="fas fa-table fa-2x mb-2"></i><br>
-                            Pauta Trimestral
-                        </a>
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-slate-700">Ano Letivo:</span>
+                        <span class="text-slate-800 font-semibold">{{ $class->school_year }}</span>
                     </div>
-                    @endcan
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-slate-700">Sala:</span>
+                        <span class="text-slate-800 font-semibold">{{ $class->classroom ?? 'N/A' }}</span>
+                    </div>
+                    <div class="pt-2 border-t border-slate-100">
+                        <span class="font-bold text-slate-700 block mb-1">Professor Titular:</span>
+                        @if($class->teacher)
+                            <div class="flex items-center gap-2">
+                                <div class="w-7 h-7 rounded-lg bg-emerald-700 text-white font-bold text-[10px] flex items-center justify-center shrink-0">
+                                    {{ substr($class->teacher->first_name, 0, 1) }}{{ substr($class->teacher->last_name, 0, 1) }}
+                                </div>
+                                <span class="font-bold text-slate-800">{{ $class->teacher->first_name }} {{ $class->teacher->last_name }}</span>
+                            </div>
+                        @else
+                            <span class="text-slate-400 italic">Não atribuído</span>
+                        @endif
+                    </div>
+                    <div class="flex justify-between items-center pt-2 border-t border-slate-100">
+                        <span class="font-bold text-slate-700">Status:</span>
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold {{ $class->is_active ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200' }}">
+                            {{ $class->is_active ? 'Ativa' : 'Inativa' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Card -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
+                <div class="px-4 py-3 border-b border-slate-100">
+                    <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fas fa-chart-bar text-emerald-600"></i> Estatísticas
+                    </h3>
+                </div>
+                <div class="p-4 space-y-3 text-xs">
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-bold text-slate-700">Capacidade:</span>
+                            <span class="text-slate-500 font-semibold">{{ $stats['total_students'] }}/{{ $class->max_students }} alunos ({{ $stats['capacity_percentage'] }}%)</span>
+                        </div>
+                        <div class="w-full bg-slate-100 rounded-full h-2">
+                            <div class="h-2 rounded-full {{ $stats['capacity_percentage'] > 80 ? 'bg-rose-500' : ($stats['capacity_percentage'] > 60 ? 'bg-amber-500' : 'bg-emerald-500') }}" style="width: {{ $stats['capacity_percentage'] }}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-2 border-t border-slate-100">
+                        <span class="font-bold text-slate-700">Gênero:</span>
+                        <div class="flex items-center gap-1.5">
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200"><i class="fas fa-mars mr-1"></i> {{ $stats['male_students'] }}</span>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-pink-100 text-pink-800 border border-pink-200"><i class="fas fa-venus mr-1"></i> {{ $stats['female_students'] }}</span>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-2 border-t border-slate-100">
+                        <span class="font-bold text-slate-700">Idade Média:</span>
+                        <span class="font-extrabold text-slate-800">{{ $stats['average_age'] }} anos</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Card de Alunos -->
-        <div class="school-card mb-4">
-            <div class="school-card-header">
-                <h3 class="school-card-title">
-                    <i class="fas fa-users"></i>
-                    Alunos da Turma ({{ $stats['total_students'] }})
-                </h3>
-                <a href="{{ route('classes.students', $class->id) }}" class="btn btn-secondary-school btn-sm">
-                    <i class="fas fa-eye"></i> Ver Todos
-                </a>
+        <!-- Main Content (2/3) -->
+        <div class="lg:col-span-2 space-y-4">
+            <!-- Quick Actions Bar -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-2xs p-4">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <a href="{{ route('classes.students', $class->id) }}" class="no-underline flex flex-col items-center justify-center p-3 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200/80 transition">
+                        <i class="fas fa-users text-lg mb-1"></i>
+                        <span class="text-xs font-bold">Alunos</span>
+                    </a>
+                    <a href="{{ route('attendances.mark-by-class', $class->id) }}" class="no-underline flex flex-col items-center justify-center p-3 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200/80 transition">
+                        <i class="fas fa-clipboard-check text-lg mb-1"></i>
+                        <span class="text-xs font-bold">Presenças</span>
+                    </a>
+                    @can('create_grades')
+                    <a href="{{ route('grades.index', ['class_id' => $class->id]) }}" class="no-underline flex flex-col items-center justify-center p-3 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200/80 transition">
+                        <i class="fas fa-edit text-lg mb-1"></i>
+                        <span class="text-xs font-bold">Lançar Notas</span>
+                    </a>
+                    @endcan
+                    @can('view_grades')
+                    <a href="{{ route('pautas.trimestral', $class->id) }}" class="no-underline flex flex-col items-center justify-center p-3 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200/80 transition">
+                        <i class="fas fa-table text-lg mb-1"></i>
+                        <span class="text-xs font-bold">Pauta Trimestral</span>
+                    </a>
+                    @endcan
+                </div>
             </div>
-            <div class="school-card-body">
-                @if($class->students->count() > 0)
-                    <div class="table-responsive">
-                        <table class="table table-sm table-school">
-                            <thead>
-                                <tr>
-                                    <th>Nome</th>
-                                    <th>Número</th>
-                                    <th>Gênero</th>
-                                    <th>Idade</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($class->students->take(5) as $student)
-                                    <tr>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div class="user-avatar-sm me-2">
+
+            <!-- Students List Preview -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
+                <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+                    <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fas fa-users text-emerald-600"></i> Alunos da Turma ({{ $stats['total_students'] }})
+                    </h3>
+                    <a href="{{ route('classes.students', $class->id) }}" class="no-underline text-xs font-bold text-emerald-700 hover:text-emerald-800">
+                        Ver Todos <i class="fas fa-arrow-right text-[10px] ml-1"></i>
+                    </a>
+                </div>
+                <div>
+                    @if($class->students->count() > 0)
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider text-[10px] border-b border-slate-100">
+                                        <th class="py-2.5 px-4">Nome</th>
+                                        <th class="py-2.5 px-3">Número</th>
+                                        <th class="py-2.5 px-3">Gênero</th>
+                                        <th class="py-2.5 px-3">Idade</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    @foreach($class->students->take(5) as $student)
+                                    <tr class="hover:bg-slate-50/80 transition">
+                                        <td class="py-2.5 px-4 font-bold text-slate-800">
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-7 h-7 rounded-lg bg-emerald-700 text-white font-bold text-[10px] flex items-center justify-center shrink-0">
                                                     {{ substr($student->first_name, 0, 1) }}{{ substr($student->last_name, 0, 1) }}
                                                 </div>
-                                                <div>
-                                                    {{ $student->first_name }} {{ $student->last_name }}
-                                                </div>
+                                                <span>{{ $student->first_name }} {{ $student->last_name }}</span>
                                             </div>
                                         </td>
-                                        <td>{{ $student->student_number }}</td>
-                                        <td>
-                                            <span class="badge bg-{{ $student->gender == 'male' ? 'primary' : 'pink' }}">
-                                                {{ $student->gender == 'male' ? '♂' : '♀' }}
+                                        <td class="py-2.5 px-3 text-slate-600">{{ $student->student_number }}</td>
+                                        <td class="py-2.5 px-3">
+                                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold {{ $student->gender == 'male' ? 'bg-blue-100 text-blue-800 border border-blue-200' : 'bg-pink-100 text-pink-800 border border-pink-200' }}">
+                                                <i class="fas {{ $student->gender == 'male' ? 'fa-mars' : 'fa-venus' }}"></i>
                                             </span>
                                         </td>
-                                        <td>{{ $student->birthdate ? $student->birthdate->diffInYears(now()) : 'N/A' }} anos</td>
+                                        <td class="py-2.5 px-3 text-slate-600">{{ $student->birthdate ? $student->birthdate->diffInYears(now()) : 'N/A' }} anos</td>
                                     </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                    @if($class->students->count() > 5)
-                        <div class="text-center mt-3">
-                            <a href="{{ route('classes.students', $class->id) }}" class="btn btn-outline-primary btn-sm">
-                                Ver mais {{ $class->students->count() - 5 }} alunos
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        @if($class->students->count() > 5)
+                            <div class="p-3 text-center border-t border-slate-100">
+                                <a href="{{ route('classes.students', $class->id) }}" class="no-underline text-xs font-bold text-emerald-700 hover:text-emerald-800">
+                                    Ver mais {{ $class->students->count() - 5 }} alunos
+                                </a>
+                            </div>
+                        @endif
+                    @else
+                        <div class="p-6 text-center text-slate-400">
+                            <i class="fas fa-users text-2xl text-slate-300 mb-2"></i>
+                            <p class="text-xs font-semibold text-slate-600 mb-3">Nenhum aluno matriculado nesta turma.</p>
+                            <a href="{{ route('classes.students', $class->id) }}" class="no-underline inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-xs font-bold text-white shadow-sm transition">
+                                <i class="fas fa-user-plus"></i> Adicionar Alunos
                             </a>
                         </div>
                     @endif
-                @else
-                    <div class="text-center py-4">
-                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
-                        <p class="text-muted">Nenhum aluno matriculado nesta turma.</p>
-                        <a href="{{ route('classes.students', $class->id) }}" class="btn btn-primary-school">
-                            <i class="fas fa-user-plus"></i> Adicionar Alunos
-                        </a>
-                    </div>
-                @endif
+                </div>
             </div>
-        </div>
 
-        <!-- Card de Próximos Aniversários -->
-        @if($upcomingBirthdays->count() > 0)
-        <div class="school-card">
-            <div class="school-card-header">
-                <h3 class="school-card-title">
-                    <i class="fas fa-birthday-cake"></i>
-                    Próximos Aniversários
-                </h3>
-            </div>
-            <div class="school-card-body">
-                @foreach($upcomingBirthdays as $student)
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="user-avatar-sm me-3 bg-warning">
-                            <i class="fas fa-birthday-cake"></i>
-                        </div>
-                        <div class="flex-grow-1">
-                            <strong>{{ $student->first_name }} {{ $student->last_name }}</strong>
-                            <div class="text-muted small">
-                                {{ $student->birthdate->format('d/m') }}
-                                ({{ $student->birthdate->diffInYears(now()) + 1 }} anos)
-                            </div>
-                            @if($student->currentClass)
-                                <div class="text-muted small">
-                                    <i class="fas fa-chalkboard me-1"></i>{{ $student->currentClass->name }}
+            <!-- Upcoming Birthdays -->
+            @if($upcomingBirthdays->count() > 0)
+            <div class="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
+                <div class="px-4 py-3 border-b border-slate-100">
+                    <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fas fa-birthday-cake text-amber-500"></i> Próximos Aniversários
+                    </h3>
+                </div>
+                <div class="p-4 space-y-3">
+                    @foreach($upcomingBirthdays as $student)
+                        <div class="flex items-center justify-between p-2.5 rounded-lg bg-amber-50/60 border border-amber-200/60">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0">
+                                    <i class="fas fa-birthday-cake text-xs"></i>
                                 </div>
-                            @endif
+                                <div>
+                                    <h4 class="text-xs font-bold text-slate-800">{{ $student->first_name }} {{ $student->last_name }}</h4>
+                                    <p class="text-[10px] text-slate-500">
+                                        {{ $student->birthdate->format('d/m') }} ({{ $student->birthdate->diffInYears(now()) + 1 }} anos)
+                                    </p>
+                                </div>
+                            </div>
+                            <a href="{{ route('students.show', $student->id) }}" class="no-underline inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-[10px] font-bold shadow-2xs transition">
+                                <i class="fas fa-user"></i> Ver Perfil
+                            </a>
                         </div>
-                        <a href="{{ route('students.show', $student->id) }}" class="btn btn-sm btn-warning">
-                            <i class="fas fa-user me-1"></i>Ver Perfil
-                        </a>
-                    </div>
-                @endforeach
+                    @endforeach
+                </div>
             </div>
+            @endif
         </div>
-        @endif
     </div>
 </div>
-
-<style>
-.user-avatar-sm {
-    width: 30px;
-    height: 30px;
-    background: var(--accent);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 11px;
-    font-weight: 600;
-}
-.bg-pink {
-    background-color: #e83e8c !important;
-}
-</style>
 @endsection

@@ -1,46 +1,48 @@
-# Changelog — ZamEdu
+# Changelog — ZAMEDU - SIGE
 
-Todas as alterações significativas ao ZamEdu são registadas neste ficheiro.
+Todas as alterações significativas à plataforma **ZAMEDU - SIGE** são registadas neste ficheiro.
 
-O formato segue [Keep a Changelog](https://keepachangelog.com/pt-PT/1.0.0/) e esta projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+O formato segue [Keep a Changelog](https://keepachangelog.com/pt-PT/1.0.0/) e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
-## [Próxima Versão] — 2026-08-05
+## [2026.1.0] — 2026-09-04
 
 ### Adicionado
-- Módulo de gestão de despesas com categorias financeiras (`FinancialCategory`, `Expense`)
-- Suporte a turnos escolares (`morning`, `afternoon`, `night`) nas turmas
-- Configuração parametrizável de cálculo de médias (pesos MACS/ACP, mínimo de trimestres)
-- Widget de calendário integrado nos dashboards (admin, secretaria, pedagogia, professor)
-- Card KPI "Despesas do Mês" no dashboard administrativo
-- Menu sidebar atualizado com link para Despesas
-- Cards de aniversariante com turma e botão "Ver Perfil" em todas as vistas
-- Role `security` para a Portaria com permissão `view_gatekeeper_logs`
-- Permissões `manage_expenses` e `view_audit_logs`
+- **ZAMEDU - SIGE Branding & Filipe dos Santos Credits:** Atualização da marca oficial e créditos do desenvolvedor Filipe dos Santos ([http://146.235.224.99/](http://146.235.224.99/)).
+- **Emblema da República de Moçambique:** Inclusão nativa do Emblema Oficial em todos os impressos e PDFs (Certidões, Certificados, Boletins, Cartões de Aluno e Pautas).
+- **Assinaturas Institucionais Sem Duplicação:** Sanitização de assinaturas oficiais (*Director da Escola*, *Chefe da Secretaria*) via `SchoolHelper`.
+- **Portaria Digital Refatorada (`/gatekeeper`):** Interface moderna com scanner QR/Barcode ao vivo, contagem em tempo real de presença na escola e emissão de cartões com Emblema da República.
+- **Central de Comunicações & Gateway SMS (`/communications` & `/sms`):** Envio massivo e individual de SMS, modal de disparo rápido com tags dinâmicas e tabela `sms_logs`.
+- **Assistente IA Integrado (`ZAMEDU AI Assistant`):** Widget de inteligência artificial flutuante para auxílio a administradores e docentes com suporte a `ai_conversations` e `messages`.
+- **Suporte Híbrido Escolas Públicas vs Privadas:** Distinção visual e de regras financeiras entre ensino público (isenções) e privado (gestão de mensalidades/multas).
 
 ### Corrigido
-- Cálculo de média final (`calculateMFD`) retornava a média dos trimestres disponíveis em vez de `null` quando nem todos os trimestres tinham notas
-- Exposição pública da rota `payment-check` removida (risco de segurança)
-- Erro `RouteNotFoundException` para `public.payment-check` no `welcome.blade.php`
-- Erros de variável indefinida e método inexistente no fluxo de presenças
-- Coluna `status` ambígua em consultas SQL de presenças
-- Erro ao ler propriedade `attendance_status` em array
+- Modal de detalhes em "Comunicações" que apresentava falhas de abertura.
+- Duplicação do título do cargo nas linhas de assinatura em relatórios e impressos em PDF.
+- Ajuste de caminhos estáticos para imagens no DomPDF (`public_path('images/emblema-mocambique.png')`).
 
-### Alterado
-- Dashboard admin: 5 cards KPI alinhados numa linha no desktop (`col-6 col-xl`)
-- Configurações de avaliação movidas para aba "Estrutura Académica" com novos campos
-- Pesos de cálculo de médias agora são lidos das configurações do sistema (não mais hardcoded)
+---
+
+## [0.2.0] — 2026-08-05
+
+### Adicionado
+- Módulo de gestão de despesas com categorias financeiras (`FinancialCategory`, `Expense`).
+- Suporte a turnos escolares (`morning`, `afternoon`, `night`) nas turmas.
+- Configuração parametrizável de cálculo de médias (pesos MACS/ACP, mínimo de trimestres).
+- Widget de calendário integrado nos dashboards.
+- Role `security` para a Portaria com permissão `view_gatekeeper_logs`.
+- Permissões `manage_expenses` e `view_audit_logs`.
 
 ---
 
 ## [0.1.0] — 2026-01-04
 
 ### Adicionado
-- Lançamento inicial do ZamEdu
-- Gestão de alunos, matrículas, turmas, disciplinas
-- Sistema de avaliações com ACS1/ACS2/ACS3, ACP, ACF
-- Gestão de presenças com Portaria (GateKeeper)
-- Gestão financeira com propinas e cobranças
-- Portais para professores e encarregados de educação
-- Sistema de licenciamento SaaS
+- Lançamento inicial da plataforma.
+- Gestão de alunos, matrículas, turmas, disciplinas.
+- Sistema de avaliações com ACS1/ACS2/ACS3, ACP, ACF.
+- Gestão de presenças com Portaria.
+- Gestão financeira com propinas e cobranças.
+- Portais para professores e encarregados de educação.
+- Sistema de licenciamento SaaS.

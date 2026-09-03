@@ -1,6 +1,6 @@
-# ZamEdu Design System & Theme Engine Architecture
+# ZAMEDU - SIGE Design System & Theme Engine Architecture
 
-Este documento especifica o **Design System consolidado** e a arquitetura do **Theme Engine (White-Label)** do **ZamEdu — Sistema de Gestão Escolar (SIGE)**.
+Este documento especifica o **Design System consolidado** e a arquitetura do **Theme Engine (White-Label)** do **ZAMEDU - SIGE (Sistema Integrado de Gestão Escolar)**, desenvolvido por **Filipe dos Santos** ([http://146.235.224.99/](http://146.235.224.99/)).
 
 ---
 
@@ -20,12 +20,12 @@ O sistema conta com um **Theme Engine dinâmico e desacoplado**, gerenciado pela
 ```css
 :root {
     /* Branding Tokens Institucionais */
-    --primary: #4F46E5;
+    --primary: #1e40af;
     --primary-dark: color-mix(in srgb, var(--primary) 82%, #000);
     --primary-light: color-mix(in srgb, var(--primary) 18%, #fff);
     --primary-soft: color-mix(in srgb, var(--primary) 10%, #fff);
 
-    --secondary: #06B6D4;
+    --secondary: #059669;
     --secondary-dark: color-mix(in srgb, var(--secondary) 82%, #000);
     --secondary-light: color-mix(in srgb, var(--secondary) 18%, #fff);
 
@@ -64,11 +64,21 @@ O sistema conta com um **Theme Engine dinâmico e desacoplado**, gerenciado pela
 
 ---
 
-## 🧩 2. Catálogo de Componentes Reutilizáveis
+## 🇲🇿 2. Padrões Visuais Oficiais & Emblema da República
+
+Todos os documentos oficiais (Certidões, Certificados, Boletins, Cartões de Aluno e Pautas) utilizam o **Emblema da República de Moçambique** centralizado no topo com tipografia oficial serifada/sans-serif legível e linhas divisórias ornamentais.
+
+- **Ficheiro de Emblema:** `public/images/emblema-mocambique.png`
+- **Dimensões Padrão:** `width: 65px; height: auto;`
+- **Assinaturas Institucionais:** Linhas duplas de validação para o Director da Escola e Chefe da Secretaria com mitigação de duplicidade de cargos.
+
+---
+
+## 🧩 3. Catálogo de Componentes Reutilizáveis
 
 A plataforma padronizou seus componentes principais na pasta `resources/views/components/`:
 
-### 2.1 Cartões Estatísticos (`<x-cards.stat>`)
+### 3.1 Cartões Estatísticos (`<x-cards.stat>`)
 ```html
 <x-cards.stat 
     title="Total de Alunos" 
@@ -78,57 +88,22 @@ A plataforma padronizou seus componentes principais na pasta `resources/views/co
     subtitle="Ano Lectivo 2026" />
 ```
 
-### 2.2 Alertas & Feeds (`<x-alerts.success>` / `<x-alerts.error>`)
+### 3.2 Alertas & Feeds (`<x-alerts.success>` / `<x-alerts.error>`)
 ```html
 <x-alerts.success message="Configurações atualizadas com sucesso!" />
 <x-alerts.error message="Erro ao processar o pagamento." />
 ```
 
-### 2.3 Tabelas Semânticas (`<x-tables.simple>`)
-```html
-<x-tables.simple :headers="['ALUNO', 'NÚMERO', 'TURMA', 'STATUS', 'AÇÕES']">
-    <tr>
-        <td>...</td>
-    </tr>
-</x-tables.simple>
-```
-
-### 2.4 Componentes de Formulários (`<x-forms.input>`, `<x-forms.select>`, `<x-forms.textarea>`)
-```html
-<x-forms.input name="settings[school_name]" label="Nome da Escola" :value="$schoolName" required />
-<x-forms.select name="settings[border_radius]" label="Arredondamento">
-    <option value="16px">Padrão (16px)</option>
-</x-forms.select>
-```
-
-### 2.5 Grelha de Filtros Harmonizada (`.row.g-3.align-items-end`)
-
-Todas as barras de filtragem dos módulos (Alunos, Professores, Pagamentos, Turmas) utilizam a estrutura unificada com alinhamento vertical pela linha de base dos botões:
-
-```html
-<form action="..." method="GET" class="row g-3 align-items-end">
-    <div class="col-md-5">
-        <label class="form-label text-xs font-bold text-slate-700 uppercase tracking-wider">Pesquisar</label>
-        <input type="text" name="search" class="form-control rounded-xl border-slate-200" placeholder="...">
-    </div>
-    <div class="col-md-3">
-        <label class="form-label text-xs font-bold text-slate-700 uppercase tracking-wider">Status</label>
-        <select name="status" class="form-select rounded-xl border-slate-200">...</select>
-    </div>
-    <div class="col-md-4 d-flex gap-2">
-        <button type="submit" class="btn btn-primary-school flex-grow rounded-xl">
-            <i class="fas fa-filter me-1"></i> Filtrar
-        </button>
-    </div>
-</form>
-```
+### 3.3 Componentes da Portaria Digital (`/gatekeeper`)
+- Badge de presenças em tempo real com indicador visual pulsante verde/vermelho.
+- Modal de pré-visualização de Cartão de Estudante com lados frontal e verso.
 
 ---
 
-## 🎨 3. Módulo de Personalização Institucional (Painel Admin)
+## 🎨 4. Módulo de Personalização Institucional (Painel Admin)
 
 Aceda a `/admin/settings` (Tab 1: Escola & Marca) para definir visualmente:
+- **Tipo de Escola**: Escola Pública ou Escola Privada.
 - **Cor Principal (Primary)**: Escolha via Color Picker.
 - **Cor Secundária (Secondary)**: Escolha via Color Picker.
-- **Cor de Acento (Accent)**: Escolha via Color Picker.
-- **Arredondamento (Border Radius)**: Seleção entre 8px, 12px, 16px e 20px.
+- **Assinaturas Oficiais**: Nome do Director da Escola e Chefe da Secretaria.

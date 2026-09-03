@@ -57,5 +57,17 @@ class SettingSeeder extends Seeder
                 ['value' => $item['value'], 'group' => $item['group']]
             );
         }
+
+        // Garantir Licença Ativa Ilimitada no Sistema
+        \App\Models\License::updateOrCreate(
+            ['id' => 1],
+            [
+                'client_name' => 'ZamEdu School',
+                'license_key' => 'UNLIMITED-ZAMEDU-KEY',
+                'status' => 'active',
+                'expires_at' => null,
+                'plan' => 'enterprise',
+            ]
+        );
     }
 }

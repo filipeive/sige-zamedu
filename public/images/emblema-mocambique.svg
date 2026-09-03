@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 550" width="500" height="550">
+  <g id="Emblem_of_Mozambique">
+    <!-- Outer Wreath & Gear -->
+    <path fill="#2E7D32" d="M250,50 C120,50 60,160 60,290 C60,400 130,470 250,510 C370,470 440,400 440,290 C440,160 380,50 250,50 Z" opacity="0.1"/>
+    <!-- Yellow Sun background -->
+    <circle cx="250" cy="270" r="160" fill="#FBC02D"/>
+    <!-- Sun Rays -->
+    <g stroke="#F57F17" stroke-width="4">
+      <line x1="250" y1="110" x2="250" y2="430"/>
+      <line x1="90" y1="270" x2="410" y2="270"/>
+      <line x1="137" y1="157" x2="363" y2="383"/>
+      <line x1="137" y1="383" x2="363" y2="157"/>
+    </g>
+    <!-- Gear cog outline top -->
+    <path fill="#D84315" d="M190,140 L310,140 L300,160 L200,160 Z"/>
+    <!-- Red Sun Center -->
+    <circle cx="250" cy="250" r="70" fill="#D32F2F"/>
+    <!-- Waves (Sea) at bottom -->
+    <path fill="#0288D1" d="M130,340 Q190,320 250,340 T370,340 L370,380 Q310,360 250,380 T130,380 Z"/>
+    <path fill="#FFFFFF" d="M130,350 Q190,335 250,350 T370,350" stroke="#0288D1" stroke-width="6" fill="none"/>
+    <path fill="#0288D1" d="M140,370 Q195,355 250,370 T360,370" stroke="#FFFFFF" stroke-width="4" fill="none"/>
+    <!-- Open Book -->
+    <path fill="#FFFFFF" stroke="#37474F" stroke-width="3" d="M160,290 Q205,270 250,290 Q295,270 340,290 L340,350 Q295,330 250,350 Q205,330 160,350 Z"/>
+    <line x1="250" y1="290" x2="250" y2="350" stroke="#37474F" stroke-width="3"/>
+    <!-- Crossed Hoe and AK-47 Rifle -->
+    <!-- Hoe -->
+    <path fill="#37474F" stroke="#212121" stroke-width="2" d="M170,220 L290,340 L280,350 L160,230 Z"/>
+    <path fill="#5D4037" d="M160,220 L210,180 L230,200 L180,240 Z"/>
+    <!-- Rifle -->
+    <path fill="#212121" stroke="#000000" stroke-width="2" d="M330,200 L210,340 L200,330 L320,190 Z"/>
+    <path fill="#8D6E63" d="M310,190 L340,160 L350,170 L320,200 Z"/>
+    <!-- Maize (Corn) & Sugarcane Ears on sides -->
+    <g fill="#2E7D32">
+      <!-- Left Stalk -->
+      <path d="M70,290 C70,180 130,100 230,70 C200,120 180,200 180,310 C140,340 90,320 70,290 Z"/>
+      <!-- Right Stalk -->
+      <path d="M430,290 C430,180 370,100 270,70 C300,120 320,200 320,310 C360,340 410,320 430,290 Z"/>
+    </g>
+    <!-- Yellow Corn Grains -->
+    <g fill="#FFD54F">
+      <circle cx="120" cy="220" r="10"/>
+      <circle cx="135" cy="200" r="10"/>
+      <circle cx="150" cy="180" r="10"/>
+      <circle cx="380" cy="220" r="10"/>
+      <circle cx="365" cy="200" r="10"/>
+      <circle cx="350" cy="180" r="10"/>
+    </g>
+    <!-- Red Star on Top -->
+    <polygon fill="#D32F2F" stroke="#FFD54F" stroke-width="3" points="250,25 263,65 305,65 271,90 284,130 250,105 216,130 229,90 195,65 237,65"/>
+    <!-- Red Ribbon Wrap around bottom -->
+    <path fill="#C62828" d="M90,390 C120,440 180,480 250,480 C320,480 380,440 410,390 C430,420 380,500 250,510 C120,500 70,420 90,390 Z"/>
+    <!-- Banner Ribbon Text Scroll -->
+    <path fill="#D32F2F" stroke="#B71C1C" stroke-width="2" d="M120,420 C180,450 320,450 380,420 L370,460 C310,485 190,485 130,460 Z"/>
+    <text x="250" y="445" font-family="'Times New Roman', Georgia, serif" font-weight="bold" font-size="22" fill="#FFD54F" text-anchor="middle" letter-spacing="2">REPÚBLICA DE MOÇAMBIQUE</text>
+  </g>
+</svg>

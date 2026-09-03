@@ -64,6 +64,11 @@ class User extends Authenticatable
         return $this->hasOne(Secretary::class);
     }
 
+    public function conversations()
+    {
+        return $this->hasMany(Conversation::class);
+    }
+
     // Scopes
     public function scopeActive($query)
     {

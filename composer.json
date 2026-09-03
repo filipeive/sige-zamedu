@@ -40,7 +40,8 @@
         "files": [
             "app/Helpers/PermissionHelper.php",
             "app/Helpers/academic_year.php",
-            "app/Helpers/settings.php"
+            "app/Helpers/settings.php",
+            "app/Helpers/SchoolHelper.php"
         ]
     },
     "autoload-dev": {

@@ -5,9 +5,9 @@
 @section('page-title-icon', 'fas fa-id-card')
 
 @section('breadcrumbs')
-    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Início</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('gatekeeper.index') }}">Portaria Digital</a></li>
-    <li class="breadcrumb-item active">Cartão — {{ $student->first_name }}</li>
+    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="no-underline">Início</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('gatekeeper.index') }}" class="no-underline">Portaria Digital</a></li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Cartão — {{ $student->first_name }}</li>
 @endsection
 
 @push('styles')
@@ -70,11 +70,11 @@
         background: linear-gradient(175deg, #ffffff 0%, #f8fafc 100%);
     }
 
-    /* Header with diagonal wave */
+    /* Header with official Mozambique Emblem */
     .front-header {
         position: relative;
         background: linear-gradient(135deg, #0c4128 0%, #166534 40%, #15803d 75%, #22c55e 100%);
-        padding: 1.5rem 1.5rem 2.5rem;
+        padding: 1.25rem 1.25rem 2.25rem;
         text-align: center;
         color: white;
         overflow: hidden;
@@ -103,22 +103,31 @@
         background: rgba(255,255,255,0.04);
         border-radius: 50%;
     }
+    .front-header .republic-text {
+        font-size: 0.58rem;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: #fef08a;
+        margin-top: 2px;
+    }
     .front-header .school-name {
-        font-size: 0.95rem;
+        font-size: 0.88rem;
         font-weight: 800;
         letter-spacing: 0.5px;
         text-transform: uppercase;
         position: relative;
         z-index: 1;
         text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        margin-top: 1px;
     }
     .front-header .card-type-label {
-        font-size: 0.55rem;
-        font-weight: 600;
-        letter-spacing: 2.5px;
+        font-size: 0.52rem;
+        font-weight: 700;
+        letter-spacing: 2px;
         text-transform: uppercase;
-        opacity: 0.8;
-        margin-top: 4px;
+        opacity: 0.9;
+        margin-top: 2px;
         position: relative;
         z-index: 1;
     }
@@ -162,7 +171,7 @@
     /* Student Info */
     .front-student-info {
         text-align: center;
-        padding: 0.6rem 1.5rem 0;
+        padding: 0.5rem 1.5rem 0;
     }
     .student-full-name {
         font-size: 1.15rem;
@@ -201,7 +210,6 @@
         grid-template-columns: 1fr 1fr;
         gap: 0.6rem 1rem;
     }
-    .detail-item {}
     .detail-label {
         font-size: 0.55rem;
         font-weight: 700;
@@ -382,87 +390,63 @@
         letter-spacing: 1.5px;
         text-transform: uppercase;
     }
-
-    /* ── Toolbar Card ────────────────────────────────────── */
-    .toolbar-card {
-        background: white;
-        border-radius: 16px;
-        padding: 1rem 1.5rem;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.06);
-        border: 1px solid #e2e8f0;
-        margin-bottom: 1.5rem;
-    }
-
-    /* ── Student Summary Mini ────────────────────────────── */
-    .student-summary-bar {
-        background: linear-gradient(135deg, #f0fdf4, #dcfce7);
-        border-radius: 16px;
-        padding: 1rem 1.5rem;
-        border: 1px solid #bbf7d0;
-        margin-bottom: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-    .summary-avatar {
-        width: 48px; height: 48px;
-        border-radius: 50%;
-        background: #166534;
-        color: white;
-        display: flex; align-items: center; justify-content: center;
-        font-weight: 800;
-        font-size: 1.1rem;
-        flex-shrink: 0;
-    }
 </style>
 @endpush
 
 @section('content')
-<div class="container py-2">
+<div class="max-w-full mx-auto space-y-4">
 
-    <!-- Student Summary Bar -->
-    <div class="student-summary-bar no-print">
-        @if($student->photo)
-            <img src="{{ asset('storage/' . $student->photo) }}" class="summary-avatar" style="object-fit:cover; border: 2px solid #166534;" alt="Foto">
-        @else
-            <div class="summary-avatar">
-                {{ strtoupper(substr($student->first_name, 0, 1) . substr($student->last_name ?? '', 0, 1)) }}
+    <!-- Student Summary Top Bar -->
+    <div class="bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 rounded-xl border border-emerald-200 p-4 shadow-2xs no-print flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+            @if($student->photo)
+                <img src="{{ asset('storage/' . $student->photo) }}" class="w-12 h-12 rounded-full object-cover border-2 border-emerald-700 shadow-2xs" alt="Foto">
+            @else
+                <div class="w-12 h-12 rounded-full bg-emerald-800 text-white font-black flex items-center justify-center text-base border-2 border-emerald-700 shadow-2xs">
+                    {{ strtoupper(substr($student->first_name, 0, 1) . substr($student->last_name ?? '', 0, 1)) }}
+                </div>
+            @endif
+            <div>
+                <h3 class="text-base font-black text-slate-800 leading-tight">{{ $student->full_name }}</h3>
+                <p class="text-xs text-slate-500 font-medium">
+                    <code class="text-emerald-700 font-bold bg-emerald-100/70 px-1.5 py-0.5 rounded border border-emerald-200">{{ $student->student_number }}</code> •
+                    {{ $student->currentEnrollment->class->name ?? 'Sem turma' }} •
+                    Ano Lectivo {{ setting('academic_year', date('Y')) }}
+                </p>
             </div>
-        @endif
-        <div>
-            <h5 class="fw-bold mb-0" style="color: #166534;">{{ $student->full_name }}</h5>
-            <small class="text-muted">
-                <code>{{ $student->student_number }}</code> •
-                {{ $student->currentEnrollment->class->name ?? 'Sem turma' }} •
-                Ano {{ setting('academic_year', date('Y')) }}
-            </small>
         </div>
-        <div class="ms-auto d-flex gap-2">
-            <a href="{{ route('gatekeeper.index', ['search' => $student->student_number]) }}" class="btn btn-outline-secondary btn-sm rounded-xl">
-                <i class="fas fa-arrow-left me-1"></i> Portaria
+
+        <div class="flex items-center gap-2">
+            <a href="{{ route('gatekeeper.index', ['search' => $student->student_number]) }}" class="no-underline px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition inline-flex items-center gap-1 shadow-2xs">
+                <i class="fas fa-arrow-left"></i> Portaria
             </a>
-            <button onclick="window.print()" class="btn btn-success btn-sm rounded-xl px-3">
-                <i class="fas fa-print me-1"></i> Imprimir
+            <button onclick="window.print()" class="px-3.5 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-2xs transition inline-flex items-center gap-1.5 cursor-pointer">
+                <i class="fas fa-print"></i> Imprimir Cartão
             </button>
-            <a href="{{ route('students.show', $student->id) }}" class="btn btn-outline-primary btn-sm rounded-xl">
-                <i class="fas fa-eye me-1"></i> Perfil
+            <a href="{{ route('students.show', $student->id) }}" class="no-underline px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition inline-flex items-center gap-1 shadow-2xs">
+                <i class="fas fa-eye text-slate-500"></i> Perfil Aluno
             </a>
         </div>
     </div>
 
-    <!-- Cards Layout -->
+    <!-- Cards Printable Area -->
     <div class="print-area">
         <div class="card-display-row">
 
             <!-- ════ FRENTE DO CARTÃO ════ -->
             <div class="card-wrapper">
-                <div class="text-center text-muted text-xs mb-2 fw-bold no-print" style="letter-spacing: 2px; text-transform: uppercase;">
-                    <i class="fas fa-id-card me-1"></i> Frente
+                <div class="text-center text-slate-500 text-[11px] mb-2 font-black uppercase tracking-wider no-print flex items-center justify-center gap-1">
+                    <i class="fas fa-id-card text-emerald-600"></i> Frente do Cartão
                 </div>
                 <div class="id-card id-card-front">
+                    <!-- Frente Header com Emblema Oficial de Moçambique -->
                     <div class="front-header">
                         <div class="header-ornament"></div>
                         <div class="header-ornament-2"></div>
+                        <div style="text-align: center; margin-bottom: 2px;">
+                            <img src="{{ asset('images/emblema-mocambique.png') }}" style="height: 32px; width: auto; display: inline-block;" alt="Emblema de Moçambique">
+                        </div>
+                        <div class="republic-text">REPÚBLICA DE MOÇAMBIQUE</div>
                         <div class="school-name">{{ setting('school_name', config('app.name', 'ZamEdu SIGE')) }}</div>
                         <div class="card-type-label">Cartão de Identificação Escolar</div>
                     </div>
@@ -516,8 +500,8 @@
 
             <!-- ════ VERSO DO CARTÃO ════ -->
             <div class="card-wrapper">
-                <div class="text-center text-muted text-xs mb-2 fw-bold no-print" style="letter-spacing: 2px; text-transform: uppercase;">
-                    <i class="fas fa-qrcode me-1"></i> Verso
+                <div class="text-center text-slate-500 text-[11px] mb-2 font-black uppercase tracking-wider no-print flex items-center justify-center gap-1">
+                    <i class="fas fa-qrcode text-emerald-600"></i> Verso do Cartão
                 </div>
                 <div class="id-card id-card-back">
                     <div class="back-header">
@@ -552,11 +536,11 @@
                         </div>
                         <div class="emergency-row">
                             <span class="e-label">Encarregado</span>
-                            <span class="e-value">{{ $student->parent->name ?? 'N/D' }}</span>
+                            <span class="e-value">{{ $student->parent->full_name ?? $student->parent->name ?? 'N/D' }}</span>
                         </div>
                         <div class="emergency-row">
                             <span class="e-label">Tel. Emergência</span>
-                            <span class="e-value">{{ $student->parent->phone ?? $student->phone ?? 'N/D' }}</span>
+                            <span class="e-value">{{ $student->parent->phone ?? $student->emergency_phone ?? 'N/D' }}</span>
                         </div>
                         <div class="emergency-row">
                             <span class="e-label">Tel. Escola</span>

@@ -80,11 +80,22 @@
                                 <i class="fas fa-calendar-check"></i> Frequência
                             </a>
                             @can('manage_payments')
-                                <a href="{{ route('students.payments', $student) }}" class="btn btn-outline-success btn-sm" title="Financeiro">
-                                    <i class="fas fa-money-bill-wave"></i> Propinas
+                                <a href="{{ route('students.payments', $student) }}" class="btn btn-outline-success btn-sm" title="{{ is_public_school() ? 'Taxas & Recibos' : 'Financeiro' }}">
+                                    <i class="fas fa-file-invoice-dollar"></i> {{ is_public_school() ? 'Taxas & Recibos' : 'Propinas' }}
                                 </a>
                             @endcan
                         </div>
+
+                        <a href="{{ route('students.support.index', $student) }}" class="btn btn-outline-warning btn-sm rounded-pill py-2 text-xs font-bold shadow-xs w-100 mt-2">
+                            <i class="fas fa-exclamation-triangle me-1.5"></i> Registar Ocorrência / Histórico
+                        </a>
+
+                        @if ($student->parent && $student->parent->phone)
+                            <button type="button" data-bs-toggle="modal" data-bs-target="#smsModal{{ $student->id }}"
+                                class="btn btn-outline-info btn-sm rounded-pill py-2 text-xs font-bold shadow-xs w-100 mt-2">
+                                <i class="fas fa-comment-dots me-1.5"></i> Enviar SMS ao Encarregado
+                            </button>
+                        @endif
                     </div>
 
                     <div class="border-top pt-3 space-y-3 text-sm">
@@ -183,11 +194,11 @@
                     <div class="card border-0 shadow-xs rounded-4 p-3 bg-white">
                         <div class="d-flex align-items-center gap-3">
                             <div class="rounded-3 bg-purple-100 p-2.5 text-purple-700 text-lg">
-                                <i class="fas fa-wallet"></i>
+                                <i class="fas fa-receipt"></i>
                             </div>
                             <div>
-                                <small class="text-xs text-muted uppercase font-bold">Pagamentos</small>
-                                <h5 class="fw-black mb-0 text-slate-800">{{ $student->payments->where('status', 'paid')->count() }}</h5>
+                                <small class="text-xs text-muted uppercase font-bold">{{ is_public_school() ? 'Taxas Pagas' : 'Pagamentos' }}</small>
+                                <h5 class="fw-black mb-0 text-slate-800">{{ $student->payments->filter(fn($p) => is_private_school() || $p->type !== 'mensalidade')->where('status', 'paid')->count() }}</h5>
                             </div>
                         </div>
                     </div>
@@ -229,7 +240,7 @@
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link rounded-3 py-2 text-xs font-bold" id="financeiro-tab" data-bs-toggle="tab" data-bs-target="#financeiro" type="button" role="tab">
-                                <i class="fas fa-receipt me-1"></i> Financeiro
+                                <i class="fas fa-receipt me-1"></i> {{ is_public_school() ? 'Taxas & Recibos' : 'Financeiro' }}
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
@@ -544,7 +555,7 @@
                             </div>
                         </div>
 
-                        <!-- TAB 4: FINANCEIRO -->
+                        <!-- TAB 4: FINANCEIRO / TAXAS -->
                         <div class="tab-pane fade" id="financeiro" role="tabpanel">
                             <div class="table-responsive">
                                 <table class="table table-hover align-middle text-sm">
@@ -558,7 +569,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @forelse($student->payments as $pay)
+                                        @forelse($student->payments->filter(fn($pay) => is_private_school() || $pay->type !== 'mensalidade') as $pay)
                                             <tr>
                                                 <td class="font-mono"><code>{{ $pay->reference_number }}</code></td>
                                                 <td class="fw-bold">{{ ucfirst($pay->type) }}</td>
@@ -574,7 +585,7 @@
                                             <tr>
                                                 <td colspan="5" class="text-center py-4 text-muted">
                                                     <i class="fas fa-receipt fa-2x mb-2 text-slate-300"></i>
-                                                    <p class="mb-0">Nenhum registo financeiro encontrado.</p>
+                                                    <p class="mb-0">Nenhum registo de taxas/pagamentos encontrado.</p>
                                                 </td>
                                             </tr>
                                         @endforelse
@@ -642,6 +653,69 @@
         </div>
     </div>
 </div>
+
+<!-- SMS Modal -->
+@if ($student->parent && $student->parent->phone)
+<div class="modal fade" id="smsModal{{ $student->id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius:1rem;">
+            <form action="{{ route('students.sms.send', $student) }}" method="POST">
+                @csrf
+                <div class="modal-header bg-info text-white" style="border-radius:1rem 1rem 0 0;">
+                    <h5 class="modal-title font-bold">
+                        <i class="fas fa-comment-dots me-2"></i> Enviar SMS ao Encarregado
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4 text-start">
+                    <div class="alert alert-info border-0 rounded-xl mb-3 d-flex align-items-center gap-2 text-xs">
+                        <i class="fas fa-user"></i>
+                        <div>
+                            <strong>{{ $student->parent->first_name }} {{ $student->parent->last_name }}</strong><br>
+                            <span class="font-mono">{{ $student->parent->phone }}</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-xs font-bold text-slate-700 uppercase tracking-wider">Telefone (opcional)</label>
+                        <input type="text" name="phone" class="form-control rounded-xl"
+                            placeholder="Deixe vazio para usar o do encarregado"
+                            value="{{ $student->parent->phone }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-xs font-bold text-slate-700 uppercase tracking-wider">Mensagem *</label>
+                        <textarea id="smsMsg{{ $student->id }}" name="message" rows="5" required maxlength="480" class="form-control rounded-xl"
+                            placeholder="Use {aluno} para o nome do aluno, {escola} para o nome da escola..."></textarea>
+                        <small class="text-slate-500 text-[11px]">Máx. 480 caracteres. Será enviado via httpSMS.</small>
+                    </div>
+                    <div class="d-flex flex-wrap gap-1">
+                        @php
+                            $templates = [
+                                "Bom dia. Gostaríamos de informar que {aluno} faltou hoje às aulas. Pedimos contacto com a secretaria.",
+                                "Exmo(a) encarregado(a), informamos que {aluno} tem propinas em atraso. Pedimos regularização.",
+                                "Comunicamos que a reunião de pais da turma de {aluno} será brevemente.",
+                                "Exmo(a), {aluno} recebeu uma observação positiva pelo bom comportamento.",
+                                "Pedimos a comparência do encarregado de {aluno} na secretaria da {escola}.",
+                            ];
+                        @endphp
+                        @foreach ($templates as $tpl)
+                            <button type="button" class="badge bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer hover:bg-slate-200"
+                                onclick="document.getElementById('smsMsg{{ $student->id }}').value = @js($tpl);">
+                                {{ mb_substr($tpl, 0, 35) }}…
+                            </button>
+                        @endforeach
+                    </div>
+                </div>
+                <div class="modal-footer bg-light py-2 px-4" style="border-radius:0 0 1rem 1rem;">
+                    <button type="button" class="btn btn-outline-secondary btn-sm rounded-xl" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-info btn-sm rounded-xl font-semibold text-white">
+                        <i class="fas fa-paper-plane me-1"></i> Enviar SMS
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endif
 @endsection
 
 @push('scripts')

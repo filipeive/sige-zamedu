@@ -17,7 +17,7 @@
                 <span class="inline-flex items-center gap-2 rounded-full bg-white/15 backdrop-blur-md px-3 py-1 text-xs font-bold text-amber-300 border border-white/20">
                     <i class="fas fa-file-invoice"></i> Central ZamEdu Analytics
                 </span>
-                <h2 class="mt-2 text-2xl font-black font-heading text-white">Hub de Relatórios Estratégicos</h2>
+                <h2 class="mt-2 text-2xl font-black font-heading text-white">Relatórios Estratégicos</h2>
                 <p class="text-xs text-emerald-100 max-w-lg mt-0.5">
                     Aceda a balanços financeiros, pautas académicas, relatórios de assiduidade e ferramentas de exportação em tempo real.
                 </p>
@@ -26,56 +26,71 @@
                 <a href="{{ route('reports.export.students') }}" class="inline-flex items-center gap-2 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md px-4 py-2 text-xs font-bold text-white border border-white/30 transition">
                     <i class="fas fa-download"></i> Alunos (CSV)
                 </a>
+                @if(is_private_school())
                 <a href="{{ route('reports.export.payments') }}" class="inline-flex items-center gap-2 rounded-full bg-white text-emerald-800 hover:bg-emerald-50 px-4 py-2 text-xs font-black shadow-md transition">
                     <i class="fas fa-file-excel text-emerald-600"></i> Pagamentos (CSV)
                 </a>
+                @endif
             </div>
         </div>
 
-        <!-- Stat Summary Cards Grid -->
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div class="rounded-2xl bg-white p-5 shadow-[0_10px_25px_rgba(0,0,0,0.03)] border-0 flex items-center gap-4 hover:shadow-md transition">
-                <div class="rounded-2xl bg-emerald-50 p-3.5 text-emerald-600 text-xl shrink-0">
+        <!-- Stat Summary Cards Grid (Pílula Vertical de Cor na Esquerda) -->
+        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex items-center gap-3 hover:shadow-sm transition">
+                <div class="w-1.5 h-8 rounded-full bg-emerald-500 shrink-0"></div>
+                <div class="w-9 h-9 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm font-bold shrink-0">
                     <i class="fas fa-user-graduate"></i>
                 </div>
                 <div>
-                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Alunos Ativos</span>
-                    <p class="text-2xl font-black text-slate-800 mt-0.5">{{ number_format($stats['total_students']) }}</p>
+                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Alunos Ativos</span>
+                    <span class="text-xl font-black text-slate-800 mt-0.5 block">{{ number_format($stats['total_students']) }}</span>
                 </div>
             </div>
 
-            <div class="rounded-2xl bg-white p-5 shadow-[0_10px_25px_rgba(0,0,0,0.03)] border-0 flex items-center gap-4 hover:shadow-md transition">
-                <div class="rounded-2xl bg-blue-50 p-3.5 text-blue-600 text-xl shrink-0">
+            <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex items-center gap-3 hover:shadow-sm transition">
+                <div class="w-1.5 h-8 rounded-full bg-blue-500 shrink-0"></div>
+                <div class="w-9 h-9 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-sm font-bold shrink-0">
                     <i class="fas fa-chalkboard-teacher"></i>
                 </div>
                 <div>
-                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Professores</span>
-                    <p class="text-2xl font-black text-slate-800 mt-0.5">{{ number_format($stats['total_teachers']) }}</p>
+                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Professores</span>
+                    <span class="text-xl font-black text-slate-800 mt-0.5 block">{{ number_format($stats['total_teachers']) }}</span>
                 </div>
             </div>
 
-            <div class="rounded-2xl bg-white p-5 shadow-[0_10px_25px_rgba(0,0,0,0.03)] border-0 flex items-center gap-4 hover:shadow-md transition">
-                <div class="rounded-2xl bg-purple-50 p-3.5 text-purple-600 text-xl shrink-0">
+            <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex items-center gap-3 hover:shadow-sm transition">
+                <div class="w-1.5 h-8 rounded-full bg-purple-500 shrink-0"></div>
+                <div class="w-9 h-9 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center text-sm font-bold shrink-0">
                     <i class="fas fa-school"></i>
                 </div>
                 <div>
-                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Turmas Ativas</span>
-                    <p class="text-2xl font-black text-slate-800 mt-0.5">{{ number_format($stats['total_classes']) }}</p>
+                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Turmas Ativas</span>
+                    <span class="text-xl font-black text-slate-800 mt-0.5 block">{{ number_format($stats['total_classes']) }}</span>
                 </div>
             </div>
 
-            <div class="rounded-2xl bg-gradient-to-br from-emerald-800 to-teal-900 p-5 text-white shadow-lg flex items-center justify-between">
-                <div>
-                    <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-200">Receita Mensal</span>
-                    <p class="text-xl font-black text-white mt-0.5">{{ number_format($stats['monthly_revenue'], 0, ',', '.') }} MT</p>
+            <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex items-center gap-3 hover:shadow-sm transition">
+                <div class="w-1.5 h-8 rounded-full bg-teal-500 shrink-0"></div>
+                <div class="w-9 h-9 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center text-sm font-bold shrink-0">
+                    <i class="fas {{ is_public_school() ? 'fa-landmark' : 'fa-wallet' }}"></i>
                 </div>
-                <span class="rounded-full bg-white/20 p-3 text-white text-base"><i class="fas fa-wallet"></i></span>
+                <div>
+                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">{{ is_public_school() ? 'Modo Gestão' : 'Receita do Mês' }}</span>
+                    <span class="text-xl font-black text-slate-800 mt-0.5 block">
+                        @if(is_public_school())
+                            Pública
+                        @else
+                            {{ number_format($stats['revenue_this_month'] ?? 0, 0, ',', '.') }} MT
+                        @endif
+                    </span>
+                </div>
             </div>
         </div>
 
         <!-- Dashboard Analítico (Chart.js) -->
         <div class="grid gap-6 lg:grid-cols-2">
             <!-- Gráfico 1: Evolução Financeira -->
+            @if(is_private_school())
             <div class="rounded-3xl bg-white p-6 shadow-sm border border-slate-100">
                 <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
                     <div>
@@ -88,6 +103,7 @@
                     <canvas id="revenueTrendChart"></canvas>
                 </div>
             </div>
+            @endif
 
             <!-- Gráfico 2: Demografia por Género -->
             <div class="rounded-3xl bg-white p-6 shadow-sm border border-slate-100">
@@ -177,6 +193,7 @@
             </div>
 
             <!-- Category 2: Financeiro -->
+            @if(is_private_school())
             <div class="rounded-3xl bg-white p-6 shadow-[0_10px_30px_rgba(0,0,0,0.03)] border-0 flex flex-col justify-between">
                 <div>
                     <div class="flex items-center gap-3 mb-4 pb-4 border-b border-slate-100">
@@ -198,24 +215,25 @@
                             <i class="fas fa-chevron-right text-xs text-slate-400 group-hover:text-emerald-600"></i>
                         </a>
 
-                        <a href="{{ route('reports.financial.revenue') }}" class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50/80 hover:bg-emerald-50/70 hover:text-emerald-900 transition group">
+                        <a href="{{ route('reports.revenue') }}" class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50/80 hover:bg-emerald-50/70 hover:text-emerald-900 transition group">
                             <div class="flex items-center gap-3">
-                                <span class="rounded-xl bg-white p-2 text-emerald-600 shadow-sm"><i class="fas fa-chart-pie text-xs"></i></span>
-                                <span class="text-sm font-bold text-slate-800 group-hover:text-emerald-800">Evolução Mensal de Arrecadação</span>
+                                <span class="rounded-xl bg-white p-2 text-emerald-600 shadow-sm"><i class="fas fa-money-bill-wave text-xs"></i></span>
+                                <span class="text-sm font-bold text-slate-800 group-hover:text-emerald-800">Receita por Categoria & Mês</span>
                             </div>
                             <i class="fas fa-chevron-right text-xs text-slate-400 group-hover:text-emerald-600"></i>
                         </a>
 
-                        <a href="{{ route('reports.financial.defaulters') }}" class="flex items-center justify-between p-3.5 rounded-2xl bg-amber-50/80 hover:bg-amber-100/90 hover:text-amber-900 transition group">
+                        <a href="{{ route('reports.defaulters') }}" class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50/80 hover:bg-emerald-50/70 hover:text-emerald-900 transition group">
                             <div class="flex items-center gap-3">
-                                <span class="rounded-xl bg-white p-2 text-amber-600 shadow-sm"><i class="fas fa-exclamation-triangle text-xs"></i></span>
-                                <span class="text-sm font-bold text-amber-900">Lista de Alunos Inadimplentes</span>
+                                <span class="rounded-xl bg-white p-2 text-rose-600 shadow-sm"><i class="fas fa-exclamation-triangle text-xs"></i></span>
+                                <span class="text-sm font-bold text-slate-800 group-hover:text-emerald-800">Relatório de Inadimplência</span>
                             </div>
-                            <i class="fas fa-chevron-right text-xs text-amber-500 group-hover:text-amber-700"></i>
+                            <i class="fas fa-chevron-right text-xs text-slate-400 group-hover:text-emerald-600"></i>
                         </a>
                     </div>
                 </div>
             </div>
+            @endif
 
         </div>
 

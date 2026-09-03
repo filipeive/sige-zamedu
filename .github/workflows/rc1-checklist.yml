@@ -1,0 +1,47 @@
+name: RC1 Checklist
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  rc1-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, intl, dom
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install NPM dependencies
+        run: npm ci
+
+      - name: Run PHP Unit tests
+        run: php artisan test
+
+      - name: Run PHP Lint
+        run: ./vendor/bin/phpcs -p .
+
+      - name: Run PHPStan analysis
+        run: ./vendor/bin/phpstan analyse -c phpstan.neon
+
+      - name: Run Smoke Test Script
+        run: ./scripts/smoke_test_rc1.sh
+
+      - name: Run Audit Script
+        run: ./scripts/audit_rc1.sh

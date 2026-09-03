@@ -43,10 +43,12 @@
                             class="rounded-lg bg-sky-700 px-3 py-2 text-center text-xs font-semibold text-white hover:bg-sky-800">
                             Detalhes
                         </a>
+                        @if(is_private_school())
                         <a href="{{ route('parent.student-payments', $child) }}"
                             class="rounded-lg bg-emerald-600 px-3 py-2 text-center text-xs font-semibold text-white hover:bg-emerald-700">
                             Pagamentos
                         </a>
+                        @endif
                     </div>
                 </article>
             @empty

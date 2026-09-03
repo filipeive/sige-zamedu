@@ -20,6 +20,9 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\SmsController;
+use App\Http\Controllers\SmsLogController;
+use App\Http\Controllers\AiController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentSupportController;
 use App\Http\Controllers\SubjectController;
@@ -48,6 +51,7 @@ Route::get('/license/suspended', [LicenseController::class, 'suspended'])->name(
 Route::get('/sobre', fn () => view('public.about'))->name('sobre');
 Route::get('/contacto', fn () => view('public.contact'))->name('contacto');
 Route::get('/registar-escola', [App\Http\Controllers\TrialRegisterController::class, 'create'])->name('public.trial-register');
+Route::get('/pre-inscricao-online', [App\Http\Controllers\TrialRegisterController::class, 'create'])->name('trial.register');
 Route::post('/registar-escola', [App\Http\Controllers\TrialRegisterController::class, 'store'])->name('public.trial-register.store');
 
 // Informações públicas da escola
@@ -154,7 +158,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
                     ->name('support.records.store');
                 Route::delete('/{student}/support/records/{record}', [StudentSupportController::class, 'destroyRecord'])
                     ->name('support.records.destroy');
+                Route::post('/{student}/support/mark-exit', [StudentSupportController::class, 'markExit'])
+                    ->name('support.mark-exit');
             });
+
+            // SMS ao encarregado
+            Route::post('/{student}/send-sms', [SmsController::class, 'sendToGuardian'])
+                ->name('sms.send');
 
             Route::middleware('permission:delete_students')->group(function () {
                 Route::delete('/{student}', 'destroy')->name('destroy');
@@ -172,6 +182,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/', 'store')->name('store');
             Route::get('/{parent}', 'show')->name('show');
             Route::get('/{parent}/edit', 'edit')->name('edit');
+            Route::put('/{parent}', 'update')->name('update');
+            Route::patch('/{parent}', 'update')->name('update');
+            Route::delete('/{parent}', 'destroy')->name('destroy');
         });
 
     // Emissão de Certidões & Certificados Oficiais MINEDH
@@ -182,7 +195,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('/{student}/certidao', 'certidao')->name('certidao');
+            Route::get('/{student}/habilidades', 'certidao')->name('habilidades');
             Route::get('/{student}/certificado', 'certificado')->name('certificado');
+            Route::get('/{student}/conclusao', 'certificado')->name('conclusao');
         });
 
     /*
@@ -336,7 +351,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::middleware('permission:view_payments')
+    Route::middleware(['financial.access', 'permission:view_payments'])
         ->prefix('payments')
         ->name('payments.')
         ->group(function () {
@@ -738,6 +753,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 ->group(function () {
                     Route::get('/', 'index')->name('index');
                     Route::patch('/', 'update')->name('update');
+                    Route::post('/remove-logo', 'removeLogo')->name('remove-logo');
                     Route::post('/permissions', 'updatePermissions')->name('permissions.update');
                 });
 
@@ -754,6 +770,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::middleware('permission:backup_system')->group(function () {
                 Route::get('/backup', [SettingsController::class, 'backup'])->name('backup');
                 Route::post('/backup/create', [SettingsController::class, 'createBackup'])->name('backup.create');
+                Route::get('/backup/download/{filename}', [SettingsController::class, 'downloadBackup'])->name('backup.download');
+                Route::get('/backup/delete/{filename}', [SettingsController::class, 'deleteBackup'])->name('backup.delete');
+                Route::delete('/backup/delete/{filename}', [SettingsController::class, 'deleteBackup']);
             });
 
             // Gestão de Ano Lectivo
@@ -843,6 +862,36 @@ Route::prefix('webhooks')->name('webhooks.')->group(function () {
 
     // Multicaixa
     Route::post('/multicaixa', [App\Http\Controllers\PaymentController::class, 'webhookMulticaixa'])->name('multicaixa');
+});
+
+/*
+|--------------------------------------------------------------------------
+| AI Assistant
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth'])->prefix('ai')->name('ai.')->controller(AiController::class)->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::post('/new', 'newConversation')->name('new');
+
+    // Widget AJAX (definido ANTES das rotas com {conversation} para evitar conflitos de binding)
+    Route::post('/widget/chat', 'widgetChat')->name('widget.chat');
+    Route::post('/widget/reset', 'widgetReset')->name('widget.reset');
+
+    // Conversas persistidas — o where numérico impede que "widget" caia aqui
+    Route::get('/{conversation}', 'show')->whereNumber('conversation')->name('show');
+    Route::post('/{conversation}/chat', 'chat')->whereNumber('conversation')->name('chat');
+    Route::delete('/{conversation}', 'destroy')->whereNumber('conversation')->name('destroy');
+});
+
+Route::middleware(['auth'])->prefix('sms')->name('sms.')->controller(SmsLogController::class)->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::post('/resend/{log}', 'resend')->name('resend');
+    Route::delete('/{log}', 'destroy')->name('destroy');
+});
+
+Route::middleware(['auth'])->prefix('communications/sms')->name('communications.sms.')->controller(SmsController::class)->group(function () {
+    Route::post('/send-single', 'sendSingle')->name('send-single');
 });
 
 /*
