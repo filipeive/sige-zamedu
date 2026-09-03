@@ -56,6 +56,7 @@ class SmsLogController extends Controller
 
         $fromNumber = config('services.sms.httpsms.from');
         $isSimulated = (bool) config('services.sms.simulate', false);
+        $unreadInbox = \App\Models\SmsInbox::where('is_read', false)->count();
 
         return view('sms.index', [
             'logs' => $logs,
@@ -70,6 +71,7 @@ class SmsLogController extends Controller
             'driver' => config('services.sms.driver', 'httpsms'),
             'from' => $fromNumber,
             'simulated' => $isSimulated,
+            'unreadInbox' => $unreadInbox,
         ]);
     }
 

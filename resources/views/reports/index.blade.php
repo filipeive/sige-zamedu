@@ -9,226 +9,392 @@
 @endsection
 
 @section('content')
-    <div class="space-y-6 bg-[#F4F6FA] -m-4 p-6 rounded-3xl min-h-screen">
+    <div class="space-y-6 bg-[var(--content-bg)] -m-4 p-6 rounded-3xl min-h-screen">
 
-        <!-- Top Header Banner MOPHY Style -->
-        <div class="rounded-3xl bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-800 p-6 text-white shadow-lg relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div>
-                <span class="inline-flex items-center gap-2 rounded-full bg-white/15 backdrop-blur-md px-3 py-1 text-xs font-bold text-amber-300 border border-white/20">
-                    <i class="fas fa-file-invoice"></i> Central ZamEdu Analytics
-                </span>
-                <h2 class="mt-2 text-2xl font-black font-heading text-white">Relatórios Estratégicos</h2>
-                <p class="text-xs text-emerald-100 max-w-lg mt-0.5">
-                    Aceda a balanços financeiros, pautas académicas, relatórios de assiduidade e ferramentas de exportação em tempo real.
+        <!-- Top Header Banner - Theme Engine Parametrizado -->
+        <div class="rounded-3xl p-6 text-white shadow-xl relative overflow-hidden flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6"
+             style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 60%, var(--secondary-dark) 100%);">
+            
+            <div class="relative z-10">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-extrabold text-white shadow-xs"
+                          style="background: rgba(255,255,255,0.18); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.25);">
+                        <i class="fas fa-microchip text-amber-300"></i> ZAMEDU Analytics Engine
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold text-white shadow-xs"
+                          style="background: rgba(16, 185, 129, 0.25); backdrop-filter: blur(8px); border: 1px solid rgba(16, 185, 129, 0.4);">
+                        <i class="fas fa-check-circle text-emerald-300"></i> Dados em Tempo Real
+                    </span>
+                </div>
+                <h2 class="mt-3 text-2xl lg:text-3xl font-black font-heading text-white tracking-tight">
+                    Central de Relatórios & Analytics
+                </h2>
+                <p class="text-xs lg:text-sm text-slate-100 max-w-2xl mt-1 leading-relaxed opacity-90">
+                    Balanços financeiros, rendimento académico, estatísticas de assiduidade e relatórios exportáveis com identidade visual oficial.
                 </p>
             </div>
-            <div class="flex items-center gap-2">
-                <a href="{{ route('reports.export.students') }}" class="inline-flex items-center gap-2 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md px-4 py-2 text-xs font-bold text-white border border-white/30 transition">
-                    <i class="fas fa-download"></i> Alunos (CSV)
+            
+            <!-- Quick Export Buttons Bar -->
+            <div class="flex flex-wrap items-center gap-2 relative z-10 shrink-0">
+                <a href="{{ route('reports.export.students') }}" class="inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs font-bold text-white border transition shadow-sm"
+                   style="background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3);">
+                    <i class="fas fa-file-csv text-amber-300"></i> Alunos (CSV)
                 </a>
+                
                 @if(is_private_school())
-                <a href="{{ route('reports.export.payments') }}" class="inline-flex items-center gap-2 rounded-full bg-white text-emerald-800 hover:bg-emerald-50 px-4 py-2 text-xs font-black shadow-md transition">
-                    <i class="fas fa-file-excel text-emerald-600"></i> Pagamentos (CSV)
+                <a href="{{ route('reports.export.payments') }}" class="inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs font-black text-white shadow-md transition"
+                   style="background: var(--secondary); border: 1px solid var(--secondary-light);">
+                    <i class="fas fa-file-excel"></i> Pagamentos (CSV)
                 </a>
                 @endif
+
+                <a href="{{ route('reports.export.grades') }}" class="inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs font-black text-white shadow-md transition"
+                   style="background: var(--primary); border: 1px solid var(--primary-light);">
+                    <i class="fas fa-graduation-cap"></i> Pauta Geral (CSV)
+                </a>
+
+                <button type="button" onclick="window.print()" class="inline-flex items-center gap-2 rounded-2xl bg-white text-slate-900 hover:bg-slate-100 px-4 py-2.5 text-xs font-black shadow-md transition">
+                    <i class="fas fa-print text-slate-700"></i> Imprimir
+                </button>
             </div>
+
+            <!-- Background Decorative Glow -->
+            <div class="absolute -right-12 -bottom-12 w-64 h-64 rounded-full blur-3xl pointer-events-none opacity-20"
+                 style="background: var(--accent);"></div>
         </div>
 
-        <!-- Stat Summary Cards Grid (Pílula Vertical de Cor na Esquerda) -->
-        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex items-center gap-3 hover:shadow-sm transition">
-                <div class="w-1.5 h-8 rounded-full bg-emerald-500 shrink-0"></div>
-                <div class="w-9 h-9 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm font-bold shrink-0">
+        <!-- Stat Summary Cards Grid (4 KPI Cards com Cores Parametrizadas) -->
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <!-- Card 1: Alunos Ativos -->
+            <div class="bg-[var(--card-bg)] rounded-2xl p-4 border border-[var(--border-color)] shadow-xs flex items-center gap-4 hover:shadow-md transition">
+                <div class="w-2 h-10 rounded-full shrink-0" style="background: var(--primary);"></div>
+                <div class="w-11 h-11 rounded-2xl flex items-center justify-center text-lg font-bold shrink-0 shadow-xs"
+                     style="background: var(--primary-soft); color: var(--primary);">
                     <i class="fas fa-user-graduate"></i>
                 </div>
                 <div>
-                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Alunos Ativos</span>
-                    <span class="text-xl font-black text-slate-800 mt-0.5 block">{{ number_format($stats['total_students']) }}</span>
+                    <span class="text-[11px] font-extrabold uppercase tracking-wider text-[var(--text-muted)] block">Estudantes Ativos</span>
+                    <span class="text-2xl font-black text-[var(--text-primary)] mt-0.5 block">{{ number_format($stats['total_students']) }}</span>
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex items-center gap-3 hover:shadow-sm transition">
-                <div class="w-1.5 h-8 rounded-full bg-blue-500 shrink-0"></div>
-                <div class="w-9 h-9 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-sm font-bold shrink-0">
+            <!-- Card 2: Professores -->
+            <div class="bg-[var(--card-bg)] rounded-2xl p-4 border border-[var(--border-color)] shadow-xs flex items-center gap-4 hover:shadow-md transition">
+                <div class="w-2 h-10 rounded-full shrink-0" style="background: var(--secondary);"></div>
+                <div class="w-11 h-11 rounded-2xl flex items-center justify-center text-lg font-bold shrink-0 shadow-xs"
+                     style="background: var(--secondary-soft); color: var(--secondary);">
                     <i class="fas fa-chalkboard-teacher"></i>
                 </div>
                 <div>
-                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Professores</span>
-                    <span class="text-xl font-black text-slate-800 mt-0.5 block">{{ number_format($stats['total_teachers']) }}</span>
+                    <span class="text-[11px] font-extrabold uppercase tracking-wider text-[var(--text-muted)] block">Corpo Docente</span>
+                    <span class="text-2xl font-black text-[var(--text-primary)] mt-0.5 block">{{ number_format($stats['total_teachers']) }}</span>
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex items-center gap-3 hover:shadow-sm transition">
-                <div class="w-1.5 h-8 rounded-full bg-purple-500 shrink-0"></div>
-                <div class="w-9 h-9 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center text-sm font-bold shrink-0">
+            <!-- Card 3: Turmas Ativas -->
+            <div class="bg-[var(--card-bg)] rounded-2xl p-4 border border-[var(--border-color)] shadow-xs flex items-center gap-4 hover:shadow-md transition">
+                <div class="w-2 h-10 rounded-full shrink-0" style="background: var(--accent);"></div>
+                <div class="w-11 h-11 rounded-2xl flex items-center justify-center text-lg font-bold shrink-0 shadow-xs"
+                     style="background: var(--accent-light); color: var(--accent);">
                     <i class="fas fa-school"></i>
                 </div>
                 <div>
-                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Turmas Ativas</span>
-                    <span class="text-xl font-black text-slate-800 mt-0.5 block">{{ number_format($stats['total_classes']) }}</span>
+                    <span class="text-[11px] font-extrabold uppercase tracking-wider text-[var(--text-muted)] block">Turmas em Funcionamento</span>
+                    <span class="text-2xl font-black text-[var(--text-primary)] mt-0.5 block">{{ number_format($stats['total_classes']) }}</span>
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex items-center gap-3 hover:shadow-sm transition">
-                <div class="w-1.5 h-8 rounded-full bg-teal-500 shrink-0"></div>
-                <div class="w-9 h-9 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center text-sm font-bold shrink-0">
+            <!-- Card 4: Receita ou Modalidade -->
+            <div class="bg-[var(--card-bg)] rounded-2xl p-4 border border-[var(--border-color)] shadow-xs flex items-center gap-4 hover:shadow-md transition">
+                <div class="w-2 h-10 rounded-full shrink-0" style="background: var(--success);"></div>
+                <div class="w-11 h-11 rounded-2xl flex items-center justify-center text-lg font-bold shrink-0 shadow-xs"
+                     style="background: var(--success-soft); color: var(--success);">
                     <i class="fas {{ is_public_school() ? 'fa-landmark' : 'fa-wallet' }}"></i>
                 </div>
                 <div>
-                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">{{ is_public_school() ? 'Modo Gestão' : 'Receita do Mês' }}</span>
-                    <span class="text-xl font-black text-slate-800 mt-0.5 block">
+                    <span class="text-[11px] font-extrabold uppercase tracking-wider text-[var(--text-muted)] block">{{ is_public_school() ? 'Modalidade' : 'Arrecadação do Mês' }}</span>
+                    <span class="text-2xl font-black text-[var(--text-primary)] mt-0.5 block">
                         @if(is_public_school())
-                            Pública
+                            <span class="text-base font-extrabold" style="color: var(--primary);">Ensino Público</span>
                         @else
-                            {{ number_format($stats['revenue_this_month'] ?? 0, 0, ',', '.') }} MT
+                            {{ number_format($stats['monthly_revenue'] ?? 0, 0, ',', '.') }} <small class="text-xs text-[var(--text-muted)] font-normal">MT</small>
                         @endif
                     </span>
                 </div>
             </div>
         </div>
 
-        <!-- Dashboard Analítico (Chart.js) -->
+        <!-- Interactive Analytics Charts Grid -->
         <div class="grid gap-6 lg:grid-cols-2">
-            <!-- Gráfico 1: Evolução Financeira -->
+            
+            <!-- Chart 1: Arrecadação Financeira / Mês -->
             @if(is_private_school())
-            <div class="rounded-3xl bg-white p-6 shadow-sm border border-slate-100">
-                <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+            <div class="rounded-3xl bg-[var(--card-bg)] p-6 shadow-sm border border-[var(--border-color)] flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-4 pb-3 border-b border-[var(--border-color)]">
                     <div>
-                        <h3 class="text-base font-extrabold text-slate-800"><i class="fas fa-chart-line text-emerald-600 me-2"></i>Evolução de Arrecadação</h3>
-                        <p class="text-xs text-slate-400">Receita mensal arrecadada nos últimos 6 meses</p>
+                        <h3 class="text-base font-black text-[var(--text-primary)] flex items-center gap-2">
+                            <i class="fas fa-chart-line" style="color: var(--primary);"></i> Evolução Financeira de Receitas
+                        </h3>
+                        <p class="text-xs text-[var(--text-muted)] mt-0.5">Montante arrecadado nos últimos 6 meses</p>
                     </div>
-                    <span class="badge bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">Financeiro</span>
+                    <span class="badge px-3 py-1 rounded-full text-xs font-extrabold"
+                          style="background: var(--primary-soft); color: var(--primary); border: 1px solid var(--primary-light);">
+                        Financeiro
+                    </span>
                 </div>
-                <div style="height: 250px;">
+                <div class="relative w-full h-[260px]">
                     <canvas id="revenueTrendChart"></canvas>
+                </div>
+            </div>
+            @else
+            <!-- Fallback Public School Academic Overview Chart -->
+            <div class="rounded-3xl bg-[var(--card-bg)] p-6 shadow-sm border border-[var(--border-color)] flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-4 pb-3 border-b border-[var(--border-color)]">
+                    <div>
+                        <h3 class="text-base font-black text-[var(--text-primary)] flex items-center gap-2">
+                            <i class="fas fa-landmark" style="color: var(--primary);"></i> Gestão de Vagas por Nível
+                        </h3>
+                        <p class="text-xs text-[var(--text-muted)] mt-0.5">Indicador de ocupação do recinto escolar</p>
+                    </div>
+                    <span class="badge px-3 py-1 rounded-full text-xs font-extrabold"
+                          style="background: var(--primary-soft); color: var(--primary); border: 1px solid var(--primary-light);">
+                        Público
+                    </span>
+                </div>
+                <div class="flex flex-col justify-center items-center h-[260px] text-center p-6 rounded-2xl border border-dashed"
+                     style="background: var(--surface-bg); border-color: var(--border-color);">
+                    <i class="fas fa-building-columns text-4xl mb-3" style="color: var(--primary);"></i>
+                    <h4 class="font-extrabold text-[var(--text-primary)]">Instituição Isenta de Propinas</h4>
+                    <p class="text-xs text-[var(--text-muted)] max-w-sm mt-1">
+                        Os dados operacionais de matrículas gratuitas e inscrições públicas são consolidados no módulo académico.
+                    </p>
                 </div>
             </div>
             @endif
 
-            <!-- Gráfico 2: Demografia por Género -->
-            <div class="rounded-3xl bg-white p-6 shadow-sm border border-slate-100">
-                <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+            <!-- Chart 2: Demografia por Género -->
+            <div class="rounded-3xl bg-[var(--card-bg)] p-6 shadow-sm border border-[var(--border-color)] flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-4 pb-3 border-b border-[var(--border-color)]">
                     <div>
-                        <h3 class="text-base font-extrabold text-slate-800"><i class="fas fa-users text-blue-600 me-2"></i>Distribuição por Género</h3>
-                        <p class="text-xs text-slate-400">Proporção de estudantes masculinos e femininos</p>
+                        <h3 class="text-base font-black text-[var(--text-primary)] flex items-center gap-2">
+                            <i class="fas fa-users" style="color: var(--secondary);"></i> Distribuição por Género
+                        </h3>
+                        <p class="text-xs text-[var(--text-muted)] mt-0.5">Proporção de estudantes masculinos e femininos</p>
                     </div>
-                    <span class="badge bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">Estudantes</span>
+                    <span class="badge px-3 py-1 rounded-full text-xs font-extrabold"
+                          style="background: var(--secondary-soft); color: var(--secondary); border: 1px solid var(--secondary-light);">
+                        Demografia
+                    </span>
                 </div>
-                <div style="height: 250px;">
+                <div class="relative w-full h-[260px] flex items-center justify-center">
                     <canvas id="genderChart"></canvas>
                 </div>
             </div>
 
-            <!-- Gráfico 3: Turmas por Classe -->
-            <div class="rounded-3xl bg-white p-6 shadow-sm border border-slate-100">
-                <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+            <!-- Chart 3: Distribuição de Turmas por Nível -->
+            <div class="rounded-3xl bg-[var(--card-bg)] p-6 shadow-sm border border-[var(--border-color)] flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-4 pb-3 border-b border-[var(--border-color)]">
                     <div>
-                        <h3 class="text-base font-extrabold text-slate-800"><i class="fas fa-layer-group text-purple-600 me-2"></i>Turmas por Nível de Ensino</h3>
-                        <p class="text-xs text-slate-400">Distribuição de turmas ativas da 1ª à 12ª classe</p>
+                        <h3 class="text-base font-black text-[var(--text-primary)] flex items-center gap-2">
+                            <i class="fas fa-layer-group" style="color: var(--accent);"></i> Turmas por Nível Escolar
+                        </h3>
+                        <p class="text-xs text-[var(--text-muted)] mt-0.5">Quantidade de turmas ativas da 1ª à 12ª classe</p>
                     </div>
-                    <span class="badge bg-purple-50 text-purple-700 px-3 py-1 rounded-full text-xs font-bold">Académico</span>
+                    <span class="badge px-3 py-1 rounded-full text-xs font-extrabold"
+                          style="background: var(--accent-light); color: var(--accent); border: 1px solid var(--accent);">
+                        Académico
+                    </span>
                 </div>
-                <div style="height: 250px;">
+                <div class="relative w-full h-[260px]">
                     <canvas id="gradeDistributionChart"></canvas>
                 </div>
             </div>
 
-            <!-- Gráfico 4: Assiduidade Global -->
-            <div class="rounded-3xl bg-white p-6 shadow-sm border border-slate-100">
-                <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+            <!-- Chart 4: Assiduidade Global -->
+            <div class="rounded-3xl bg-[var(--card-bg)] p-6 shadow-sm border border-[var(--border-color)] flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-4 pb-3 border-b border-[var(--border-color)]">
                     <div>
-                        <h3 class="text-base font-extrabold text-slate-800"><i class="fas fa-calendar-check text-amber-600 me-2"></i>Taxa Global de Assiduidade</h3>
-                        <p class="text-xs text-slate-400">Proporção total de presenças, ausências e atrasos</p>
+                        <h3 class="text-base font-black text-[var(--text-primary)] flex items-center gap-2">
+                            <i class="fas fa-calendar-check" style="color: var(--success);"></i> Taxa Global de Assiduidade
+                        </h3>
+                        <p class="text-xs text-[var(--text-muted)] mt-0.5">Distribuição de presenças, ausências e atrasos</p>
                     </div>
-                    <span class="badge bg-amber-50 text-amber-700 px-3 py-1 rounded-full text-xs font-bold">Frequência</span>
+                    <span class="badge px-3 py-1 rounded-full text-xs font-extrabold"
+                          style="background: var(--success-soft); color: var(--success); border: 1px solid var(--success-dark);">
+                        Frequência
+                    </span>
                 </div>
-                <div style="height: 250px;">
+                <div class="relative w-full h-[260px] flex items-center justify-center">
                     <canvas id="globalAttendanceChart"></canvas>
                 </div>
             </div>
         </div>
 
-        <!-- MOPHY Report Category Grid -->
+        <!-- Categorized Detailed Reports Cards Grid -->
         <div class="grid gap-6 md:grid-cols-2">
             
-            <!-- Category 1: Académico -->
-            <div class="rounded-3xl bg-white p-6 shadow-[0_10px_30px_rgba(0,0,0,0.03)] border-0 flex flex-col justify-between">
+            <!-- Category 1: Relatórios Académicos -->
+            <div class="rounded-3xl bg-[var(--card-bg)] p-6 shadow-xs border border-[var(--border-color)] flex flex-col justify-between">
                 <div>
-                    <div class="flex items-center gap-3 mb-4 pb-4 border-b border-slate-100">
-                        <div class="rounded-2xl bg-emerald-100/70 p-3 text-emerald-600 text-lg">
+                    <div class="flex items-center gap-3 mb-4 pb-4 border-b border-[var(--border-color)]">
+                        <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-xl shrink-0 shadow-xs"
+                             style="background: var(--primary-soft); color: var(--primary);">
                             <i class="fas fa-graduation-cap"></i>
                         </div>
                         <div>
-                            <h3 class="text-lg font-extrabold text-slate-800 font-heading">Relatórios Académicos</h3>
-                            <p class="text-xs text-slate-400">Acompanhamento do rendimento escolar e assiduidade</p>
+                            <h3 class="text-lg font-black text-[var(--text-primary)] font-heading">Relatórios Académicos</h3>
+                            <p class="text-xs text-[var(--text-muted)]">Rendimento escolar, turmas, pautas e assiduidade</p>
                         </div>
                     </div>
 
                     <div class="space-y-3">
-                        <a href="{{ route('reports.academic') }}" class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50/80 hover:bg-emerald-50/70 hover:text-emerald-900 transition group">
+                        <a href="{{ route('reports.academic') }}" class="flex items-center justify-between p-3.5 rounded-2xl transition group border"
+                           style="background: var(--surface-bg); border-color: var(--border-color);">
                             <div class="flex items-center gap-3">
-                                <span class="rounded-xl bg-white p-2 text-emerald-600 shadow-sm"><i class="fas fa-list-ul text-xs"></i></span>
-                                <span class="text-sm font-bold text-slate-800 group-hover:text-emerald-800">Visão Geral Académica</span>
+                                <span class="w-8 h-8 rounded-xl bg-white flex items-center justify-center shadow-xs" style="color: var(--primary);">
+                                    <i class="fas fa-list-ul text-xs"></i>
+                                </span>
+                                <div>
+                                    <span class="text-sm font-extrabold text-[var(--text-primary)] group-hover:opacity-80 block">Visão Geral Académica</span>
+                                    <span class="text-[11px] text-[var(--text-muted)] block">Resumo de turmas, lotação e médias</span>
+                                </div>
                             </div>
-                            <i class="fas fa-chevron-right text-xs text-slate-400 group-hover:text-emerald-600"></i>
+                            <i class="fas fa-chevron-right text-xs text-[var(--text-muted)]"></i>
                         </a>
 
-                        <a href="{{ route('reports.academic.performance') }}" class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50/80 hover:bg-emerald-50/70 hover:text-emerald-900 transition group">
+                        <a href="{{ route('reports.academic.performance') }}" class="flex items-center justify-between p-3.5 rounded-2xl transition group border"
+                           style="background: var(--surface-bg); border-color: var(--border-color);">
                             <div class="flex items-center gap-3">
-                                <span class="rounded-xl bg-white p-2 text-emerald-600 shadow-sm"><i class="fas fa-chart-line text-xs"></i></span>
-                                <span class="text-sm font-bold text-slate-800 group-hover:text-emerald-800">Desempenho por Disciplina & Alunos</span>
+                                <span class="w-8 h-8 rounded-xl bg-white flex items-center justify-center shadow-xs" style="color: var(--secondary);">
+                                    <i class="fas fa-chart-line text-xs"></i>
+                                </span>
+                                <div>
+                                    <span class="text-sm font-extrabold text-[var(--text-primary)] group-hover:opacity-80 block">Desempenho por Disciplina & Alunos</span>
+                                    <span class="text-[11px] text-[var(--text-muted)] block">Filtro de notas por trimestre e turma</span>
+                                </div>
                             </div>
-                            <i class="fas fa-chevron-right text-xs text-slate-400 group-hover:text-emerald-600"></i>
+                            <i class="fas fa-chevron-right text-xs text-[var(--text-muted)]"></i>
                         </a>
 
-                        <a href="{{ route('reports.academic.attendance') }}" class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50/80 hover:bg-emerald-50/70 hover:text-emerald-900 transition group">
+                        <a href="{{ route('reports.academic.attendance') }}" class="flex items-center justify-between p-3.5 rounded-2xl transition group border"
+                           style="background: var(--surface-bg); border-color: var(--border-color);">
                             <div class="flex items-center gap-3">
-                                <span class="rounded-xl bg-white p-2 text-teal-600 shadow-sm"><i class="fas fa-calendar-check text-xs"></i></span>
-                                <span class="text-sm font-bold text-slate-800 group-hover:text-emerald-800">Relatório de Assiduidade</span>
+                                <span class="w-8 h-8 rounded-xl bg-white flex items-center justify-center shadow-xs" style="color: var(--accent);">
+                                    <i class="fas fa-calendar-check text-xs"></i>
+                                </span>
+                                <div>
+                                    <span class="text-sm font-extrabold text-[var(--text-primary)] group-hover:opacity-80 block">Relatório de Assiduidade</span>
+                                    <span class="text-[11px] text-[var(--text-muted)] block">Histórico de chamadas e faltas justificadas</span>
+                                </div>
                             </div>
-                            <i class="fas fa-chevron-right text-xs text-slate-400 group-hover:text-emerald-600"></i>
+                            <i class="fas fa-chevron-right text-xs text-[var(--text-muted)]"></i>
                         </a>
                     </div>
                 </div>
             </div>
 
-            <!-- Category 2: Financeiro -->
+            <!-- Category 2: Relatórios Financeiros -->
             @if(is_private_school())
-            <div class="rounded-3xl bg-white p-6 shadow-[0_10px_30px_rgba(0,0,0,0.03)] border-0 flex flex-col justify-between">
+            <div class="rounded-3xl bg-[var(--card-bg)] p-6 shadow-xs border border-[var(--border-color)] flex flex-col justify-between">
                 <div>
-                    <div class="flex items-center gap-3 mb-4 pb-4 border-b border-slate-100">
-                        <div class="rounded-2xl bg-emerald-100/70 p-3 text-emerald-600 text-lg">
+                    <div class="flex items-center gap-3 mb-4 pb-4 border-b border-[var(--border-color)]">
+                        <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-xl shrink-0 shadow-xs"
+                             style="background: var(--secondary-soft); color: var(--secondary);">
                             <i class="fas fa-wallet"></i>
                         </div>
                         <div>
-                            <h3 class="text-lg font-extrabold text-slate-800 font-heading">Relatórios Financeiros</h3>
-                            <p class="text-xs text-slate-400">Balanço de mensalidades, cobranças e inadimplência</p>
+                            <h3 class="text-lg font-black text-[var(--text-primary)] font-heading">Relatórios Financeiros</h3>
+                            <p class="text-xs text-[var(--text-muted)]">Balanço de propinas, despesas e mensalidades em atraso</p>
                         </div>
                     </div>
 
                     <div class="space-y-3">
-                        <a href="{{ route('reports.financial') }}" class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50/80 hover:bg-emerald-50/70 hover:text-emerald-900 transition group">
+                        <a href="{{ route('reports.financial') }}" class="flex items-center justify-between p-3.5 rounded-2xl transition group border"
+                           style="background: var(--surface-bg); border-color: var(--border-color);">
                             <div class="flex items-center gap-3">
-                                <span class="rounded-xl bg-white p-2 text-emerald-600 shadow-sm"><i class="fas fa-receipt text-xs"></i></span>
-                                <span class="text-sm font-bold text-slate-800 group-hover:text-emerald-800">Visão Geral Financeira</span>
+                                <span class="w-8 h-8 rounded-xl bg-white flex items-center justify-center shadow-xs" style="color: var(--secondary);">
+                                    <i class="fas fa-receipt text-xs"></i>
+                                </span>
+                                <div>
+                                    <span class="text-sm font-extrabold text-[var(--text-primary)] group-hover:opacity-80 block">Visão Geral Financeira</span>
+                                    <span class="text-[11px] text-[var(--text-muted)] block">Balanço de receitas vs despesas e resultado</span>
+                                </div>
                             </div>
-                            <i class="fas fa-chevron-right text-xs text-slate-400 group-hover:text-emerald-600"></i>
+                            <i class="fas fa-chevron-right text-xs text-[var(--text-muted)]"></i>
                         </a>
 
-                        <a href="{{ route('reports.revenue') }}" class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50/80 hover:bg-emerald-50/70 hover:text-emerald-900 transition group">
+                        <a href="{{ route('reports.financial.revenue') }}" class="flex items-center justify-between p-3.5 rounded-2xl transition group border"
+                           style="background: var(--surface-bg); border-color: var(--border-color);">
                             <div class="flex items-center gap-3">
-                                <span class="rounded-xl bg-white p-2 text-emerald-600 shadow-sm"><i class="fas fa-money-bill-wave text-xs"></i></span>
-                                <span class="text-sm font-bold text-slate-800 group-hover:text-emerald-800">Receita por Categoria & Mês</span>
+                                <span class="w-8 h-8 rounded-xl bg-white flex items-center justify-center shadow-xs" style="color: var(--primary);">
+                                    <i class="fas fa-money-bill-wave text-xs"></i>
+                                </span>
+                                <div>
+                                    <span class="text-sm font-extrabold text-[var(--text-primary)] group-hover:opacity-80 block">Receitas & Liquidações</span>
+                                    <span class="text-[11px] text-[var(--text-muted)] block">Transações efetuadas por período e método</span>
+                                </div>
                             </div>
-                            <i class="fas fa-chevron-right text-xs text-slate-400 group-hover:text-emerald-600"></i>
+                            <i class="fas fa-chevron-right text-xs text-[var(--text-muted)]"></i>
                         </a>
 
-                        <a href="{{ route('reports.defaulters') }}" class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50/80 hover:bg-emerald-50/70 hover:text-emerald-900 transition group">
+                        <a href="{{ route('reports.financial.defaulters') }}" class="flex items-center justify-between p-3.5 rounded-2xl transition group border"
+                           style="background: var(--surface-bg); border-color: var(--border-color);">
                             <div class="flex items-center gap-3">
-                                <span class="rounded-xl bg-white p-2 text-rose-600 shadow-sm"><i class="fas fa-exclamation-triangle text-xs"></i></span>
-                                <span class="text-sm font-bold text-slate-800 group-hover:text-emerald-800">Relatório de Inadimplência</span>
+                                <span class="w-8 h-8 rounded-xl bg-white text-rose-600 flex items-center justify-center shadow-xs">
+                                    <i class="fas fa-exclamation-triangle text-xs"></i>
+                                </span>
+                                <div>
+                                    <span class="text-sm font-extrabold text-[var(--text-primary)] group-hover:opacity-80 block">Inadimplência & Devedores</span>
+                                    <span class="text-[11px] text-[var(--text-muted)] block">Lista de alunos com mensalidades pendentes</span>
+                                </div>
                             </div>
-                            <i class="fas fa-chevron-right text-xs text-slate-400 group-hover:text-emerald-600"></i>
+                            <i class="fas fa-chevron-right text-xs text-[var(--text-muted)]"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @else
+            <!-- Public School Quick Documents Panel -->
+            <div class="rounded-3xl bg-[var(--card-bg)] p-6 shadow-xs border border-[var(--border-color)] flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center gap-3 mb-4 pb-4 border-b border-[var(--border-color)]">
+                        <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-xl shrink-0 shadow-xs"
+                             style="background: var(--primary-soft); color: var(--primary);">
+                            <i class="fas fa-certificate"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-black text-[var(--text-primary)] font-heading">Documentos & Certificados</h3>
+                            <p class="text-xs text-[var(--text-muted)]">Emissão oficial de documentos e pautas públicas</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <a href="{{ route('certificates.index') }}" class="flex items-center justify-between p-3.5 rounded-2xl transition group border"
+                           style="background: var(--surface-bg); border-color: var(--border-color);">
+                            <div class="flex items-center gap-3">
+                                <span class="w-8 h-8 rounded-xl bg-white flex items-center justify-center shadow-xs" style="color: var(--primary);">
+                                    <i class="fas fa-award text-xs"></i>
+                                </span>
+                                <div>
+                                    <span class="text-sm font-extrabold text-[var(--text-primary)] group-hover:opacity-80 block">Emitir Certidão & Certificados</span>
+                                    <span class="text-[11px] text-[var(--text-muted)] block">Certidões de matrícula com Emblema Nacional</span>
+                                </div>
+                            </div>
+                            <i class="fas fa-chevron-right text-xs text-[var(--text-muted)]"></i>
+                        </a>
+
+                        <a href="{{ route('students.index') }}" class="flex items-center justify-between p-3.5 rounded-2xl transition group border"
+                           style="background: var(--surface-bg); border-color: var(--border-color);">
+                            <div class="flex items-center gap-3">
+                                <span class="w-8 h-8 rounded-xl bg-white flex items-center justify-center shadow-xs" style="color: var(--secondary);">
+                                    <i class="fas fa-users text-xs"></i>
+                                </span>
+                                <div>
+                                    <span class="text-sm font-extrabold text-[var(--text-primary)] group-hover:opacity-80 block">Listagem Geral de Alunos</span>
+                                    <span class="text-[11px] text-[var(--text-muted)] block">Fichas individuais e cartões de estudante</span>
+                                </div>
+                            </div>
+                            <i class="fas fa-chevron-right text-xs text-[var(--text-muted)]"></i>
                         </a>
                     </div>
                 </div>
@@ -244,92 +410,168 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. Gráfico de Evolução Financeira
-    new Chart(document.getElementById('revenueTrendChart').getContext('2d'), {
-        type: 'line',
-        data: {
-            labels: @json($monthsLabels),
-            datasets: [{
-                label: 'Receita (MT)',
-                data: @json($monthlyRevenueTrend),
-                borderColor: '#047857',
-                backgroundColor: 'rgba(4, 120, 87, 0.1)',
-                fill: true,
-                tension: 0.4,
-                pointRadius: 4,
-                pointBackgroundColor: '#047857'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } }
-        }
-    });
+    if (typeof Chart === 'undefined') {
+        console.warn('Chart.js não foi carregado.');
+        return;
+    }
 
-    // 2. Gráfico de Género
-    const maleCount = {{ $genderStats['male'] }};
-    const femaleCount = {{ $genderStats['female'] }};
-    new Chart(document.getElementById('genderChart').getContext('2d'), {
-        type: 'doughnut',
-        data: {
-            labels: ['Masculino', 'Feminino'],
-            datasets: [{
-                data: (maleCount + femaleCount > 0) ? [maleCount, femaleCount] : [1, 1],
-                backgroundColor: ['#2563eb', '#ec4899']
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { position: 'bottom' } }
-        }
-    });
+    // Leitura Dinâmica dos Tokens de Cores das Definições do Sistema
+    const getCssVar = (name, fallback) => {
+        const val = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+        return val ? val : fallback;
+    };
 
-    // 3. Gráfico de Distribuição por Nível de Ensino
-    const gradeData = @json($gradeDistribution);
-    const gradeLabels = Object.keys(gradeData).map(k => k + 'ª Classe');
-    const gradeValues = Object.values(gradeData);
+    const primaryColor = getCssVar('--primary', '#1e40af');
+    const secondaryColor = getCssVar('--secondary', '#059669');
+    const accentColor = getCssVar('--accent', '#f59e0b');
+    const successColor = getCssVar('--success', '#10b981');
+    const dangerColor = getCssVar('--danger', '#ef4444');
+    const infoColor = getCssVar('--info', '#06b6d4');
 
-    new Chart(document.getElementById('gradeDistributionChart').getContext('2d'), {
-        type: 'bar',
-        data: {
-            labels: gradeLabels.length > 0 ? gradeLabels : ['1ª Classe', '2ª Classe', '3ª Classe'],
-            datasets: [{
-                label: 'Turmas Ativas',
-                data: gradeValues.length > 0 ? gradeValues : [1, 1, 1],
-                backgroundColor: '#8b5cf6',
-                borderRadius: 8
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } }
-        }
-    });
+    // 1. Gráfico de Evolução Financeira (Com Guard e Cores de Settings)
+    const revenueEl = document.getElementById('revenueTrendChart');
+    if (revenueEl) {
+        new Chart(revenueEl.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: @json($monthsLabels),
+                datasets: [{
+                    label: 'Receita (MT)',
+                    data: @json($monthlyRevenueTrend),
+                    borderColor: primaryColor,
+                    backgroundColor: primaryColor + '20',
+                    fill: true,
+                    tension: 0.35,
+                    pointRadius: 5,
+                    pointBackgroundColor: primaryColor,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return ' Receita: ' + context.parsed.y.toLocaleString('pt-MZ') + ' MT';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(226, 232, 240, 0.6)' },
+                        ticks: { font: { size: 11 } }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 11 } }
+                    }
+                }
+            }
+        });
+    }
 
-    // 4. Gráfico de Assiduidade Global
-    const attPresent = {{ $attendanceStats['present'] }};
-    const attAbsent = {{ $attendanceStats['absent'] }};
-    const attLate = {{ $attendanceStats['late'] }};
-    const attTotal = attPresent + attAbsent + attLate;
+    // 2. Gráfico de Género (Com Cores do Theme Engine: Primary + Secondary)
+    const genderEl = document.getElementById('genderChart');
+    if (genderEl) {
+        const maleCount = {{ $genderStats['male'] ?? 0 }};
+        const femaleCount = {{ $genderStats['female'] ?? 0 }};
+        const hasData = (maleCount + femaleCount) > 0;
 
-    new Chart(document.getElementById('globalAttendanceChart').getContext('2d'), {
-        type: 'pie',
-        data: {
-            labels: attTotal > 0 ? ['Presente', 'Ausente', 'Atrasado'] : ['Sem Registos'],
-            datasets: [{
-                data: attTotal > 0 ? [attPresent, attAbsent, attLate] : [1],
-                backgroundColor: attTotal > 0 ? ['#10b981', '#ef4444', '#f59e0b'] : ['#cbd5e1']
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { position: 'bottom' } }
-        }
-    });
+        new Chart(genderEl.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: hasData ? ['Masculino', 'Feminino'] : ['Sem Alunos'],
+                datasets: [{
+                    data: hasData ? [maleCount, femaleCount] : [1],
+                    backgroundColor: hasData ? [primaryColor, secondaryColor] : ['#e2e8f0'],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: { position: 'bottom', labels: { font: { size: 12, weight: 'bold' } } }
+                }
+            }
+        });
+    }
+
+    // 3. Gráfico de Distribuição por Nível de Ensino (Com Cor Accent de Settings)
+    const gradeEl = document.getElementById('gradeDistributionChart');
+    if (gradeEl) {
+        const gradeData = @json($gradeDistribution);
+        const gradeLabels = Object.keys(gradeData);
+        const gradeValues = Object.values(gradeData);
+        const hasGrades = gradeLabels.length > 0;
+
+        new Chart(gradeEl.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: hasGrades ? gradeLabels : ['Sem Turmas'],
+                datasets: [{
+                    label: 'Turmas Ativas',
+                    data: hasGrades ? gradeValues : [0],
+                    backgroundColor: accentColor,
+                    borderRadius: 8,
+                    maxBarThickness: 32
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1, font: { size: 11 } },
+                        grid: { color: 'rgba(226, 232, 240, 0.6)' }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 10 } }
+                    }
+                }
+            }
+        });
+    }
+
+    // 4. Gráfico de Assiduidade Global (Com Cores de Sucesso, Perigo, Alerta e Info)
+    const attEl = document.getElementById('globalAttendanceChart');
+    if (attEl) {
+        const attPresent = {{ $attendanceStats['present'] ?? 0 }};
+        const attAbsent = {{ $attendanceStats['absent'] ?? 0 }};
+        const attLate = {{ $attendanceStats['late'] ?? 0 }};
+        const attExcused = {{ $attendanceStats['excused'] ?? 0 }};
+        const attTotal = attPresent + attAbsent + attLate + attExcused;
+
+        new Chart(attEl.getContext('2d'), {
+            type: 'pie',
+            data: {
+                labels: attTotal > 0 ? ['Presente', 'Ausente', 'Atrasado', 'Justificado'] : ['Sem Registos'],
+                datasets: [{
+                    data: attTotal > 0 ? [attPresent, attAbsent, attLate, attExcused] : [1],
+                    backgroundColor: attTotal > 0 ? [successColor, dangerColor, warningColor, infoColor] : ['#e2e8f0'],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { font: { size: 11, weight: 'bold' } } }
+                }
+            }
+        });
+    }
 });
 </script>
 @endpush

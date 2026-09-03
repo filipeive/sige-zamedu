@@ -12,48 +12,49 @@
 
 @section('page-actions')
     <div class="flex items-center gap-2">
-        <button type="button" onclick="showToast('Lembretes de cobrança enviados com sucesso!', 'success')" class="inline-flex items-center gap-2 rounded-full bg-amber-600 px-4 py-2 text-xs font-bold text-white shadow-md hover:bg-amber-700 transition">
-            <i class="fas fa-paper-plane"></i>
-            Notificar Todos por SMS/Email
+        <button type="button" onclick="showToast('Lembretes de cobrança enviados com sucesso!', 'success')" class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold text-white shadow-md transition"
+                style="background: var(--warning-dark);">
+            <i class="fas fa-paper-plane"></i> Notificar Todos por SMS
         </button>
-        <button type="button" onclick="window.print()" class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 shadow-sm hover:bg-slate-50 transition">
-            <i class="fas fa-print"></i>
-            Imprimir
+        <button type="button" onclick="window.print()" class="inline-flex items-center gap-2 rounded-full border border-[var(--border-color)] bg-[var(--card-bg)] px-4 py-2 text-xs font-bold text-[var(--text-primary)] shadow-xs hover:bg-[var(--surface-bg)] transition">
+            <i class="fas fa-print"></i> Imprimir
         </button>
     </div>
 @endsection
 
 @section('content')
-    <div class="space-y-6 bg-[#F4F6FA] -m-4 p-6 rounded-3xl min-h-screen">
+    <div class="space-y-6 bg-[var(--content-bg)] -m-4 p-6 rounded-3xl min-h-screen">
 
-        <!-- Banner Info Alert MOPHY Style -->
-        <div class="rounded-2xl border-0 bg-amber-50/90 p-4 shadow-[0_8px_20px_rgba(0,0,0,0.03)] flex items-center gap-3">
-            <div class="rounded-xl bg-amber-500 p-2.5 text-white text-base shrink-0">
+        <!-- Banner Info Alert -->
+        <div class="rounded-2xl border p-4 shadow-xs flex items-center gap-3"
+             style="background: var(--warning-soft); border-color: var(--warning);">
+            <div class="rounded-xl p-2.5 text-white text-base shrink-0" style="background: var(--warning);">
                 <i class="fas fa-triangle-exclamation"></i>
             </div>
-            <p class="text-xs text-amber-950 font-medium leading-relaxed">
+            <p class="text-xs font-medium leading-relaxed" style="color: var(--warning-dark);">
                 Este relatório compila os alunos matriculados com propinas e mensalidades pendentes para o mês de 
-                <strong>{{ now()->format('F Y') }}</strong>.
+                <strong>{{ now()->translatedFormat('F Y') }}</strong>.
             </p>
         </div>
 
         <!-- Table Card MOPHY Style -->
-        <div class="rounded-3xl bg-white p-6 shadow-[0_10px_30px_rgba(0,0,0,0.03)] border-0">
-            <div class="flex items-center justify-between mb-4 pb-4 border-b border-slate-100">
+        <div class="rounded-3xl bg-[var(--card-bg)] p-6 shadow-xs border border-[var(--border-color)]">
+            <div class="flex items-center justify-between mb-4 pb-4 border-b border-[var(--border-color)]">
                 <div class="flex items-center gap-3">
-                    <div class="rounded-2xl bg-amber-100/70 p-3 text-amber-600 text-lg">
+                    <div class="w-10 h-10 rounded-2xl flex items-center justify-center text-lg shrink-0 shadow-xs"
+                         style="background: var(--warning-soft); color: var(--warning-dark);">
                         <i class="fas fa-users-slash"></i>
                     </div>
                     <div>
-                        <h3 class="text-base font-extrabold text-slate-800 font-heading">Alunos Inadimplentes</h3>
-                        <p class="text-xs text-slate-400">Total de {{ $defaulters->count() }} registos em atraso</p>
+                        <h3 class="text-base font-extrabold text-[var(--text-primary)] font-heading">Alunos Inadimplentes</h3>
+                        <p class="text-xs text-[var(--text-muted)]">Total de {{ $defaulters->count() }} registos em atraso</p>
                     </div>
                 </div>
             </div>
 
             <div class="overflow-x-auto">
                 <table class="min-w-full text-sm">
-                    <thead class="bg-slate-50 text-slate-500 font-bold text-xs uppercase tracking-wider">
+                    <thead class="bg-[var(--surface-bg)] text-[var(--text-muted)] font-bold text-xs uppercase tracking-wider">
                         <tr>
                             <th class="px-4 py-3 text-left">Aluno</th>
                             <th class="px-4 py-3 text-left">Turma</th>
@@ -63,28 +64,28 @@
                             <th class="px-4 py-3 text-right">Ação</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
+                    <tbody class="divide-y divide-[var(--border-color)]">
                         @forelse($defaulters as $enrollment)
-                            <tr class="hover:bg-slate-50/80 transition">
-                                <td class="px-4 py-3.5 font-bold text-slate-900">
+                            <tr class="hover:bg-[var(--surface-bg)] transition">
+                                <td class="px-4 py-3.5 font-bold text-[var(--text-primary)]">
                                     {{ $enrollment->student->first_name }} {{ $enrollment->student->last_name }}
-                                    <span class="block text-[11px] font-medium text-slate-400">{{ $enrollment->student->student_number }}</span>
+                                    <span class="block text-[11px] font-medium text-[var(--text-muted)]">{{ $enrollment->student->student_number }}</span>
                                 </td>
-                                <td class="px-4 py-3.5 text-slate-600 font-medium">{{ $enrollment->class->name ?? 'N/A' }}</td>
-                                <td class="px-4 py-3.5 text-slate-700 font-semibold">{{ $enrollment->student->parent->first_name ?? 'N/A' }}</td>
-                                <td class="px-4 py-3.5 text-slate-600 font-bold">{{ $enrollment->student->parent->phone ?? 'N/A' }}</td>
+                                <td class="px-4 py-3.5 text-[var(--text-secondary)] font-medium">{{ $enrollment->class->name ?? 'N/A' }}</td>
+                                <td class="px-4 py-3.5 text-[var(--text-secondary)] font-semibold">{{ $enrollment->student->parent->first_name ?? 'N/A' }}</td>
+                                <td class="px-4 py-3.5 text-[var(--text-secondary)] font-bold">{{ $enrollment->student->parent->phone ?? 'N/A' }}</td>
                                 <td class="px-4 py-3.5 font-black text-rose-600">
                                     {{ number_format($enrollment->monthly_fee, 2, ',', '.') }} MT
                                 </td>
                                 <td class="px-4 py-3.5 text-right">
-                                    <a href="{{ route('students.show', $enrollment->student_id) }}" class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-slate-100 text-slate-700 hover:bg-emerald-100 hover:text-emerald-800 transition">
+                                    <a href="{{ route('students.show', $enrollment->student_id) }}" class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-[var(--surface-bg)] text-[var(--text-secondary)] hover:bg-[var(--primary-soft)] hover:text-[var(--primary)] transition border border-[var(--border-color)]">
                                         <i class="fas fa-eye text-xs"></i>
                                     </a>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-4 py-8 text-center text-slate-400">
+                                <td colspan="6" class="px-4 py-8 text-center text-[var(--text-muted)]">
                                     <i class="fas fa-circle-check text-emerald-500 text-3xl mb-2 block"></i>
                                     Parabéns! Não existem alunos inadimplentes neste período.
                                 </td>

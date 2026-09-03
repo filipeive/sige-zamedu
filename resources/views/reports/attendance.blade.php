@@ -12,22 +12,21 @@
 
 @section('page-actions')
     <div class="flex items-center gap-2">
-        <button type="button" onclick="window.print()" class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 shadow-sm hover:bg-slate-50 transition">
-            <i class="fas fa-print"></i>
-            Imprimir
+        <button type="button" onclick="window.print()" class="inline-flex items-center gap-2 rounded-full border border-[var(--border-color)] bg-[var(--card-bg)] px-4 py-2 text-xs font-bold text-[var(--text-primary)] shadow-xs hover:bg-[var(--surface-bg)] transition">
+            <i class="fas fa-print"></i> Imprimir
         </button>
     </div>
 @endsection
 
 @section('content')
-    <div class="space-y-6 bg-[#F4F6FA] -m-4 p-6 rounded-3xl min-h-screen">
+    <div class="space-y-6 bg-[var(--content-bg)] -m-4 p-6 rounded-3xl min-h-screen">
 
         <!-- Filter Card MOPHY Style -->
-        <div class="rounded-3xl bg-white p-6 shadow-[0_10px_30px_rgba(0,0,0,0.03)] border-0">
+        <div class="rounded-3xl bg-[var(--card-bg)] p-6 shadow-xs border border-[var(--border-color)]">
             <form action="{{ route('reports.academic.attendance') }}" method="GET" class="grid gap-4 md:grid-cols-4 items-end">
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Turma</label>
-                    <select name="class_id" class="w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-4 py-2.5 text-xs font-bold text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1.5">Turma</label>
+                    <select name="class_id" class="w-full rounded-2xl border border-[var(--border-color)] bg-[var(--surface-bg)] px-4 py-2.5 text-xs font-bold text-[var(--text-primary)] focus:bg-[var(--card-bg)] focus:outline-none">
                         <option value="">Todas as Turmas</option>
                         @foreach($classes as $class)
                             <option value="{{ $class->id }}" {{ request('class_id') == $class->id ? 'selected' : '' }}>
@@ -38,17 +37,18 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Data De</label>
-                    <input type="date" name="date_from" value="{{ request('date_from') }}" class="w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-4 py-2 text-xs font-bold text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1.5">Data De</label>
+                    <input type="date" name="date_from" value="{{ request('date_from') }}" class="w-full rounded-2xl border border-[var(--border-color)] bg-[var(--surface-bg)] px-4 py-2 text-xs font-bold text-[var(--text-primary)] focus:bg-[var(--card-bg)] focus:outline-none">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Data Até</label>
-                    <input type="date" name="date_to" value="{{ request('date_to') }}" class="w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-4 py-2 text-xs font-bold text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1.5">Data Até</label>
+                    <input type="date" name="date_to" value="{{ request('date_to') }}" class="w-full rounded-2xl border border-[var(--border-color)] bg-[var(--surface-bg)] px-4 py-2 text-xs font-bold text-[var(--text-primary)] focus:bg-[var(--card-bg)] focus:outline-none">
                 </div>
 
                 <div>
-                    <button type="submit" class="w-full rounded-2xl bg-emerald-700 py-2.5 text-xs font-extrabold text-white shadow-md hover:bg-emerald-800 transition">
+                    <button type="submit" class="w-full rounded-2xl py-2.5 text-xs font-extrabold text-white shadow-md transition"
+                            style="background: var(--primary);">
                         <i class="fas fa-filter me-1"></i> Filtrar Registos
                     </button>
                 </div>
@@ -56,22 +56,23 @@
         </div>
 
         <!-- Table Card MOPHY Style -->
-        <div class="rounded-3xl bg-white p-6 shadow-[0_10px_30px_rgba(0,0,0,0.03)] border-0">
-            <div class="flex items-center justify-between mb-4 pb-4 border-b border-slate-100">
+        <div class="rounded-3xl bg-[var(--card-bg)] p-6 shadow-xs border border-[var(--border-color)]">
+            <div class="flex items-center justify-between mb-4 pb-4 border-b border-[var(--border-color)]">
                 <div class="flex items-center gap-3">
-                    <div class="rounded-2xl bg-teal-100/70 p-3 text-teal-600 text-lg">
+                    <div class="w-10 h-10 rounded-2xl flex items-center justify-center text-lg shrink-0 shadow-xs"
+                         style="background: var(--secondary-soft); color: var(--secondary);">
                         <i class="fas fa-calendar-check"></i>
                     </div>
                     <div>
-                        <h3 class="text-base font-extrabold text-slate-800 font-heading">Histórico de Assiduidade</h3>
-                        <p class="text-xs text-slate-400">Registos diários de presença e faltas</p>
+                        <h3 class="text-base font-extrabold text-[var(--text-primary)] font-heading">Histórico de Assiduidade</h3>
+                        <p class="text-xs text-[var(--text-muted)]">Registos diários de presença e faltas</p>
                     </div>
                 </div>
             </div>
 
             <div class="overflow-x-auto">
                 <table class="min-w-full text-sm">
-                    <thead class="bg-slate-50 text-slate-500 font-bold text-xs uppercase tracking-wider">
+                    <thead class="bg-[var(--surface-bg)] text-[var(--text-muted)] font-bold text-xs uppercase tracking-wider">
                         <tr>
                             <th class="px-4 py-3 text-left">Aluno</th>
                             <th class="px-4 py-3 text-left">Turma</th>
@@ -80,15 +81,15 @@
                             <th class="px-4 py-3 text-left">Observação</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
+                    <tbody class="divide-y divide-[var(--border-color)]">
                         @forelse($attendances as $attendance)
-                            <tr class="hover:bg-slate-50/80 transition">
-                                <td class="px-4 py-3.5 font-bold text-slate-900">
+                            <tr class="hover:bg-[var(--surface-bg)] transition">
+                                <td class="px-4 py-3.5 font-bold text-[var(--text-primary)]">
                                     {{ $attendance->student ? ($attendance->student->first_name . ' ' . $attendance->student->last_name) : 'N/A' }}
                                 </td>
-                                <td class="px-4 py-3.5 text-slate-600 font-medium">{{ $attendance->class ? $attendance->class->name : 'N/A' }}</td>
-                                <td class="px-4 py-3.5 text-slate-700 font-semibold">
-                                    {{ $attendance->attendance_date ? $attendance->attendance_date->format('d/m/Y') : '-' }}
+                                <td class="px-4 py-3.5 text-[var(--text-secondary)] font-medium">{{ $attendance->class ? $attendance->class->name : 'N/A' }}</td>
+                                <td class="px-4 py-3.5 text-[var(--text-secondary)] font-semibold">
+                                    {{ $attendance->attendance_date ? \Carbon\Carbon::parse($attendance->attendance_date)->format('d/m/Y') : '-' }}
                                 </td>
                                 <td class="px-4 py-3.5">
                                     <span class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-extrabold
@@ -100,11 +101,11 @@
                                         {{ ucfirst($attendance->status) }}
                                     </span>
                                 </td>
-                                <td class="px-4 py-3.5 text-xs text-slate-500">{{ $attendance->notes ?? '-' }}</td>
+                                <td class="px-4 py-3.5 text-xs text-[var(--text-muted)]">{{ $attendance->notes ?? '-' }}</td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-4 py-8 text-center text-slate-400">Nenhum registo de assiduidade encontrado.</td>
+                                <td colspan="5" class="px-4 py-8 text-center text-[var(--text-muted)]">Nenhum registo de assiduidade encontrado.</td>
                             </tr>
                         @endforelse
                     </tbody>

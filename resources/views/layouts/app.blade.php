@@ -1826,9 +1826,24 @@
                         </li>
                         <li class="nav-item">
                             <a href="{{ route('sms.index') }}"
-                                class="nav-link {{ request()->routeIs('sms.*') ? 'active' : '' }}">
+                                class="nav-link {{ request()->routeIs('sms.index') && ! request()->routeIs('sms.inbox.*') ? 'active' : '' }}">
                                 <span class="nav-icon"><i class="fas fa-comment-sms"></i></span>
                                 <span class="nav-text">Central de SMS</span>
+                            </a>
+                        </li>
+                        @php
+                            $unreadSms = \App\Models\SmsInbox::where('is_read', false)->count();
+                        @endphp
+                        <li class="nav-item">
+                            <a href="{{ route('sms.inbox.index') }}"
+                                class="nav-link {{ request()->routeIs('sms.inbox.*') ? 'active' : '' }}">
+                                <span class="nav-icon"><i class="fas fa-inbox text-emerald-500"></i></span>
+                                <span class="nav-text">SMS Recebidas</span>
+                                @if($unreadSms > 0)
+                                    <span class="ml-auto inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-rose-500 text-white text-[10px] font-extrabold">
+                                        {{ $unreadSms > 99 ? '99+' : $unreadSms }}
+                                    </span>
+                                @endif
                             </a>
                         </li>
                         <li class="nav-item">

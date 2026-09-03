@@ -13,6 +13,7 @@ use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\GradeController;
 use App\Http\Controllers\GateKeeperController;
+use App\Http\Controllers\HttpSmsWebhookController;
 use App\Http\Controllers\LeaveRequestManagementController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ParentPortalController;
@@ -21,6 +22,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SmsController;
+use App\Http\Controllers\SmsInboxController;
 use App\Http\Controllers\SmsLogController;
 use App\Http\Controllers\AiController;
 use App\Http\Controllers\StudentController;
@@ -848,7 +850,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Webhooks (Pagamentos)
+| Webhooks (Pagamentos + httpSMS)
 |--------------------------------------------------------------------------
 */
 
@@ -862,6 +864,9 @@ Route::prefix('webhooks')->name('webhooks.')->group(function () {
 
     // Multicaixa
     Route::post('/multicaixa', [App\Http\Controllers\PaymentController::class, 'webhookMulticaixa'])->name('multicaixa');
+
+    // httpSMS — CloudEvents 1.0 (mensagens recebidas, entregas, falhas, heartbeat)
+    Route::post('/httpsms', [HttpSmsWebhookController::class, 'handle'])->name('httpsms');
 });
 
 /*
@@ -888,6 +893,14 @@ Route::middleware(['auth'])->prefix('sms')->name('sms.')->controller(SmsLogContr
     Route::get('/', 'index')->name('index');
     Route::post('/resend/{log}', 'resend')->name('resend');
     Route::delete('/{log}', 'destroy')->name('destroy');
+});
+
+Route::middleware(['auth'])->prefix('sms/inbox')->name('sms.inbox.')->controller(SmsInboxController::class)->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::get('/{message}', 'show')->name('show');
+    Route::post('/{message}/read', 'markRead')->name('read');
+    Route::post('/{message}/reply', 'reply')->name('reply');
+    Route::post('/mark-all-read', 'markAllRead')->name('mark-all');
 });
 
 Route::middleware(['auth'])->prefix('communications/sms')->name('communications.sms.')->controller(SmsController::class)->group(function () {

@@ -93,6 +93,15 @@
                 {{ $activeTab === 'logs' ? 'border-emerald-600 text-emerald-700' : 'border-transparent text-slate-500 hover:text-slate-800' }}">
             <i class="fas fa-clock-rotate-left"></i> Histórico de Envios
         </a>
+        <a href="{{ route('sms.inbox.index') }}"
+            class="px-4 py-2.5 text-xs font-bold border-b-2 transition flex items-center gap-2 whitespace-nowrap no-underline border-transparent text-slate-500 hover:text-slate-800">
+            <i class="fas fa-inbox"></i> Mensagens Recebidas
+            @if(($unreadInbox ?? 0) > 0)
+                <span class="ml-1 inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-rose-500 text-white text-[10px] font-extrabold">
+                    {{ $unreadInbox }}
+                </span>
+            @endif
+        </a>
         <a href="{{ route('sms.index', ['tab' => 'send']) }}"
             class="px-4 py-2.5 text-xs font-bold border-b-2 transition flex items-center gap-2 whitespace-nowrap no-underline
                 {{ $activeTab === 'send' ? 'border-emerald-600 text-emerald-700' : 'border-transparent text-slate-500 hover:text-slate-800' }}">

@@ -21,14 +21,17 @@ class ReportController extends Controller
      */
     public function index()
     {
+        $monthlyRevenue = Payment::whereMonth('payment_date', now()->month)
+            ->whereYear('payment_date', now()->year)
+            ->where('status', 'paid')
+            ->sum('amount');
+
         $stats = [
             'total_students' => Student::active()->count(),
             'total_teachers' => Teacher::active()->count(),
             'total_classes' => ClassRoom::active()->count(),
-            'monthly_revenue' => Payment::whereMonth('payment_date', now()->month)
-                ->whereYear('payment_date', now()->year)
-                ->where('status', 'paid')
-                ->sum('amount'),
+            'monthly_revenue' => $monthlyRevenue,
+            'revenue_this_month' => $monthlyRevenue,
         ];
 
         // Demografia dos Estudantes
@@ -38,20 +41,26 @@ class ReportController extends Controller
         ];
 
         // Distribuição por Nível de Ensino (Turmas)
-        $gradeDistribution = ClassRoom::active()
+        $rawGradeDist = ClassRoom::active()
             ->select('grade_level', DB::raw('count(*) as total'))
             ->groupBy('grade_level')
             ->orderBy('grade_level')
             ->pluck('total', 'grade_level')
             ->toArray();
 
+        $gradeDistribution = [];
+        foreach ($rawGradeDist as $level => $count) {
+            $label = is_numeric($level) ? "{$level}ª Classe" : (str_contains(strtolower($level), 'classe') ? $level : "{$level} Classe");
+            $gradeDistribution[$label] = $count;
+        }
+
         // Evolução Mensal da Receita (Últimos 6 Meses)
         $monthlyRevenueTrend = [];
         $monthsLabels = [];
         for ($i = 5; $i >= 0; $i--) {
             $date = now()->subMonths($i);
-            $monthsLabels[] = $date->format('M/Y');
-            $monthlyRevenueTrend[] = Payment::whereMonth('payment_date', $date->month)
+            $monthsLabels[] = ucfirst($date->translatedFormat('M/Y'));
+            $monthlyRevenueTrend[] = (float) Payment::whereMonth('payment_date', $date->month)
                 ->whereYear('payment_date', $date->year)
                 ->where('status', 'paid')
                 ->sum('amount');
@@ -62,6 +71,7 @@ class ReportController extends Controller
             'present' => Attendance::where('status', 'present')->count(),
             'absent' => Attendance::where('status', 'absent')->count(),
             'late' => Attendance::where('status', 'late')->count(),
+            'excused' => Attendance::where('status', 'excused')->count(),
         ];
 
         return view('reports.index', compact(
@@ -77,9 +87,6 @@ class ReportController extends Controller
     /**
      * Academic reports overview.
      */
-    /**
-     * Academic reports overview.
-     */
     public function academic()
     {
         $classes = ClassRoom::with(['teacher'])
@@ -90,15 +97,18 @@ class ReportController extends Controller
             ])
             ->get()
             ->map(function ($class) {
-                $avg = Grade::where('class_id', $class->id)->avg('grade');
+                $avg = Grade::where('class_id', $class->id)->avg('final_grade');
+                if (!$avg) {
+                    $avg = Grade::where('class_id', $class->id)->avg('acs');
+                }
                 $class->average_grade = round($avg ?? 14.0, 1);
                 return $class;
             });
 
         $academicSummary = [
             'what_happened' => 'Registados ' . Student::active()->count() . ' alunos inscritos em ' . $classes->count() . ' turmas ativas.',
-            'trend' => 'A média geral académica da instituição situa-se em ' . round(Grade::avg('grade') ?? 14.5, 1) . ' / 20 valores.',
-            'attention' => '87.5% de taxa de aprovação estimada. Recomenda-se acompanhamento contínuo aos alunos com média inferior a 10 valores.',
+            'trend' => 'A média geral académica da instituição situa-se em ' . round(Grade::avg('final_grade') ?? 14.5, 1) . ' / 20 valores.',
+            'attention' => 'Acompanhamento recomendado a turmas e alunos com média inferior ao limiar mínimo oficial (10 valores).',
         ];
 
         return view('reports.academic', compact('classes', 'academicSummary'));
@@ -235,7 +245,7 @@ class ReportController extends Controller
      */
     public function exportStudents()
     {
-        $fileName = 'ZamEdu_Alunos_' . date('Ymd_His') . '.csv';
+        $fileName = 'ZAMEDU_Alunos_' . date('Ymd_His') . '.csv';
 
         $headers = [
             'Content-Type' => 'text/csv; charset=UTF-8',
@@ -247,7 +257,6 @@ class ReportController extends Controller
 
         $callback = function () {
             $file = fopen('php://output', 'w');
-            // BOM for UTF-8 Excel compatibility
             fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
             fputcsv($file, ['Numero_Matricula', 'Nome_Completo', 'Genero', 'Data_Nascimento', 'Endereco', 'Contacto_Emergencia', 'Estado']);
 
@@ -276,7 +285,7 @@ class ReportController extends Controller
      */
     public function exportPayments()
     {
-        $fileName = 'ZamEdu_Pagamentos_' . date('Ymd_His') . '.csv';
+        $fileName = 'ZAMEDU_Pagamentos_' . date('Ymd_His') . '.csv';
 
         $headers = [
             'Content-Type' => 'text/csv; charset=UTF-8',
@@ -294,16 +303,16 @@ class ReportController extends Controller
             Payment::with('student')->chunk(100, function ($payments) use ($file) {
                 foreach ($payments as $payment) {
                     fputcsv($file, [
-                        $payment->reference_number,
+                        $payment->reference_number ?? $payment->payment_reference ?? 'N/A',
                         $payment->student ? ($payment->student->first_name . ' ' . $payment->student->last_name) : 'N/A',
-                        ucfirst($payment->type),
+                        ucfirst($payment->fee_type ?? $payment->type ?? 'Mensalidade'),
                         number_format($payment->amount, 2, '.', ''),
-                        number_format($payment->penalty ?? 0, 2, '.', ''),
-                        $payment->month,
-                        $payment->year,
-                        $payment->due_date ? $payment->due_date->format('d/m/Y') : 'N/A',
-                        $payment->payment_date ? $payment->payment_date->format('d/m/Y') : 'N/A',
-                        strtoupper($payment->payment_method ?? 'N/A'),
+                        number_format($payment->penalty_amount ?? $payment->penalty ?? 0, 2, '.', ''),
+                        $payment->month ?? date('m'),
+                        $payment->year ?? date('Y'),
+                        $payment->due_date ? Carbon::parse($payment->due_date)->format('d/m/Y') : 'N/A',
+                        $payment->payment_date ? Carbon::parse($payment->payment_date)->format('d/m/Y') : 'N/A',
+                        strtoupper($payment->payment_method ?? 'M-Pesa'),
                         strtoupper($payment->status),
                     ]);
                 }
@@ -320,7 +329,7 @@ class ReportController extends Controller
      */
     public function exportGrades()
     {
-        $fileName = 'ZamEdu_Pauta_Notas_' . date('Ymd_His') . '.csv';
+        $fileName = 'ZAMEDU_Pauta_Notas_' . date('Ymd_His') . '.csv';
 
         $headers = [
             'Content-Type' => 'text/csv; charset=UTF-8',
@@ -333,7 +342,7 @@ class ReportController extends Controller
         $callback = function () {
             $file = fopen('php://output', 'w');
             fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
-            fputcsv($file, ['Aluno', 'Turma', 'Disciplina', 'Tipo_Avaliacao', 'Nota', 'Trimestre', 'Ano', 'Professor']);
+            fputcsv($file, ['Aluno', 'Turma', 'Disciplina', 'MACS', 'ACP', 'ACF', 'Media_Final', 'Trimestre']);
 
             Grade::with(['student', 'class', 'subject', 'teacher'])->chunk(100, function ($grades) use ($file) {
                 foreach ($grades as $grade) {
@@ -341,11 +350,11 @@ class ReportController extends Controller
                         $grade->student ? ($grade->student->first_name . ' ' . $grade->student->last_name) : 'N/A',
                         $grade->class ? $grade->class->name : 'N/A',
                         $grade->subject ? $grade->subject->name : 'N/A',
-                        strtoupper($grade->assessment_type),
-                        number_format($grade->grade, 1, '.', ''),
-                        $grade->term,
-                        $grade->year,
-                        $grade->teacher ? ($grade->teacher->first_name . ' ' . $grade->teacher->last_name) : 'N/A',
+                        $grade->acs ?? 'N/A',
+                        $grade->acp ?? 'N/A',
+                        $grade->acf ?? 'N/A',
+                        $grade->final_grade ?? $grade->grade ?? 'N/A',
+                        $grade->trimester ?? $grade->term ?? '1',
                     ]);
                 }
             });
@@ -354,65 +363,5 @@ class ReportController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
-    }
-
-    /**
-     * API for monthly revenue chart.
-     */
-    public function monthlyRevenueChart()
-    {
-        $data = Payment::select(
-            DB::raw('SUM(amount) as total'),
-            DB::raw("DATE_FORMAT(payment_date, '%M') as month_name"),
-            DB::raw("DATE_FORMAT(payment_date, '%Y-%m') as month")
-        )
-            ->where('status', 'paid')
-            ->where('payment_date', '>=', now()->subMonths(6))
-            ->groupBy(DB::raw("DATE_FORMAT(payment_date, '%Y-%m')"), DB::raw("DATE_FORMAT(payment_date, '%M')"))
-            ->orderBy('month', 'asc')
-            ->get();
-
-        return response()->json($data);
-    }
-
-    /**
-     * API for weekly attendance chart.
-     */
-    public function weeklyAttendanceChart()
-    {
-        $data = Attendance::select(
-            DB::raw('COUNT(*) as total'),
-            DB::raw('status'),
-            DB::raw("DATE_FORMAT(date, '%W') as day_name"),
-            DB::raw("DATE_FORMAT(date, '%Y-%m-%d') as day")
-        )
-            ->where('date', '>=', now()->startOfWeek())
-            ->where('date', '<=', now()->endOfWeek())
-            ->groupBy('status', DB::raw("DATE_FORMAT(date, '%Y-%m-%d')"), DB::raw("DATE_FORMAT(date, '%W')"))
-            ->orderBy('day', 'asc')
-            ->get();
-
-        return response()->json($data);
-    }
-
-    /**
-     * API for students by grade chart.
-     */
-    public function studentsByGradeChart()
-    {
-        $data = ClassRoom::withCount([
-            'enrollments as student_count' => function ($query) {
-                $query->where('status', 'active');
-            }
-        ])
-            ->get()
-            ->map(function ($class) {
-                return [
-                    'label' => $class->name,
-                    'value' => $class->student_count
-                ];
-            });
-
-        return response()->json($data);
     }
 }

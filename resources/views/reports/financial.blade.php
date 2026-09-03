@@ -11,10 +11,10 @@
 
 @section('page-actions')
     <div class="d-flex gap-2">
-        <a href="{{ route('reports.export.payments') }}" class="btn btn-secondary-school">
-            <i class="fas fa-file-excel me-1"></i> Exportar CSV / Excel
+        <a href="{{ route('reports.export.payments') }}" class="btn text-white font-bold rounded-xl shadow-xs" style="background: var(--primary);">
+            <i class="fas fa-file-excel me-1"></i> Exportar CSV
         </a>
-        <button type="button" onclick="window.print()" class="btn btn-outline-secondary">
+        <button type="button" onclick="window.print()" class="btn btn-outline-secondary rounded-xl">
             <i class="fas fa-print me-1"></i> Imprimir
         </button>
     </div>
@@ -27,7 +27,7 @@
         <!-- Stat KPI Cards -->
         <div class="row g-3 mb-4">
             <div class="col-md-3">
-                <div class="card border-0 shadow-sm bg-white p-3 border-start border-4 border-success">
+                <div class="card border-0 shadow-sm bg-[var(--card-bg)] p-3 border-start border-4 border-success rounded-xl">
                     <div class="d-flex align-items-center">
                         <div class="flex-shrink-0 bg-success-subtle text-success rounded-circle p-3 me-3">
                             <i class="fas fa-arrow-trend-up fa-lg"></i>
@@ -40,7 +40,7 @@
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card border-0 shadow-sm bg-white p-3 border-start border-4 border-danger">
+                <div class="card border-0 shadow-sm bg-[var(--card-bg)] p-3 border-start border-4 border-danger rounded-xl">
                     <div class="d-flex align-items-center">
                         <div class="flex-shrink-0 bg-danger-subtle text-danger rounded-circle p-3 me-3">
                             <i class="fas fa-arrow-trend-down fa-lg"></i>
@@ -53,20 +53,22 @@
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card border-0 shadow-sm bg-white p-3 border-start border-4 {{ $netResult >= 0 ? 'border-primary' : 'border-danger' }}">
+                <div class="card border-0 shadow-sm bg-[var(--card-bg)] p-3 border-start border-4 rounded-xl {{ $netResult >= 0 ? 'border-primary' : 'border-danger' }}">
                     <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0 {{ $netResult >= 0 ? 'bg-primary-subtle text-primary' : 'bg-danger-subtle text-danger' }} rounded-circle p-3 me-3">
+                        <div class="flex-shrink-0 rounded-circle p-3 me-3" style="background: var(--primary-soft); color: var(--primary);">
                             <i class="fas fa-scale-balanced fa-lg"></i>
                         </div>
                         <div>
                             <div class="text-muted small text-uppercase font-weight-bold">Resultado Líquido</div>
-                            <h4 class="mb-0 {{ $netResult >= 0 ? 'text-primary' : 'text-danger' }} font-weight-bold">{{ number_format($netResult, 2, ',', '.') }} <small class="text-xs text-muted">MT</small></h4>
+                            <h4 class="mb-0 font-weight-bold" style="color: {{ $netResult >= 0 ? 'var(--primary)' : 'var(--danger)' }};">
+                                {{ number_format($netResult, 2, ',', '.') }} <small class="text-xs text-muted">MT</small>
+                            </h4>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card border-0 shadow-sm bg-white p-3 border-start border-4 border-warning">
+                <div class="card border-0 shadow-sm bg-[var(--card-bg)] p-3 border-start border-4 border-warning rounded-xl">
                     <div class="d-flex align-items-center">
                         <div class="flex-shrink-0 bg-warning-subtle text-warning rounded-circle p-3 me-3">
                             <i class="fas fa-exclamation-triangle fa-lg"></i>
@@ -83,39 +85,33 @@
         <!-- Executive Summary Cards -->
         <div class="row g-3 mb-4">
             <div class="col-md-4">
-                <div class="card border-0 shadow-sm h-100 bg-success-subtle border-start border-4 border-success">
-                    <div class="card-body p-3">
-                        <div class="d-flex align-items-center gap-2 text-success font-weight-bold mb-2">
-                            <i class="fas fa-chart-line"></i> O que aconteceu?
-                        </div>
-                        <p class="text-xs text-dark mb-0 leading-relaxed">
-                            {{ $financialSummary['what_happened'] }}
-                        </p>
+                <div class="card border-0 shadow-sm h-100 p-3 rounded-2xl border-start border-4 border-success" style="background: var(--primary-soft);">
+                    <div class="d-flex align-items-center gap-2 font-weight-bold mb-2" style="color: var(--primary);">
+                        <i class="fas fa-chart-line"></i> O que aconteceu?
                     </div>
+                    <p class="text-xs text-[var(--text-primary)] mb-0 leading-relaxed font-medium">
+                        {{ $financialSummary['what_happened'] }}
+                    </p>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card border-0 shadow-sm h-100 bg-info-subtle border-start border-4 border-info">
-                    <div class="card-body p-3">
-                        <div class="d-flex align-items-center gap-2 text-info font-weight-bold mb-2">
-                            <i class="fas fa-arrow-trend-up"></i> Qual a tendência?
-                        </div>
-                        <p class="text-xs text-dark mb-0 leading-relaxed">
-                            {{ $financialSummary['trend'] }}
-                        </p>
+                <div class="card border-0 shadow-sm h-100 p-3 rounded-2xl border-start border-4 border-info" style="background: var(--secondary-soft);">
+                    <div class="d-flex align-items-center gap-2 font-weight-bold mb-2" style="color: var(--secondary);">
+                        <i class="fas fa-arrow-trend-up"></i> Qual a tendência?
                     </div>
+                    <p class="text-xs text-[var(--text-primary)] mb-0 leading-relaxed font-medium">
+                        {{ $financialSummary['trend'] }}
+                    </p>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card border-0 shadow-sm h-100 bg-warning-subtle border-start border-4 border-warning">
-                    <div class="card-body p-3">
-                        <div class="d-flex align-items-center gap-2 text-warning font-weight-bold mb-2">
-                            <i class="fas fa-triangle-exclamation"></i> O que precisa de atenção?
-                        </div>
-                        <p class="text-xs text-dark mb-0 leading-relaxed">
-                            {{ $financialSummary['attention'] }}
-                        </p>
+                <div class="card border-0 shadow-sm h-100 p-3 rounded-2xl border-start border-4 border-warning" style="background: var(--accent-light);">
+                    <div class="d-flex align-items-center gap-2 font-weight-bold mb-2" style="color: var(--accent);">
+                        <i class="fas fa-triangle-exclamation"></i> Recomendações
                     </div>
+                    <p class="text-xs text-[var(--text-primary)] mb-0 leading-relaxed font-medium">
+                        {{ $financialSummary['attention'] }}
+                    </p>
                 </div>
             </div>
         </div>
@@ -126,10 +122,10 @@
                 <div class="school-table-container">
                     <div class="school-table-header">
                         <h3 class="school-table-title">
-                            <i class="fas fa-history text-primary me-2"></i>
+                            <i class="fas fa-history me-2" style="color: var(--primary);"></i>
                             Últimos Pagamentos Efetuados
                         </h3>
-                        <a href="{{ route('payments.index') }}" class="btn btn-sm btn-outline-primary">
+                        <a href="{{ route('payments.index') }}" class="btn btn-sm btn-outline-primary rounded-xl">
                             Ver Todos os Pagamentos
                         </a>
                     </div>
@@ -149,16 +145,16 @@
                                 @forelse($recentPayments as $payment)
                                     <tr>
                                         <td>
-                                            <div class="fw-bold text-slate-800">
+                                            <div class="fw-bold text-[var(--text-primary)]">
                                                 {{ $payment->student->first_name }} {{ $payment->student->last_name }}
                                             </div>
                                             <small class="text-muted"><code>{{ $payment->student->student_number }}</code></small>
                                         </td>
                                         <td>
-                                            {{ $payment->payment_date ? $payment->payment_date->format('d/m/Y') : '-' }}
+                                            {{ $payment->payment_date ? \Carbon\Carbon::parse($payment->payment_date)->format('d/m/Y') : '-' }}
                                         </td>
                                         <td>
-                                            <strong class="text-success">{{ number_format($payment->amount, 2, ',', '.') }} MT</strong>
+                                            <strong style="color: var(--success);">{{ number_format($payment->amount, 2, ',', '.') }} MT</strong>
                                         </td>
                                         <td>
                                             <span class="badge bg-light text-dark border">
@@ -201,10 +197,10 @@
                         <ul class="list-group list-group-flush">
                             @foreach($monthlyRevenue as $revenue)
                                 <li class="list-group-item d-flex justify-content-between align-items-center p-3">
-                                    <span class="fw-semibold text-slate-700">
-                                        {{ Carbon\Carbon::parse($revenue->month . '-01')->format('F Y') }}
+                                    <span class="fw-semibold text-[var(--text-primary)]">
+                                        {{ \Carbon\Carbon::parse($revenue->month . '-01')->format('F Y') }}
                                     </span>
-                                    <span class="fw-bold text-success">
+                                    <span class="fw-bold" style="color: var(--success);">
                                         {{ number_format($revenue->total, 2, ',', '.') }} MT
                                     </span>
                                 </li>
@@ -222,8 +218,8 @@
                         <ul class="list-group list-group-flush">
                             @forelse($monthlyExpenses as $expense)
                                 <li class="list-group-item d-flex justify-content-between align-items-center p-3">
-                                    <span class="fw-semibold text-slate-700">
-                                        {{ Carbon\Carbon::parse($expense->month . '-01')->format('F Y') }}
+                                    <span class="fw-semibold text-[var(--text-primary)]">
+                                        {{ \Carbon\Carbon::parse($expense->month . '-01')->format('F Y') }}
                                     </span>
                                     <span class="fw-bold text-danger">
                                         {{ number_format($expense->total, 2, ',', '.') }} MT
@@ -237,7 +233,7 @@
                 </div>
 
                 <!-- Alerta de Inadimplência -->
-                <div class="card border-0 shadow-sm bg-warning-subtle border-start border-4 border-warning">
+                <div class="card border-0 shadow-sm bg-warning-subtle border-start border-4 border-warning rounded-2xl">
                     <div class="card-body p-4">
                         <h6 class="fw-bold text-warning-emphasis mb-2">
                             <i class="fas fa-exclamation-triangle me-1"></i> Inadimplência
@@ -246,7 +242,7 @@
                             Existem <strong>{{ $overdueCount }}</strong> mensalidades pendentes no valor total de
                             <strong>{{ number_format($overdueTotal, 2, ',', '.') }} MT</strong>.
                         </p>
-                        <a href="{{ route('reports.financial.defaulters') }}" class="btn btn-warning btn-sm w-100 fw-bold">
+                        <a href="{{ route('reports.financial.defaulters') }}" class="btn btn-warning btn-sm w-100 fw-bold rounded-xl">
                             <i class="fas fa-users-slash me-1"></i> Alunos Devedores
                         </a>
                     </div>
