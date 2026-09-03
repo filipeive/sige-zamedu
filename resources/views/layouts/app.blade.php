@@ -2037,10 +2037,10 @@
                     @endif
                 </button>
 
-                <ul class="dropdown-menu dropdown-menu-end shadow-lg" style="width: 350px;">
-                    <li class="dropdown-header d-flex justify-content-between align-items-center p-3">
-                        <strong>Notificações</strong>
-                        <a href="#" class="text-decoration-none text-primary small"
+                <ul class="dropdown-menu dropdown-menu-end shadow-lg" style="width: 360px; max-width: 92vw; border-radius: 16px; overflow: hidden;">
+                    <li class="dropdown-header d-flex justify-content-between align-items-center p-3" style="background: var(--surface-bg); border-bottom: 1px solid var(--border-color);">
+                        <strong style="color: var(--text-primary);">Notificações</strong>
+                        <a href="#" class="text-decoration-none small font-semibold" style="color: var(--primary);"
                             onclick="markAllAsRead(event)">
                             Marcar todas como lidas
                         </a>
@@ -2051,40 +2051,42 @@
 
                     @forelse(auth()->user()->notifications->take(5) as $notification)
                         <li>
-                            <a class="dropdown-item d-flex align-items-start py-3 {{ $notification->read_at ? '' : 'bg-light' }}"
+                            <a class="dropdown-item d-flex align-items-start py-3 px-3 {{ $notification->read_at ? '' : 'bg-light' }}"
                                 href="{{ $notification->data['action_url'] ?? '#' }}"
-                                onclick="markAsRead('{{ $notification->id }}', event)">
-                                <div class="flex-shrink-0 me-3">
-                                    <i
-                                        class="{{ $notification->data['icon'] ?? 'fas fa-bell' }} text-{{ $notification->data['type'] ?? 'info' }}"></i>
+                                onclick="markAsRead('{{ $notification->id }}', event)"
+                                style="border-bottom: 1px solid var(--border-color-soft, #f1f5f9); white-space: normal;">
+                                <div class="flex-shrink-0 me-3 mt-1">
+                                    <i class="{{ $notification->data['icon'] ?? 'fas fa-bell' }} text-{{ $notification->data['type'] ?? 'info' }} fs-5"></i>
                                 </div>
-                                <div class="flex-grow-1">
-                                    <div class="fw-semibold mb-1">{{ $notification->data['title'] ?? 'Notificação' }}
+                                <div class="flex-grow-1 min-w-0" style="min-width: 0; word-break: break-word; overflow-wrap: anywhere;">
+                                    <div class="fw-bold mb-1 text-wrap" style="color: var(--text-primary); font-size: 12px; line-height: 1.35; word-break: break-word; overflow-wrap: anywhere;">
+                                        {{ $notification->data['title'] ?? 'Notificação' }}
                                     </div>
-                                    <div class="text-muted small mb-1">
-                                        {{ $notification->data['message'] ?? 'Nova notificação' }}</div>
-                                    <small class="text-muted">{{ $notification->created_at->diffForHumans() }}</small>
+                                    <div class="text-muted small mb-1 text-wrap" style="font-size: 11px; line-height: 1.4; word-break: break-word; overflow-wrap: anywhere;">
+                                        {{ $notification->data['message'] ?? 'Nova notificação' }}
+                                    </div>
+                                    <small class="text-muted opacity-75 d-block" style="font-size: 10px;">{{ $notification->created_at->diffForHumans() }}</small>
                                 </div>
                                 @if (!$notification->read_at)
-                                    <div class="flex-shrink-0">
-                                        <span class="badge bg-primary">NOVO</span>
+                                    <div class="flex-shrink-0 ms-2">
+                                        <span class="badge rounded-pill px-2 py-1 text-[9px] font-bold" style="background: var(--primary); color: #fff;">NOVO</span>
                                     </div>
                                 @endif
                             </a>
                         </li>
                     @empty
                         <li class="dropdown-item-text text-center text-muted py-4">
-                            <i class="fas fa-bell-slash fs-3 mb-2 d-block"></i>
-                            Nenhuma notificação
+                            <i class="fas fa-bell-slash fs-3 mb-2 d-block opacity-50"></i>
+                            Nenhuma notificação registrada
                         </li>
                     @endforelse
 
                     <li>
                         <hr class="dropdown-divider m-0">
                     </li>
-                    <li class="text-center p-2">
-                        <a href="{{ route('notifications.index') }}" class="small text-decoration-none">
-                            Ver todas as notificações
+                    <li class="text-center p-2.5" style="background: var(--surface-bg);">
+                        <a href="{{ route('notifications.index') }}" class="small text-decoration-none font-bold" style="color: var(--primary);">
+                            Ver todas as notificações <i class="fas fa-arrow-right text-xs ms-1"></i>
                         </a>
                     </li>
                 </ul>

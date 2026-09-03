@@ -117,6 +117,7 @@ class TeacherController extends Controller
     {
         $teacher->load(['user', 'classes', 'classSubjects.subject', 'leaveRequests']);
         $classes = $teacher->classes()->active()->currentYear()->get();
+        $allClasses = ClassRoom::active()->orderBy('name')->get();
         
         // Estatísticas do professor
         $stats = [
@@ -126,7 +127,7 @@ class TeacherController extends Controller
             'pending_leave_requests' => $teacher->leaveRequests()->pending()->count(),
         ];
 
-        return view('teachers.show', compact('teacher','classes', 'stats'));
+        return view('teachers.show', compact('teacher', 'classes', 'allClasses', 'stats'));
     }
 
     public function edit(Teacher $teacher)
@@ -220,29 +221,27 @@ class TeacherController extends Controller
         ]);
 
         try {
-            $class = ClassRoom::find($request->class_id);
+            $class = ClassRoom::findOrFail($request->class_id);
 
-            // Verificar se a turma já tem um professor principal
-            if ($request->role == 'main' && $class->teacher_id) {
-                return redirect()->back()
-                    ->with('error', 'Esta turma já tem um professor principal atribuído.');
-            }
-
+            // Se for professor principal, atualizar teacher_id na turma
             if ($request->role == 'main') {
                 $class->update(['teacher_id' => $teacher->id]);
             }
 
-            // Registrar na tabela de atribuições (se necessário)
-            TeacherClassAssignment::create([
-                'teacher_id' => $teacher->id,
-                'class_id' => $request->class_id,
-                'role' => $request->role,
-                'assigned_date' => now(),
-                'is_active' => true,
-            ]);
+            // Se a model/tabela TeacherClassAssignment existir, grava o registo
+            if (class_exists(\App\Models\TeacherClassAssignment::class)) {
+                \App\Models\TeacherClassAssignment::updateOrCreate([
+                    'teacher_id' => $teacher->id,
+                    'class_id' => $request->class_id,
+                ], [
+                    'role' => $request->role,
+                    'assigned_date' => now(),
+                    'is_active' => true,
+                ]);
+            }
 
             return redirect()->back()
-                ->with('success', 'Turma atribuída ao professor com sucesso!');
+                ->with('success', 'Turma "' . $class->name . '" atribuída ao professor com sucesso!');
 
         } catch (\Exception $e) {
             return redirect()->back()

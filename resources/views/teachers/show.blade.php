@@ -34,7 +34,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <!-- Main Content (2/3) -->
         <div class="lg:col-span-2 space-y-4">
-            <!-- Personal Info -->
+            <!-- 1. Informações Pessoais -->
             <div class="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
                 <div class="px-4 py-3 border-b border-slate-100">
                     <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2">
@@ -87,12 +87,55 @@
                 </div>
             </div>
 
-            <!-- Classes Table -->
+            <!-- 2. Card de Atribuição de Turma (Posicionado logo por baixo das Informações Pessoais) -->
+            @can('edit_teachers')
+            <div class="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
+                <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+                    <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fas fa-link text-emerald-600"></i> Atribuir Turma ao Docente
+                    </h3>
+                    <span class="text-[10px] font-bold text-slate-400">Turmas Ativas na Escola ({{ count($allClasses) }})</span>
+                </div>
+                <div class="p-4 bg-slate-50/50">
+                    <form action="{{ route('teachers.assign-class', $teacher->id) }}" method="POST" class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+                        @csrf
+                        <div class="sm:col-span-1">
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Turma Escolar</label>
+                            <select name="class_id" required
+                                    class="w-full rounded-xl border border-slate-200 bg-white text-slate-800 py-2 px-3 text-xs font-bold focus:border-emerald-500 focus:ring-emerald-500 shadow-2xs">
+                                <option value="">Selecione uma turma...</option>
+                                @foreach($allClasses as $c)
+                                    <option value="{{ $c->id }}">
+                                        {{ $c->name }} ({{ $c->grade_level_name ?? $c->grade_level }})
+                                        @if($c->teacher_id == $teacher->id) - [Já Atribuída] @endif
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="sm:col-span-1">
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Função na Turma</label>
+                            <select name="role" required
+                                    class="w-full rounded-xl border border-slate-200 bg-white text-slate-800 py-2 px-3 text-xs font-bold focus:border-emerald-500 focus:ring-emerald-500 shadow-2xs">
+                                <option value="main">Professor Principal / Titular</option>
+                                <option value="assistant">Professor Auxiliar</option>
+                            </select>
+                        </div>
+                        <div class="sm:col-span-1">
+                            <button type="submit" class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-xs font-bold text-white shadow-sm transition">
+                                <i class="fas fa-plus-circle"></i> Confirmar Atribuição
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            @endcan
+
+            <!-- 3. Turmas Atribuídas -->
             @if($teacher->classes->count() > 0)
             <div class="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
                 <div class="px-4 py-3 border-b border-slate-100">
                     <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                        <i class="fas fa-chalkboard text-emerald-600"></i> Turmas Atribuídas
+                        <i class="fas fa-chalkboard text-emerald-600"></i> Turmas Atribuídas ({{ $teacher->classes->count() }})
                     </h3>
                 </div>
                 <div class="overflow-x-auto">
@@ -102,7 +145,7 @@
                                 <th class="py-2.5 px-4">Turma</th>
                                 <th class="py-2.5 px-3">Ano Letivo</th>
                                 <th class="py-2.5 px-3">Nível</th>
-                                <th class="py-2.5 px-3">Capacidade</th>
+                                <th class="py-2.5 px-3">Lotação Alunos</th>
                                 <th class="py-2.5 px-3">Status</th>
                             </tr>
                         </thead>
@@ -110,17 +153,17 @@
                             @foreach($teacher->classes as $class)
                             <tr class="hover:bg-slate-50/80 transition">
                                 <td class="py-2.5 px-4 font-bold text-slate-800">{{ $class->name }}</td>
-                                <td class="py-2.5 px-3 text-slate-600">{{ $class->school_year }}</td>
-                                <td class="py-2.5 px-3 text-slate-600">{{ $class->grade_level_name }}</td>
+                                <td class="py-2.5 px-3 text-slate-600">{{ $class->school_year ?? $class->academic_year }}</td>
+                                <td class="py-2.5 px-3 text-slate-600">{{ $class->grade_level_name ?? $class->grade_level }}</td>
                                 <td class="py-2.5 px-3">
-                                    <span class="text-slate-700 font-semibold">{{ $class->current_students }}/{{ $class->max_students }}</span>
+                                    <span class="text-slate-700 font-semibold">{{ $class->current_students ?? $class->enrollments_count ?? 0 }}/{{ $class->max_students ?? $class->capacity ?? 40 }}</span>
                                     <div class="w-full bg-slate-100 rounded-full h-1 mt-1">
-                                        <div class="h-1 rounded-full {{ $class->capacity_percentage > 80 ? 'bg-rose-500' : ($class->capacity_percentage > 60 ? 'bg-amber-500' : 'bg-emerald-500') }}" style="width: {{ $class->capacity_percentage }}%"></div>
+                                        <div class="h-1 rounded-full bg-emerald-500" style="width: 50%"></div>
                                     </div>
                                 </td>
                                 <td class="py-2.5 px-3">
-                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold {{ $class->is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600' }}">
-                                        {{ $class->is_active ? 'Ativa' : 'Inativa' }}
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                                        Ativa
                                     </span>
                                 </td>
                             </tr>
@@ -213,43 +256,6 @@
                     @endif
                 </div>
             </div>
-
-            <!-- Assign Class Card -->
-            @can('edit_teachers')
-            <div class="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
-                <div class="px-4 py-3 border-b border-slate-100">
-                    <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                        <i class="fas fa-link text-emerald-600"></i> Atribuir Turma
-                    </h3>
-                </div>
-                <div class="p-4">
-                    <form action="{{ route('teachers.assign-class', $teacher->id) }}" method="POST" class="space-y-3">
-                        @csrf
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Turma</label>
-                            <select name="class_id" required
-                                    class="w-full rounded-lg border border-slate-200 bg-white text-slate-800 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
-                                <option value="">Selecione uma turma</option>
-                                @foreach($classes as $class)
-                                    <option value="{{ $class->id }}">{{ $class->name }} - {{ $class->grade_level_name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Função</label>
-                            <select name="role" required
-                                    class="w-full rounded-lg border border-slate-200 bg-white text-slate-800 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
-                                <option value="main">Professor Principal</option>
-                                <option value="assistant">Professor Auxiliar</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-xs font-bold text-white shadow-sm transition">
-                            <i class="fas fa-link"></i> Atribuir Turma
-                        </button>
-                    </form>
-                </div>
-            </div>
-            @endcan
         </div>
     </div>
 </div>
