@@ -14,7 +14,12 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-PT/1.0.0/) e es
 - **Assinaturas Institucionais Sem Duplicação:** Sanitização de assinaturas oficiais (*Director da Escola*, *Chefe da Secretaria*) via `SchoolHelper`.
 - **Portaria Digital Refatorada (`/gatekeeper`):** Interface moderna com scanner QR/Barcode ao vivo, contagem em tempo real de presença na escola e emissão de cartões com Emblema da República.
 - **Central de Comunicações & Gateway SMS (`/communications` & `/sms`):** Envio massivo e individual de SMS, modal de disparo rápido com tags dinâmicas e tabela `sms_logs`.
-- **Assistente IA Integrado (`ZAMEDU AI Assistant`):** Widget de inteligência artificial flutuante para auxílio a administradores e docentes com suporte a `ai_conversations` e `messages`.
+- **Motor SMS Multi-Driver (`SmsManager` + `HttpSmsDriver` + `LogSmsDriver`):** Factory pattern com fallback automático, normalização E.164, canal de notificação `SmsChannel` e service `SmsNotificationService` que regista todos os envios na tabela `sms_logs` (status: `sent`, `delivered`, `failed`, `disabled`).
+- **Integração httpSMS em Produção:** Driver real com header `x-api-key` (não `Authorization: Bearer`), `HTTPSMS_FROM=+258862134230` (Moçambique), endpoint de envio via Android app httpSMS.
+- **Recebimento de SMS via Webhook (CloudEvents 1.0):** Endpoint `POST /webhooks/httpsms` (excluído de CSRF) processa `message.phone.received`, `message.phone.delivered`, `message.phone.sent`, `message.send.failed`, `message.send.expired`, `phone.heartbeat.online/offline`.
+- **Inbox de SMS Recebidas (`/sms/inbox`):** Tabela `sms_inbox` com auto-match por telefone (E.164) com aluno/encarregado, marcação de lidas, resposta inline por SMS, contador de não-lidas no sidebar, página de detalhe com correspondência automática e filtros (pesquisa + estado).
+- **Notificações In-App de Respostas:** Quando um encarregado responde por SMS, todos os utilizadores com permissão `view_students` recebem notificação in-app (`GenericNotification`) com preview do conteúdo e link directo para a mensagem.
+- **Assistente IA Integrado (`ZAMEDU AI Assistant`):** Widget de inteligência artificial flutuante para auxílio a administradores e docentes com suporte a `ai_conversations` e `messages`, drivers OpenRouter (padrão, `google/gemini-2.5-flash`) e Gemini directo.
 - **Suporte Híbrido Escolas Públicas vs Privadas:** Distinção visual e de regras financeiras entre ensino público (isenções) e privado (gestão de mensalidades/multas).
 
 ### Corrigido

@@ -66,13 +66,26 @@ Este documento descreve exaustivamente todos os módulos funcionais da plataform
 
 ## 4. Central de Comunicações & Envio de SMS (`/communications` & `/sms`)
 
-- **Rota**: `/admin/communications`, `/sms` (`NotificationController`, `SmsController`)
+- **Rotas**: `/admin/communications`, `/sms`, `/sms/inbox` (`NotificationController`, `SmsController`, `SmsLogController`, `SmsInboxController`)
 - **Público-alvo**: Secretaria, Administradores.
 - **Funcionalidades**:
   - Criação de comunicados gerais e avisos diretos por turma, encarregado ou aluno.
   - Modal de envio de SMS rápido com suporte a tags (`{student_name}`, `{fee_amount}`, `{due_date}`).
   - Disparo de lembretes automáticos para pagamentos de propinas em atraso, reuniões de pais e eventos.
-  - Tabela de registos de SMS (`sms_logs`) com estado do envio, destinatário, número de telefone e timestamp.
+  - **Motor SMS multi-driver** (`SmsManager`):
+    - `HttpSmsDriver` — integração real via [httpSMS](https://httpsms.com) (Android app que envia SMS pelo SIM real do telemóvel).
+    - `LogSmsDriver` — driver de simulação (modo `SMS_SIMULATE=true`) que regista os envios sem chamar API externa.
+    - `SmsChannel` — canal de notificação que permite enviar SMS via `Notifiable::route('sms', '+258...')`.
+    - `SmsNotificationService` — service único que grava sempre na tabela `sms_logs` (auditoria).
+  - **Tabela `sms_logs`**: estado (`sent`, `delivered`, `failed`, `disabled`, `pending`), `provider_id` (UUID httpSMS), `delivered_at`, `failed_at`, `provider_response` (JSON), `cost`, `context`, `channel` (guardian/event/payment/bulk/system).
+  - **Inbox de mensagens recebidas** (`/sms/inbox`):
+    - Webhook CloudEvents 1.0 (`POST /webhooks/httpsms`) recebe `message.phone.received` e regista em `sms_inbox`.
+    - **Auto-match por telefone (E.164)**: identifica automaticamente o aluno/encarregado que enviou a mensagem.
+    - **Resposta inline** — o staff pode responder directamente por SMS da página da mensagem.
+    - **Notificações in-app** com preview e link directo para a mensagem.
+    - **Badge no sidebar** com contador de mensagens não lidas.
+    - Filtros por estado (`todas`, `não lidas`, `lidas`) e pesquisa por telefone/nome/conteúdo.
+  - **Webhooks de entrega**: `message.phone.delivered` actualiza log para `delivered`; `message.send.failed`/`expired` actualiza para `failed` com motivo.
 
 ---
 
@@ -81,7 +94,12 @@ Este documento descreve exaustivamente todos os módulos funcionais da plataform
 - **Rota**: `/ai` (`AiController`)
 - **Público-alvo**: Administradores, Diretores, Professores.
 - **Funcionalidades**:
-  - Widget flutuante de chat com inteligência artificial acessível em qualquer página do sistema.
+  - **Widget flutuante** de chat com inteligência artificial acessível em qualquer página do sistema (Alpine.js, persistência em `localStorage`).
+  - **Página dedicada** `/ai` com sidebar de histórico de conversas.
+  - **Motor AI multi-driver** (`AiManager`):
+    - `OpenRouterDriver` — provider padrão, configurado com `google/gemini-2.5-flash` (modelo rápido e económico).
+    - `GeminiDriver` — provider alternativo via API directa do Google Gemini.
+    - Fácil extensão: basta implementar `AiDriverInterface` e registar no `AiManager`.
   - Auxílio na elaboração de comunicados, planos de aula, consulta de dados do sistema e estatísticas escolares.
   - Histórico de conversas gravado nas tabelas `ai_conversations` e `messages`.
 

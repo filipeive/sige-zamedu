@@ -93,26 +93,54 @@ Este documento descreve a estrutura relacional de dados, tabelas, migrações e 
 - `acf` (DECIMAL 4,2, Nullable): Avaliação Final.
 - `final_grade` (DECIMAL 4,2, Nullable): Média final calculada.
 
-### 8. `sms_logs` (Registos de SMS)
+### 8. `sms_logs` (Registos de SMS Enviados — Outbound)
 - `id` (BIGINT, PK).
-- `recipient_phone` (VARCHAR): Número do telefone de destino.
-- `message_body` (TEXT): Conteúdo do SMS enviado.
-- `status` (ENUM: `sent`, `failed`, `pending`).
-- `sent_by` (BIGINT, FK -> `users.id`, Nullable).
-- `created_at`, `updated_at` (TIMESTAMP).
+- `user_id` (BIGINT, FK -> `users.id`, Nullable): Utilizador que despoletou o envio.
+- `student_id` (BIGINT, FK -> `students.id`, Nullable): Aluno relacionado.
+- `channel` (VARCHAR): `guardian` | `event` | `payment` | `bulk` | `system` | `inbox-reply`.
+- `context` (VARCHAR): Contexto adicional (ex: `monthly-fee`, `meeting`, `manual`).
+- `recipient_name` (VARCHAR, Nullable).
+- `phone` (VARCHAR): Número E.164 (`+258...`).
+- `message` (TEXT).
+- `status` (VARCHAR): `pending` | `sent` | `delivered` | `failed` | `disabled` (simulação).
+- `provider` (VARCHAR): `httpsms` | `log`.
+- `provider_id` (VARCHAR, Nullable): UUID retornado pelo httpSMS.
+- `provider_response` (JSON, Nullable).
+- `error` (TEXT, Nullable).
+- `cost` (DECIMAL, Nullable).
+- `sent_at`, `delivered_at`, `failed_at` (TIMESTAMP, Nullable).
+- `created_at`, `updated_at`.
 
-### 9. `ai_conversations` & `messages` (Histórico do Assistente IA)
+### 9. `sms_inbox` (SMS Recebidos — Inbound via Webhook httpSMS)
 - `id` (BIGINT, PK).
-- `user_id` (BIGINT, FK -> `users.id`).
-- `title` (VARCHAR): Título da conversa.
-- `content` (TEXT): Mensagem enviada ou resposta gerada pela IA.
+- `provider_message_id` (VARCHAR, UNIQUE, Nullable).
+- `direction` (VARCHAR): `incoming`.
+- `from_phone` (VARCHAR): Número E.164 do remetente.
+- `from_name` (VARCHAR, Nullable): Nome do encarregado (do match).
+- `to_phone` (VARCHAR, Nullable): Nosso número httpSMS.
+- `content` (TEXT).
+- `sim` (VARCHAR, Nullable): `SIM1` / `SIM2`.
+- `student_id` (BIGINT, FK -> `students.id`, Nullable): Match automático por telefone.
+- `parent_id` (BIGINT, FK -> `parents.user_id`, Nullable).
+- `matched_user_id` (BIGINT, FK -> `users.id`, Nullable).
+- `is_read` (BOOLEAN, default `false`).
+- `read_at` (TIMESTAMP, Nullable).
+- `read_by` (BIGINT, FK -> `users.id`, Nullable).
+- `notified` (BOOLEAN, default `false`).
+- `received_at` (TIMESTAMP, Nullable).
+- `raw_payload` (JSON, Nullable).
+- `created_at`, `updated_at`.
 
-### 10. `gate_logs` (Portaria Digital)
+### 10. `ai_conversations` & `messages` (Histórico do Assistente IA)
+- `ai_conversations`: `id`, `user_id` (FK), `title`, `meta`, `created_at`, `updated_at`.
+- `messages`: `id`, `conversation_id` (FK), `role` (`user` | `assistant` | `system`), `content` (TEXT), `meta` (JSON), `tokens`, `created_at`.
+
+### 11. `gate_logs` (Portaria Digital)
 - `id` (BIGINT, PK).
 - `student_id` (BIGINT, FK -> `students.id`, Nullable).
 - `direction` (ENUM: `entry`, `exit`): Sentido do movimento.
 - `scanned_at` (TIMESTAMP): Data e hora exata do registo.
 - `operator_id` (BIGINT, FK -> `users.id`): Operador responsável.
 
-### 11. `settings` (Configurações Institucionais)
+### 12. `settings` (Configurações Institucionais)
 - Configurações do tipo chave-valor (`key`, `value`): `school_name`, `school_type` (`escola_publica`/`escola_privada`), `primary_color`, `official_signature_director`, `official_signature_secretary`.

@@ -1,7 +1,7 @@
 # Relatório da Sprint — ZamEdu
 
 ## Objectivo
-Implementar suporte a turnos escolares, corrigir cálculo de média final de notas, adicionar módulo de gestão de despesas, reforçar segurança (remover exposição pública de dados de pagamento), adicionar widget de calendário nos dashboards, e alinhar interface.
+Implementar suporte a turnos escolares, corrigir cálculo de média final de notas, adicionar módulo de gestão de despesas, reforçar segurança (remover exposição pública de dados de pagamento), adicionar widget de calendário nos dashboards, alinhar interface, **e** integrar gateway SMS real (httpSMS) com envio e recepção (webhook), motor AI multi-provider (OpenRouter + Gemini), assistente IA com widget flutuante e inbox de mensagens recebidas.
 
 ## Tarefas Realizadas
 1. **Shift Support**: Adicionado campo `shift` às turmas com migração, modelo, controlador e views atualizadas.
@@ -101,3 +101,72 @@ Implementar suporte a turnos escolares, corrigir cálculo de média final de not
 - Added "Relatórios" section with financial and academic reports links
 - Added "Licenças" link under Administração (for users with `manage_leave_requests` permission)
 - Updated `@canany` conditions to include `view_financial_reports` and `manage_leave_requests` permissions
+- Added "Central de SMS" link (`/sms`) — gateway de envio
+- Added "SMS Recebidas" link (`/sms/inbox`) com badge de contador de mensagens não lidas
+- Added "Assistente IA" link (`/ai`) — página dedicada com sidebar de histórico
+
+---
+
+## Sprint Atual — Integração SMS Real & Assistente IA
+
+### Tarefas Realizadas
+1. **Motor SMS Multi-Driver** (`SmsManager` + `HttpSmsDriver` + `LogSmsDriver`):
+   - Factory pattern com `SmsDriverInterface` para fácil extensão.
+   - `HttpSmsDriver` integrado com a API real do httpSMS (header `x-api-key`).
+   - `SmsChannel` registado em `AppServiceProvider::boot()` via `Notification::extend('sms', ...)`.
+   - `SmsNotificationService` como ponto único que regista em `sms_logs` (auditoria sempre).
+2. **Integração httpSMS**:
+   - Envio testado em produção com `HTTPSMS_FROM=+258862134230` (Moçambique).
+   - UUIDs reais do provider gravados em `sms_logs.provider_id`.
+3. **Recepção de SMS via Webhook CloudEvents 1.0**:
+   - Endpoint `POST /webhooks/httpsms` (excluído de CSRF).
+   - 7 eventos processados: `received`, `delivered`, `sent`, `failed`, `expired`, `heartbeat online/offline`.
+4. **Inbox de Mensagens Recebidas** (`/sms/inbox`):
+   - Tabela `sms_inbox` com auto-match por telefone (E.164).
+   - Página de lista com stat cards, filtros, badge de unread no sidebar.
+   - Página de detalhe com form de resposta inline.
+   - Notificações in-app (`GenericNotification`) com preview para staff com `view_students`.
+5. **Motor AI Multi-Provider** (`AiManager` + `OpenRouterDriver` + `GeminiDriver`):
+   - Default: OpenRouter com `google/gemini-2.5-flash` (rápido e económico).
+   - Alternativa: Gemini directo via API key.
+6. **Assistente IA** (`/ai`):
+   - Página dedicada com sidebar de conversas.
+   - Widget flutuante (`partials/ai-widget.blade.php`) acessível em qualquer página.
+   - Persistência em `ai_conversations` + `messages`.
+
+### Ficheiros Principais
+- `app/Services/Sms/SmsManager.php`, `HttpSmsDriver.php`, `LogSmsDriver.php`, `SmsNotificationService.php`
+- `app/Notifications/Channels/SmsChannel.php`, `SmsMessage.php`
+- `app/Http/Controllers/HttpSmsWebhookController.php`, `SmsInboxController.php`
+- `app/Models/SmsInbox.php`
+- `database/migrations/2026_09_03_210000_create_sms_logs_table.php`
+- `database/migrations/2026_09_03_230000_create_sms_inbox_table.php`
+- `database/migrations/2026_09_03_231000_add_delivery_columns_to_sms_logs_table.php`
+- `app/Services/Ai/AiManager.php`, `OpenRouterDriver.php`, `GeminiDriver.php`
+- `app/Http/Controllers/AiController.php`
+- `app/Models/Conversation.php`, `Message.php`
+- `resources/views/sms/inbox.blade.php`, `inbox_show.blade.php`
+- `resources/views/ai/index.blade.php`
+- `resources/views/partials/ai-widget.blade.php`
+
+### Configuração Necessária
+```ini
+# .env
+SMS_DRIVER=httpsms
+SMS_ENABLED=true
+SMS_SIMULATE=false
+HTTPSMS_KEY=uk_xxxxx
+HTTPSMS_FROM=+258862134230
+
+AI_DRIVER=openrouter
+AI_ENABLED=true
+OPENROUTER_API_KEY=sk-or-xxxxx
+OPENROUTER_MODEL=google/gemini-2.5-flash
+GEMINI_API_KEY=AIzaSyxxxxx
+```
+
+### Webhook URL (registar em https://httpsms.com/webhooks)
+```
+https://SEU-DOMINIO/webhooks/httpsms
+```
+Eventos: `message.phone.received`, `message.phone.delivered`, `message.send.failed`.

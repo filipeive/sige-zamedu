@@ -1,81 +1,137 @@
-# Integrações & Gateways de Pagamento — ZamEdu
-
-Este documento descreve as integrações de gateways financeiros, webhooks e APIs REST do **ZamEdu**.
 
 ---
 
-## 💳 1. Gateways de Pagamento Moçambicanos
+## 📲 5. Integração SMS — httpSMS (CloudEvents 1.0)
 
-O ZamEdu inclui suporte nativo e tratamento de webhooks para os 3 principais métodos de pagamento em Moçambique:
+O ZamEdu integra-se com o [httpSMS](https://httpsms.com) para envio e recepção de SMS usando o **cartão SIM real** de um dispositivo Android (sem gateways pagos de intermediários).
 
-```
-[Cliente / Encarregado]
-         |
-         v
-+------------------+
-| Portal dos Pais  |
-+--------+---------+
-         |
-         +-------------------+-------------------+
-         |                   |                   |
-         v                   v                   v
- +---------------+   +---------------+   +---------------+
- |  M-Pesa API   |   |   eMola API   |   | Multicaixa API|
- +-------+-------+   +-------+-------+   +-------+-------+
-         |                   |                   |
-         v                   v                   v
- +-------------------------------------------------------+
- |               Webhooks (`/webhooks/*`)               |
- +---------------------------+---------------------------+
-                             |
-                             v
-                 +-----------------------+
-                 | Liquidação Automática |
-                 | do Estado de Payment  |
-                 +-----------------------+
+### 5.1. Variáveis de Ambiente
+
+```ini
+# Driver SMS (httpsms | log)
+SMS_DRIVER=httpsms
+SMS_ENABLED=true
+SMS_SIMULATE=false
+
+# Chave API httpSMS (obtida em https://httpsms.com/settings)
+HTTPSMS_KEY=uk_xxxxxxxxxxxxxxxxxxxxxxxx
+HTTPSMS_FROM=+258862134230   # Número E.164 do SIM no Android app
 ```
 
----
+### 5.2. Envio de SMS (Outbound)
 
-## 📲 2. Endpoints de Webhooks Nativos
+Endpoint chamado pelo `HttpSmsDriver`:
 
-- **M-Pesa**: `POST /webhooks/mpesa` (`PaymentController@webhookMpesa`)
-- **eMola**: `POST /webhooks/emola` (`PaymentController@webhookEmola`)
-- **Multicaixa**: `POST /webhooks/multicaixa` (`PaymentController@webhookMulticaixa`)
+```
+POST https://httpsms.com/v1/messages/send
+Headers:
+  x-api-key: <HTTPSMS_KEY>
+  Content-Type: application/json
+Body:
+  {
+    "from": "+258862134230",
+    "to":   "+258847240296",
+    "text": "Exmos pais, o seu educando..."
+  }
+```
 
-### Exemplo de Payload de Webhook Recebido:
-
+**Resposta (201 Created):**
 ```json
 {
-  "transaction_id": "MP202607310820",
-  "payment_reference": "ZAM-MENS-179-02-2026-283",
-  "amount": 2530.00,
-  "status": "SUCCESS",
-  "phone_number": "258841234567"
+  "data": {
+    "id":      "4606eb17-21bd-4859-85c8-956802c0c7a9",
+    "owner":   "+258862134230",
+    "contact": "+258847240296",
+    "content": "Exmos pais...",
+    "status":  "Pending"
+  }
 }
 ```
 
----
+O `provider_id` (UUID) é gravado em `sms_logs.provider_id` para correlacionar com os webhooks de entrega.
 
-## 🔒 3. Autenticação REST & Sanctum
+### 5.3. Webhook de Eventos CloudEvents 1.0
 
-A aplicação disponibiliza autenticação baseada em tokens via **Laravel Sanctum** para consumo por aplicações móveis ou sistemas externos de faturação:
-
-- `POST /api/login`: Emissão de token de acesso.
-- `GET /api/user`: Obtenção do perfil do utilizador autenticado.
-- `GET /api/student/payments`: Consulta de pagamentos do encarregado via API.
-
----
-
-## ⚙️ 4. Configuração no `.env`
-
-```ini
-# Configurações M-Pesa API
-MPESA_API_KEY=sua_chave_api_mpesa
-MPESA_PUBLIC_KEY=sua_chave_publica
-MPESA_ENV=sandbox # ou production
-
-# Configurações eMola API
-EMOLA_CLIENT_ID=seu_client_id
-EMOLA_CLIENT_SECRET=seu_client_secret
+**URL para configurar em https://httpsms.com/webhooks:**
 ```
+https://SEU-DOMINIO/webhooks/httpsms
+```
+
+**Eventos subscritos:**
+
+| Tipo | Acção |
+|---|---|
+| `message.phone.received` | Guarda em `sms_inbox` + auto-match aluno/encarregado + notifica staff via in-app |
+| `message.phone.delivered` | Actualiza `sms_logs.status` para `delivered` + `delivered_at` |
+| `message.phone.sent` | Marca o log como enviado (idempotente) |
+| `message.send.failed` | Marca o log como `failed` com `error` |
+| `message.send.expired` | Marca o log como `failed` (motivo: expirado) |
+| `phone.heartbeat.online` | Log info (telefone está online) |
+| `phone.heartbeat.offline` | Log warning + alerta |
+
+**Exemplo de payload `message.phone.received`:**
+```json
+{
+  "specversion": "1.0",
+  "type": "message.phone.received",
+  "source": "/httpsms.com/messages",
+  "id": "evt_abc123",
+  "time": "2026-09-03T23:00:00Z",
+  "datacontenttype": "application/json",
+  "data": {
+    "message_id": "msg_def456",
+    "owner":      "+258862134230",
+    "contact":    "+258847240296",
+    "content":    "Bom dia, o meu filho não vai à escola hoje.",
+    "sim":        "SIM1",
+    "timestamp":  "2026-09-03T23:00:00Z"
+  }
+}
+```
+
+**Auto-match por telefone (E.164):**
+1. Procura o telefone na tabela `parents.phone`.
+2. Se não encontrar, procura em `students.emergency_phone`.
+3. Se encontrar, vincula `sms_inbox.student_id` e `sms_inbox.parent_id`.
+4. Notifica todos os utilizadores com permissão `view_students` via `GenericNotification` (database channel).
+
+### 5.4. Arquitectura do Motor SMS
+
+```
+SmsNotificationService::send(phone, message, channel, context, student)
+  │
+  ├─→ SmsManager::driver() (factory)
+  │     ├─→ HttpSmsDriver  (POST /v1/messages/send, header x-api-key)
+  │     └─→ LogSmsDriver   (driver de simulação para dev)
+  │
+  └─→ SmsLog::create([...])  (auditoria sempre, mesmo em modo simulação)
+```
+
+O `SmsChannel` permite enviar SMS via `Notifiable::route('sms', '+258...')` e é registado em `AppServiceProvider::boot()`:
+
+```php
+Notification::extend('sms', function ($app) {
+    return new SmsChannel($app->make(SmsNotificationService::class));
+});
+```
+
+### 5.5. Teste Manual do Webhook (curl)
+
+```bash
+curl -X POST https://SEU-DOMINIO/webhooks/httpsms \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "message.phone.received",
+    "data": {
+      "message_id": "test_001",
+      "owner": "+258862134230",
+      "contact": "+258847240296",
+      "content": "Teste de mensagem recebida",
+      "sim": "SIM1"
+    }
+  }'
+```
+
+Resposta esperada: `200 OK` com `{"status":"ok"}`.
+
+---
