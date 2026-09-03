@@ -86,13 +86,37 @@
                            class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500" min="1" max="100">
                 </div>
 
+                <div class="md:col-span-2">
+                    <div class="p-3 rounded-lg border border-slate-200 bg-slate-50">
+                        <p class="text-[11px] text-slate-600 leading-relaxed">
+                            <i class="fas fa-info-circle text-blue-500"></i>
+                            <b>Modo de ensino:</b> Pré-Escolar &amp; Primário → <span class="font-bold">1 Professor Regente</span> (opcional Assistente). Secundário → professores atribuídos por <span class="font-bold">disciplina</span>.
+                        </p>
+                    </div>
+                </div>
+
                 <div>
-                    <label for="teacher_id" class="block text-xs font-bold text-slate-700 mb-1">Professor Titular</label>
+                    <label for="teacher_id" class="block text-xs font-bold text-slate-700 mb-1">Professor Regente / Titular</label>
                     <select id="teacher_id" name="teacher_id"
                             class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500">
                         <option value="">Não atribuído</option>
                         @foreach($teachers as $teacher)
                             <option value="{{ $teacher->id }}" {{ old('teacher_id') == $teacher->id ? 'selected' : '' }}>
+                                {{ $teacher->full_name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label for="assistant_teacher_id" class="block text-xs font-bold text-slate-700 mb-1">
+                        Professor Assistente <span class="text-slate-400 font-normal">(Primário — opcional)</span>
+                    </label>
+                    <select id="assistant_teacher_id" name="assistant_teacher_id"
+                            class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500">
+                        <option value="">— Sem assistente —</option>
+                        @foreach($teachers as $teacher)
+                            <option value="{{ $teacher->id }}" {{ old('assistant_teacher_id') == $teacher->id ? 'selected' : '' }}>
                                 {{ $teacher->full_name }}
                             </option>
                         @endforeach

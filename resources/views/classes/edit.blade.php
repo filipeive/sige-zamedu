@@ -59,7 +59,7 @@
                     @error('shift')<p class="mt-1 text-[10px] text-rose-600 font-semibold">{{ $message }}</p>@enderror
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Professor Responsável</label>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Professor Regente / Responsável</label>
                     <select name="teacher_id" id="teacher_id"
                             class="w-full rounded-lg border border-slate-200 bg-white text-slate-800 py-2 px-3 text-xs font-semibold focus:border-amber-500 focus:ring-amber-500 @error('teacher_id') border-rose-500 @enderror">
                         <option value="">-- Sem Professor Responsável (Remover) --</option>
@@ -69,8 +69,23 @@
                             </option>
                         @endforeach
                     </select>
-                    <p class="mt-1 text-[10px] text-slate-400">Selecione a opção sem professor caso deseje remover a atribuição atual.</p>
+                    <p class="mt-1 text-[10px] text-slate-400">Para turmas do Pré-Escolar/Primário: professor regente titular.</p>
                     @error('teacher_id')<p class="mt-1 text-[10px] text-rose-600 font-semibold">{{ $message }}</p>@enderror
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Professor Assistente <span class="text-slate-400 font-normal">(Primário — opcional)</span></label>
+                    <select name="assistant_teacher_id" id="assistant_teacher_id"
+                            class="w-full rounded-lg border border-slate-200 bg-white text-slate-800 py-2 px-3 text-xs font-semibold focus:border-amber-500 focus:ring-amber-500 @error('assistant_teacher_id') border-rose-500 @enderror">
+                        <option value="">— Sem assistente —</option>
+                        @foreach($teachers as $teacher)
+                            @if($teacher->id != $class->teacher_id)
+                                <option value="{{ $teacher->id }}" {{ old('assistant_teacher_id', $class->assistant_teacher_id) == $teacher->id ? 'selected' : '' }}>
+                                    {{ $teacher->first_name }} {{ $teacher->last_name }}
+                                </option>
+                            @endif
+                        @endforeach
+                    </select>
+                    @error('assistant_teacher_id')<p class="mt-1 text-[10px] text-rose-600 font-semibold">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">Capacidade Máxima *</label>

@@ -131,11 +131,19 @@ Este documento descreve exaustivamente todos os módulos funcionais da plataform
 
 - **Rota**: `/classes` (`ClassRoomController`)
 - **Funcionalidades**:
-  - Criação e gestão de turmas por ano lectivo e nível de ensino (ex: 1ª Classe a 12ª Classe).
+  - Criação e gestão de turmas por ano lectivo e nível de ensino (Pré-Infantil a 12ª Classe).
+  - **Organização por Nível de Ensino** (4 tabs server-side): Todas / Pré-Escolar / Primário / Secundário.
+  - **Modos de Ensino** (campo `teaching_mode`):
+    - `single_teacher` (Pré-Escolar & Primário): 1 **Professor Regente** titular + **Professor Assistente** opcional (`assistant_teacher_id`).
+    - `subject_based` (Secundário): professores atribuídos por **disciplina** via tabela `class_subjects` (cada disciplina tem o seu próprio professor).
+  - Painel contextual em `/classes/{class}`:
+    - Primário: form inline para adicionar/actualizar professor assistente.
+    - Secundário: matriz professor↔disciplina actualizável em massa.
   - Associação de Director de Turma.
   - Definição de turno escolar (`morning`, `afternoon`, `night`) com horários de atraso configuráveis por turno.
   - Definição de horários de aula por dia da semana (`ClassSchedule`).
   - Alocação e transferência de alunos entre turmas.
+  - Rotas novas: `POST /classes/{class}/assign-subjects` (secundário), `POST /classes/{class}/update-assistant` (primário).
 
 ---
 
@@ -181,12 +189,14 @@ Este documento descreve exaustivamente todos os módulos funcionais da plataform
 
 ## 13. Lançamento de Notas, Pautas MINEDH & Boletins
 
-- **Rota**: `/grades`, `/pautas` (`GradeController`)
+- **Rota**: `/grades/dashboard` (entrada única), `/grades`, `/pautas` (`GradeController`)
 - **Funcionalidades**:
+  - **Dashboard central de Gestão de Notas** (`/grades/dashboard`): cards KPI (total de notas, média geral, taxa de aprovação, turmas activas), tabs por nível (Todas / Pré-Escolar / Primário / Secundário), grid de acções rápidas por turma (Lançar Notas / Pauta PDF / Notas da Turma / Ver) e atalhos para Pautas & Boletins, Relatório Académico e Gestão de Turmas.
   - Lançamento contínuo de notas: ACS (Avaliação Contínua e Sistemática), ACP (Avaliação Parcial) e ACF (Avaliação Final).
   - Entrada de notas por lote para toda a turma (`/grades/batch-create`).
   - Emissão de Pauta Oficial da Turma e Boletim Informativo do Aluno.
   - Cálculo automático de médias segundo as regras do MINEDH.
+  - Toda a navegação do menu lateral e os breadcrumbs das sub-páginas voltam sempre ao dashboard, eliminando links "órfãos".
 
 ---
 

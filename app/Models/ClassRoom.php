@@ -22,13 +22,62 @@ class ClassRoom extends Model
         'name',
         'grade_level',
         'shift',
+        'teaching_mode',
         'teacher_id',
+        'assistant_teacher_id',
         'max_students',
         'current_students',
         'classroom',
         'school_year',
         'is_active',
     ];
+
+    /**
+     * Modos de ensino suportados.
+     * - single_teacher   → 1 professor regente (+ opcional assistente) — pré-escolar/primário
+     * - subject_based    → professor atribuído por disciplina — secundário
+     */
+    public const TEACHING_MODES = [
+        'single_teacher' => 'Professor Regente (+ Assistente opcional)',
+        'subject_based'  => 'Por Disciplina',
+    ];
+
+    /**
+     * Resolver modo de ensino com base no nível (caso não esteja gravado).
+     */
+    public function resolveTeachingMode(): string
+    {
+        if (! empty($this->teaching_mode)) {
+            return $this->teaching_mode;
+        }
+        // Auto-detect: pré-escolar e primário são single_teacher; secundário é subject_based
+        return $this->isSecondary() ? 'subject_based' : 'single_teacher';
+    }
+
+    public function getTeachingModeAttribute($value): string
+    {
+        return $value ?: $this->resolveTeachingMode();
+    }
+
+    public function getTeachingModeLabelAttribute(): string
+    {
+        return self::TEACHING_MODES[$this->teaching_mode] ?? ucfirst(str_replace('_', ' ', $this->teaching_mode));
+    }
+
+    public function isSingleTeacher(): bool
+    {
+        return $this->teaching_mode === 'single_teacher';
+    }
+
+    public function isSubjectBased(): bool
+    {
+        return $this->teaching_mode === 'subject_based';
+    }
+
+    public function assistantTeacher()
+    {
+        return $this->belongsTo(Teacher::class, 'assistant_teacher_id');
+    }
 
     public function getShiftLabelAttribute(): string
     {
@@ -105,6 +154,22 @@ class ClassRoom extends Model
     public function scopeByGrade($query, $grade)
     {
         return $query->where('grade_level', $grade);
+    }
+
+    /**
+     * Filtrar por nível de ensino (preschool | primary | secondary).
+     */
+    public function scopeByEducationLevel($query, ?string $level)
+    {
+        if (empty($level) || $level === 'all') {
+            return $query;
+        }
+        return match ($level) {
+            'preschool' => $query->whereIn('grade_level', [0, 1]),
+            'primary'   => $query->whereIn('grade_level', [2, 3, 4, 5, 6, 7]),
+            'secondary' => $query->whereIn('grade_level', [8, 9, 10, 11, 12, 13]),
+            default     => $query,
+        };
     }
 
     public function scopeWithTeacher($query)

@@ -229,15 +229,19 @@ class DemoDataSeeder extends Seeder
 
         if ($classes->isEmpty()) {
             // Criar turmas padrão se não existirem
+            // Pré-Escolar/Primário (grade 0-7): 1 professor regente + assistente opcional
+            // Secundário (grade 8-12): professores atribuídos por disciplina
             for ($g = 1; $g <= 12; $g++) {
+                $isSecondary = $g >= 8;
                 $classes->push(ClassRoom::create([
                     'name' => "Turma {$g}ª A",
                     'grade_level' => $g,
                     'section' => 'A',
+                    'teaching_mode' => $isSecondary ? 'subject_based' : 'single_teacher',
                     'school_year' => current_school_year(),
                     'max_students' => 35,
                     'current_students' => 0,
-                    'status' => 'active',
+                    'is_active' => true,
                     'room_number' => "Sala 10{$g}",
                 ]));
             }

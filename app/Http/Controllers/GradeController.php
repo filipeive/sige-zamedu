@@ -106,6 +106,41 @@ class GradeController extends Controller
     }
 
     /**
+     * Dashboard central de gestão de notas — ponto de entrada único.
+     */
+    public function dashboard(Request $request)
+    {
+        $this->authorize('view_grades');
+
+        $level = $request->get('level', 'all');
+        $currentYear = (int) $request->get('year', current_school_year());
+        $term = (int) $request->get('term', 1);
+
+        $classes = ClassRoom::active()
+            ->with(['teacher', 'classSubjects.subject', 'classSubjects.teacher'])
+            ->byEducationLevel($level)
+            ->orderBy('grade_level')->orderBy('name')
+            ->get();
+
+        // Stats
+        $totalGrades = Grade::where('year', $currentYear)->count();
+        $average = Grade::where('year', $currentYear)->avg('grade');
+        $passingCount = Grade::where('year', $currentYear)->where('grade', '>=', 10)->count();
+        $passingRate = $totalGrades > 0 ? round(($passingCount / $totalGrades) * 100, 1) : 0;
+
+        $levelStats = [
+            'all' => ClassRoom::active()->count(),
+            'preschool' => ClassRoom::active()->byEducationLevel('preschool')->count(),
+            'primary' => ClassRoom::active()->byEducationLevel('primary')->count(),
+            'secondary' => ClassRoom::active()->byEducationLevel('secondary')->count(),
+        ];
+
+        return view('grades.dashboard', compact(
+            'classes', 'level', 'currentYear', 'term', 'totalGrades', 'average', 'passingRate', 'levelStats'
+        ));
+    }
+
+    /**
      * Show the form for creating a new grade.
      */
     public function create()

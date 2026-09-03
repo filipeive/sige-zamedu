@@ -5,7 +5,7 @@
 @section('page-title-icon', 'fas fa-layer-group')
 
 @section('breadcrumbs')
-    <li class="breadcrumb-item"><a href="{{ route('grades.index') }}">Gestão de Notas</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('grades.dashboard') }}">Gestão de Notas</a></li>
     <li class="breadcrumb-item active">Notas em Lote</li>
 @endsection
 
@@ -19,9 +19,14 @@
             </h1>
             <p class="text-xs text-slate-500 mt-0.5">Lançamento rápido de pautas de avaliação para turmas inteiras.</p>
         </div>
-        <a href="{{ route('grades.index') }}" class="no-underline inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 shadow-2xs transition">
-            <i class="fas fa-arrow-left"></i> Voltar à Pauta
-        </a>
+        <div class="flex items-center gap-2">
+            <a href="{{ route('grades.dashboard') }}" class="no-underline inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 shadow-2xs transition">
+                <i class="fas fa-arrow-left"></i> Dashboard
+            </a>
+            <a href="{{ route('grades.index') }}" class="no-underline inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 shadow-2xs transition">
+                <i class="fas fa-table"></i> Pauta
+            </a>
+        </div>
     </div>
 
     <!-- Filter Bar Card -->

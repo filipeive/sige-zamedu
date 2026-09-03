@@ -70,7 +70,20 @@
                         <span class="text-slate-800 font-semibold">{{ $class->classroom ?? 'N/A' }}</span>
                     </div>
                     <div class="pt-2 border-t border-slate-100">
-                        <span class="font-bold text-slate-700 block mb-1">Professor Titular:</span>
+                        <span class="font-bold text-slate-700 block mb-1">Modo de Ensino:</span>
+                        @if($class->isSingleTeacher())
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200">
+                                <i class="fas fa-user-tie text-[9px]"></i> Professor Regente
+                            </span>
+                        @else
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-purple-50 text-purple-700 border border-purple-200">
+                                <i class="fas fa-book text-[9px]"></i> Por Disciplina
+                            </span>
+                        @endif
+                    </div>
+                    @if($class->isSingleTeacher())
+                    <div class="pt-2 border-t border-slate-100">
+                        <span class="font-bold text-slate-700 block mb-1">Professor Regente:</span>
                         @if($class->teacher)
                             <div class="flex items-center gap-2">
                                 <div class="w-7 h-7 rounded-lg bg-emerald-700 text-white font-bold text-[10px] flex items-center justify-center shrink-0">
@@ -82,12 +95,107 @@
                             <span class="text-slate-400 italic">Não atribuído</span>
                         @endif
                     </div>
+                    @if($class->assistantTeacher)
+                    <div class="pt-2 border-t border-slate-100">
+                        <span class="font-bold text-slate-700 block mb-1">Professor Assistente:</span>
+                        <div class="flex items-center gap-2">
+                            <div class="w-7 h-7 rounded-lg bg-blue-500 text-white font-bold text-[10px] flex items-center justify-center shrink-0">
+                                {{ substr($class->assistantTeacher->first_name, 0, 1) }}{{ substr($class->assistantTeacher->last_name, 0, 1) }}
+                            </div>
+                            <span class="font-bold text-slate-800">{{ $class->assistantTeacher->first_name }} {{ $class->assistantTeacher->last_name }}</span>
+                        </div>
+                    </div>
+                    @endif
+                    @else
+                    <div class="pt-2 border-t border-slate-100">
+                        <span class="font-bold text-slate-700 block mb-1">Professores:</span>
+                        @php $distinctTeachers = $class->classSubjects->pluck('teacher_id')->filter()->unique(); @endphp
+                        <span class="text-[11px] text-slate-700 font-semibold">{{ $distinctTeachers->count() }} atribuído(s) por disciplina</span>
+                    </div>
+                    @endif
                     <div class="flex justify-between items-center pt-2 border-t border-slate-100">
                         <span class="font-bold text-slate-700">Status:</span>
                         <span class="px-2 py-0.5 rounded-full text-[10px] font-bold {{ $class->is_active ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200' }}">
                             {{ $class->is_active ? 'Ativa' : 'Inativa' }}
                         </span>
                     </div>
+                </div>
+            </div>
+
+            <!-- Modo de Ensino (painel contextual) -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
+                <div class="px-4 py-3 border-b border-slate-100">
+                    <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                        @if($class->isSingleTeacher())
+                            <i class="fas fa-user-tie text-blue-600"></i> Professor Regente &amp; Assistente
+                        @else
+                            <i class="fas fa-book text-purple-600"></i> Professores por Disciplina
+                        @endif
+                    </h3>
+                </div>
+                <div class="p-4 space-y-3 text-xs">
+                    @if($class->isSingleTeacher())
+                        {{-- PRIMÁRIO: 1 regente + 1 assistente --}}
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-slate-700">Professor Regente:</span>
+                            @if($class->teacher)
+                                <div class="flex items-center gap-2">
+                                    <div class="w-7 h-7 rounded-lg bg-blue-700 text-white font-bold text-[10px] flex items-center justify-center shrink-0">
+                                        {{ substr($class->teacher->first_name, 0, 1) }}{{ substr($class->teacher->last_name, 0, 1) }}
+                                    </div>
+                                    <span class="font-bold text-slate-800">{{ $class->teacher->full_name }}</span>
+                                </div>
+                            @else
+                                <span class="text-rose-600 font-bold italic">Não atribuído</span>
+                            @endif
+                        </div>
+                        <form method="POST" action="{{ route('classes.update-assistant', $class) }}" class="pt-2 border-t border-slate-100">
+                            @csrf
+                            <label class="block text-[10px] font-extrabold uppercase tracking-wider text-slate-500 mb-1">Professor Assistente (opcional)</label>
+                            <div class="flex items-center gap-1.5">
+                                <select name="assistant_teacher_id" class="flex-1 rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500">
+                                    <option value="">— Sem assistente —</option>
+                                    @foreach($availableTeachers ?? [] as $t)
+                                        @if(!$class->teacher || $t->id !== $class->teacher->id)
+                                            <option value="{{ $t->id }}" @selected($class->assistant_teacher_id == $t->id)>{{ $t->full_name }}</option>
+                                        @endif
+                                    @endforeach
+                                </select>
+                                <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-700 hover:bg-blue-800 text-white text-[10px] font-extrabold transition">
+                                    <i class="fas fa-save"></i> Guardar
+                                </button>
+                            </div>
+                        </form>
+                    @else
+                        {{-- SECUNDÁRIO: matriz professor por disciplina --}}
+                        <form method="POST" action="{{ route('classes.assign-subjects', $class) }}">
+                            @csrf
+                            <div class="space-y-1.5">
+                                @forelse($class->classSubjects as $cs)
+                                    <div class="flex items-center gap-2 p-1.5 rounded-lg border border-slate-200/80">
+                                        <span class="font-bold text-slate-800 text-[11px] w-32 truncate" title="{{ $cs->subject?->name }}">{{ $cs->subject?->name ?? '—' }}</span>
+                                        <select name="assignments[{{ $loop->index }}][class_subject_id]" class="hidden">{{-- id holder --}}
+                                            <option value="{{ $cs->id }}" selected>{{ $cs->id }}</option>
+                                        </select>
+                                        <input type="hidden" name="assignments[{{ $loop->index }}][class_subject_id]" value="{{ $cs->id }}">
+                                        <select name="assignments[{{ $loop->index }}][teacher_id]" class="flex-1 rounded border-slate-200 py-1 text-[11px] font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500">
+                                            <option value="">— Sem professor —</option>
+                                            @foreach($availableTeachers ?? [] as $t)
+                                                <option value="{{ $t->id }}" @selected($cs->teacher_id == $t->id)>{{ $t->full_name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                @empty
+                                    <p class="text-slate-400 italic">Nenhuma disciplina atribuída a esta turma.</p>
+                                @endforelse
+                            </div>
+                            @if($class->classSubjects->count() > 0)
+                                <button type="submit" class="mt-3 w-full inline-flex justify-center items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-700 hover:bg-purple-800 text-white text-xs font-extrabold transition">
+                                    <i class="fas fa-save"></i> Actualizar Atribuições
+                                </button>
+                            @endif
+                        </form>
+                    @endif
                 </div>
             </div>
 

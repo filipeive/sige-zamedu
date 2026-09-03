@@ -55,12 +55,17 @@ Este documento descreve a estrutura relacional de dados, tabelas, migrações e 
 ### 4. `classes` (Turmas)
 - `id` (BIGINT, PK): Identificador da turma.
 - `name` (VARCHAR): Nome da turma (ex: `10ª Classe A`).
-- `grade_level` (VARCHAR): Nível escolar.
-- `academic_year` (INT): Ano lectivo.
-- `teacher_id` (BIGINT, FK -> `teachers.id`, Nullable): Director de turma.
-- `capacity` (INT): Lotação máxima.
+- `grade_level` (INT): Nível escolar (0=Pré-Infantil, 1=Pré-Escolar, 2-7=Primário, 8-13=Secundário).
+- `school_year` (INT): Ano lectivo.
 - `shift` (ENUM: `morning`, `afternoon`, `night`, Nullable): Turno escolar.
-- `status` (ENUM: `active`, `inactive`).
+- **`teaching_mode`** (VARCHAR, Nullable): `single_teacher` (Pré/Primário — 1 regente) ou `subject_based` (Secundário — professor por disciplina). Auto-resolvido pelo nível se nulo.
+- `teacher_id` (BIGINT, FK -> `teachers.id`, Nullable): **Professor Regente** (turmas single_teacher).
+- **`assistant_teacher_id`** (BIGINT, FK -> `teachers.id`, Nullable): **Professor Assistente** (opcional, só single_teacher do primário).
+- `max_students` (INT): Lotação máxima.
+- `current_students` (INT): Contador de matrículas activas.
+- `classroom` (VARCHAR, Nullable): Sala física.
+- `is_active` (BOOLEAN).
+- `created_at`, `updated_at`.
 
 ### 5. `enrollments` (Matrículas)
 - `id` (BIGINT, PK).

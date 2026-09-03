@@ -1654,8 +1654,8 @@
                             <li class="nav-item">
                                 <a href="{{ route('classes.index') }}"
                                     class="nav-link {{ request()->routeIs('classes.*') ? 'active' : '' }}">
-                                    <span class="nav-icon"><i class="fas fa-school"></i></span>
-                                    <span class="nav-text">Turmas Escolares</span>
+                                    <span class="nav-icon"><i class="fas fa-chalkboard"></i></span>
+                                    <span class="nav-text">Turmas por Nível</span>
                                 </a>
                             </li>
                         @endcanany
@@ -1703,7 +1703,7 @@
                     <ul class="nav-list">
                         @can('manage_grades')
                             <li class="nav-item">
-                                <a href="{{ route('grades.index') }}"
+                                <a href="{{ route('grades.dashboard') }}"
                                     class="nav-link {{ request()->routeIs('grades.*') ? 'active' : '' }}">
                                     <span class="nav-icon"><i class="fas fa-medal"></i></span>
                                     <span class="nav-text">Lançamento de Notas & Pautas</span>

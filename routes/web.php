@@ -261,6 +261,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::post('/{class}/assign-teacher', 'assignTeacher')->name('assign-teacher');
                 Route::post('/{class}/add-students', 'addStudent')->name('add-student');
                 Route::post('/{class}/remove-student/{student}', 'removeStudent')->name('remove-student');
+                Route::post('/{class}/assign-subjects', 'assignSubjects')->name('assign-subjects');
+                Route::post('/{class}/update-assistant', 'updateAssistant')->name('update-assistant');
             });
 
             Route::middleware('permission:delete_classes')->group(function () {
@@ -480,7 +482,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('grades.')
         ->controller(GradeController::class)
         ->group(function () {
-            Route::get('/', 'index')->name('index');
+            Route::get('/', 'dashboard')->name('index');
+            Route::get('/dashboard', 'dashboard')->name('dashboard');
             Route::get('/student/{student}/report-card', 'reportCard')->name('student-report-card');
             Route::get('/class/{class}/report', 'classReport')->name('class-report');
             Route::get('/class/{class}/grade-sheet', 'gradeSheet')->name('grade-sheet');

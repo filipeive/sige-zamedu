@@ -45,9 +45,11 @@ class ClassRoomSeeder extends Seeder
         ];
 
         foreach ($classes as $class) {
+            $isSecondary = $class['grade_level'] >= 8;
             ClassRoom::create([
                 'name' => $class['name'],
                 'grade_level' => $class['grade_level'],
+                'teaching_mode' => $isSecondary ? 'subject_based' : 'single_teacher',
                 'max_students' => $class['max_students'],
                 'current_students' => 0,
                 'classroom' => $class['classroom'],

@@ -16,18 +16,19 @@ class ClassRoomController extends Controller
 {
     public function index(Request $request)
     {
-        $query = ClassRoom::with(['teacher'])
+        $query = ClassRoom::with(['teacher', 'assistantTeacher'])
             ->withCount([
                 'enrollments as active_students_count' => function ($query) {
                     $query->where('status', 'active');
-                }
+                },
+                'classSubjects as subjects_count',
             ]);
 
-        // Filtros (mantém o mesmo)
-        if ($request->has('grade_level') && $request->grade_level != '') {
-            $query->where('grade_level', $request->grade_level);
-        }
+        // Filtro por nível de ensino (tabs server-side)
+        $level = $request->get('level', 'all');
+        $query->byEducationLevel($level);
 
+        // Filtros adicionais
         if ($request->has('teacher_id') && $request->teacher_id != '') {
             $query->where('teacher_id', $request->teacher_id);
         }
@@ -40,7 +41,28 @@ class ClassRoomController extends Controller
             $query->where('is_active', $request->is_active);
         }
 
-        $classes = $query->orderBy('grade_level')->orderBy('name')->paginate(20);
+        if ($request->has('teaching_mode') && $request->teaching_mode != '') {
+            $query->where('teaching_mode', $request->teaching_mode);
+        }
+
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('classroom', 'like', "%{$search}%");
+            });
+        }
+
+        $classes = $query->orderBy('grade_level')->orderBy('name')->paginate(20)->withQueryString();
+
+        // Stats por nível (para as tabs)
+        $levelStats = [
+            'all'       => ClassRoom::count(),
+            'preschool' => ClassRoom::byEducationLevel('preschool')->count(),
+            'primary'   => ClassRoom::byEducationLevel('primary')->count(),
+            'secondary' => ClassRoom::byEducationLevel('secondary')->count(),
+        ];
+
         $teachers = Teacher::active()->get();
         $currentYear = current_school_year();
 
@@ -50,7 +72,9 @@ class ClassRoomController extends Controller
             'classes',
             'teachers',
             'currentYear',
-            'gradeLevels'
+            'gradeLevels',
+            'level',
+            'levelStats'
         ));
     }
 
@@ -75,7 +99,9 @@ class ClassRoomController extends Controller
             'name' => 'required|string|max:255|unique:classes,name',
             'grade_level' => 'required|integer|min:0|max:12',
             'shift' => 'required|in:morning,afternoon,night',
+            'teaching_mode' => 'nullable|in:single_teacher,subject_based',
             'teacher_id' => 'nullable|exists:teachers,id',
+            'assistant_teacher_id' => 'nullable|exists:teachers,id|different:teacher_id',
             'max_students' => 'required|integer|min:1|max:50',
             'classroom' => 'nullable|string|max:50',
             'school_year' => 'required|integer|min:2020|max:2030',
@@ -86,11 +112,16 @@ class ClassRoomController extends Controller
         try {
             DB::beginTransaction();
 
+            // Auto-resolver teaching_mode se não enviado
+            $teachingMode = $request->teaching_mode ?: ($this->isSecondaryGrade((int) $request->grade_level) ? 'subject_based' : 'single_teacher');
+
             $class = ClassRoom::create([
                 'name' => $request->name,
                 'grade_level' => $request->grade_level,
                 'shift' => $request->shift,
-                'teacher_id' => $request->teacher_id,
+                'teaching_mode' => $teachingMode,
+                'teacher_id' => $teachingMode === 'single_teacher' ? $request->teacher_id : null,
+                'assistant_teacher_id' => $teachingMode === 'single_teacher' ? $request->assistant_teacher_id : null,
                 'max_students' => $request->max_students,
                 'current_students' => 0,
                 'classroom' => $request->classroom,
@@ -98,13 +129,13 @@ class ClassRoomController extends Controller
                 'is_active' => $request->boolean('is_active', true),
             ]);
 
-            // Associar disciplinas à turma através da tabela class_subjects
+            // Associar disciplinas (para secundário é obrigatório atribuir professor por disciplina)
             if ($request->has('subjects')) {
                 foreach ($request->subjects as $subjectId) {
                     ClassSubject::create([
                         'class_id' => $class->id,
                         'subject_id' => $subjectId,
-                        'teacher_id' => $request->teacher_id, // Usa o mesmo professor ou pode ser diferente
+                        'teacher_id' => $request->teacher_id,
                     ]);
                 }
             }
@@ -126,6 +157,7 @@ class ClassRoomController extends Controller
     {
         $class->load([
             'teacher',
+            'assistantTeacher',
             'enrollments.student',
             'classSubjects.subject',
             'classSubjects.teacher'
@@ -142,14 +174,19 @@ class ClassRoomController extends Controller
         // Próximos aniversários
         $upcomingBirthdays = $this->getUpcomingBirthdays($class);
 
-        return view('classes.show', compact('class', 'stats', 'upcomingBirthdays'));
+        // Para atribuição por disciplina (secundário)
+        $availableTeachers = Teacher::active()->orderBy('first_name')->get();
+
+        return view('classes.show', compact(
+            'class', 'stats', 'upcomingBirthdays', 'availableTeachers'
+        ));
     }
 
     public function edit(ClassRoom $class)
     {
         $teachers = Teacher::active()->get();
         $subjects = Subject::active()->get();
-        $class->load('classSubjects');
+        $class->load(['classSubjects', 'assistantTeacher']);
 
         // Obter IDs das disciplinas já associadas
         $currentSubjectIds = $class->classSubjects->pluck('subject_id')->toArray();
@@ -176,7 +213,9 @@ class ClassRoomController extends Controller
             ],
             'grade_level' => 'required|integer|min:0|max:12',
             'shift' => 'required|in:morning,afternoon,night',
+            'teaching_mode' => 'nullable|in:single_teacher,subject_based',
             'teacher_id' => 'nullable|exists:teachers,id',
+            'assistant_teacher_id' => 'nullable|exists:teachers,id|different:teacher_id',
             'max_students' => 'required|integer|min:1|max:50',
             'classroom' => 'nullable|string|max:50',
             'school_year' => 'required|integer|min:2020|max:2030',
@@ -187,23 +226,24 @@ class ClassRoomController extends Controller
         try {
             DB::beginTransaction();
 
+            $teachingMode = $request->teaching_mode ?: $class->resolveTeachingMode();
+
             $class->update([
                 'name' => $request->name,
                 'grade_level' => $request->grade_level,
                 'shift' => $request->shift,
-                'teacher_id' => $request->teacher_id,
+                'teaching_mode' => $teachingMode,
+                'teacher_id' => $teachingMode === 'single_teacher' ? $request->teacher_id : null,
+                'assistant_teacher_id' => $teachingMode === 'single_teacher' ? $request->assistant_teacher_id : null,
                 'max_students' => $request->max_students,
                 'classroom' => $request->classroom,
                 'school_year' => $request->school_year,
                 'is_active' => $request->boolean('is_active', true),
             ]);
 
-            // Sincronizar disciplinas através da tabela class_subjects
+            // Sincronizar disciplinas (atribuição por disciplina)
             if ($request->has('subjects')) {
-                // Remover disciplinas antigas
                 ClassSubject::where('class_id', $class->id)->delete();
-
-                // Adicionar novas disciplinas
                 foreach ($request->subjects as $subjectId) {
                     ClassSubject::create([
                         'class_id' => $class->id,
@@ -212,7 +252,6 @@ class ClassRoomController extends Controller
                     ]);
                 }
             } else {
-                // Se não há disciplinas selecionadas, remover todas
                 ClassSubject::where('class_id', $class->id)->delete();
             }
 
@@ -406,6 +445,58 @@ class ClassRoomController extends Controller
             'attendanceDate',
             'existingAttendance'
         ));
+    }
+
+    /**
+     * Atribuir professores por disciplina (turma do secundário ou onde teaching_mode = subject_based).
+     */
+    public function assignSubjects(Request $request, ClassRoom $class)
+    {
+        $this->authorize('manage_classes');
+
+        $data = $request->validate([
+            'assignments' => 'required|array',
+            'assignments.*.class_subject_id' => 'required|exists:class_subjects,id',
+            'assignments.*.teacher_id' => 'required|exists:teachers,id',
+        ]);
+
+        try {
+            DB::beginTransaction();
+            foreach ($data['assignments'] as $row) {
+                $cs = ClassSubject::where('id', $row['class_subject_id'])
+                    ->where('class_id', $class->id)
+                    ->first();
+                if ($cs) {
+                    $cs->update(['teacher_id' => $row['teacher_id']]);
+                }
+            }
+            DB::commit();
+            return back()->with('success', 'Atribuições de professores por disciplina actualizadas.');
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return back()->with('error', 'Erro ao actualizar atribuições: '.$e->getMessage());
+        }
+    }
+
+    /**
+     * Atribuir/actualizar professor assistente (turma do primário).
+     */
+    public function updateAssistant(Request $request, ClassRoom $class)
+    {
+        $this->authorize('manage_classes');
+
+        $data = $request->validate([
+            'assistant_teacher_id' => 'nullable|exists:teachers,id|different:'.$class->teacher_id,
+        ]);
+
+        $class->update(['assistant_teacher_id' => $data['assistant_teacher_id'] ?? null]);
+
+        return back()->with('success', 'Professor assistente actualizado com sucesso.');
+    }
+
+    private function isSecondaryGrade(int $gradeLevel): bool
+    {
+        return $gradeLevel >= 8 && $gradeLevel <= 13;
     }
 
     // Métodos auxiliares

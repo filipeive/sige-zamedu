@@ -20,6 +20,9 @@
             <p class="text-xs text-slate-500 mt-0.5">Avaliações contínuas (ACS), exames (ACP) e médias finais (MT).</p>
         </div>
         <div class="flex items-center gap-2">
+            <a href="{{ route('grades.dashboard') }}" class="no-underline inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 shadow-2xs transition">
+                <i class="fas fa-arrow-left"></i> Dashboard
+            </a>
             @if($selectedClass)
                 <a href="{{ route('pautas.trimestral', $selectedClass->id) }}" class="no-underline inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 shadow-2xs transition">
                     <i class="fas fa-file-pdf text-rose-500"></i> Pauta (PDF)
