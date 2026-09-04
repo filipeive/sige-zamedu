@@ -278,29 +278,53 @@ class TeacherPortalController extends Controller
         $teacher = Teacher::where('user_id', Auth::id())->firstOrFail();
         $class = ClassRoom::with(['students', 'subjects'])->findOrFail($class);
 
-        if (!$teacher->classes()->where('classes.id', $class->id)->exists()) {
-            abort(403, 'Acesso não autorizado.');
+        // Verificar acesso (regente OU professor de uma disciplina)
+        if (! $teacher->canAccessClass($class->id)) {
+            abort(403, 'Acesso não autorizado a esta turma.');
         }
 
-        $selectedSubject = request('subject_id', $class->subjects->first()->id ?? null);
-        $selectedTerm = request('term', 1);
+        // Disciplinas que o professor lecciona nesta turma
+        $teacherSubjects = $teacher->taughtSubjectsInClass($class);
+        $teacherSubjectIds = $teacherSubjects->pluck('id')->toArray();
 
-        // Buscar notas existentes
+        $selectedSubject = request('subject_id', $teacherSubjectIds[0] ?? null);
+        $selectedTerm = (int) request('term', 1);
+        $currentYear = (int) request('year', current_school_year());
+
+        // Validação: a subject seleccionada tem de ser leccionada por este professor
+        if ($selectedSubject && ! in_array((int) $selectedSubject, $teacherSubjectIds, true)) {
+            abort(403, 'Não lecciona esta disciplina nesta turma.');
+        }
+
+        // Buscar notas existentes (agrupadas por aluno → tipo de avaliação)
         $grades = Grade::whereIn('student_id', $class->students->pluck('id'))
             ->when($selectedSubject, function ($query) use ($selectedSubject) {
                 return $query->where('subject_id', $selectedSubject);
             })
             ->where('term', $selectedTerm)
-            ->where('year', current_school_year())
+            ->where('year', $currentYear)
             ->get()
             ->groupBy(['student_id', 'assessment_type']);
+
+        // Tipos de avaliação (MINEDH)
+        $assessmentTypes = [
+            'ACS1' => 'ACS 1',
+            'ACS2' => 'ACS 2',
+            'ACS3' => 'ACS 3',
+            'ACP'  => 'ACP',
+            'ACF'  => 'ACF / Exame',
+        ];
 
         return view('teacher-portal.gradebook', compact(
             'teacher',
             'class',
             'selectedSubject',
             'selectedTerm',
-            'grades'
+            'currentYear',
+            'teacherSubjects',
+            'teacherSubjectIds',
+            'grades',
+            'assessmentTypes'
         ));
     }
     public function storeGrade(Request $request)
@@ -312,13 +336,14 @@ class TeacherPortalController extends Controller
             'class_id' => 'required|exists:classes,id',
             'subject_id' => 'required|exists:subjects,id',
             'grade' => 'required|numeric|min:0|max:20',
-            'assessment_type' => 'required|in:test,homework,project,participation',
+            'assessment_type' => 'required|in:ACS1,ACS2,ACS3,ACP,ACF,MAC,PPT,CPT,CAP,Exame,test,homework,project,participation',
             'term' => 'required|in:1,2,3',
+            'year' => 'nullable|integer|min:2020|max:2030',
         ]);
 
         try {
-            if (!$teacher->classes()->where('classes.id', $request->class_id)->exists()) {
-                abort(403, 'Acesso não autorizado.');
+            if (! $teacher->canAccessClassSubject($request->class_id, $request->subject_id)) {
+                abort(403, 'Acesso não autorizado: não lecciona esta disciplina nesta turma.');
             }
 
             Grade::updateOrCreate(
@@ -328,7 +353,7 @@ class TeacherPortalController extends Controller
                     'subject_id' => $request->subject_id,
                     'assessment_type' => $request->assessment_type,
                     'term' => $request->term,
-                    'year' => current_school_year(),
+                    'year' => (int) ($request->year ?? current_school_year()),
                 ],
                 [
                     'grade' => $request->grade,
@@ -339,10 +364,10 @@ class TeacherPortalController extends Controller
             );
 
             return redirect()->back()
-                ->with('success', 'Nota registrada com sucesso!');
+                ->with('success', 'Nota registada com sucesso!');
         } catch (\Exception $e) {
             return redirect()->back()
-                ->with('error', 'Erro ao registrar nota: ' . $e->getMessage());
+                ->with('error', 'Erro ao registar nota: ' . $e->getMessage());
         }
     }
 
@@ -506,7 +531,7 @@ class TeacherPortalController extends Controller
     }
 
     /**
-     * Atualizar notas em lote
+     * Actualizar notas em lote
      */
     public function batchUpdateGrades(Request $request)
     {
@@ -517,17 +542,19 @@ class TeacherPortalController extends Controller
             'grades.*.student_id' => 'required|exists:students,id',
             'grades.*.subject_id' => 'required|exists:subjects,id',
             'grades.*.class_id' => 'required|exists:classes,id',
-            'grades.*.assessment_type' => 'required|in:MAC,PPT,CPT,CAP,Exame',
+            'grades.*.assessment_type' => 'required|in:ACS1,ACS2,ACS3,ACP,ACF,MAC,PPT,CPT,CAP,Exame,test,homework,project,participation',
             'grades.*.grade' => 'required|numeric|min:0|max:20',
             'grades.*.term' => 'required|in:1,2,3',
         ]);
 
         try {
             $successCount = 0;
+            $skippedCount = 0;
 
             foreach ($request->grades as $gradeData) {
-                // Verificar se o professor tem acesso à turma
-                if (!$teacher->classes()->where('classes.id', $gradeData['class_id'])->exists()) {
+                // Verificar se o professor tem acesso à (turma, disciplina)
+                if (! $teacher->canAccessClassSubject($gradeData['class_id'], $gradeData['subject_id'])) {
+                    $skippedCount++;
                     continue;
                 }
 
@@ -538,7 +565,7 @@ class TeacherPortalController extends Controller
                         'subject_id' => $gradeData['subject_id'],
                         'assessment_type' => $gradeData['assessment_type'],
                         'term' => $gradeData['term'],
-                        'year' => current_school_year(),
+                        'year' => (int) ($gradeData['year'] ?? current_school_year()),
                     ],
                     [
                         'grade' => $gradeData['grade'],
@@ -551,14 +578,16 @@ class TeacherPortalController extends Controller
                 $successCount++;
             }
 
-            return redirect()->back()->with(
-                'success',
-                "{$successCount} notas foram atualizadas com sucesso!"
-            );
+            $msg = "{$successCount} notas actualizadas com sucesso.";
+            if ($skippedCount > 0) {
+                $msg .= " {$skippedCount} ignoradas (sem permissão).";
+            }
+
+            return redirect()->back()->with('success', $msg);
         } catch (\Exception $e) {
             return redirect()->back()->with(
                 'error',
-                'Erro ao atualizar notas: ' . $e->getMessage()
+                'Erro ao actualizar notas: ' . $e->getMessage()
             );
         }
     }

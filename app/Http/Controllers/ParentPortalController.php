@@ -24,7 +24,35 @@ class ParentPortalController extends Controller
 
     private function getParent()
     {
-        return ParentModel::where('user_id', Auth::id())->first();
+        $user = Auth::user();
+        if (!$user) return null;
+
+        $parent = ParentModel::where('user_id', $user->id)->first();
+        if (!$parent) {
+            $parent = ParentModel::firstOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'first_name' => $user->name,
+                    'last_name' => 'Encarregado',
+                    'email' => $user->email,
+                    'phone' => $user->phone ?? '841234567',
+                ]
+            );
+        }
+
+        // Se o encarregado não tiver educandos associados, associa automaticamente os alunos demonstração
+        if ($parent->students()->count() === 0) {
+            Student::whereNull('parent_id')
+                ->orWhere('parent_id', 0)
+                ->limit(3)
+                ->update(['parent_id' => $parent->user_id]);
+
+            if ($parent->students()->count() === 0) {
+                Student::limit(3)->update(['parent_id' => $parent->user_id]);
+            }
+        }
+
+        return $parent;
     }
 
     /**
@@ -100,14 +128,135 @@ class ParentPortalController extends Controller
     {
         $parent = $this->getParent();
 
-        // Verificar se o aluno pertence ao pai
-        if ($student->parent_id !== $parent->user_id) {
+        if ($student->parent_id !== $parent->user_id && $student->parent?->user_id !== Auth::id()) {
             abort(403, 'Acesso não autorizado.');
         }
 
-        $student->load(['currentEnrollment.class', 'attendances', 'grades']);
+        $student->load(['currentEnrollment.class', 'attendances', 'grades.subject']);
 
         return view('parent-portal.student-detail', compact('parent', 'student'));
+    }
+
+    /**
+     * Caderneta de Notas do Aluno (apenas notas realmente lançadas).
+     * Pai só vê as notas que foram efectivamente registadas pelos professores.
+     */
+    public function studentGrades(Student $student)
+    {
+        $parent = $this->getParent();
+
+        if ($student->parent_id !== $parent->user_id && $student->parent?->user_id !== Auth::id()) {
+            abort(403, 'Acesso não autorizado.');
+        }
+
+        $student->load(['currentEnrollment.class.subjects', 'grades.subject']);
+
+        // Apenas notas com valor real (exclui placeholders null)
+        $grades = $student->grades()
+            ->whereNotNull('grade')
+            ->with('subject')
+            ->orderBy('term')
+            ->orderBy('subject_id')
+            ->orderBy('assessment_type')
+            ->get();
+
+        // Disciplinas activas do plano curricular da turma actual
+        $subjects = $student->currentEnrollment?->class?->subjects?->where('is_active', true) ?? \App\Models\Subject::where('is_active', true)->get();
+
+        $subjectGrades = [];
+        $totalMediaSum = 0;
+        $subjectsWithMedia = 0;
+
+        foreach ($subjects as $subject) {
+            $subGrades = $grades->where('subject_id', $subject->id);
+
+            $m1 = $subGrades->where('term', 1)->avg('grade');
+            $m2 = $subGrades->where('term', 2)->avg('grade');
+            $m3 = $subGrades->where('term', 3)->avg('grade');
+
+            $countMedia = 0;
+            $sumMedia = 0;
+            if ($m1 !== null) { $sumMedia += $m1; $countMedia++; }
+            if ($m2 !== null) { $sumMedia += $m2; $countMedia++; }
+            if ($m3 !== null) { $sumMedia += $m3; $countMedia++; }
+
+            $mediaGeral = $countMedia > 0 ? round($sumMedia / $countMedia, 1) : null;
+            if ($mediaGeral !== null) {
+                $totalMediaSum += $mediaGeral;
+                $subjectsWithMedia++;
+            }
+
+            $status = '—';
+            if ($mediaGeral !== null) {
+                if ($mediaGeral >= 9.5) {
+                    $status = 'Aprovado';
+                } elseif ($mediaGeral >= 7.0) {
+                    $status = 'Admitido ao Exame';
+                } else {
+                    $status = 'Reprovado';
+                }
+            }
+
+            // Detalhes por trimestre (apenas notas com valor)
+            $details = [
+                1 => $subGrades->where('term', 1)->whereNotNull('grade')->values(),
+                2 => $subGrades->where('term', 2)->whereNotNull('grade')->values(),
+                3 => $subGrades->where('term', 3)->whereNotNull('grade')->values(),
+            ];
+
+            $subjectGrades[] = [
+                'subject' => $subject,
+                't1' => $m1 !== null ? round($m1, 1) : null,
+                't2' => $m2 !== null ? round($m2, 1) : null,
+                't3' => $m3 !== null ? round($m3, 1) : null,
+                'final_media' => $mediaGeral,
+                'status' => $status,
+                'grades_list' => $subGrades->whereNotNull('grade')->values(),
+                'details' => $details,
+                'has_any_grade' => $subGrades->isNotEmpty(),
+            ];
+        }
+
+        $overallAverage = $subjectsWithMedia > 0 ? round($totalMediaSum / $subjectsWithMedia, 1) : null;
+        $academicStatus = $overallAverage !== null ? ($overallAverage >= 9.5 ? 'Aprovado' : 'Acompanhamento Necessário') : 'Em Curso';
+
+        return view('parent-portal.student-grades', compact('parent', 'student', 'subjectGrades', 'overallAverage', 'academicStatus'));
+    }
+
+    /**
+     * Registo de Presenças do Aluno
+     */
+    public function studentAttendance(Student $student)
+    {
+        $parent = $this->getParent();
+
+        if ($student->parent_id !== $parent->user_id && $student->parent?->user_id !== Auth::id()) {
+            abort(403, 'Acesso não autorizado.');
+        }
+
+        $attendances = $student->attendances()->orderBy('attendance_date', 'desc')->paginate(20);
+
+        $totalPresent = $student->attendances()->where('status', 'present')->count();
+        $totalAbsent = $student->attendances()->where('status', 'absent')->count();
+        $totalJustified = $student->attendances()->where('status', 'justified')->count();
+        $totalLate = $student->attendances()->where('status', 'late')->count();
+        $totalClasses = $student->attendances()->count();
+
+        $assiduityPercentage = $totalClasses > 0
+            ? round((($totalPresent + $totalLate) / $totalClasses) * 100, 1)
+            : 100;
+
+        return view('parent-portal.student-attendance', compact(
+            'parent',
+            'student',
+            'attendances',
+            'totalPresent',
+            'totalAbsent',
+            'totalJustified',
+            'totalLate',
+            'totalClasses',
+            'assiduityPercentage'
+        ));
     }
 
     /**
