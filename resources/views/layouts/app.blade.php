@@ -1434,6 +1434,15 @@
                                 <span class="nav-text">Inspeção MINEDH</span>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="{{ route('onboarding.school') }}"
+                                class="nav-link {{ request()->routeIs('onboarding.*') ? 'active' : '' }}">
+                                <span class="nav-icon">
+                                    <i class="fas fa-plus-circle"></i>
+                                </span>
+                                <span class="nav-text">Registar Nova Escola</span>
+                            </a>
+                        </li>
                         @endhasanyrole
                     </ul>
                 </div>

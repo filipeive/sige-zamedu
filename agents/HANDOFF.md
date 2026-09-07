@@ -18,6 +18,30 @@ Formato de cada entrada:
 **Próximo passo recomendado:** ...
 ```
 
+## 2026-09-07 — Sprint 10 (`feature/school-onboarding`) — Antigravity AI Agent
+
+**Feito:**
+- **Onboarding Multi-Escola & Onboarding Wizard (`feature/school-onboarding`)**:
+  - **Branch**: `feature/school-onboarding`.
+  - **Controlador (`app/Http/Controllers/SchoolOnboardingController.php`)**: Criado o assistente interativo multi-etapa (Onboarding Wizard) para registo, aprovação e licenciamento autónomo de novas escolas públicas, privadas e comunitárias no ecossistema SIGE / ZAMEDU.
+  - **Visualizações Blade (`resources/views/onboarding/wizard.blade.php`, `resources/views/onboarding/success.blade.php`)**:
+    - `wizard.blade.php`: Formulário estruturado com seleção territorial encadeada (Província $\rightarrow$ Distrito $\rightarrow$ ZIP), tipo de instituição, dados do Diretor/Administrador e plano de subscrição.
+    - `success.blade.php`: Painel de sucesso e boas-vindas com dados da licença gerada, credenciais de acesso inicial e guia de arranque rápido.
+  - **Rotas e Registo (`routes/web.php`)**: Registadas as rotas `onboarding.school` (GET), `onboarding.school.store` (POST) e `onboarding.school.success` (GET).
+  - **Testes de Integração (`tests/Feature/SchoolOnboardingTest.php`)**: Criados testes automatizados cobrindo a exibição do wizard, submissão com criação atómica de Escola, Licença e Utilizador Administrador, e visualização do ecrã de sucesso (**3/3 PASS**).
+
+**Decisões tomadas:**
+- O onboarding executa a criação da Escola, da Licença e do Diretor de Escola dentro de uma transação de base de dados (`DB::transaction`), garantindo integridade total e impedindo a criação de registos orfãos em caso de falha.
+
+**Testado:**
+- `vendor/bin/phpunit tests/Feature/SchoolOnboardingTest.php` — 100% PASS (3 testes, 23 asserções).
+- Suíte completa `vendor/bin/phpunit` — 100% PASS (**94 testes, 319 asserções**).
+
+**Estado Final da Arquitetura Multi-Tenant**:
+- **TODOS OS 10 SPRINTS DA ARQUITETURA MULTI-TENANT CONCLUÍDOS COM SUCESSO!**
+
+---
+
 ## 2026-09-07 — Sprint 9 (`feature/tenant-performance`) — Antigravity AI Agent
 
 **Feito:**

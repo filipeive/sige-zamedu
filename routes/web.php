@@ -32,6 +32,7 @@ use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\TeacherPortalController;
 use App\Http\Controllers\TerritorialDashboardController;
 use App\Http\Controllers\TerritorialAggregationController;
+use App\Http\Controllers\SchoolOnboardingController;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
@@ -101,6 +102,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/map', [TerritorialAggregationController::class, 'pedagogicalMap'])->name('map');
         Route::get('/map/pdf', [TerritorialAggregationController::class, 'exportPdf'])->name('map.pdf');
         Route::get('/map/csv', [TerritorialAggregationController::class, 'exportCsv'])->name('map.csv');
+    });
+
+    // Onboarding Multi-Escola
+    Route::prefix('onboarding')->name('onboarding.')->group(function () {
+        Route::get('/school', [SchoolOnboardingController::class, 'wizard'])->name('school');
+        Route::post('/school', [SchoolOnboardingController::class, 'store'])->name('school.store');
+        Route::get('/school/success/{school}', [SchoolOnboardingController::class, 'success'])->name('school.success');
     });
 
     // Perfil do Usuário
