@@ -18,15 +18,22 @@ Formato de cada entrada:
 **Próximo passo recomendado:** ...
 ```
 
-## 2026-09-08 — UI/UX Portal & Auth Redesign (`feature/school-onboarding`) — Antigravity AI Agent
+## 2026-09-08 — UI/UX Portal, FontAwesome Icons & Auth Redesign (`feature/school-onboarding`) — Antigravity AI Agent
 
 **Feito:**
-- **Reformulação Visual & UI/UX do Portal de Login e Registo de Escola (`http://127.0.0.1:8000/login` e `http://127.0.0.1:8000/registar-escola`)**:
-  - **Emblema Oficial de Moçambique**: Integrado o emblema oficial (`public/images/emblem.png`) nas barras de topo, banners governamentais e cartões de autenticação do MINEDH.
-  - **Identidade Institucional Nacional**: Aplicada a paleta de cores nacional (Verde Esmeralda `#007A3D`, Dourado `#FCD116`, Vermelho `#CE1126` e Slate `#0F172A`).
-  - **Página de Login (`resources/views/auth/login.blade.php`)**: Redesenhada em layout split-screen com visualização de funcionalidades institucionais (Onboarding, Pré-Inscrição, Pautas MINEDH), botões rápidos de preenchimento automático para contas de demonstração (Super Admin, Inspector Provincial, Director de Escola, Professor, Secretária), alternador visual de palavra-passe com ícone de olho e cartões em glassmorphism sem glitched text nem caracteres ilegíveis.
-  - **Página de Registo de Escola (`resources/views/public/trial-register.blade.php`)**: Implementado assistente multi-passo (Onboarding Wizard) com indicadores de progresso (1, 2, 3), cartões interativos de tipo de instituição (*Escola Privada* vs *Escola Pública* com crachás de isenção de propinas MINEDH), formulários limpos e badges de confiança.
-  - **Pré-Inscrição de Alunos (`resources/views/enrollments/applications/create.blade.php` e `EnrollmentApplicationController`)**: Adicionado seletor territorial encadeado (Província $\rightarrow$ Distrito $\rightarrow$ ZIP $\rightarrow$ Escola) para alocação remota de vagas por escola da zona.
+- **Ícones Profissionais FontAwesome & Contas de Demonstração Completas**:
+  - Subsituição de todos os emojis da página de login (`resources/views/auth/login.blade.php`) por ícones vetoriais de alta precisão do FontAwesome (`fa-crown`, `fa-building-columns`, `fa-map-location-dot`, `fa-sitemap`, `fa-school`, `fa-book-open-reader`, `fa-chalkboard-user`, `fa-id-card`).
+  - **Barra de Demonstração Completa**: Incluídos botões interativos de preenchimento automático para **todos os 8 papéis governamentais e escolares**:
+    1. 👑 *Super Admin* (`superadmin@visionarios.co.mz`)
+    2. 🏛️ *Inspector Provincial* (`inspector.zambezia@minedh.gov.mz`)
+    3. 🗺️ *Director Distrital / SDEJT* (`director.namacurra@minedh.gov.mz`)
+    4. 🌿 *Coordenador de ZIP* (`zip.namacurra@minedh.gov.mz`)
+    5. 🏫 *Director de Escola* (`admin@visionarios.co.mz`)
+    6. 📖 *Coordenador Pedagógico* (`pedagogia@visionarios.co.mz`)
+    7. 👨‍🏫 *Professor* (`professor@visionarios.co.mz`)
+    8. 🪪 *Secretária* (`secretaria@visionarios.co.mz`)
+- **Unificação dos Layouts (`resources/views/layouts/app.blade.php`)**:
+  - Aliased `school.blade.php` para `@extends('layouts.app')`, garantindo que 100% dos painéis utilizem a estrutura mestre e atualizada `app.blade.php`.
 
 **Decisões tomadas:**
 - Garantido o cumprimento rigoroso dos tokens de design nacionais e a desagregação estatística SNE (HM/M) em todas as exibições institucionais.
