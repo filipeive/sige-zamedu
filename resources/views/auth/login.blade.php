@@ -1,14 +1,15 @@
 <x-guest-layout>
     <style>
         :root {
-            --green-900: #064E3B;
-            --green-800: #047857;
+            --green-900: #045F30;
+            --green-800: #007A3D;
             --green-700: #059669;
             --green-600: #10B981;
             --green-100: #D1FAE5;
-            --green-50: #ECFDF5;
-            --yellow-500: #F59E0B;
-            --yellow-400: #FBBF24;
+            --green-50: #F0FDF4;
+            --yellow-500: #FCD116;
+            --yellow-400: #FDE047;
+            --red-600: #CE1126;
             --gray-900: #0F172A;
             --gray-800: #1E293B;
             --gray-700: #334155;
@@ -450,13 +451,12 @@
     <div class="split-layout">
 
         <!-- Left Visual Side -->
-        <div class="banner-side">
+        <div class="banner-side" style="background: linear-gradient(135deg, rgba(0, 122, 61, 0.95), rgba(4, 95, 48, 0.92)), url('https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat;">
             <!-- Brand Top Header -->
-            <div class="banner-brand">
-                <div class="banner-brand-icon">
-                    <i class="fas fa-graduation-cap"></i>
-                </div>
+            <div class="banner-brand d-flex align-items-center gap-3">
+                <img src="{{ asset('images/emblem.png') }}" alt="Emblema da República de Moçambique" style="height: 56px; width: auto; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));">
                 <div class="banner-brand-text">
+                    <span class="text-xs font-bold text-amber-300 uppercase tracking-widest block" style="font-size: 10px; color: #FCD116; font-weight: 800;">REPÚBLICA DE MOÇAMBIQUE · MINEDH</span>
                     <h1>ZAMEDU - SIGE</h1>
                     <span>Sistema Integrado de Gestão Escolar</span>
                 </div>
@@ -465,7 +465,7 @@
             <!-- Center Content -->
             <div class="banner-center-content">
                 <div class="banner-badge">
-                    <i class="fas fa-landmark"></i>
+                    <img src="{{ asset('images/emblem.png') }}" alt="Emblema Oficial" style="height: 18px; width: auto;" class="me-1">
                     <span>REPÚBLICA DE MOÇAMBIQUE · MINEDH</span>
                 </div>
 
@@ -514,10 +514,11 @@
 
             <div class="form-container">
 
-                <div class="form-header">
-                    <div class="form-header-icon">
-                        <i class="fas fa-graduation-cap"></i>
+                <div class="form-header text-center">
+                    <div style="margin-bottom: 12px;">
+                        <img src="{{ asset('images/emblem.png') }}" alt="Emblema Oficial da República de Moçambique" style="height: 64px; width: auto; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15)); display: block; margin: 0 auto;">
                     </div>
+                    <span class="badge" style="background: #E6F4EA; color: #007A3D; font-size: 10px; font-weight: 800; text-transform: uppercase; padding: 4px 10px; border-radius: 20px; display: inline-block; margin-bottom: 8px;">REPÚBLICA DE MOÇAMBIQUE · MINEDH</span>
                     <h2>Portal de Acesso</h2>
                     <p>Autenticação do Sistema Integrado de Gestão Escolar</p>
                 </div>

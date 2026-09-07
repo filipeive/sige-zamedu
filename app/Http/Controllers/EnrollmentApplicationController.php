@@ -27,8 +27,10 @@ class EnrollmentApplicationController extends Controller
         $classes = ClassRoom::all();
         $academicYear = next_school_year(); // Default for next year
         $fees = FeeType::where('academic_year', $academicYear)->get();
+        $provinces = \App\Models\Province::where('is_active', true)->with(['districts.zips.schools'])->get();
+        $schools = \App\Models\School::with(['province', 'district', 'zip'])->get();
 
-        return view('enrollments.applications.create', compact('classes', 'academicYear', 'fees'));
+        return view('enrollments.applications.create', compact('classes', 'academicYear', 'fees', 'provinces', 'schools'));
     }
 
     /**
@@ -37,6 +39,7 @@ class EnrollmentApplicationController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'school_id' => 'required|exists:schools,id',
             'student.first_name' => 'required|string|max:255',
             'student.last_name' => 'required|string|max:255',
             'student.birth_date' => 'required|date',
@@ -57,6 +60,7 @@ class EnrollmentApplicationController extends Controller
             DB::beginTransaction();
 
             $academicYear = next_school_year();
+            $schoolId = $request->input('school_id');
 
             // Calculate total fees
             $gradeLevel = $request->input('student.grade_level');
@@ -70,10 +74,14 @@ class EnrollmentApplicationController extends Controller
 
             $totalAmount = $fees->sum('amount');
 
+            $studentData = $request->student;
+            $studentData['school_id'] = $schoolId;
+
             $application = EnrollmentApplication::create([
+                'school_id' => $schoolId,
                 'type' => 'NEW',
                 'status' => 'PENDING',
-                'student_data' => $request->student,
+                'student_data' => $studentData,
                 'parent_data' => $request->parent,
                 'academic_year' => $academicYear,
                 'total_amount' => $totalAmount,

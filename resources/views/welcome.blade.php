@@ -19,14 +19,15 @@
 
     <style>
         :root {
-            --green-900: #064E3B;
-            --green-800: #047857;
+            --green-900: #045F30;
+            --green-800: #007A3D;
             --green-700: #059669;
             --green-600: #10B981;
             --green-100: #D1FAE5;
-            --green-50: #ECFDF5;
-            --yellow-500: #F59E0B;
-            --yellow-400: #FBBF24;
+            --green-50: #F0FDF4;
+            --yellow-500: #FCD116;
+            --yellow-400: #FDE047;
+            --red-600: #CE1126;
             --gray-900: #0F172A;
             --gray-800: #1E293B;
             --gray-700: #334155;
@@ -510,11 +511,10 @@
     <!-- TOP BAR -->
     <header class="top-bar">
         <div class="container">
-            <div class="brand">
-                <div class="brand-logo-icon">
-                    <i class="fas fa-graduation-cap"></i>
-                </div>
+            <div class="brand d-flex align-items-center gap-3">
+                <img src="{{ asset('images/emblem.png') }}" alt="Emblema da República de Moçambique" style="height: 52px; width: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));" class="brand-logo-emblem">
                 <div class="brand-text">
+                    <span class="text-xs font-bold uppercase tracking-wider text-emerald-800 d-block" style="font-size: 10px; color: #007A3D; font-weight: 800;">REPÚBLICA DE MOÇAMBIQUE · MINEDH</span>
                     <h1>ZAMEDU - SIGE</h1>
                     <span>Sistema Integrado de Gestão Escolar</span>
                 </div>
@@ -522,7 +522,7 @@
 
             <div class="top-actions">
                 <a href="{{ route('public.pre-enrollment') }}" class="btn-pre-enrollment">
-                    <i class="fas fa-user-plus"></i> Pré-Inscrição de Candidato
+                    <i class="fas fa-user-plus"></i> Pré-Inscrição por Região
                 </a>
                 <a href="{{ route('login') }}" class="btn-login">
                     <i class="fas fa-right-to-bracket"></i> Aceder ao Sistema
@@ -539,17 +539,18 @@
             <div class="hero-grid">
                 <div>
                     <div class="hero-badge">
-                        <i class="fas fa-landmark"></i> REPÚBLICA DE MOÇAMBIQUE · MINEDH
+                        <img src="{{ asset('images/emblem.png') }}" alt="Emblema Oficial" style="height: 22px; width: auto;" class="me-1">
+                        REPÚBLICA DE MOÇAMBIQUE · MINEDH
                     </div>
                     <h1 class="hero-title">
                         Gestão Escolar Oficial <span>Sem Filas e Sem Congestionamento</span>
                     </h1>
                     <p class="hero-desc">
-                        Plataforma oficial ZAMEDU - SIGE para modernizar a gestão académica de Escolas Públicas e Privadas de Moçambique. Emissão de Pautas, Boletins e Certificados em total conformidade com o Sistema Nacional de Educação.
+                        Plataforma oficial ZAMEDU - SIGE para modernizar a gestão académica de Escolas Públicas e Privadas de Moçambique. Emissão de Pautas, Boletins e Certificados em total conformidade com o Sistema Nacional de Educação (SNE - Lei 18/2018).
                     </p>
                     <div class="hero-buttons">
                         <a href="{{ route('public.pre-enrollment') }}" class="btn-hero-primary">
-                            <i class="fas fa-user-plus"></i> Pré-Inscrição do Aluno
+                            <i class="fas fa-user-plus"></i> Pré-Inscrição por Região
                         </a>
                         <a href="{{ route('public.trial-register') }}" class="btn-hero-secondary">
                             <i class="fas fa-school"></i> Registar Escola
@@ -558,13 +559,11 @@
                 </div>
 
                 <div class="hero-card">
-                    <div class="hero-card-header">
-                        <div class="hero-card-header-icon">
-                            <i class="fas fa-graduation-cap"></i>
-                        </div>
+                    <div class="hero-card-header d-flex align-items-center gap-3">
+                        <img src="{{ asset('images/emblem.png') }}" alt="Emblema da República" style="height: 48px; width: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));">
                         <div>
-                            <h3>MINEDH Moçambique</h3>
-                            <span class="text-xs text-slate-500 font-semibold">Sistema de Gestão de Vagas & Académico</span>
+                            <h3 class="mb-0">MINEDH Moçambique</h3>
+                            <span class="text-xs text-slate-500 font-semibold">Sistema Nacional de Educação (SNE)</span>
                         </div>
                     </div>
 

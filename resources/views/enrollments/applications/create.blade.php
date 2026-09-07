@@ -7,21 +7,68 @@
         <div class="row justify-content-center">
             <div class="col-md-10">
                 <div class="school-card shadow-lg border-0">
-                    <div class="school-card-header bg-primary-school text-white p-4">
-                        <h2 class="mb-0"><i class="fas fa-user-plus me-2"></i> Pré-Inscrição Online - Ano Letivo
-                            {{ $academicYear }}
-                        </h2>
-                        <p class="mb-0 mt-2 opacity-75">Preencha os dados abaixo para iniciar o processo de matrícula do seu
-                            filho.</p>
+                    <div class="school-card-header text-white p-4" style="background: linear-gradient(135deg, #007A3D 0%, #046A38 100%); border-bottom: 4px solid #FCD116;">
+                        <div class="d-flex align-items-center gap-3">
+                            <img src="{{ asset('images/emblem.png') }}" alt="Emblema da República de Moçambique" style="height: 60px; width: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">
+                            <div>
+                                <span class="badge bg-warning text-dark font-bold text-uppercase px-2 py-1 mb-1">REPÚBLICA DE MOÇAMBIQUE · MINEDH</span>
+                                <h2 class="mb-0 font-extrabold"><i class="fas fa-user-plus me-2"></i> Pré-Inscrição Online — Ano Letivo {{ $academicYear }}</h2>
+                                <p class="mb-0 mt-1 opacity-90 small">Selecione a região/escola pretendida e preencha os dados do candidato.</p>
+                            </div>
+                        </div>
                     </div>
                     <div class="school-card-body p-5">
                         <form action="{{ route('public.pre-enrollment.store') }}" method="POST"
                             enctype="multipart/form-data" id="enrollmentForm">
                             @csrf
 
-                            <!-- Step 1: Student Data -->
+                            <!-- Step 1: Student Data & Territorial Selection -->
                             <div class="form-step" id="step1">
-                                <h4 class="border-bottom pb-2 mb-4 text-primary-school">Passo 1: Dados do Aluno</h4>
+                                <h4 class="border-bottom pb-2 mb-4 text-emerald-800 font-extrabold"><i class="fas fa-map-marker-alt me-2 text-warning"></i>1. Seleção da Escola por Região / Zona & Dados do Aluno</h4>
+                                
+                                <!-- Territorial School Selector -->
+                                <div class="p-4 mb-4 rounded-3 border bg-light" style="border-left: 5px solid #007A3D !important;">
+                                    <h6 class="text-emerald-900 font-bold mb-3"><i class="fas fa-landmark me-2 text-emerald-700"></i>Escolha a Escola de acordo com a sua Província / Distrito:</h6>
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <label class="form-label font-semibold">Província <span class="text-danger">*</span></label>
+                                            <select id="province_select" class="form-select" onchange="filterTerritoryOptions()">
+                                                <option value="">Todas as Províncias</option>
+                                                @if(isset($provinces))
+                                                    @foreach($provinces as $p)
+                                                        <option value="{{ $p->id }}">{{ $p->name }}</option>
+                                                    @endforeach
+                                                @endif
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label font-semibold">Distrito <span class="text-danger">*</span></label>
+                                            <select id="district_select" class="form-select" onchange="filterTerritoryOptions()">
+                                                <option value="">Todos os Distritos</option>
+                                                @if(isset($provinces))
+                                                    @foreach($provinces as $p)
+                                                        @foreach($p->districts as $d)
+                                                            <option value="{{ $d->id }}" data-province="{{ $p->id }}">{{ $d->name }} ({{ $p->name }})</option>
+                                                        @endforeach
+                                                    @endforeach
+                                                @endif
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label font-semibold">Escola Pretendida <span class="text-danger">*</span></label>
+                                            <select name="school_id" id="school_select" class="form-select" required>
+                                                <option value="">Selecione a Escola...</option>
+                                                @if(isset($schools))
+                                                    @foreach($schools as $s)
+                                                        <option value="{{ $s->id }}" data-province="{{ $s->province_id }}" data-district="{{ $s->district_id }}">
+                                                            {{ $s->name }} ({{ strtoupper($s->type === 'public' ? 'Pública' : ($s->type === 'private' ? 'Privada' : 'Comunitária')) }})
+                                                        </option>
+                                                    @endforeach
+                                                @endif
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <label class="form-label">Nome Próprio <span class="text-danger">*</span></label>
@@ -202,6 +249,32 @@
 
     @push('scripts')
         <script>
+            function filterTerritoryOptions() {
+                const provId = document.getElementById('province_select').value;
+                const distId = document.getElementById('district_select').value;
+
+                const distOptions = document.querySelectorAll('#district_select option[data-province]');
+                distOptions.forEach(opt => {
+                    if (!provId || opt.getAttribute('data-province') === provId) {
+                        opt.style.display = '';
+                    } else {
+                        opt.style.display = 'none';
+                    }
+                });
+
+                const schoolOptions = document.querySelectorAll('#school_select option[data-province]');
+                schoolOptions.forEach(opt => {
+                    const schoolProv = opt.getAttribute('data-province');
+                    const schoolDist = opt.getAttribute('data-district');
+
+                    let show = true;
+                    if (provId && schoolProv !== provId) show = false;
+                    if (distId && schoolDist !== distId) show = false;
+
+                    opt.style.display = show ? '' : 'none';
+                });
+            }
+
             const steps = ['step1', 'step2', 'step3', 'step4'];
             let currentStep = 0;
 
