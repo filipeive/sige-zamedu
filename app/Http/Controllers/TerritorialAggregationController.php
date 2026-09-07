@@ -81,8 +81,8 @@ class TerritorialAggregationController extends Controller
                     $q->whereIn('class_id', $classIds);
                 })->get();
 
-            if ($students->isEmpty()) {
-                // Fallback to direct class matching if enrollment record is absent
+            if ($students->isEmpty() && \Illuminate\Support\Facades\Schema::hasColumn('students', 'class_id')) {
+                // Fallback to direct class matching if enrollment record is absent and column exists
                 $students = Student::withoutGlobalScopes()
                     ->whereIn('school_id', $schoolIds)
                     ->whereIn('class_id', $classIds)
