@@ -138,6 +138,12 @@ class PermissionSeeder extends Seeder
         $createPermission('view_observations');
         $createPermission('manage_student_records');
 
+        // Território e Inspeção (Província / Distrito / ZIP)
+        $createPermission('view_territorial_dashboard');
+        $createPermission('view_province_reports');
+        $createPermission('view_district_reports');
+        $createPermission('view_zip_reports');
+
         // ========== CRIAR ROLES E ATRIBUIR PERMISSÕES ==========
 
         $createRole = function ($name) {
@@ -235,6 +241,39 @@ class PermissionSeeder extends Seeder
             'view_events',
         ]);
 
+        // 8. INSPECTOR / ADMIN PROVINCIAL
+        $provinceAdminRole = $createRole('province_admin');
+        $provinceInspectorRole = $createRole('province_inspector');
+        $provincePermissions = [
+            'access_dashboard', 'view_statistics',
+            'view_territorial_dashboard', 'view_province_reports', 'view_district_reports', 'view_zip_reports',
+            'view_academic_reports', 'view_reports', 'export_reports',
+        ];
+        $provinceAdminRole->syncPermissions($provincePermissions);
+        $provinceInspectorRole->syncPermissions($provincePermissions);
+
+        // 9. INSPECTOR / ADMIN DISTRITAL
+        $districtAdminRole = $createRole('district_admin');
+        $districtInspectorRole = $createRole('district_inspector');
+        $districtPermissions = [
+            'access_dashboard', 'view_statistics',
+            'view_territorial_dashboard', 'view_district_reports', 'view_zip_reports',
+            'view_academic_reports', 'view_reports', 'export_reports',
+        ];
+        $districtAdminRole->syncPermissions($districtPermissions);
+        $districtInspectorRole->syncPermissions($districtPermissions);
+
+        // 10. COORDENADOR DE ZIP
+        $zipCoordinatorRole = $createRole('zip_coordinator');
+        $zipAdminRole = $createRole('zip_admin');
+        $zipPermissions = [
+            'access_dashboard', 'view_statistics',
+            'view_territorial_dashboard', 'view_zip_reports',
+            'view_academic_reports', 'view_reports', 'export_reports',
+        ];
+        $zipCoordinatorRole->syncPermissions($zipPermissions);
+        $zipAdminRole->syncPermissions($zipPermissions);
+
         // ========== CRIAR USUÁRIOS DE EXEMPLO SE NÃO EXISTIREM ==========
 
         $createUser = function ($data, $role) {
@@ -245,6 +284,9 @@ class PermissionSeeder extends Seeder
                     'password' => Hash::make($data['password']),
                     'status' => 'active',
                     'email_verified_at' => now(),
+                    'province_id' => $data['province_id'] ?? null,
+                    'district_id' => $data['district_id'] ?? null,
+                    'zip_id' => $data['zip_id'] ?? null,
                 ]
             );
             $user->assignRole($role);
@@ -258,6 +300,11 @@ class PermissionSeeder extends Seeder
         $createUser(['name' => 'Professor Exemplo', 'email' => 'professor@visionarios.co.mz', 'password' => 'professor123'], 'teacher');
         $createUser(['name' => 'Encarregado de Educação', 'email' => 'pai@visionarios.co.mz', 'password' => 'pai123'], 'parent');
         $createUser(['name' => 'Segurança / Portaria', 'email' => 'seguranca@visionarios.co.mz', 'password' => 'seguranca123'], 'security');
+
+        // Usuários Territoriais
+        $createUser(['name' => 'Inspector Provincial Zambézia', 'email' => 'inspector.zambezia@minedh.gov.mz', 'password' => 'provincia123'], 'province_inspector');
+        $createUser(['name' => 'Director Distrital Namacurra', 'email' => 'director.namacurra@minedh.gov.mz', 'password' => 'distrito123'], 'district_inspector');
+        $createUser(['name' => 'Coordenador ZIP Namacurra Sede', 'email' => 'zip.namacurra@minedh.gov.mz', 'password' => 'zip123'], 'zip_coordinator');
 
         $this->command->info('Sistema de permissões e roles sincronizado com sucesso!');
     }

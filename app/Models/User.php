@@ -23,6 +23,9 @@ class User extends Authenticatable
         'avatar',
         'last_login',
         'school_id',
+        'province_id',
+        'district_id',
+        'zip_id',
     ];
 
     protected $hidden = [
@@ -69,6 +72,21 @@ class User extends Authenticatable
     public function conversations()
     {
         return $this->hasMany(Conversation::class);
+    }
+
+    public function province()
+    {
+        return $this->belongsTo(Province::class);
+    }
+
+    public function district()
+    {
+        return $this->belongsTo(District::class);
+    }
+
+    public function zip()
+    {
+        return $this->belongsTo(Zip::class);
     }
 
     // Scopes

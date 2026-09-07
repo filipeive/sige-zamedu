@@ -18,6 +18,27 @@ Formato de cada entrada:
 **Próximo passo recomendado:** ...
 ```
 
+## 2026-09-07 — Sprint 5 (`feature/territorial-roles`) — Antigravity AI Agent
+
+**Feito:**
+- **Papéis Territoriais Spatie & Scope Resolver (`feature/territorial-roles`)**:
+  - **Branch**: `feature/territorial-roles`.
+  - **Migração Concluída (`2026_09_07_000012_add_territorial_columns_to_users_table.php`)**: Adicionou as colunas chave estrangeira nulas `province_id`, `district_id`, `zip_id` na tabela `users`.
+  - **Model User (`app/Models/User.php`)**: Atualizado com `$fillable` (`province_id`, `district_id`, `zip_id`) e relacionamentos Eloquent (`province()`, `district()`, `zip()`).
+  - **Serviço `HierarchyScopeResolver` (`app/Services/HierarchyScopeResolver.php`)**: Criado serviço centralizado para determinar a lista de `school_ids` visíveis por utilizador conforme a sua hierarquia territorial (`super_admin` -> `null` global; `province_inspector` -> escolas da província; `district_inspector` -> escolas do distrito; `zip_coordinator` -> escolas do ZIP; utilizador escolar -> `[school_id]`).
+  - **Seeder de Permissões e Roles (`database/seeders/PermissionSeeder.php` e `TerritorialRolesSeeder.php`)**: Adicionadas permissões territoriais (`view_territorial_dashboard`, `view_province_reports`, `view_district_reports`, `view_zip_reports`), roles territoriais Spatie (`province_admin`, `province_inspector`, `district_admin`, `district_inspector`, `zip_coordinator`, `zip_admin`) e utilizadores de teste territoriais associados à Zambézia/Namacurra.
+  - **Testes de Funcionalidade (`tests/Feature/TerritorialRolesTest.php`)**: Suite completa de 5 testes unitários/funcionais validando atribuição de papéis Spatie e resolução hierárquica por escopo.
+
+**Decisões tomadas:**
+- `HierarchyScopeResolver` é o serviço único e desacoplado para queries de relatórios e painéis territoriais de leitura agregada (sem misturar com `SchoolScope` de escrita operacional das escolas).
+
+**Testado:**
+- `vendor/bin/phpunit tests/Feature/TerritorialRolesTest.php` — 100% PASS (5 testes, 20 asserções).
+- Suíte completa `vendor/bin/phpunit` — 100% PASS (73 testes, 248 asserções).
+
+**Próximo passo recomendado:**
+- Avançar para a **Sprint 6 (`feature/territorial-dashboards`)**: Implementação dos painéis e rotas para visualização de métricas de ZIP, Distrito e Província.
+
 ---
 
 ## 2026-09-07 — Sprint 4 (`feature/school-id-not-null`) — Antigravity AI Agent
