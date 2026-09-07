@@ -18,6 +18,29 @@ Formato de cada entrada:
 **Próximo passo recomendado:** ...
 ```
 
+## 2026-09-07 — Sprint 7 (`feature/aggregation-drilldown`) — Antigravity AI Agent
+
+**Feito:**
+- **Agregação e Drill-Down de Mapas Pedagógicos Territoriais MINEDH (`feature/aggregation-drilldown`)**:
+  - **Branch**: `feature/aggregation-drilldown`.
+  - **Controller (`app/Http/Controllers/TerritorialAggregationController.php`)**: Criada a funcionalidade de consolidação territorial por classes e ciclos (8ª a 12ª classe, 1º Ciclo, 2º Ciclo e Total Geral) rigorosamente alinhada com o modelo oficial MINEDH (`APROV Pedgg ES-2ºTrim -2026_MARRACUA.xlsx`).
+  - **Estatísticas SNE (HM / M)**: Cálculo automatizado de Entradas, Desistentes, Transferidos, Avaliados, Aprovados/Transitados ($\ge 9.5$), % Aproveitamento e % Desistência.
+  - **Exportação Multi-Formato**: Exportação em PDF oficial formatado em A4 Paisagem com marcas para assinaturas (`/territorial/map/pdf`) e exportação em Excel/CSV com codificação UTF-8 com BOM (`/territorial/map/csv`).
+  - **Views (`resources/views/territorial/map.blade.php` e `pdf_map.blade.php`)**: Interface interativa de consulta com filtros por ano, trimestre, província, distrito e ZIP + template PDF oficial.
+  - **Testes de Funcionalidade (`tests/Feature/TerritorialAggregationTest.php`)**: 5 testes automatizados cobrindo visualização do mapa pedagógico territorial, escopo de permissões e exportações PDF/CSV (**5/5 PASS**).
+
+**Decisões tomadas:**
+- A consolidação de dados territoriais utiliza `HierarchyScopeResolver` para garantir que inspectores e coordenadores apenas consigam exportar e visualizar mapas pedagógicos do seu escopo administrativo.
+
+**Testado:**
+- `vendor/bin/phpunit tests/Feature/TerritorialAggregationTest.php` — 100% PASS (5 testes, 13 asserções).
+- Suíte completa `vendor/bin/phpunit` — 100% PASS (83 testes, 272 asserções).
+
+**Próximo passo recomendado:**
+- Avançar para a **Sprint 8 (`feature/tenant-security-tests`)**: Testes exaustivos de penetração, isolamento de dados e segurança multi-tenant (garantir impedimento de vazamento de dados entre escolas e jurisdições).
+
+---
+
 ## 2026-09-07 — Sprint 6 (`feature/territorial-dashboards`) — Antigravity AI Agent
 
 **Feito:**

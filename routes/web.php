@@ -31,6 +31,7 @@ use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\TeacherPortalController;
 use App\Http\Controllers\TerritorialDashboardController;
+use App\Http\Controllers\TerritorialAggregationController;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
@@ -97,6 +98,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('territorial')->name('territorial.')->group(function () {
         Route::get('/dashboard', [TerritorialDashboardController::class, 'index'])->name('dashboard');
         Route::get('/school/{school}', [TerritorialDashboardController::class, 'schoolDrillDown'])->name('school');
+        Route::get('/map', [TerritorialAggregationController::class, 'pedagogicalMap'])->name('map');
+        Route::get('/map/pdf', [TerritorialAggregationController::class, 'exportPdf'])->name('map.pdf');
+        Route::get('/map/csv', [TerritorialAggregationController::class, 'exportCsv'])->name('map.csv');
     });
 
     // Perfil do Usuário
