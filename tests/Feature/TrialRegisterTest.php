@@ -23,7 +23,7 @@ class TrialRegisterTest extends TestCase
     {
         $response = $this->get(route('public.trial-register'));
         $response->assertStatus(200);
-        $response->assertSee('Registe a Sua Escola em 3 Passos');
+        $response->assertSee('Registe a Sua Escola no SIGE');
     }
 
     public function test_can_register_school_for_15_day_trial()
