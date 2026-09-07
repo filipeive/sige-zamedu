@@ -18,6 +18,24 @@ Formato de cada entrada:
 **Próximo passo recomendado:** ...
 ```
 
+## 2026-09-08 — UI/UX Portal & Auth Redesign (`feature/school-onboarding`) — Antigravity AI Agent
+
+**Feito:**
+- **Reformulação Visual & UI/UX do Portal de Login e Registo de Escola (`http://127.0.0.1:8000/login` e `http://127.0.0.1:8000/registar-escola`)**:
+  - **Emblema Oficial de Moçambique**: Integrado o emblema oficial (`public/images/emblem.png`) nas barras de topo, banners governamentais e cartões de autenticação do MINEDH.
+  - **Identidade Institucional Nacional**: Aplicada a paleta de cores nacional (Verde Esmeralda `#007A3D`, Dourado `#FCD116`, Vermelho `#CE1126` e Slate `#0F172A`).
+  - **Página de Login (`resources/views/auth/login.blade.php`)**: Redesenhada em layout split-screen com visualização de funcionalidades institucionais (Onboarding, Pré-Inscrição, Pautas MINEDH), botões rápidos de preenchimento automático para contas de demonstração (Super Admin, Inspector Provincial, Director de Escola, Professor, Secretária), alternador visual de palavra-passe com ícone de olho e cartões em glassmorphism sem glitched text nem caracteres ilegíveis.
+  - **Página de Registo de Escola (`resources/views/public/trial-register.blade.php`)**: Implementado assistente multi-passo (Onboarding Wizard) com indicadores de progresso (1, 2, 3), cartões interativos de tipo de instituição (*Escola Privada* vs *Escola Pública* com crachás de isenção de propinas MINEDH), formulários limpos e badges de confiança.
+  - **Pré-Inscrição de Alunos (`resources/views/enrollments/applications/create.blade.php` e `EnrollmentApplicationController`)**: Adicionado seletor territorial encadeado (Província $\rightarrow$ Distrito $\rightarrow$ ZIP $\rightarrow$ Escola) para alocação remota de vagas por escola da zona.
+
+**Decisões tomadas:**
+- Garantido o cumprimento rigoroso dos tokens de design nacionais e a desagregação estatística SNE (HM/M) em todas as exibições institucionais.
+- Mantido o isolamento multi-tenant estrito (`BelongsToSchool` / `SchoolScope`).
+
+**Testado:**
+- NAVEGADOR (`mcp-chrome-devtools` / Subagente de Navegador): Capturadas capturas de ecrã completas de `http://127.0.0.1:8000/login` e `http://127.0.0.1:8000/registar-escola` confirmando acabamento visual de alto padrão.
+- PHPUNIT (`vendor/bin/phpunit`): **94/94 PASS (319 asserções)** em 100% da suíte de testes.
+
 ## 2026-09-07 — Sprint 10 (`feature/school-onboarding`) — Antigravity AI Agent
 
 **Feito:**
