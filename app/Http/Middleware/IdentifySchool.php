@@ -6,6 +6,7 @@ use App\Models\School;
 use App\Services\SchoolContext;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\Response;
 
 class IdentifySchool
@@ -29,14 +30,20 @@ class IdentifySchool
             $schoolId = (int) $request->header('X-School-Id');
         }
 
-        if (!$schoolId && session()->has('active_school_id')) {
-            $schoolId = (int) session('active_school_id');
+        if (!$schoolId) {
+            $schoolId = session()->has('active_school_id') ? (int) session('active_school_id') : null;
         }
 
-        if ($schoolId && School::where('id', $schoolId)->exists()) {
-            SchoolContext::setSchoolId((int) $schoolId);
-        } else {
-            SchoolContext::clear();
+        if (Schema::hasTable('schools')) {
+            if (!$schoolId) {
+                $schoolId = School::value('id');
+            }
+
+            if ($schoolId && School::where('id', $schoolId)->exists()) {
+                SchoolContext::setSchoolId((int) $schoolId);
+            } else {
+                SchoolContext::clear();
+            }
         }
 
         return $next($request);

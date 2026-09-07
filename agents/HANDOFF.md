@@ -20,6 +20,28 @@ Formato de cada entrada:
 
 ---
 
+## 2026-09-07 — Sprint 4 (`feature/school-id-not-null`) — Antigravity AI Agent
+
+**Feito:**
+- **Tornar `school_id` NOT NULL (Ponto de Não Retorno do Multi-Tenancy)**:
+  - **Branch**: `feature/school-id-not-null`.
+  - **Migração Concluída (`2026_09_07_000011_make_school_id_not_null_on_domain_tables.php`)**: Alterou a restrição nula da coluna `school_id` para `NOT NULL` em 27 tabelas do domínio de negócio (`students`, `teachers`, `classes`, `subjects`, `class_schedules`, `class_subjects`, `enrollments`, `enrollment_applications`, `enrollment_documents`, `grades`, `assessments`, `attendances`, `payments`, `expenses`, `fee_types`, `financial_categories`, `communications`, `conversations`, `messages`, `sms_logs`, `sms_inbox`, `events`, `gate_logs`, `staff_leave_requests`, `material_lists`, `settings`, `licenses`).
+  - **Auditoria & Migração Segura**: Incluído salvaguarda de backfill automático previo na migração para garantir que qualquer registo órfão residual seja associado à escola padrão antes da alteração de constraint.
+  - **Coluna `users.school_id`**: Mantida `nullable()` intencionalmente para utilizadores territoriais (Inspectores ZIP/Distrito/Província e Super Admins).
+
+**Decisões tomadas:**
+- A coluna `school_id` é agora estritamente obrigatória a nível de motor de base de dados (DB constraint `NOT NULL`).
+- Tentativas de inserção de dados do domínio sem `school_id` e sem `SchoolContext` ativo agora falham a nível de BD (`SQLSTATE[23000]`).
+
+**Testado:**
+- `vendor/bin/phpunit --filter=SchoolIdNotNullTest` — 100% PASS (2 testes, 3 asserções).
+- Suíte completa `vendor/bin/phpunit` — 100% PASS (68 testes, 228 asserções).
+
+**Próximo passo recomendado:**
+1. Iniciar **Sprint 5 (`feature/territorial-roles`)**: Implementação dos papéis e permissões territoriais Spatie para Província, Distrito, ZIP e Escola.
+
+---
+
 ## 2026-09-07 — Sprint 3 (`feature/school-scoping`) — Antigravity AI Agent
 
 **Feito:**

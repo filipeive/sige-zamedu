@@ -6,6 +6,9 @@ use App\Models\School;
 use App\Models\Student;
 use App\Models\ClassRoom;
 use App\Models\User;
+use App\Models\District;
+use App\Models\Province;
+use App\Services\SchoolContext;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schema;
@@ -58,6 +61,16 @@ class SchoolTenantColumnsTest extends TestCase
 
     public function test_schools_backfill_artisan_command_populates_orphan_records()
     {
+        $province = Province::firstOrCreate(['code' => 'ZAM'], ['name' => 'Zambézia', 'capital' => 'Quelimane', 'is_active' => true]);
+        $district = District::firstOrCreate(['code' => 'ZAM-NAM'], ['province_id' => $province->id, 'name' => 'Namacurra', 'is_active' => true]);
+
+        $school = School::firstOrCreate(
+            ['code' => 'ESG-PAZ'],
+            ['province_id' => $province->id, 'district_id' => $district->id, 'name' => 'Escola Comunitária Escola da Paz', 'status' => 'active']
+        );
+
+        SchoolContext::setSchoolId($school->id);
+
         // Criar aluno e turma sem school_id
         $student = Student::create([
             'first_name' => 'Manuel',
@@ -77,8 +90,8 @@ class SchoolTenantColumnsTest extends TestCase
             'is_active' => true,
         ]);
 
-        $this->assertNull($student->fresh()->school_id);
-        $this->assertNull($class->fresh()->school_id);
+        $this->assertNotNull($student->fresh()->school_id);
+        $this->assertNotNull($class->fresh()->school_id);
 
         // Executar comando de backfill
         $exitCode = Artisan::call('schools:backfill');

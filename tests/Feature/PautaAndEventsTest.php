@@ -8,6 +8,10 @@ use App\Models\Grade;
 use App\Models\Student;
 use App\Models\Subject;
 use App\Models\User;
+use App\Models\District;
+use App\Models\Province;
+use App\Models\School;
+use App\Services\SchoolContext;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -20,10 +24,16 @@ class PautaAndEventsTest extends TestCase
     protected $admin;
     protected $primaryClass;
     protected $secondaryClass;
+    protected School $school;
 
     protected function setUp(): void
     {
         parent::setUp();
+
+        $province = Province::create(['name' => 'Maputo', 'code' => 'MPM', 'capital' => 'Maputo', 'is_active' => true]);
+        $district = District::create(['province_id' => $province->id, 'name' => 'KaMpfumo', 'code' => 'MPM-KMP', 'is_active' => true]);
+        $this->school = School::create(['province_id' => $province->id, 'district_id' => $district->id, 'name' => 'Escola Piloto', 'code' => 'ESC-PILOT', 'status' => 'active']);
+        SchoolContext::setSchoolId($this->school->id);
 
         // Criar permissões e admin
         Permission::firstOrCreate(['name' => 'view_grades']);

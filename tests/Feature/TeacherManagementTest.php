@@ -5,6 +5,10 @@ namespace Tests\Feature;
 use App\Models\User;
 use App\Models\Teacher;
 use App\Models\License;
+use App\Models\District;
+use App\Models\Province;
+use App\Models\School;
+use App\Services\SchoolContext;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Spatie\Permission\Models\Permission;
@@ -13,11 +17,19 @@ class TeacherManagementTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected School $school;
+
     protected function setUp(): void
     {
         parent::setUp();
 
+        $province = Province::create(['name' => 'Maputo', 'code' => 'MPM', 'capital' => 'Maputo', 'is_active' => true]);
+        $district = District::create(['province_id' => $province->id, 'name' => 'KaMpfumo', 'code' => 'MPM-KMP', 'is_active' => true]);
+        $this->school = School::create(['province_id' => $province->id, 'district_id' => $district->id, 'name' => 'Escola Piloto', 'code' => 'ESC-PILOT', 'status' => 'active']);
+        SchoolContext::setSchoolId($this->school->id);
+
         License::create([
+            'school_id' => $this->school->id,
             'client_name' => 'Escola Teste',
             'license_key' => 'KEY-TEST-TEACHERS',
             'expires_at' => now()->addDays(30),

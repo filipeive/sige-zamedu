@@ -8,6 +8,10 @@ use App\Models\ClassRoom;
 use App\Models\Student;
 use App\Models\Subject;
 use App\Models\Grade;
+use App\Models\District;
+use App\Models\Province;
+use App\Models\School;
+use App\Services\SchoolContext;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
@@ -19,10 +23,16 @@ class SNEPedagogicalDocTest extends TestCase
     protected User $admin;
     protected ClassRoom $class;
     protected Student $student;
+    protected School $school;
 
     protected function setUp(): void
     {
         parent::setUp();
+
+        $province = Province::create(['name' => 'Maputo', 'code' => 'MPM', 'capital' => 'Maputo', 'is_active' => true]);
+        $district = District::create(['province_id' => $province->id, 'name' => 'KaMpfumo', 'code' => 'MPM-KMP', 'is_active' => true]);
+        $this->school = School::create(['province_id' => $province->id, 'district_id' => $district->id, 'name' => 'Escola Piloto', 'code' => 'ESC-PILOT', 'status' => 'active']);
+        SchoolContext::setSchoolId($this->school->id);
 
         Permission::firstOrCreate(['name' => 'view_grades']);
         Permission::firstOrCreate(['name' => 'view_students']);
@@ -62,6 +72,7 @@ class SNEPedagogicalDocTest extends TestCase
         ]);
 
         $this->class->students()->attach($this->student->id, [
+            'school_id' => $this->school->id,
             'school_year' => 2026,
             'status' => 'active',
             'enrollment_date' => '2026-01-01',
