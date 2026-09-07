@@ -18,6 +18,29 @@ Formato de cada entrada:
 **Próximo passo recomendado:** ...
 ```
 
+## 2026-09-07 — Sprint 8 (`feature/tenant-security-tests`) — Antigravity AI Agent
+
+**Feito:**
+- **Testes de Segurança & Penetração Multi-Tenant (`feature/tenant-security-tests`)**:
+  - **Branch**: `feature/tenant-security-tests`.
+  - **Suite de Testes (`tests/Feature/MultiTenantSecurityTest.php`)**: Criada suite exaustiva de testes de penetração e segurança validando as diretrizes de `SECURITY_MODEL.md`.
+  - **Isolamento entre Escolas (Cross-School Isolation)**: Verificado que utilizadores da Escola A não conseguem visualizar, consultar ou manipular alunos ou pagamentos da Escola B via rotas diretas ou manipuladas (retornando HTTP 404 / 403).
+  - **Scoping Global Eloquent (`BelongsToSchool`)**: Validada a garantia de que queries genéricas (`Student::all()`) em contexto de escola apenas devolvem registos da própria escola.
+  - **Fronteira Territorial Administrativa**: Verificado que coordenadores de ZIP e inspectores distritais não conseguem aceder a dados de escolas fora das suas jurisdições geográficas.
+  - **Resolução Estrita por Nível**: Validado `HierarchyScopeResolver` para garantir isolamento em profundidade.
+
+**Decisões tomadas:**
+- A defesa em profundidade combina a restrição de banco de dados (`SchoolScope` global), Policies/Middleware HTTP e o `HierarchyScopeResolver` em rotas territoriais.
+
+**Testado:**
+- `vendor/bin/phpunit tests/Feature/MultiTenantSecurityTest.php` — 100% PASS (6 testes, 15 asserções).
+- Suíte completa `vendor/bin/phpunit` — 100% PASS (89 testes, 287 asserções).
+
+**Próximo passo recomendado:**
+- Avançar para a **Sprint 9 (`feature/tenant-performance`)**: Otimização de Performance & Índices de Banco de Dados.
+
+---
+
 ## 2026-09-07 — Sprint 7 (`feature/aggregation-drilldown`) — Antigravity AI Agent
 
 **Feito:**
