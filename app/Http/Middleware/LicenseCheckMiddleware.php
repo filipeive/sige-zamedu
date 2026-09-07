@@ -12,7 +12,17 @@ class LicenseCheckMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         try {
-            $license = License::first();
+            $user = auth()->user();
+            $schoolId = $user?->school_id;
+            $license = null;
+
+            if ($schoolId) {
+                $license = License::where('school_id', $schoolId)->first();
+            }
+
+            if (! $license) {
+                $license = License::first();
+            }
         } catch (\Throwable $e) {
             $license = null;
         }

@@ -20,6 +20,37 @@ Formato de cada entrada:
 
 ---
 
+## 2026-09-07 — Sprint 2 (`feature/school-tenant-columns`) — Antigravity AI Agent
+
+**Feito:**
+- **Colunas Aditivas `school_id` (Nullable) & Backfill de Tenancy Concluídos**:
+  - **Branch**: `feature/school-tenant-columns`.
+  - **Migrações Aditivas**:
+    - `2026_09_07_000005_add_school_id_to_academic_tables.php` (`students`, `teachers`, `classes`, `subjects`, `class_schedules`, `class_subjects`)
+    - `2026_09_07_000006_add_school_id_to_enrollments_tables.php` (`enrollments`, `enrollment_applications`, `enrollment_documents`)
+    - `2026_09_07_000007_add_school_id_to_grades_and_attendances_tables.php` (`grades`, `assessments`, `attendances`)
+    - `2026_09_07_000008_add_school_id_to_financial_tables.php` (`payments`, `expenses`, `fee_types`, `financial_categories`)
+    - `2026_09_07_000009_add_school_id_to_communication_and_support_tables.php` (`communications`, `conversations`, `messages`, `sms_logs`, `sms_inbox`, `events`, `gate_logs`, `staff_leave_requests`, `material_lists`, `users`)
+    - `2026_09_07_000010_add_school_id_to_settings_and_licenses_tables.php` (`settings`, `licenses`)
+  - **Comando Artisan `schools:backfill`**: Criado e executado com sucesso sobre a base de dados do sistema — **15.113 registos associados** à escola piloto *Escola Comunitária Escola da Paz* (`ESG-PAZ`) sem qualquer perda ou quebra de dados.
+  - **`LicenseCheckMiddleware`**: Refatorado para consultar e avaliar licenças por `school_id` com fallback gracioso.
+
+**Decisões tomadas:**
+- Todas as colunas `school_id` permanecem `nullable()` nesta fase (Sprint 2) para garantir zero paragens e 100% de retrocompatibilidade com código legado antes do Sprint 4.
+- Registada a execução limpa de `php artisan schools:backfill` sobre 15.113 registos existentes.
+
+**Testado:**
+- `vendor/bin/phpunit --filter=SchoolTenantColumnsTest` — 100% PASS (2 testes, 34 asserções).
+- `TerritorialModelTest`, `SNEPedagogicalDocTest`, `RoleAccessAndWorkflowTest`, `MenuVisibilityTest` — 100% PASS.
+
+**Não feito / bloqueado:**
+- Trait `BelongsToSchool` e `SchoolScope` reservados para o **Sprint 3 (`feature/school-scoping`)**.
+
+**Próximo passo recomendado:**
+1. Iniciar **Sprint 3 (`feature/school-scoping`)**: Criar a Trait `BelongsToSchool`, o `SchoolScope`, o `SchoolContext` service e o middleware `IdentifySchool` para isolamento de dados de leitura/escrita.
+
+---
+
 ## 2026-09-06 — Sprint 1 (`feature/territorial-model`) — Antigravity AI Agent
 
 **Feito:**

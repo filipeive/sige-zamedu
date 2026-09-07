@@ -1,0 +1,57 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        $tables = [
+            'communications',
+            'conversations',
+            'messages',
+            'sms_logs',
+            'sms_inbox',
+            'events',
+            'gate_logs',
+            'staff_leave_requests',
+            'material_lists',
+            'users',
+        ];
+
+        foreach ($tables as $tableName) {
+            if (Schema::hasTable($tableName) && ! Schema::hasColumn($tableName, 'school_id')) {
+                Schema::table($tableName, function (Blueprint $table) {
+                    $table->foreignId('school_id')->nullable()->after('id')->constrained('schools')->onDelete('cascade');
+                });
+            }
+        }
+    }
+
+    public function down(): void
+    {
+        $tables = [
+            'users',
+            'material_lists',
+            'staff_leave_requests',
+            'gate_logs',
+            'events',
+            'sms_inbox',
+            'sms_logs',
+            'messages',
+            'conversations',
+            'communications',
+        ];
+
+        foreach ($tables as $tableName) {
+            if (Schema::hasTable($tableName) && Schema::hasColumn($tableName, 'school_id')) {
+                Schema::table($tableName, function (Blueprint $table) {
+                    $table->dropForeign(['school_id']);
+                    $table->dropColumn('school_id');
+                });
+            }
+        }
+    }
+};
