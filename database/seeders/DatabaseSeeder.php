@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
     {
         // Seeders Estruturais / Core (Necessários para qualquer nova escola)
         $this->call([
+            TerritorialSeeder::class,
             PermissionSeeder::class,
             SuperAdminSeeder::class,
             SettingSeeder::class,

@@ -11,6 +11,16 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class CertificateController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            if (auth()->check() && auth()->user()->hasRole('teacher')) {
+                abort(403, 'Acesso não autorizado. A emissão de certidões e certificados é reservada à secretaria e administração.');
+            }
+            return $next($request);
+        });
+    }
+
     /**
      * Centro Inteligente de Emissão de Certidões e Certificados com Verificação de Elegibilidade.
      */
@@ -180,6 +190,73 @@ class CertificateController extends Controller
         $pdf->setPaper('a4', 'landscape');
 
         return $pdf->download("Certificado_Conclusao_{$student->student_number}.pdf");
+    }
+
+    /**
+     * Emitir Certificado Oficial Modelo MINEDH (12ª e 10ª Classe) com Notas por Extenso.
+     */
+    public function officialCertificate(Student $student)
+    {
+        $this->authorize('view_students');
+
+        $gradesCount = Grade::where('student_id', $student->id)->count();
+        if ($gradesCount === 0) {
+            return redirect()->back()
+                ->with('error', "Impossível emitir Certificado Oficial: O(A) estudante {$student->full_name} não possui avaliações lançadas.");
+        }
+
+        $student->load(['enrollments.class', 'parent']);
+        $schoolName = Setting::get('school_name', 'ESCOLA SECUNDÁRIA VISIONÁRIOS');
+        $province = Setting::get('school_province', Setting::get('province', 'ZAMBÉZIA'));
+        $district = Setting::get('school_district', Setting::get('district', 'NAMACURRA'));
+        $directorName = Setting::get('director_name', 'O Director da Escola');
+        $secretaryName = Setting::get('secretary_name', 'O Chefe da Secretaria');
+
+        $lastEnrollment = $student->enrollments->last();
+        $className = $lastEnrollment?->class?->name ?? '12ª Classe';
+        $educationLevelName = $lastEnrollment?->class?->education_level_name ?? 'Ensino Secundário Geral';
+
+        $grades = Grade::where('student_id', $student->id)
+            ->with('subject')
+            ->get()
+            ->groupBy('subject_id');
+
+        $subjectsData = [];
+        $totalSum = 0;
+        $subjectCount = 0;
+
+        foreach ($grades as $subjectId => $subGrades) {
+            $subName = $subGrades->first()->subject->name ?? 'Disciplina';
+            $avgGrade = round($subGrades->avg('grade'), 1);
+            $subjectsData[] = [
+                'name' => $subName,
+                'grade' => $avgGrade,
+                'grade_words' => $this->gradeToWords($avgGrade),
+            ];
+            $totalSum += $avgGrade;
+            $subjectCount++;
+        }
+
+        $finalAverage = $subjectCount > 0 ? round($totalSum / $subjectCount, 1) : 0;
+        $finalAverageWords = $this->gradeToWords($finalAverage);
+
+        $pdf = Pdf::loadView('certificates.official_v12', compact(
+            'student',
+            'schoolName',
+            'province',
+            'district',
+            'directorName',
+            'secretaryName',
+            'className',
+            'educationLevelName',
+            'subjectsData',
+            'finalAverage',
+            'finalAverageWords'
+        ));
+
+        $pdf->setPaper('a4', 'portrait');
+
+        return $pdf->download("Certificado_Oficial_MINEDH_{$student->student_number}.pdf");
     }
 
     /**

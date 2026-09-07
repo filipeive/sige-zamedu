@@ -223,6 +223,11 @@
                                            class="no-underline inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold transition shadow-2xs">
                                             <i class="fas fa-certificate"></i> Certificado Conclusão
                                         </a>
+                                        <a href="{{ route('certificates.official', $student->id) }}" target="_blank"
+                                           class="no-underline inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-bold transition shadow-2xs"
+                                           title="Certificado Oficial MINEDH com notas por extenso">
+                                            <i class="fas fa-award text-amber-600"></i> Oficial MINEDH
+                                        </a>
                                     @else
                                         <button disabled title="Lance avaliações para habilitar diploma de conclusão"
                                                 class="opacity-40 cursor-not-allowed inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-100 text-slate-400 text-xs font-bold">

@@ -1465,6 +1465,7 @@
                 <div class="nav-section">
                     <div class="nav-section-title">Meu Portal Docente</div>
                     <ul class="nav-list">
+                        @if(is_menu_visible('teacher_dashboard'))
                         <li class="nav-item">
                             <a href="{{ route('teacher.dashboard') }}"
                                 class="nav-link {{ request()->routeIs('teacher.dashboard') ? 'active' : '' }}">
@@ -1472,6 +1473,8 @@
                                 <span class="nav-text">Início</span>
                             </a>
                         </li>
+                        @endif
+                        @if(is_menu_visible('teacher_classes'))
                         <li class="nav-item">
                             <a href="{{ route('teacher.classes.index') }}"
                                 class="nav-link {{ request()->routeIs('teacher.classes.*') ? 'active' : '' }}">
@@ -1485,11 +1488,13 @@
                                 @endif
                             </a>
                         </li>
+                        @endif
                         @php
                             $teacher = auth()->user()->teacher ?? null;
                             $classes = $teacher?->classes()->active()->currentYear()->get();
                             $firstClass = $classes?->first();
                         @endphp
+                        @if(is_menu_visible('teacher_attendance'))
                         <li class="nav-item">
                             @if ($firstClass)
                                 <a href="{{ route('teacher.attendance.class', $firstClass->id) }}"
@@ -1499,6 +1504,8 @@
                                 </a>
                             @endif
                         </li>
+                        @endif
+                        @if(is_menu_visible('teacher_pending_grades'))
                         <li class="nav-item">
                             <a href="{{ route('teacher.grades.pending') }}"
                                 class="nav-link {{ request()->routeIs('teacher.grades.pending') ? 'active' : '' }}">
@@ -1512,6 +1519,8 @@
                                 @endif
                             </a>
                         </li>
+                        @endif
+                        @if(is_menu_visible('teacher_gradebook'))
                         <li class="nav-item">
                             @if ($firstClass)
                                 <a href="{{ route('teacher.gradebook', $firstClass->id) }}"
@@ -1521,6 +1530,17 @@
                                 </a>
                             @endif
                         </li>
+                        @endif
+                        @if(is_menu_visible('teacher_pautas'))
+                        <li class="nav-item">
+                            <a href="{{ route('pautas.index') }}"
+                                class="nav-link {{ request()->routeIs('pautas.*') ? 'active' : '' }}">
+                                <span class="nav-icon"><i class="fas fa-file-invoice"></i></span>
+                                <span class="nav-text">Pautas das Turmas</span>
+                            </a>
+                        </li>
+                        @endif
+                        @if(is_menu_visible('teacher_communications'))
                         <li class="nav-item">
                             <a href="{{ route('teacher.communications.index') }}"
                                 class="nav-link {{ request()->routeIs('teacher.communications.*') ? 'active' : '' }}">
@@ -1528,6 +1548,8 @@
                                 <span class="nav-text">Comunicados</span>
                             </a>
                         </li>
+                        @endif
+                        @if(is_menu_visible('teacher_leaves'))
                         <li class="nav-item">
                             <a href="{{ route('teacher.leave-requests.index') }}"
                                 class="nav-link {{ request()->routeIs('teacher.leave-requests.*') ? 'active' : '' }}">
@@ -1541,6 +1563,7 @@
                                 @endif
                             </a>
                         </li>
+                        @endif
                     </ul>
                 </div>
             @endif
@@ -1550,6 +1573,7 @@
                 <div class="nav-section">
                     <div class="nav-section-title">Portal do Encarregado</div>
                     <ul class="nav-list">
+                        @if(is_menu_visible('parent_dashboard'))
                         <li class="nav-item">
                             <a href="{{ route('parent.dashboard') }}"
                                 class="nav-link {{ request()->routeIs('parent.dashboard') ? 'active' : '' }}">
@@ -1557,6 +1581,8 @@
                                 <span class="nav-text">Painel Principal</span>
                             </a>
                         </li>
+                        @endif
+                        @if(is_menu_visible('parent_children'))
                         <li class="nav-item">
                             <a href="{{ route('parent.children') }}"
                                 class="nav-link {{ request()->routeIs('parent.children') ? 'active' : '' }}">
@@ -1564,12 +1590,22 @@
                                 <span class="nav-text">Meus Educandos</span>
                             </a>
                         </li>
-                        @if(is_private_school())
+                        @endif
+                        @if(is_private_school() && is_menu_visible('parent_payments'))
                         <li class="nav-item">
                             <a href="{{ route('parent.payments') }}"
-                                class="nav-link {{ request()->routeIs('parent.payments') ? 'active' : '' }}">
+                                class="nav-link {{ request()->routeIs('parent.payments*') ? 'active' : '' }}">
                                 <span class="nav-icon"><i class="fas fa-money-bill-wave"></i></span>
                                 <span class="nav-text">Propinas & Recibos</span>
+                            </a>
+                        </li>
+                        @endif
+                        @if(is_menu_visible('parent_communications'))
+                        <li class="nav-item">
+                            <a href="{{ route('parent.communications') }}"
+                                class="nav-link {{ request()->routeIs('parent.communications*') ? 'active' : '' }}">
+                                <span class="nav-icon"><i class="fas fa-bullhorn"></i></span>
+                                <span class="nav-text">Comunicados & Notificações</span>
                             </a>
                         </li>
                         @endif
@@ -1583,6 +1619,7 @@
                     <div class="nav-section">
                         <div class="nav-section-title">Estudantes & Matrículas</div>
                         <ul class="nav-list">
+                            @if(is_menu_visible('menu_students'))
                             <li class="nav-item">
                                 <a href="{{ route('students.index') }}"
                                     class="nav-link {{ request()->routeIs('students.*') && !request()->routeIs('admin.students-archive.*') ? 'active' : '' }}">
@@ -1590,7 +1627,9 @@
                                     <span class="nav-text">Todos os Alunos</span>
                                 </a>
                             </li>
+                            @endif
                             @can('manage_enrollments')
+                                @if(is_menu_visible('menu_enrollments'))
                                 <li class="nav-item">
                                     <a href="{{ route('enrollments.index') }}"
                                         class="nav-link {{ request()->routeIs('enrollments.*') && !request()->routeIs('admin.enrollments.renewals') ? 'active' : '' }}">
@@ -1604,6 +1643,8 @@
                                         @endif
                                     </a>
                                 </li>
+                                @endif
+                                @if(is_menu_visible('menu_renewals'))
                                 <li class="nav-item">
                                     <a href="{{ route('admin.enrollments.renewals') }}"
                                         class="nav-link {{ request()->routeIs('admin.enrollments.renewals') ? 'active' : '' }}">
@@ -1611,6 +1652,8 @@
                                         <span class="nav-text">Renovação de Matrículas</span>
                                     </a>
                                 </li>
+                                @endif
+                                @if(is_menu_visible('menu_promotions'))
                                 <li class="nav-item">
                                     <a href="{{ route('admin.promotion.index') }}"
                                         class="nav-link {{ request()->routeIs('admin.promotion.*') ? 'active' : '' }}">
@@ -1618,6 +1661,8 @@
                                         <span class="nav-text">Passagem de Classe</span>
                                     </a>
                                 </li>
+                                @endif
+                                @if(is_menu_visible('menu_students_archive'))
                                 <li class="nav-item">
                                     <a href="{{ route('admin.students-archive.index') }}"
                                         class="nav-link {{ request()->routeIs('admin.students-archive.*') ? 'active' : '' }}">
@@ -1625,7 +1670,9 @@
                                         <span class="nav-text">Alunos Arquivados</span>
                                     </a>
                                 </li>
+                                @endif
                             @endcan
+                            @if(is_menu_visible('menu_parents'))
                             <li class="nav-item">
                                 <a href="{{ route('parents.index') }}"
                                     class="nav-link {{ request()->routeIs('parents.*') ? 'active' : '' }}">
@@ -1633,6 +1680,8 @@
                                     <span class="nav-text">Encarregados de Educação</span>
                                 </a>
                             </li>
+                            @endif
+                            @if(is_menu_visible('menu_gatekeeper'))
                             <li class="nav-item">
                                 <a href="{{ route('gatekeeper.index') }}"
                                     class="nav-link {{ request()->routeIs('gatekeeper.*') ? 'active' : '' }}">
@@ -1640,6 +1689,7 @@
                                     <span class="nav-text">Portaria Digital (Cartões)</span>
                                 </a>
                             </li>
+                            @endif
                         </ul>
                     </div>
                 @endif
@@ -1651,6 +1701,7 @@
                     <div class="nav-section-title">Organização Académica & Docentes</div>
                     <ul class="nav-list">
                         @canany(['manage_classes', 'view_classes'])
+                            @if(is_menu_visible('menu_classes'))
                             <li class="nav-item">
                                 <a href="{{ route('classes.index') }}"
                                     class="nav-link {{ request()->routeIs('classes.*') ? 'active' : '' }}">
@@ -1658,8 +1709,10 @@
                                     <span class="nav-text">Turmas por Nível</span>
                                 </a>
                             </li>
+                            @endif
                         @endcanany
                         @can('manage_subjects')
+                            @if(is_menu_visible('menu_subjects'))
                             <li class="nav-item">
                                 <a href="{{ route('subjects.index') }}"
                                     class="nav-link {{ request()->routeIs('subjects.*') ? 'active' : '' }}">
@@ -1667,8 +1720,10 @@
                                     <span class="nav-text">Matriz Curricular</span>
                                 </a>
                             </li>
+                            @endif
                         @endcan
                         @canany(['manage_teachers', 'view_teachers'])
+                            @if(is_menu_visible('menu_teachers'))
                             <li class="nav-item">
                                 <a href="{{ route('teachers.index') }}"
                                     class="nav-link {{ request()->routeIs('teachers.*') ? 'active' : '' }}">
@@ -1676,8 +1731,10 @@
                                     <span class="nav-text">Corpo Docente</span>
                                 </a>
                             </li>
+                            @endif
                         @endcanany
                         @can('manage_leave_requests')
+                            @if(is_menu_visible('menu_staff_leaves'))
                             <li class="nav-item">
                                 <a href="{{ route('staff-leave-requests.index') }}"
                                     class="nav-link {{ request()->routeIs('staff-leave-requests.*') ? 'active' : '' }}">
@@ -1691,6 +1748,7 @@
                                     @endif
                                 </a>
                             </li>
+                            @endif
                         @endcan
                     </ul>
                 </div>
@@ -1702,6 +1760,7 @@
                     <div class="nav-section-title">Avaliações & Documentos</div>
                     <ul class="nav-list">
                         @can('manage_grades')
+                            @if(is_menu_visible('menu_grades'))
                             <li class="nav-item">
                                 <a href="{{ route('grades.dashboard') }}"
                                     class="nav-link {{ request()->routeIs('grades.*') ? 'active' : '' }}">
@@ -1709,15 +1768,28 @@
                                     <span class="nav-text">Lançamento de Notas & Pautas</span>
                                 </a>
                             </li>
+                            @endif
                         @endcan
-                        <li class="nav-item">
-                            <a href="{{ route('certificates.index') }}"
-                                class="nav-link {{ request()->routeIs('certificates.*') ? 'active' : '' }}">
-                                <span class="nav-icon"><i class="fas fa-certificate"></i></span>
-                                <span class="nav-text">Certidões & Certificados (MINEDH)</span>
-                            </a>
-                        </li>
+                        @unless(auth()->user()->role === 'teacher')
+                            @if(is_menu_visible('menu_certificates'))
+                            <li class="nav-item">
+                                <a href="{{ route('certificates.index') }}"
+                                    class="nav-link {{ request()->routeIs('certificates.*') ? 'active' : '' }}">
+                                    <span class="nav-icon"><i class="fas fa-certificate"></i></span>
+                                    <span class="nav-text">Certidões & Certificados (MINEDH)</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('reports.pedagogical-map') }}"
+                                    class="nav-link {{ request()->routeIs('reports.pedagogical-map*') ? 'active' : '' }}">
+                                    <span class="nav-icon"><i class="fas fa-table text-emerald-400"></i></span>
+                                    <span class="nav-text">Mapa Pedagógico (HM/M)</span>
+                                </a>
+                            </li>
+                            @endif
+                        @endunless
                         @can('manage_attendances')
+                            @if(is_menu_visible('menu_attendances'))
                             <li class="nav-item">
                                 <a href="{{ route('attendances.index') }}"
                                     class="nav-link {{ request()->routeIs('attendances.*') ? 'active' : '' }}">
@@ -1725,6 +1797,7 @@
                                     <span class="nav-text">Frequência & Assiduidade</span>
                                 </a>
                             </li>
+                            @endif
                         @endcan
                     </ul>
                 </div>
@@ -1745,7 +1818,7 @@
                 <div class="nav-section">
                     <div class="nav-section-title">{{ is_public_school() ? 'Gestão Financeira & Taxas' : 'Gestão Financeira' }}</div>
                     <ul class="nav-list">
-                        @if ($isAdmin || auth()->user()->can('manage_expenses'))
+                        @if (($isAdmin || auth()->user()->can('manage_expenses')) && is_menu_visible('menu_expenses'))
                             <li class="nav-item">
                                 <a href="{{ route('expenses.index') }}"
                                     class="nav-link {{ request()->routeIs('expenses.*') ? 'active' : '' }}">
@@ -1755,7 +1828,7 @@
                             </li>
                         @endif
 
-                        @if ($isAdmin || auth()->user()->canAny(['manage_payments', 'view_payments']))
+                        @if (($isAdmin || auth()->user()->canAny(['manage_payments', 'view_payments'])) && is_menu_visible('menu_payments'))
                             <li class="nav-item">
                                 <a href="{{ route('payments.index') }}"
                                     class="nav-link {{ request()->routeIs('payments.index') ? 'active' : '' }}">
@@ -1774,6 +1847,7 @@
                         @endif
 
                         @if (is_private_school() && ($isAdmin || auth()->user()->can('generate_payment_references')))
+                            @if(is_menu_visible('menu_references'))
                             <li class="nav-item">
                                 <a href="{{ route('payments.references') }}"
                                     class="nav-link {{ request()->routeIs('payments.references', 'payments.pending') ? 'active' : '' }}">
@@ -1781,6 +1855,8 @@
                                     <span class="nav-text">Referências & Pagamentos</span>
                                 </a>
                             </li>
+                            @endif
+                            @if(is_menu_visible('menu_overdue'))
                             <li class="nav-item">
                                 <a href="{{ route('payments.overdue') }}"
                                     class="nav-link {{ request()->routeIs('payments.overdue') ? 'active' : '' }}">
@@ -1788,9 +1864,10 @@
                                     <span class="nav-text">Mensalidades em Atraso</span>
                                 </a>
                             </li>
+                            @endif
                         @endif
 
-                        @if (is_private_school() && ($isAdmin || auth()->user()->can('view_financial_reports')))
+                        @if (is_private_school() && ($isAdmin || auth()->user()->can('view_financial_reports')) && is_menu_visible('menu_reports_financial'))
                             <li class="nav-item">
                                 <a href="{{ route('reports.financial') }}"
                                     class="nav-link {{ request()->routeIs('reports.financial') ? 'active' : '' }}">
@@ -1809,6 +1886,7 @@
                     <div class="nav-section-title">Comunicação & IA</div>
                     <ul class="nav-list">
                         @can('manage_events')
+                            @if(is_menu_visible('menu_events'))
                             <li class="nav-item">
                                 <a href="{{ route('events.index') }}"
                                     class="nav-link {{ request()->routeIs('events.*') ? 'active' : '' }}">
@@ -1816,7 +1894,9 @@
                                     <span class="nav-text">Calendário de Eventos</span>
                                 </a>
                             </li>
+                            @endif
                         @endcan
+                        @if(is_menu_visible('menu_communications'))
                         <li class="nav-item">
                             <a href="{{ route('admin.communications.index') }}"
                                 class="nav-link {{ request()->routeIs('communications.*') ? 'active' : '' }}">
@@ -1824,6 +1904,8 @@
                                 <span class="nav-text">Comunicados Escolares</span>
                             </a>
                         </li>
+                        @endif
+                        @if(is_menu_visible('menu_sms_center'))
                         <li class="nav-item">
                             <a href="{{ route('sms.index') }}"
                                 class="nav-link {{ request()->routeIs('sms.index') && ! request()->routeIs('sms.inbox.*') ? 'active' : '' }}">
@@ -1831,9 +1913,11 @@
                                 <span class="nav-text">Central de SMS</span>
                             </a>
                         </li>
+                        @endif
                         @php
                             $unreadSms = \App\Models\SmsInbox::where('is_read', false)->count();
                         @endphp
+                        @if(is_menu_visible('menu_sms_inbox'))
                         <li class="nav-item">
                             <a href="{{ route('sms.inbox.index') }}"
                                 class="nav-link {{ request()->routeIs('sms.inbox.*') ? 'active' : '' }}">
@@ -1846,6 +1930,8 @@
                                 @endif
                             </a>
                         </li>
+                        @endif
+                        @if(is_menu_visible('menu_ai_assistant'))
                         <li class="nav-item">
                             <a href="{{ route('ai.index') }}"
                                 class="nav-link {{ request()->routeIs('ai.*') ? 'active' : '' }}">
@@ -1853,7 +1939,9 @@
                                 <span class="nav-text">Assistente IA</span>
                             </a>
                         </li>
+                        @endif
                         @canany(['view_reports', 'export_reports'])
+                            @if(is_menu_visible('menu_reports'))
                             <li class="nav-item">
                                 <a href="{{ route('reports.index') }}"
                                     class="nav-link {{ request()->routeIs('reports.*') && !request()->routeIs('reports.financial') ? 'active' : '' }}">
@@ -1861,6 +1949,7 @@
                                     <span class="nav-text">Relatórios & Estatísticas</span>
                                 </a>
                             </li>
+                            @endif
                         @endcanany
                     </ul>
                 </div>
@@ -1872,6 +1961,7 @@
                     <div class="nav-section-title">Configurações & Sistema</div>
                     <ul class="nav-list">
                         @can('manage_users')
+                            @if(is_menu_visible('menu_users'))
                             <li class="nav-item">
                                 <a href="{{ route('admin.users.index') }}"
                                     class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
@@ -1879,6 +1969,8 @@
                                     <span class="nav-text">Gestão de Usuários</span>
                                 </a>
                             </li>
+                            @endif
+                            @if(is_menu_visible('menu_license'))
                             <li class="nav-item">
                                 <a href="{{ route('admin.license') }}"
                                     class="nav-link {{ request()->routeIs('admin.license') ? 'active' : '' }}">
@@ -1886,6 +1978,8 @@
                                     <span class="nav-text">Licença do Sistema</span>
                                 </a>
                             </li>
+                            @endif
+                            @if(is_menu_visible('menu_academic_years'))
                             <li class="nav-item">
                                 <a href="{{ route('admin.academic-years.index') }}"
                                     class="nav-link {{ request()->routeIs('admin.academic-years.*') ? 'active' : '' }}">
@@ -1893,8 +1987,10 @@
                                     <span class="nav-text">Gestão do Ano Lectivo</span>
                                 </a>
                             </li>
+                            @endif
                         @endcan
                         @can('manage_settings')
+                            @if(is_menu_visible('menu_settings'))
                             <li class="nav-item">
                                 <a href="{{ route('admin.settings.index') }}"
                                     class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}">
@@ -1902,8 +1998,10 @@
                                     <span class="nav-text">Configurações Gerais</span>
                                 </a>
                             </li>
+                            @endif
                         @endcan
                         @can('backup_system')
+                            @if(is_menu_visible('menu_backup'))
                             <li class="nav-item">
                                 <a href="{{ route('admin.backup') }}"
                                     class="nav-link {{ request()->routeIs('admin.backup') ? 'active' : '' }}">
@@ -1911,8 +2009,10 @@
                                     <span class="nav-text">Backup do Sistema</span>
                                 </a>
                             </li>
+                            @endif
                         @endcan
                         @can('view_audit_logs')
+                            @if(is_menu_visible('menu_audit'))
                             <li class="nav-item">
                                 <a href="{{ route('admin.audit.index') }}"
                                     class="nav-link {{ request()->routeIs('admin.audit.index') ? 'active' : '' }}">
@@ -1920,8 +2020,10 @@
                                     <span class="nav-text">Registo de Auditoria</span>
                                 </a>
                             </li>
+                            @endif
                         @endcan
                         @can('view_logs')
+                            @if(is_menu_visible('menu_logs'))
                             <li class="nav-item">
                                 <a href="{{ route('admin.logs') }}"
                                     class="nav-link {{ request()->routeIs('admin.logs') ? 'active' : '' }}">
@@ -1929,6 +2031,7 @@
                                     <span class="nav-text">Logs do Sistema</span>
                                 </a>
                             </li>
+                            @endif
                         @endcan
                     </ul>
                 </div>

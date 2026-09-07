@@ -84,6 +84,13 @@ class PautaAndEventsTest extends TestCase
         $response->assertSee('Pauta Final & Exames');
     }
 
+    public function test_can_export_pauta_excel()
+    {
+        $response = $this->actingAs($this->admin)->get(route('pautas.trimestral.excel', ['class' => $this->primaryClass->id, 'term' => 1, 'year' => 2026]));
+        $response->assertStatus(200);
+        $response->assertHeader('content-type', 'text/csv; charset=UTF-8');
+    }
+
     public function test_can_view_events_list()
     {
         Event::create([

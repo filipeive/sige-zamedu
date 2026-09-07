@@ -637,10 +637,13 @@ class DashboardController extends Controller
                 $averageGrade = $grades->avg('grade');
 
                 return [
-                    'class_name' => $class->name,
+                    'name' => $class->full_name ?? $class->name,
+                    'class_name' => $class->full_name ?? $class->name,
+                    'avg_grade' => round($averageGrade ?? 0, 1),
                     'average_grade' => round($averageGrade ?? 0, 1),
+                    'student_count' => $class->students->count(),
                     'total_students' => $class->students->count(),
-                    'teacher_name' => $class->teacher->full_name ?? 'N/A'
+                    'teacher_name' => $class->teacher->full_name ?? ($class->teacher->user->name ?? 'N/A')
                 ];
             });
     }

@@ -204,16 +204,22 @@
                         </thead>
                         <tbody>
                             @foreach($classPerformance as $class)
+                                @php
+                                    $cName = $class['name'] ?? $class['class_name'] ?? 'Turma';
+                                    $tName = $class['teacher_name'] ?? 'N/A';
+                                    $sCount = $class['student_count'] ?? $class['total_students'] ?? 0;
+                                    $avgGrade = $class['avg_grade'] ?? $class['average_grade'] ?? 0;
+                                @endphp
                                 <tr>
-                                    <td class="fw-bold">{{ $class['name'] }}</td>
-                                    <td class="text-muted">{{ $class['teacher_name'] }}</td>
-                                    <td>{{ $class['student_count'] }}</td>
+                                    <td class="fw-bold">{{ $cName }}</td>
+                                    <td class="text-muted">{{ $tName }}</td>
+                                    <td>{{ $sCount }}</td>
                                     <td>
-                                        <span class="dash-badge" style="background:#dcfce7; color:#166534;">{{ number_format($class['avg_grade'], 1) }}</span>
+                                        <span class="dash-badge" style="background:#dcfce7; color:#166534;">{{ number_format($avgGrade, 1) }}</span>
                                     </td>
                                     <td>
                                         <div class="progress" style="height:8px; background:#f1f5f9; border-radius:9999px;">
-                                            <div class="progress-bar bg-success" style="width: {{ min(100, ($class['avg_grade'] / 20) * 100) }}%; border-radius:9999px;"></div>
+                                            <div class="progress-bar bg-success" style="width: {{ min(100, ($avgGrade / 20) * 100) }}%; border-radius:9999px;"></div>
                                         </div>
                                     </td>
                                 </tr>

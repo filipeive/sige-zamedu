@@ -60,6 +60,7 @@ class GradeController extends Controller
         $students = collect();
         $subjects = collect();
         $matrixGrades = [];
+        $calculatedMatrix = [];
 
         if ($selectedClass) {
             $students = Student::whereHas('enrollments', function ($q) use ($selectedClass) {
@@ -82,6 +83,27 @@ class GradeController extends Controller
             foreach ($allGrades as $g) {
                 $matrixGrades[$g->student_id][$g->subject_id][$g->assessment_type] = $g->grade;
             }
+
+            foreach ($students as $student) {
+                foreach ($subjects as $subject) {
+                    $macs = Grade::calculateMACS($student->id, $subject->id, $selectedClass->id, $term, $allGrades);
+                    $mt = Grade::calculateMT($student->id, $subject->id, $selectedClass->id, $term, $allGrades);
+
+                    $acpGrades = $allGrades->filter(function ($g) use ($student, $subject, $term) {
+                        return (int) $g->student_id === $student->id
+                            && (int) $g->subject_id === $subject->id
+                            && (int) $g->term === $term
+                            && $g->assessment_type === Grade::TYPE_ACP;
+                    });
+                    $acp = $acpGrades->isNotEmpty() ? (float) $acpGrades->first()->grade : null;
+
+                    $calculatedMatrix[$student->id][$subject->id] = [
+                        'macs' => $macs,
+                        'acp' => $acp,
+                        'mt' => $mt,
+                    ];
+                }
+            }
         }
 
         $assessmentTypes = [
@@ -98,6 +120,7 @@ class GradeController extends Controller
             'students',
             'subjects',
             'matrixGrades',
+            'calculatedMatrix',
             'term',
             'currentYear',
             'level',
@@ -248,14 +271,18 @@ class GradeController extends Controller
                 $students = $selectedClassObj->students;
             }
 
-            // Buscar notas existentes para esta combinação (suportando equivalências de tipos)
+            // Buscar notas existentes para esta combinação (garantindo separação estrita entre ACS1, ACS2 e ACS3)
             $typeQuery = [$assessmentType];
-            if (in_array($assessmentType, ['ACS1', 'ACS2', 'ACS3', 'continuous', 'test'])) {
-                $typeQuery = array_merge($typeQuery, ['continuous', 'test', 'ACS1', 'ACS2', 'ACS3']);
+            if ($assessmentType === 'ACS1') {
+                $typeQuery = ['ACS1', 'test'];
+            } elseif ($assessmentType === 'ACS2') {
+                $typeQuery = ['ACS2'];
+            } elseif ($assessmentType === 'ACS3') {
+                $typeQuery = ['ACS3'];
             } elseif (in_array($assessmentType, ['ACP', 'exam'])) {
-                $typeQuery = array_merge($typeQuery, ['exam', 'ACP']);
+                $typeQuery = ['ACP', 'exam'];
             } elseif (in_array($assessmentType, ['ACF', 'final'])) {
-                $typeQuery = array_merge($typeQuery, ['final', 'ACF']);
+                $typeQuery = ['ACF', 'final'];
             }
 
             $existingGrades = Grade::whereIn('student_id', $students->pluck('id'))
@@ -319,12 +346,16 @@ class GradeController extends Controller
             foreach ($request->grades as $gradeData) {
                 if (isset($gradeData['grade']) && $gradeData['grade'] !== '' && $gradeData['grade'] !== null) {
                     $typeQuery = [$request->assessment_type];
-                    if (in_array($request->assessment_type, ['ACS1', 'ACS2', 'ACS3', 'continuous', 'test'])) {
-                        $typeQuery = array_merge($typeQuery, ['continuous', 'test', 'ACS1', 'ACS2', 'ACS3']);
+                    if ($request->assessment_type === 'ACS1') {
+                        $typeQuery = ['ACS1', 'test'];
+                    } elseif ($request->assessment_type === 'ACS2') {
+                        $typeQuery = ['ACS2'];
+                    } elseif ($request->assessment_type === 'ACS3') {
+                        $typeQuery = ['ACS3'];
                     } elseif (in_array($request->assessment_type, ['ACP', 'exam'])) {
-                        $typeQuery = array_merge($typeQuery, ['exam', 'ACP']);
+                        $typeQuery = ['ACP', 'exam'];
                     } elseif (in_array($request->assessment_type, ['ACF', 'final'])) {
-                        $typeQuery = array_merge($typeQuery, ['final', 'ACF']);
+                        $typeQuery = ['ACF', 'final'];
                     }
 
                     // Verificar se já existe uma nota para este aluno
@@ -486,21 +517,48 @@ class GradeController extends Controller
     /**
      * Display class grade report.
      */
-    public function classReport(ClassRoom $class)
+    public function classReport(ClassRoom $class, Request $request)
     {
         $this->authorize('view_grades');
 
-        $class->load([
-            'students.grades' => function ($query) {
-                $query->where('year', current_school_year());
-            },
-            'subjects',
-        ]);
+        $year = (int) $request->get('year', $class->school_year ?: current_school_year());
+
+        $students = Student::whereHas('enrollments', function ($q) use ($class) {
+            $q->where('class_id', $class->id);
+        })->orderBy('first_name')->orderBy('last_name')->get();
+
+        if ($students->isEmpty()) {
+            $students = $class->students;
+        }
+
+        $subjects = $class->subjects->isEmpty()
+            ? Subject::active()->get()
+            : $class->subjects;
+
+        $allGrades = Grade::where('class_id', $class->id)
+            ->where('year', $year)
+            ->get();
+
+        $matrix = [];
+        foreach ($students as $student) {
+            foreach ($subjects as $subject) {
+                for ($term = 1; $term <= 3; $term++) {
+                    $mt = Grade::calculateMT($student->id, $subject->id, $class->id, $term, $allGrades);
+                    $matrix[$student->id][$subject->id][$term] = $mt;
+                }
+            }
+        }
 
         $terms = [1, 2, 3];
-        $currentYear = current_school_year();
 
-        return view('grades.class-report', compact('class', 'terms', 'currentYear'));
+        return view('grades.class-report', compact(
+            'class',
+            'students',
+            'subjects',
+            'matrix',
+            'terms',
+            'year'
+        ));
     }
 
     /**

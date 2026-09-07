@@ -10,144 +10,244 @@
 @endsection
 
 @section('content')
-<div class="max-w-full mx-auto p-4 space-y-6">
-    <!-- Stat KPI Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-emerald-50 border-l-4 border-emerald-600 rounded-xl shadow-sm p-4 flex items-center">
-            <div class="flex-shrink-0 bg-emerald-100 text-emerald-600 rounded-full p-3 mr-3">
-                <i class="fas fa-users-cog fa-lg"></i>
+<div class="space-y-5">
+
+    {{-- 1. Header Principal --}}
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-slate-200/80">
+        <div>
+            <div class="flex items-center gap-2 flex-wrap mb-1.5">
+                <span class="px-2.5 py-0.5 rounded-full text-3xs font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200 uppercase tracking-wider">
+                    <i class="fas fa-users-cog me-1"></i> Comunidade Escolar
+                </span>
+                <span class="px-2.5 py-0.5 rounded-full text-3xs font-extrabold bg-slate-100 text-slate-700 border border-slate-200">
+                    Total: {{ number_format($totalParents) }} Encarregados
+                </span>
+            </div>
+            <h1 class="text-xl font-black text-slate-800 tracking-tight flex items-center gap-2">
+                <i class="fas fa-users-cog text-emerald-600"></i> Gestão de Encarregados de Educação
+            </h1>
+            <p class="text-xs text-slate-500 mt-0.5">Registo de pais, tutores e encarregados, acompanhamento de educandos e gestão de acesso ao portal.</p>
+        </div>
+
+        <div class="flex items-center gap-2 flex-wrap">
+            @can('create_students')
+                <a href="{{ route('parents.create') }}" class="no-underline inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-xs font-bold text-white shadow-2xs transition">
+                    <i class="fas fa-plus"></i> Registar Encarregado
+                </a>
+            @endcan
+        </div>
+    </div>
+
+    {{-- 2. Métricas KPI Principais --}}
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+        {{-- Card 1: Total Encarregados --}}
+        <div class="bg-white rounded-xl p-4 border border-slate-200/80 shadow-2xs flex items-center gap-3.5 hover:border-emerald-300 transition">
+            <div class="w-1.5 h-10 rounded-full bg-emerald-500 shrink-0"></div>
+            <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-base font-bold shrink-0">
+                <i class="fas fa-users-cog"></i>
             </div>
             <div>
-                <div class="text-xs font-semibold text-emerald-800 uppercase">Total Encarregados</div>
-                <h4 class="text-2xl font-bold text-emerald-700">{{ $totalParents }}</h4>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Total Encarregados</span>
+                <span class="text-xl font-black text-slate-800 mt-0.5 block">{{ number_format($totalParents) }}</span>
             </div>
         </div>
-        <div class="bg-green-50 border-l-4 border-green-600 rounded-xl shadow-sm p-4 flex items-center">
-            <div class="flex-shrink-0 bg-green-100 text-green-600 rounded-full p-3 mr-3">
-                <i class="fas fa-user-graduate fa-lg"></i>
+
+        {{-- Card 2: Educandos Associados --}}
+        <div class="bg-white rounded-xl p-4 border border-slate-200/80 shadow-2xs flex items-center gap-3.5 hover:border-teal-300 transition">
+            <div class="w-1.5 h-10 rounded-full bg-teal-500 shrink-0"></div>
+            <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-base font-bold shrink-0">
+                <i class="fas fa-user-graduate"></i>
             </div>
             <div>
-                <div class="text-xs font-semibold text-green-800 uppercase">Educandos Associados</div>
-                <h4 class="text-2xl font-bold text-green-700">{{ \App\Models\Student::whereNotNull('parent_id')->count() }}</h4>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Educandos Associados</span>
+                <span class="text-xl font-black text-slate-800 mt-0.5 block">
+                    {{ number_format(\App\Models\Student::whereNotNull('parent_id')->count()) }}
+                </span>
             </div>
         </div>
-        <div class="bg-blue-50 border-l-4 border-blue-600 rounded-xl shadow-sm p-4 flex items-center">
-            <div class="flex-shrink-0 bg-blue-100 text-blue-600 rounded-full p-3 mr-3">
-                <i class="fas fa-shield-alt fa-lg"></i>
+
+        {{-- Card 3: Contas do Portal Ativas --}}
+        <div class="bg-white rounded-xl p-4 border border-slate-200/80 shadow-2xs flex items-center gap-3.5 hover:border-sky-300 transition">
+            <div class="w-1.5 h-10 rounded-full bg-sky-500 shrink-0"></div>
+            <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-base font-bold shrink-0">
+                <i class="fas fa-shield-alt"></i>
             </div>
             <div>
-                <div class="text-xs font-semibold text-blue-800 uppercase">Contas do Portal dos Pais</div>
-                <h4 class="text-2xl font-bold text-blue-700">{{ \App\Models\User::role('parent')->count() }}</h4>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Portal dos Pais</span>
+                <span class="text-xl font-black text-slate-800 mt-0.5 block">
+                    {{ number_format(\App\Models\User::role('parent')->count()) }}
+                    <span class="text-xs font-bold text-slate-400">contas</span>
+                </span>
+            </div>
+        </div>
+
+        {{-- Card 4: Média Educandos / Encarregado --}}
+        <div class="bg-white rounded-xl p-4 border border-slate-200/80 shadow-2xs flex items-center gap-3.5 hover:border-amber-300 transition">
+            <div class="w-1.5 h-10 rounded-full bg-amber-500 shrink-0"></div>
+            <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-base font-bold shrink-0">
+                <i class="fas fa-hands-helping"></i>
+            </div>
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">Média Educandos</span>
+                @php
+                    $assocStudentsCount = \App\Models\Student::whereNotNull('parent_id')->count();
+                    $ratio = $totalParents > 0 ? round($assocStudentsCount / $totalParents, 1) : 0;
+                @endphp
+                <span class="text-xl font-black text-slate-800 mt-0.5 block">{{ $ratio }} <span class="text-xs font-bold text-slate-400">/ tutor</span></span>
             </div>
         </div>
     </div>
 
-    <!-- Search Filter -->
-    <div class="bg-white rounded-xl shadow-sm p-4">
-        <form action="{{ route('parents.index') }}" method="GET" class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
-            <div class="md:col-span-10">
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Pesquisar Encarregados</label>
+    {{-- 3. Barra de Pesquisa e Filtros --}}
+    <div class="bg-white rounded-xl border border-slate-200/80 p-3.5 shadow-2xs">
+        <form action="{{ route('parents.index') }}" method="GET" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <div class="relative flex-1">
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-xs">
+                    <i class="fas fa-search"></i>
+                </div>
                 <input type="text" name="search" value="{{ request('search') }}"
-                       class="w-full rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500 py-2 px-3 text-sm"
-                       placeholder="Pesquisar por nome, e‑mail, telefone ou N.º de BI..." />
+                    class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200/90 text-xs font-semibold text-slate-800 focus:border-emerald-500 focus:ring-emerald-500 bg-slate-50/50"
+                    placeholder="Pesquisar por nome do encarregado, e‑mail, telefone ou N.º de BI..." />
             </div>
-            <div class="md:col-span-2 flex space-x-2">
-                <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg px-4 py-2 text-sm flex items-center">
-                    <i class="fas fa-search mr-1"></i> Filtrar
+
+            <div class="flex items-center gap-2 shrink-0">
+                <button type="submit" class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-2xs transition">
+                    <i class="fas fa-filter"></i> Filtrar
                 </button>
                 @if(request()->filled('search'))
-                <a href="{{ route('parents.index') }}" class="border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-lg px-4 py-2 text-sm" title="Limpar">
-                    <i class="fas fa-times"></i>
-                </a>
+                    <a href="{{ route('parents.index') }}" class="no-underline inline-flex items-center justify-center gap-1 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 text-xs font-bold transition" title="Limpar Pesquisa">
+                        <i class="fas fa-times"></i> Limpar
+                    </a>
                 @endif
             </div>
         </form>
     </div>
 
-    <!-- Table of Parents -->
-    <div class="bg-white rounded-xl shadow-sm overflow-x-auto">
-        <div class="flex items-center justify-between p-4">
-            <h3 class="text-lg font-semibold flex items-center">
-                <i class="fas fa-users text-primary mr-2"></i>
-                Lista de Encarregados de Educação
-                <span class="badge bg-primary ml-2" style="font-size:0.55em;">{{ $parents->total() }}</span>
+    {{-- 4. Tabela Principal de Encarregados --}}
+    <div class="bg-white rounded-xl border border-slate-200/80 shadow-2xs overflow-hidden">
+        <div class="px-4 py-3 bg-slate-50/80 border-b border-slate-200/80 flex items-center justify-between">
+            <h3 class="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                <i class="fas fa-users-cog text-emerald-600"></i> Lista de Encarregados de Educação
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-200">
+                    {{ $parents->total() }}
+                </span>
             </h3>
+
             @can('create_students')
-            <a href="{{ route('parents.create') }}" class="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg px-4 py-2 text-sm flex items-center">
-                <i class="fas fa-plus mr-1"></i> Registar Encarregado
-            </a>
+                <a href="{{ route('parents.create') }}" class="no-underline inline-flex items-center gap-1 text-xs font-extrabold text-emerald-700 hover:text-emerald-800">
+                    <i class="fas fa-user-plus text-[11px]"></i> Novo Encarregado
+                </a>
             @endcan
         </div>
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-100 dark:bg-gray-800">
-                <tr>
-                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Encarregado(a)</th>
-                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Contacto / E‑mail</th>
-                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Profissão / Trabalho</th>
-                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Educando(s)</th>
-                    <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Ações</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200">
-                @forelse($parents as $parent)
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
-                    <td class="px-4 py-2">
-                        <div class="flex items-center">
-                            <div class="w-9 h-9 flex items-center justify-center rounded-full bg-primary-100 text-primary font-bold mr-3">
-                                {{ strtoupper(substr($parent->full_name, 0, 1)) }}
-                            </div>
-                            <div>
-                                <div class="font-bold text-slate-800">{{ $parent->full_name }}</div>
-                                <small class="text-muted">BI: <code>{{ $parent->bi_number ?? 'N/A' }}</code></small>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="px-4 py-2">
-                        <div class="font-bold text-slate-800"><i class="fas fa-phone mr-1 text-gray-500"></i> {{ $parent->phone }}</div>
-                        <small class="text-muted"><i class="fas fa-envelope mr-1"></i> {{ $parent->email }}</small>
-                    </td>
-                    <td class="px-4 py-2">
-                        <div class="text-slate-800 font-semibold">{{ $parent->profession ?? 'N/A' }}</div>
-                        <small class="text-muted">{{ $parent->workplace ?? '' }}</small>
-                    </td>
-                    <td class="px-4 py-2">
-                        @forelse($parent->students as $st)
-                        <span class="bg-primary-100 text-primary border border-primary-100 rounded-full px-2 py-1 text-xs mr-1 mb-1 inline-flex items-center">
-                            <i class="fas fa-user-graduate mr-1"></i> {{ $st->first_name }} {{ $st->last_name }}
-                        </span>
-                        @empty
-                        <span class="text-muted text-sm">Sem educandos associados</span>
-                        @endforelse
-                    </td>
-                    <td class="px-4 py-2 text-right">
-                        <div class="flex space-x-2 justify-end">
-                            <a href="{{ route('parents.show', $parent->user_id) }}" class="text-primary-600 hover:bg-primary-100 rounded-lg p-2" title="Ver Perfil">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                            @can('edit_students')
-                            <a href="{{ route('parents.edit', $parent->user_id) }}" class="text-amber-600 hover:bg-amber-100 rounded-lg p-2" title="Editar">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            @endcan
-                        </div>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="5" class="text-center py-5 text-muted">
-                        <i class="fas fa-users-slash fa-3x mb-3 text-slate-300"></i>
-                        <h5>Nenhum encarregado encontrado</h5>
-                        <p class="text-xs">Não foram encontrados registos com os termos pesquisados.</p>
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
-        @if($parents->hasPages())
-        <div class="p-4 border-t">
-            {{ $parents->links() }}
+
+        <div>
+            @if($parents->count() > 0)
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50/60 text-slate-500 font-black uppercase tracking-wider text-[10px] border-b border-slate-200/80">
+                                <th class="py-3 px-4">Encarregado(a)</th>
+                                <th class="py-3 px-3">Contacto / E-mail</th>
+                                <th class="py-3 px-3">Profissão / Trabalho</th>
+                                <th class="py-3 px-4">Educando(s) Vinculados</th>
+                                <th class="py-3 px-4 text-right">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            @foreach($parents as $parent)
+                            <tr class="hover:bg-slate-50/80 transition">
+                                {{-- Nome e BI --}}
+                                <td class="py-3.5 px-4 font-bold text-slate-800">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-9 h-9 rounded-xl bg-emerald-700 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-2xs">
+                                            {{ strtoupper(substr($parent->first_name, 0, 1) . substr($parent->last_name, 0, 1)) }}
+                                        </div>
+                                        <div>
+                                            <a href="{{ route('parents.show', $parent->user_id) }}" class="no-underline font-extrabold text-slate-800 hover:text-emerald-700 block text-xs">
+                                                {{ $parent->full_name }}
+                                            </a>
+                                            <span class="text-[10px] text-slate-500 font-medium block mt-0.5">
+                                                BI: <code class="bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded text-[9px] font-mono border border-slate-200">{{ $parent->bi_number ?? 'N/A' }}</code>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                {{-- Contactos --}}
+                                <td class="py-3.5 px-3 text-slate-700">
+                                    <div class="font-bold text-slate-800 flex items-center gap-1.5">
+                                        <i class="fas fa-phone text-[10px] text-emerald-600"></i> {{ $parent->phone }}
+                                    </div>
+                                    @if($parent->email)
+                                        <div class="text-[10px] text-slate-500 font-medium flex items-center gap-1.5 mt-0.5">
+                                            <i class="fas fa-envelope text-[9px] text-slate-400"></i> {{ $parent->email }}
+                                        </div>
+                                    @endif
+                                </td>
+
+                                {{-- Profissão --}}
+                                <td class="py-3.5 px-3 text-slate-700">
+                                    <span class="font-extrabold text-slate-800 block text-xs">{{ $parent->profession ?? 'Não informada' }}</span>
+                                    @if($parent->workplace)
+                                        <span class="text-[10px] text-slate-500 font-medium block mt-0.5">{{ $parent->workplace }}</span>
+                                    @endif
+                                </td>
+
+                                {{-- Educandos --}}
+                                <td class="py-3.5 px-4">
+                                    <div class="flex flex-wrap gap-1.5">
+                                        @forelse($parent->students as $st)
+                                            <a href="{{ route('students.show', $st->id) }}" class="no-underline inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200/80 text-xs font-bold transition shadow-2xs">
+                                                <i class="fas fa-user-graduate text-[9px] text-emerald-600"></i>
+                                                {{ $st->first_name }} {{ $st->last_name }}
+                                            </a>
+                                        @empty
+                                            <span class="text-[11px] text-slate-400 font-semibold italic">Sem educandos associados</span>
+                                        @endforelse
+                                    </div>
+                                </td>
+
+                                {{-- Ações --}}
+                                <td class="py-3.5 px-4 text-right">
+                                    <div class="flex items-center justify-end gap-1.5">
+                                        <a href="{{ route('parents.show', $parent->user_id) }}" class="no-underline inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-[10px] transition" title="Ver Perfil">
+                                            <i class="fas fa-eye text-[10px]"></i> Perfil
+                                        </a>
+
+                                        @can('edit_students')
+                                            <a href="{{ route('parents.edit', $parent->user_id) }}" class="no-underline inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200/70 font-extrabold text-[10px] transition" title="Editar Encarregado">
+                                                <i class="fas fa-edit text-[10px]"></i> Editar
+                                            </a>
+                                        @endcan
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+                @if($parents->hasPages())
+                    <div class="p-4 border-t border-slate-200/80 bg-slate-50/50">
+                        {{ $parents->links() }}
+                    </div>
+                @endif
+            @else
+                <div class="p-8 text-center text-slate-400 space-y-3">
+                    <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto text-xl">
+                        <i class="fas fa-users-slash"></i>
+                    </div>
+                    <h5 class="text-xs font-black text-slate-700 uppercase tracking-wider">Nenhum Encarregado Encontrado</h5>
+                    <p class="text-xs text-slate-500 max-w-sm mx-auto">Não foram encontrados registos correspondentes aos filtros ou à pesquisa inserida.</p>
+                    @if(request()->filled('search'))
+                        <a href="{{ route('parents.index') }}" class="no-underline inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-xs font-bold text-white shadow-2xs transition mt-2">
+                            <i class="fas fa-redo"></i> Limpar Filtros de Pesquisa
+                        </a>
+                    @endif
+                </div>
+            @endif
         </div>
-        @endif
     </div>
+
 </div>
 @endsection

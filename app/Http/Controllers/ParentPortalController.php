@@ -381,9 +381,33 @@ class ParentPortalController extends Controller
             'student_id' => 'nullable|exists:students,id'
         ]);
 
-        // Implementar lógica de envio de mensagem (pode ser via Communication ou outro modelo)
-        // Por enquanto, apenas redirecionar com sucesso
+        $parent = $this->getParent();
+        $parentName = $parent ? ($parent->first_name . ' ' . $parent->last_name) : auth()->user()->name;
 
-        return back()->with('success', 'Mensagem enviada com sucesso! Entraremos em contato em breve.');
+        $communication = Communication::create([
+            'title' => 'Mensagem de ' . $parentName . ': ' . $request->subject,
+            'message' => $request->message,
+            'target_audience' => 'teachers',
+            'priority' => 'medium',
+            'is_published' => true,
+            'publish_at' => now(),
+            'created_by' => Auth::id(),
+        ]);
+
+        // Notificar administradores, secretaria e professores
+        $staffUsers = \App\Models\User::whereHas('roles', function ($q) {
+            $q->whereIn('name', ['admin', 'super_admin', 'secretary', 'teacher', 'pedagogy']);
+        })->get();
+
+        foreach ($staffUsers as $staff) {
+            $staff->notify(new \App\Notifications\GenericNotification([
+                'title' => 'Nova Mensagem de Encarregado',
+                'message' => 'Mensagem de ' . $parentName . ': ' . $request->subject,
+                'action_url' => route('communications.index'),
+                'type' => 'communication'
+            ]));
+        }
+
+        return back()->with('success', 'Mensagem enviada com sucesso! A administração da escola recebeu a sua comunicação.');
     }
 }

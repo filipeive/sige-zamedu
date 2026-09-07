@@ -14,70 +14,84 @@
 @section('content')
 <div class="row">
     <div class="col-12">
-        <!-- Cabeçalho -->
-        <div class="school-card mb-4">
-            <div class="school-card-body">
-                <div class="row align-items-center">
-                    <div class="col-md-6">
-                        <h3>Caderno de Notas</h3>
-                        <p class="text-muted mb-0">
-                            Turma: <strong>{{ $class->name }}</strong> | 
-                            {{ $class->grade_level_name ?? 'N/A' }} | 
-                            {{ $class->students->count() }} alunos
-                        </p>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="row g-2">
-                            <div class="col-md-6">
-                                <select name="subject_id" class="form-select" onchange="updateSubject(this.value)">
-                                    <option value="">— Disciplinas que lecciono —</option>
-                                    @forelse($teacherSubjects as $subject)
-                                        <option value="{{ $subject->id }}" {{ (string)$selectedSubject === (string)$subject->id ? 'selected' : '' }}>
-                                            {{ $subject->name }}
-                                        </option>
-                                    @empty
-                                        <option value="" disabled>Não lecciona nenhuma disciplina nesta turma.</option>
-                                    @endforelse
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <select name="term" class="form-select" onchange="updateTerm(this.value)">
-                                    <option value="1" {{ $selectedTerm == 1 ? 'selected' : '' }}>1º Trimestre</option>
-                                    <option value="2" {{ $selectedTerm == 2 ? 'selected' : '' }}>2º Trimestre</option>
-                                    <option value="3" {{ $selectedTerm == 3 ? 'selected' : '' }}>3º Trimestre</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge bg-success-subtle text-success border border-success fw-bold">
+                    {{ $class->education_level_name }}
+                </span>
+                <span class="badge bg-secondary-subtle text-secondary fw-bold">
+                    {{ $class->grade_level_name ?? 'N/A' }}
+                </span>
+                <span class="badge bg-primary-subtle text-primary fw-bold">
+                    {{ $class->students->count() }} Alunos
+                </span>
+            </div>
+            <h1 class="h3 font-weight-bold text-dark mb-0">Caderno de Notas: {{ $class->name }}</h1>
+            <p class="text-muted small mb-0">Registo contínuo de avaliações (ACS1, ACS2, ACS3, ACP, ACF) e cálculo de Média Trimestral.</p>
+        </div>
+
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <a href="{{ route('grades.batch-create', ['class_id' => $class->id]) }}" class="btn btn-success btn-sm font-weight-bold shadow-sm px-3">
+                <i class="fas fa-table me-1"></i> Lançamento em Lote
+            </a>
+
+            <div class="btn-group btn-group-sm" role="group">
+                <a href="{{ route('pautas.trimestral', ['class' => $class->id, 'term' => $selectedTerm]) }}" class="btn btn-outline-success fw-bold">
+                    <i class="fas fa-file-invoice me-1"></i> Pauta Trimestral
+                </a>
+                <a href="{{ route('pautas.anual', ['class' => $class->id]) }}" class="btn btn-outline-primary fw-bold">
+                    <i class="fas fa-calendar-alt me-1"></i> Pauta Anual
+                </a>
+                <a href="{{ route('pautas.final', ['class' => $class->id]) }}" class="btn btn-outline-warning text-dark fw-bold">
+                    <i class="fas fa-graduation-cap me-1"></i> Pauta Final
+                </a>
+            </div>
+
+            <a href="{{ route('teacher.classes.detail', $class->id) }}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i> Voltar
+            </a>
+        </div>
+    </div>
+
+    <!-- Area de Filtros Organizada -->
+    <div class="card shadow-sm border-0 mb-4 bg-white rounded-3">
+        <div class="card-body p-3">
+            <div class="d-flex align-items-center mb-2">
+                <i class="fas fa-filter text-success me-2"></i>
+                <span class="text-xs font-weight-bold text-uppercase text-secondary tracking-wider">Filtros de Seleção do Caderno</span>
+            </div>
+            <div class="row g-3 align-items-end">
+                <div class="col-md-6">
+                    <label class="form-label text-xs font-weight-bold text-muted mb-1">
+                        <i class="fas fa-book text-success me-1"></i> Disciplina Leccionada
+                    </label>
+                    <select name="subject_id" class="form-select form-select-sm border-secondary-subtle" onchange="updateSubject(this.value)">
+                        <option value="">— Seleccionar Disciplina —</option>
+                        @forelse($teacherSubjects as $subject)
+                            <option value="{{ $subject->id }}" {{ (string)$selectedSubject === (string)$subject->id ? 'selected' : '' }}>
+                                {{ $subject->name }}
+                            </option>
+                        @empty
+                            <option value="" disabled>Não lecciona nenhuma disciplina nesta turma.</option>
+                        @endforelse
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label text-xs font-weight-bold text-muted mb-1">
+                        <i class="fas fa-clock text-success me-1"></i> Trimestre de Avaliação
+                    </label>
+                    <select name="term" class="form-select form-select-sm border-secondary-subtle" onchange="updateTerm(this.value)">
+                        <option value="1" {{ $selectedTerm == 1 ? 'selected' : '' }}>1º Trimestre</option>
+                        <option value="2" {{ $selectedTerm == 2 ? 'selected' : '' }}>2º Trimestre</option>
+                        <option value="3" {{ $selectedTerm == 3 ? 'selected' : '' }}>3º Trimestre</option>
+                    </select>
                 </div>
             </div>
         </div>
-
-        <!-- Toolbar de Conexão com Pautas Oficiais -->
-        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4 p-3 bg-white border rounded shadow-sm">
-            <div class="d-flex items-center gap-2">
-                <span class="badge bg-success text-white font-bold px-3 py-2">
-                    <i class="fas fa-school me-1"></i> Pautas & Avaliação MINEDH
-                </span>
-                <span class="text-xs text-muted font-medium">
-                    Consulte as pautas oficiais consolidadas desta turma:
-                </span>
-            </div>
-            <div class="d-flex flex-wrap gap-2">
-                <a href="{{ route('pautas.trimestral', ['class' => $class->id, 'term' => $selectedTerm]) }}" class="btn btn-sm btn-outline-success font-bold">
-                    <i class="fas fa-file-invoice me-1"></i> Pauta Trimestral
-                </a>
-                <a href="{{ route('pautas.anual', ['class' => $class->id]) }}" class="btn btn-sm btn-outline-primary font-bold">
-                    <i class="fas fa-chart-line me-1"></i> Pauta Anual
-                </a>
-                <a href="{{ route('pautas.final', ['class' => $class->id]) }}" class="btn btn-sm btn-outline-dark font-bold">
-                    <i class="fas fa-award me-1"></i> Pauta Final
-                </a>
-                <a href="{{ route('grades.batch-create', ['class_id' => $class->id]) }}" class="btn btn-sm btn-success font-bold">
-                    <i class="fas fa-table me-1"></i> Lançamento em Lote
-                </a>
-            </div>
-        </div>
+    </div>
 
         @if($selectedSubject)
             <!-- Formulário de Notas -->

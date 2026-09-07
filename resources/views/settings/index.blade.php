@@ -143,10 +143,16 @@
                 <i class="fas fa-palette text-xs"></i> 8. Cores & Ícones
             </button>
 
+            <button type="button" @click="currentTab = 'menus'" 
+                    :class="currentTab === 'menus' ? 'bg-teal-700 text-white shadow-xs' : 'bg-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'"
+                    class="px-3.5 py-2 rounded-lg text-xs font-extrabold flex items-center gap-2 transition cursor-pointer select-none">
+                <i class="fas fa-list-check text-xs"></i> 9. Visibilidade de Menus
+            </button>
+
             <button type="button" @click="currentTab = 'acesso'" 
                     :class="currentTab === 'acesso' ? 'bg-purple-700 text-white shadow-xs' : 'bg-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'"
                     class="px-3.5 py-2 rounded-lg text-xs font-extrabold flex items-center gap-2 transition cursor-pointer select-none">
-                <i class="fas fa-user-shield text-xs"></i> 9. Controle RBAC
+                <i class="fas fa-user-shield text-xs"></i> 10. Controle RBAC
             </button>
         </div>
     </div>
@@ -593,7 +599,7 @@
                         </select>
                     </div>
 
-                    <!-- Arredondamento dos Cantos -->
+            <!-- Arredondamento dos Cantos -->
                     <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Arredondamento de Cartões & Botões (Border Radius)</label>
                         <select name="settings[border_radius]"
@@ -606,6 +612,148 @@
                 </div>
             </div>
 
+            <!-- TAB 9: VISIBILIDADE DE MENUS POR PERFIL -->
+            <div x-show="currentTab === 'menus'" class="space-y-6">
+                <div class="pb-2 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+                    <div>
+                        <h3 class="text-xs font-extrabold text-slate-800 dark:text-slate-100 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fas fa-list-check text-teal-600"></i> Gestão de Visibilidade do Menu Lateral
+                        </h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Ative ou oculte opções de menu do painel lateral para cada perfil (Administrador, Secretaria, Pedagogia, Professor e Encarregado).</p>
+                    </div>
+                </div>
+
+                @php
+                    $menuRoles = [
+                        'admin' => ['label' => 'Administrador', 'color' => 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'],
+                        'secretary' => ['label' => 'Secretaria', 'color' => 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300'],
+                        'pedagogy' => ['label' => 'Pedagogia', 'color' => 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'],
+                        'teacher' => ['label' => 'Professor', 'color' => 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300'],
+                        'parent' => ['label' => 'Encarregado', 'color' => 'bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-300'],
+                    ];
+
+                    $menuStructure = [
+                        'Portal Docente (Professores)' => [
+                            'teacher_dashboard' => ['label' => 'Painel / Início Docente', 'icon' => 'fas fa-home'],
+                            'teacher_classes' => ['label' => 'Minhas Turmas', 'icon' => 'fas fa-chalkboard'],
+                            'teacher_attendance' => ['label' => 'Presenças', 'icon' => 'fas fa-calendar-check'],
+                            'teacher_pending_grades' => ['label' => 'Avaliações Pendentes', 'icon' => 'fas fa-clock'],
+                            'teacher_gradebook' => ['label' => 'Caderno de Notas', 'icon' => 'fas fa-medal'],
+                            'teacher_pautas' => ['label' => 'Pautas das Turmas', 'icon' => 'fas fa-file-invoice'],
+                            'teacher_communications' => ['label' => 'Comunicados', 'icon' => 'fas fa-bullhorn'],
+                            'teacher_leaves' => ['label' => 'Minhas Licenças', 'icon' => 'fas fa-calendar-times'],
+                        ],
+                        'Portal do Encarregado (Pais)' => [
+                            'parent_dashboard' => ['label' => 'Painel Principal', 'icon' => 'fas fa-home'],
+                            'parent_children' => ['label' => 'Meus Educandos', 'icon' => 'fas fa-child'],
+                            'parent_payments' => ['label' => 'Propinas & Recibos', 'icon' => 'fas fa-money-bill-wave'],
+                            'parent_communications' => ['label' => 'Comunicados & Notificações', 'icon' => 'fas fa-bullhorn'],
+                        ],
+                        'Estudantes & Matrículas' => [
+                            'menu_students' => ['label' => 'Todos os Alunos', 'icon' => 'fas fa-user-graduate'],
+                            'menu_enrollments' => ['label' => 'Matrículas & Inscrições', 'icon' => 'fas fa-clipboard-list'],
+                            'menu_renewals' => ['label' => 'Renovação de Matrículas', 'icon' => 'fas fa-sync-alt'],
+                            'menu_promotions' => ['label' => 'Passagem de Classe', 'icon' => 'fas fa-layer-group'],
+                            'menu_students_archive' => ['label' => 'Alunos Arquivados', 'icon' => 'fas fa-archive'],
+                            'menu_parents' => ['label' => 'Encarregados de Educação', 'icon' => 'fas fa-users-cog'],
+                            'menu_gatekeeper' => ['label' => 'Portaria Digital (Cartões)', 'icon' => 'fas fa-id-card-clip'],
+                        ],
+                        'Organização Académica & Docentes' => [
+                            'menu_classes' => ['label' => 'Turmas por Nível', 'icon' => 'fas fa-chalkboard'],
+                            'menu_subjects' => ['label' => 'Matriz Curricular', 'icon' => 'fas fa-book-open'],
+                            'menu_teachers' => ['label' => 'Corpo Docente', 'icon' => 'fas fa-chalkboard-teacher'],
+                            'menu_staff_leaves' => ['label' => 'Licenças & Ausências de Staff', 'icon' => 'fas fa-calendar-times'],
+                        ],
+                        'Avaliações & Documentos' => [
+                            'menu_grades' => ['label' => 'Lançamento de Notas & Pautas', 'icon' => 'fas fa-medal'],
+                            'menu_certificates' => ['label' => 'Certidões & Certificados (MINEDH)', 'icon' => 'fas fa-certificate'],
+                            'menu_attendances' => ['label' => 'Frequência & Assiduidade', 'icon' => 'fas fa-calendar-check'],
+                        ],
+                        'Gestão Financeira' => [
+                            'menu_expenses' => ['label' => 'Despesas Operacionais / Taxas', 'icon' => 'fas fa-receipt'],
+                            'menu_payments' => ['label' => 'Mensalidades & Propinas', 'icon' => 'fas fa-file-invoice-dollar'],
+                            'menu_references' => ['label' => 'Referências & Pagamentos', 'icon' => 'fas fa-clock'],
+                            'menu_overdue' => ['label' => 'Mensalidades em Atraso', 'icon' => 'fas fa-exclamation-triangle'],
+                            'menu_reports_financial' => ['label' => 'Relatório Financeiro', 'icon' => 'fas fa-chart-line'],
+                        ],
+                        'Comunicação & Ferramentas' => [
+                            'menu_events' => ['label' => 'Calendário de Eventos', 'icon' => 'fas fa-calendar-alt'],
+                            'menu_communications' => ['label' => 'Comunicados Escolares', 'icon' => 'fas fa-bullhorn'],
+                            'menu_sms_center' => ['label' => 'Central de SMS', 'icon' => 'fas fa-comment-sms'],
+                            'menu_sms_inbox' => ['label' => 'SMS Recebidas', 'icon' => 'fas fa-inbox'],
+                            'menu_ai_assistant' => ['label' => 'Assistente IA', 'icon' => 'fas fa-robot'],
+                            'menu_reports' => ['label' => 'Relatórios & Estatísticas', 'icon' => 'fas fa-chart-bar'],
+                        ],
+                        'Configurações & Sistema' => [
+                            'menu_users' => ['label' => 'Gestão de Usuários', 'icon' => 'fas fa-users-cog'],
+                            'menu_license' => ['label' => 'Licença do Sistema', 'icon' => 'fas fa-key'],
+                            'menu_academic_years' => ['label' => 'Gestão do Ano Lectivo', 'icon' => 'fas fa-calendar-alt'],
+                            'menu_settings' => ['label' => 'Configurações Gerais', 'icon' => 'fas fa-cog'],
+                            'menu_backup' => ['label' => 'Backup do Sistema', 'icon' => 'fas fa-database'],
+                            'menu_audit' => ['label' => 'Registo de Auditoria', 'icon' => 'fas fa-shield-alt'],
+                            'menu_logs' => ['label' => 'Logs do Sistema', 'icon' => 'fas fa-file-alt'],
+                        ],
+                    ];
+                @endphp
+
+                @foreach(array_keys($menuRoles) as $roleKey)
+                    <input type="hidden" name="settings[menu_visibility_{{ $roleKey }}][]" value="__EMPTY__">
+                @endforeach
+
+                <div class="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-xl">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200 dark:border-slate-700">
+                                <th class="py-3 px-4 w-1/3">Item do Menu Lateral</th>
+                                @foreach($menuRoles as $roleKey => $roleMeta)
+                                    <th class="py-3 px-3 text-center min-w-[110px]">
+                                        <span class="px-2 py-0.5 rounded-full {{ $roleMeta['color'] }} text-[10px] font-bold block mb-1">
+                                            {{ $roleMeta['label'] }}
+                                        </span>
+                                        <div class="flex items-center justify-center gap-1.5">
+                                            <button type="button" onclick="toggleRoleCheckboxes('menu_role_{{ $roleKey }}', true)" class="text-[9px] text-teal-600 dark:text-teal-400 font-bold hover:underline cursor-pointer">Todos</button>
+                                            <span class="text-slate-300 dark:text-slate-600 text-[9px]">•</span>
+                                            <button type="button" onclick="toggleRoleCheckboxes('menu_role_{{ $roleKey }}', false)" class="text-[9px] text-slate-400 dark:text-slate-500 font-semibold hover:underline cursor-pointer">Nenhum</button>
+                                        </div>
+                                    </th>
+                                @endforeach
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                            @foreach($menuStructure as $sectionTitle => $items)
+                                <tr class="bg-slate-50/80 dark:bg-slate-900/60 font-bold text-slate-800 dark:text-slate-200">
+                                    <td colspan="{{ count($menuRoles) + 1 }}" class="py-2.5 px-4 text-xs font-black tracking-wider text-teal-700 dark:text-teal-400 uppercase bg-teal-50/50 dark:bg-slate-800/80">
+                                        <i class="fas fa-folder-open me-1.5 text-teal-500"></i> {{ $sectionTitle }}
+                                    </td>
+                                </tr>
+                                @foreach($items as $itemKey => $itemMeta)
+                                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
+                                        <td class="py-2.5 px-4 font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                            <i class="{{ $itemMeta['icon'] }} w-4 text-slate-400 text-center"></i>
+                                            <span>{{ $itemMeta['label'] }}</span>
+                                        </td>
+                                        @foreach(array_keys($menuRoles) as $roleKey)
+                                            @php
+                                                $isVisible = is_menu_visible($itemKey, (object)['role' => $roleKey]);
+                                                $isProtected = ($roleKey === 'admin' && in_array($itemKey, ['menu_settings', 'menu_users']));
+                                            @endphp
+                                            <td class="py-2.5 px-3 text-center">
+                                                <input type="checkbox"
+                                                       name="settings[menu_visibility_{{ $roleKey }}][]"
+                                                       value="{{ $itemKey }}"
+                                                       {{ $isVisible ? 'checked' : '' }}
+                                                       {{ $isProtected ? 'disabled checked' : '' }}
+                                                       class="menu_role_{{ $roleKey }} h-4 w-4 rounded border-slate-300 dark:border-slate-600 text-teal-600 focus:ring-teal-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                                            </td>
+                                        @endforeach
+                                    </tr>
+                                @endforeach
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <!-- Botões de Ação de Rodapé -->
             <div class="pt-4 border-t border-slate-100 dark:border-slate-700 flex items-center justify-end gap-2">
                 <button type="submit" class="inline-flex items-center gap-1.5 px-5 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-xs font-bold text-white shadow-sm transition cursor-pointer">
@@ -615,7 +763,7 @@
         </form>
     </div>
 
-    <!-- TAB 8: CONTROLE DE ACESSO (RBAC COMPLETO - FORMULÁRIO DEDICADO) -->
+    <!-- TAB 10: CONTROLE DE ACESSO (RBAC COMPLETO - FORMULÁRIO DEDICADO) -->
     <div x-show="currentTab === 'acesso'" class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-2xs p-5">
         <form id="rbac-permissions-form" action="{{ route('admin.settings.permissions.update') }}" method="POST">
             @csrf
@@ -694,4 +842,14 @@
 <form id="create-backup-form" action="{{ route('admin.backup.create') }}" method="POST" class="hidden">
     @csrf
 </form>
+
+<script>
+function toggleRoleCheckboxes(className, checkState) {
+    document.querySelectorAll('.' + className).forEach(cb => {
+        if (!cb.disabled) {
+            cb.checked = checkState;
+        }
+    });
+}
+</script>
 @endsection

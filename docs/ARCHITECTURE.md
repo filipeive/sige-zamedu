@@ -1,5 +1,13 @@
 # Arquitetura de Software — ZAMEDU - SIGE
 
+> **Nota (2026-09):** este documento descreve a arquitetura single-tenant atual (uma
+> escola por instalação). A evolução para multi-tenant hierárquico
+> (Província → Distrito → ZIP → Escola) está a ser conduzida separadamente em
+> `docs/architecture/` — começar por `docs/architecture/MULTI_TENANCY_AUDIT.md`. Este
+> ficheiro mantém-se válido para tudo o que não muda com essa evolução (Theme Engine,
+> módulos MINEDH, permissões de base) e será atualizado à medida que os sprints do
+> `docs/architecture/MIGRATION_PLAN.md` forem concluídos.
+
 Este documento detalha a arquitetura técnica, os auxiliares de sistema, o Theme Engine, os módulos de conformidade MINEDH e a gestão de permissões do **ZAMEDU - SIGE (Sistema Integrado de Gestão Escolar)**, desenvolvido por **Filipe dos Santos** ([http://146.235.224.99/](http://146.235.224.99/)).
 
 ---

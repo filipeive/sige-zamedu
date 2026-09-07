@@ -276,6 +276,23 @@
                             <i class="fas fa-chevron-right text-xs text-[var(--text-muted)]"></i>
                         </a>
 
+                        <a href="{{ route('reports.pedagogical-map') }}" class="flex items-center justify-between p-3.5 rounded-2xl transition group border"
+                           style="background: var(--surface-bg); border-color: var(--border-color);">
+                            <div class="flex items-center gap-3">
+                                <span class="w-8 h-8 rounded-xl bg-white flex items-center justify-center shadow-xs text-emerald-600">
+                                    <i class="fas fa-table text-xs"></i>
+                                </span>
+                                <div>
+                                    <span class="text-sm font-extrabold text-[var(--text-primary)] group-hover:opacity-80 block flex items-center gap-1.5">
+                                        Mapa de Aproveitamento Pedagógico (MINEDH)
+                                        <span class="badge bg-emerald-100 text-emerald-800 text-[10px] px-1.5 py-0.5 rounded">HM / M</span>
+                                    </span>
+                                    <span class="text-[11px] text-[var(--text-muted)] block">Aproveitamento estatístico por sexo para Inspeção Escolar</span>
+                                </div>
+                            </div>
+                            <i class="fas fa-chevron-right text-xs text-[var(--text-muted)]"></i>
+                        </a>
+
                         <a href="{{ route('reports.academic.attendance') }}" class="flex items-center justify-between p-3.5 rounded-2xl transition group border"
                            style="background: var(--surface-bg); border-color: var(--border-color);">
                             <div class="flex items-center gap-3">

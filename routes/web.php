@@ -190,7 +190,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         });
 
     // Emissão de Certidões & Certificados Oficiais MINEDH
-    Route::middleware('permission:view_students')
+    Route::middleware(['auth', 'role:admin|super_admin|secretary|pedagogy'])
         ->prefix('certificates')
         ->name('certificates.')
         ->controller(\App\Http\Controllers\CertificateController::class)
@@ -200,6 +200,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/{student}/habilidades', 'certidao')->name('habilidades');
             Route::get('/{student}/certificado', 'certificado')->name('certificado');
             Route::get('/{student}/conclusao', 'certificado')->name('conclusao');
+            Route::get('/{student}/official', 'officialCertificate')->name('official');
         });
 
     /*
@@ -507,10 +508,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('pautas.')
         ->controller(\App\Http\Controllers\PautaController::class)
         ->group(function () {
+            Route::get('/', 'index')->name('index');
             Route::get('/trimestral/{class}', 'trimestral')->name('trimestral');
+            Route::get('/trimestral/{class}/excel', 'exportExcel')->name('trimestral.excel');
             Route::get('/anual/{class}', 'anual')->name('anual');
             Route::get('/final/{class}', 'final')->name('final');
+            Route::get('/exame/{class}', 'exame')->name('exame');
+            Route::post('/exame/{class}/jury', 'updateJury')->name('exame.jury');
             Route::get('/pdf/{class}', 'exportPdf')->name('pdf');
+            Route::get('/excel/{class}', 'exportExcel')->name('excel');
+            Route::post('/update-calculation-rules', 'updateCalculationRules')->name('update-rules');
         });
 
     /*
@@ -589,6 +596,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/academic', 'academic')->name('academic');
             Route::get('/academic/performance', 'performance')->name('academic.performance');
             Route::get('/academic/attendance', 'attendanceReport')->name('academic.attendance');
+            Route::get('/pedagogical-map', [\App\Http\Controllers\PedagogicalMapController::class, 'index'])->name('pedagogical-map');
+            Route::get('/pedagogical-map/export', [\App\Http\Controllers\PedagogicalMapController::class, 'exportCsv'])->name('pedagogical-map.export');
 
             // Relatórios Financeiros
             Route::middleware('permission:view_financial_reports')->group(function () {

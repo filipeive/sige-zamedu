@@ -12,9 +12,9 @@
 @section('content')
 <div class="space-y-4">
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-slate-200">
+    <div class="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-slate-200">
         <div>
-            <h1 class="text-xl font-black text-slate-800 tracking-tight flex items-center gap-2">
+            <h1 class="text-lg font-black text-slate-800 tracking-tight flex items-center gap-2">
                 <i class="fas fa-plus-circle text-emerald-600"></i> Criar Novo Comunicado
             </h1>
             <p class="text-xs text-slate-500 mt-0.5">Envio de aviso ou mensagem oficial para a comunidade escolar.</p>
@@ -25,7 +25,7 @@
     </div>
 
     <!-- Form Card -->
-    <div class="bg-white rounded-xl border border-slate-200 border-t-4 border-t-emerald-600 shadow-2xs p-5 max-w-3xl">
+    <div class="w-full bg-white rounded-xl border border-slate-200 border-t-4 border-t-emerald-600 shadow-2xs p-5 max-w-3xl">
         <form action="{{ route('communications.send') }}" method="POST" class="space-y-4">
             @csrf
 

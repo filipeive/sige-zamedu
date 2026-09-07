@@ -97,17 +97,14 @@ class ReportController extends Controller
             ])
             ->get()
             ->map(function ($class) {
-                $avg = Grade::where('class_id', $class->id)->avg('final_grade');
-                if (!$avg) {
-                    $avg = Grade::where('class_id', $class->id)->avg('acs');
-                }
+                $avg = Grade::where('class_id', $class->id)->avg('grade');
                 $class->average_grade = round($avg ?? 14.0, 1);
                 return $class;
             });
 
         $academicSummary = [
             'what_happened' => 'Registados ' . Student::active()->count() . ' alunos inscritos em ' . $classes->count() . ' turmas ativas.',
-            'trend' => 'A média geral académica da instituição situa-se em ' . round(Grade::avg('final_grade') ?? 14.5, 1) . ' / 20 valores.',
+            'trend' => 'A média geral académica da instituição situa-se em ' . round(Grade::avg('grade') ?? 14.5, 1) . ' / 20 valores.',
             'attention' => 'Acompanhamento recomendado a turmas e alunos com média inferior ao limiar mínimo oficial (10 valores).',
         ];
 

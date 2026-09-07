@@ -18,17 +18,37 @@ class PautaController extends Controller
         if ($user && $user->hasRole('teacher')) {
             $teacher = \App\Models\Teacher::where('user_id', $user->id)->first();
             if (! $teacher || ! $teacher->canAccessClass($class->id)) {
-                abort(403, 'Acesso não autorizado: Você só pode visualizar a pauta das turmas que lecciona (regente ou como professor de disciplina).');
+                abort(403, 'Acesso não autorizado: Você só pode visualizar a pauta das turmas que lecciona.');
             }
         }
     }
 
-    /**
-     * Se o utilizador é professor e foi passado ?subject_id=, verificar que lecciona
-     * essa disciplina na turma. Caso contrário, devolve a lista de subjects que lecciona.
-     *
-     * @return \Illuminate\Support\Collection<int,\App\Models\Subject>
-     */
+    private function getScopeData(?int $restrictToClassId = null): array
+    {
+        $user = auth()->user();
+        $isTeacher = $user && $user->hasRole('teacher');
+
+        if ($isTeacher) {
+            $teacher = \App\Models\Teacher::where('user_id', $user->id)->first();
+            if (! $teacher) {
+                abort(403, 'Perfil de professor não encontrado.');
+            }
+            $classIds = $teacher->allTeachingClassIds();
+            $availableClasses = ClassRoom::whereIn('id', $classIds)
+                ->orderBy('grade_level')->orderBy('name')->get();
+        } else {
+            $availableClasses = ClassRoom::active()->orderBy('grade_level')->orderBy('name')->get();
+        }
+
+        $availableSubjects = \App\Models\Subject::active()->orderBy('name')->get();
+
+        return [
+            'availableClasses' => $availableClasses,
+            'availableSubjects' => $availableSubjects,
+            'isTeacher' => (bool) $isTeacher,
+        ];
+    }
+
     private function resolveSubjectsForTeacher(ClassRoom $class, Request $request)
     {
         $user = auth()->user();
@@ -41,29 +61,24 @@ class PautaController extends Controller
             abort(403, 'Perfil de professor não encontrado.');
         }
 
-        // Disciplinas que este professor lecciona nesta turma
-        $teacherSubjects = $teacher->taughtSubjectsInClass($class);
-
-        // Se pediu filtro por subject_id, validar
         if ($request->filled('subject_id')) {
             $subjectId = (int) $request->get('subject_id');
+            if ($class->teacher_id === $teacher->id) {
+                return Subject::where('id', $subjectId)->get();
+            }
+            $teacherSubjects = $teacher->taughtSubjectsInClass($class);
             if (! $teacherSubjects->contains('id', $subjectId)) {
                 abort(403, 'Não lecciona esta disciplina nesta turma.');
             }
             return $teacherSubjects->where('id', $subjectId)->values();
         }
 
-        // Se não pediu filtro, devolver apenas as que lecciona (escopo de segurança)
-        return $teacherSubjects;
+        return $class->subjects->isEmpty() ? Subject::active()->get() : $class->subjects;
     }
 
-    /**
-     * Index de Pautas - Redirecciona para a pauta trimestral da primeira turma activa.
-     */
     public function index(Request $request)
     {
         $this->authorize('view_grades');
-
         $classId = $request->get('class_id');
         if ($classId) {
             $class = ClassRoom::find($classId);
@@ -76,10 +91,7 @@ class PautaController extends Controller
         $user = auth()->user();
         if ($user && $user->hasRole('teacher')) {
             $teacher = \App\Models\Teacher::where('user_id', $user->id)->first();
-            // Turmas que o professor lecciona (regente OU disciplina atribuída)
-            $firstClass = $teacher
-                ? ClassRoom::whereIn('id', $teacher->allTeachingClassIds())->active()->orderBy('grade_level')->orderBy('name')->first()
-                : null;
+            $firstClass = $teacher ? ClassRoom::whereIn('id', $teacher->allTeachingClassIds())->active()->orderBy('grade_level')->orderBy('name')->first() : null;
             if ($firstClass) {
                 return redirect()->route('pautas.trimestral', array_merge(['class' => $firstClass->id], $request->query()));
             }
@@ -87,21 +99,20 @@ class PautaController extends Controller
         }
 
         $firstClass = ClassRoom::active()->orderBy('grade_level')->orderBy('name')->first();
-
         if ($firstClass) {
             return redirect()->route('pautas.trimestral', array_merge(['class' => $firstClass->id], $request->query()));
         }
-
         return redirect()->route('grades.dashboard')->with('info', 'Nenhuma turma activa encontrada para gerar pauta.');
     }
 
-    /**
-     * Pauta Trimestral de uma Turma.
-     */
     public function trimestral(ClassRoom $class, Request $request)
     {
         $this->authorize('view_grades');
         $this->checkTeacherClassAccess($class);
+
+        if ($request->filled('class_id') && (int) $request->class_id !== (int) $class->id) {
+            return redirect()->route('pautas.trimestral', array_merge(['class' => $request->class_id], $request->except('class_id')));
+        }
 
         $termRaw = $request->get('term', 1);
         $year = (int) $request->get('year', current_school_year());
@@ -113,56 +124,124 @@ class PautaController extends Controller
         $term = (int) $termRaw;
         $subjects = $this->resolveSubjectsForTeacher($class, $request);
         $classData = $this->buildPautaData($class, $term, $year, 'trimestral', $subjects);
+        $scope = $this->getScopeData();
 
         return view('pautas.trimestral', array_merge($classData, [
             'class' => $class,
             'term' => $term,
             'year' => $year,
-            'isTeacher' => auth()->user()?->hasRole('teacher') ?? false,
+            'availableClasses' => $scope['availableClasses'],
+            'availableSubjects' => $scope['availableSubjects'],
+            'isTeacher' => $scope['isTeacher'],
+            'selectedSubjectId' => (int) $request->get('subject_id'),
         ]));
     }
 
-    /**
-     * Pauta Anual Consolidada de uma Turma (MT1, MT2, MT3).
-     */
     public function anual(ClassRoom $class, Request $request)
     {
         $this->authorize('view_grades');
         $this->checkTeacherClassAccess($class);
 
+        if ($request->filled('class_id') && (int) $request->class_id !== (int) $class->id) {
+            return redirect()->route('pautas.anual', array_merge(['class' => $request->class_id], $request->except('class_id')));
+        }
+
         $year = (int) $request->get('year', current_school_year());
         $subjects = $this->resolveSubjectsForTeacher($class, $request);
         $classData = $this->buildPautaData($class, null, $year, 'anual', $subjects);
+        $scope = $this->getScopeData();
 
         return view('pautas.anual', array_merge($classData, [
             'class' => $class,
             'year' => $year,
-            'isTeacher' => auth()->user()?->hasRole('teacher') ?? false,
+            'availableClasses' => $scope['availableClasses'],
+            'availableSubjects' => $scope['availableSubjects'],
+            'isTeacher' => $scope['isTeacher'],
+            'selectedSubjectId' => (int) $request->get('subject_id'),
         ]));
     }
 
-    /**
-     * Pauta Final com Frequência, Exames e Resultados de Promoção.
-     */
     public function final(ClassRoom $class, Request $request)
     {
         $this->authorize('view_grades');
         $this->checkTeacherClassAccess($class);
 
+        if ($request->filled('class_id') && (int) $request->class_id !== (int) $class->id) {
+            return redirect()->route('pautas.final', array_merge(['class' => $request->class_id], $request->except('class_id')));
+        }
+
         $year = (int) $request->get('year', current_school_year());
         $subjects = $this->resolveSubjectsForTeacher($class, $request);
         $classData = $this->buildPautaData($class, null, $year, 'final', $subjects);
+        $scope = $this->getScopeData();
 
         return view('pautas.final', array_merge($classData, [
             'class' => $class,
             'year' => $year,
-            'isTeacher' => auth()->user()?->hasRole('teacher') ?? false,
+            'availableClasses' => $scope['availableClasses'],
+            'availableSubjects' => $scope['availableSubjects'],
+            'isTeacher' => $scope['isTeacher'],
+            'selectedSubjectId' => (int) $request->get('subject_id'),
         ]));
     }
 
-    /**
-     * Exportação de Pauta em PDF.
-     */
+    public function exame(ClassRoom $class, Request $request)
+    {
+        $this->authorize('view_grades');
+        $this->checkTeacherClassAccess($class);
+
+        if ($request->filled('class_id') && (int) $request->class_id !== (int) $class->id) {
+            return redirect()->route('pautas.exame', array_merge(['class' => $request->class_id], $request->except('class_id')));
+        }
+
+        $year = (int) $request->get('year', current_school_year());
+        $subjects = $this->resolveSubjectsForTeacher($class, $request);
+        $classData = $this->buildPautaData($class, null, $year, 'final', $subjects);
+        $scope = $this->getScopeData();
+
+        $juryPresident = setting("jury_class_{$class->id}_president", '');
+        $juryExaminer1 = setting("jury_class_{$class->id}_examiner1", '');
+        $juryExaminer2 = setting("jury_class_{$class->id}_examiner2", '');
+        $juryCode = setting("jury_class_{$class->id}_code", "Júri Nº {$class->name}");
+
+        return view('pautas.exame', array_merge($classData, [
+            'class' => $class,
+            'year' => $year,
+            'availableClasses' => $scope['availableClasses'],
+            'availableSubjects' => $scope['availableSubjects'],
+            'isTeacher' => $scope['isTeacher'],
+            'selectedSubjectId' => (int) $request->get('subject_id'),
+            'juryPresident' => $juryPresident,
+            'juryExaminer1' => $juryExaminer1,
+            'juryExaminer2' => $juryExaminer2,
+            'juryCode' => $juryCode,
+        ]));
+    }
+
+    public function updateJury(ClassRoom $class, Request $request)
+    {
+        $this->authorize('view_grades');
+
+        $validated = $request->validate([
+            'jury_president' => 'nullable|string|max:191',
+            'jury_examiner1' => 'nullable|string|max:191',
+            'jury_examiner2' => 'nullable|string|max:191',
+            'jury_code' => 'nullable|string|max:191',
+        ]);
+
+        \App\Models\Setting::updateOrCreate(['key' => "jury_class_{$class->id}_president"], ['value' => $validated['jury_president'] ?? '']);
+        \App\Models\Setting::updateOrCreate(['key' => "jury_class_{$class->id}_examiner1"], ['value' => $validated['jury_examiner1'] ?? '']);
+        \App\Models\Setting::updateOrCreate(['key' => "jury_class_{$class->id}_examiner2"], ['value' => $validated['jury_examiner2'] ?? '']);
+        \App\Models\Setting::updateOrCreate(['key' => "jury_class_{$class->id}_code"], ['value' => $validated['jury_code'] ?? '']);
+
+        \Illuminate\Support\Facades\Cache::forget("setting_jury_class_{$class->id}_president");
+        \Illuminate\Support\Facades\Cache::forget("setting_jury_class_{$class->id}_examiner1");
+        \Illuminate\Support\Facades\Cache::forget("setting_jury_class_{$class->id}_examiner2");
+        \Illuminate\Support\Facades\Cache::forget("setting_jury_class_{$class->id}_code");
+
+        return back()->with('success', 'Júri de Exame atualizado com sucesso!');
+    }
+
     public function exportPdf(ClassRoom $class, Request $request)
     {
         $this->authorize('view_grades');
@@ -180,29 +259,13 @@ class PautaController extends Controller
         $data['term'] = $term;
         $data['year'] = $year;
 
-        $subjectCount = count($data['subjects']);
-
-        if ($paperInput === 'a3') {
-            $paper = 'a3';
-        } elseif ($paperInput === 'a4') {
-            $paper = 'a4';
-        } else {
-            $paper = ($subjectCount > 6 && $type === 'trimestral') || ($subjectCount > 9) ? 'a3' : 'a4';
-        }
-
+        $paper = ($paperInput === 'auto') ? (count($data['subjects']) > 7 ? 'a3' : 'a4') : $paperInput;
         $data['paper'] = $paper;
 
-        $pdf = Pdf::loadView('pautas.pdf', $data)
-            ->setPaper($paper, 'landscape');
-
-        $filename = "Pauta_{$type}_Turma_{$class->name}_{$year}_{$paper}.pdf";
-
-        return $pdf->download($filename);
+        $pdf = Pdf::loadView('pautas.pdf', $data)->setPaper($paper, 'landscape');
+        return $pdf->download("Pauta_{$type}_Turma_{$class->name}_{$year}.pdf");
     }
 
-    /**
-     * Exportação de Pauta em Excel / CSV.
-     */
     public function exportExcel(ClassRoom $class, Request $request)
     {
         $this->authorize('view_grades');
@@ -218,13 +281,9 @@ class PautaController extends Controller
         $matrix = $data['matrix'];
 
         $filename = "Pauta_{$type}_Turma_{$class->name}_{$year}.csv";
-
         $headers = [
             'Content-Type' => 'text/csv; charset=UTF-8',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
-            'Pragma' => 'no-cache',
-            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
-            'Expires' => '0',
         ];
 
         $callback = function () use ($subjects, $matrix, $type) {
@@ -234,27 +293,10 @@ class PautaController extends Controller
             $header1 = ['Nome do Aluno', 'N.º Aluno'];
             foreach ($subjects as $subject) {
                 $subName = $subject->code ?? $subject->name;
-                if ($type === 'trimestral') {
-                    array_push($header1, $subName, '', '', '', '', '');
-                } else {
-                    array_push($header1, $subName, '', '', '');
-                }
+                array_push($header1, $subName, '', '', '', '', '');
             }
-            $header1[] = 'Média Geral';
-            $header1[] = 'Resultado Final';
+            array_push($header1, 'Média Geral', 'Resultado Final');
             fputcsv($file, $header1, ';');
-
-            $header2 = ['', ''];
-            foreach ($subjects as $subject) {
-                if ($type === 'trimestral') {
-                    array_push($header2, 'ACS1', 'ACS2', 'ACS3', 'MACS', 'ACP', 'MT');
-                } else {
-                    array_push($header2, 'MT1', 'MT2', 'MT3', 'MF');
-                }
-            }
-            $header2[] = '';
-            $header2[] = '';
-            fputcsv($file, $header2, ';');
 
             foreach ($matrix as $row) {
                 $student = $row['student'];
@@ -277,6 +319,8 @@ class PautaController extends Controller
                         $line[] = $subData['mt2'] ?? '-';
                         $line[] = $subData['mt3'] ?? '-';
                         $line[] = $subData['mf'] ?? '-';
+                        $line[] = $subData['exam'] ?? '-';
+                        $line[] = $subData['mfd'] ?? '-';
                     }
                 }
 
@@ -292,12 +336,6 @@ class PautaController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    /**
-     * Auxiliar para calcular e organizar a matriz da pauta.
-     *
-     * @param  \Illuminate\Support\Collection|null  $subjects  Quando fornecido, restringe a pauta
-     *                                                         a estas disciplinas (escopo do professor).
-     */
     private function buildPautaData(ClassRoom $class, ?int $term, int $year, string $type, $subjects = null): array
     {
         $allActiveClasses = ClassRoom::active()->orderBy('grade_level')->orderBy('name')->get();
@@ -310,10 +348,9 @@ class PautaController extends Controller
         ->get();
 
         if ($students->isEmpty()) {
-            $students = $class->students;
+            $students = $class->students()->orderBy('first_name')->get();
         }
 
-        // Se não foi passado um conjunto de subjects, usar o da turma (admin/secretaria)
         if ($subjects === null) {
             $subjects = $class->subjects->isEmpty()
                 ? Subject::active()->get()
@@ -326,14 +363,12 @@ class PautaController extends Controller
             ->get();
 
         $matrix = [];
-        $classStats = [
-            'total_students' => $students->count(),
-            'approved' => 0,
-            'failed' => 0,
-            'exam' => 0,
-        ];
+        $passingThreshold = (float) setting('passing_grade', 9.5);
+        $isExamClass = in_array((int) $class->grade_level, [9, 10, 12]);
 
-        $passingThreshold = 9.5;
+        $macsWeight = (float) setting('macs_weight', 2);
+        $acpWeight = (float) setting('acp_weight_in_mt', 1);
+        $totalWeight = $macsWeight + $acpWeight;
 
         foreach ($students as $student) {
             $studentData = [
@@ -353,15 +388,24 @@ class PautaController extends Controller
 
                 if ($type === 'trimestral') {
                     $termGrades = $studentSubjectGrades->where('term', $term);
-                    
+
                     $acs1 = $termGrades->where('assessment_type', Grade::TYPE_ACS1)->first()?->grade
                             ?? $termGrades->whereIn('assessment_type', ['continuous', 'test'])->first()?->grade;
                     $acs2 = $termGrades->where('assessment_type', Grade::TYPE_ACS2)->first()?->grade;
                     $acs3 = $termGrades->where('assessment_type', Grade::TYPE_ACS3)->first()?->grade;
 
-                    $macs = Grade::calculateMACS($student->id, $subject->id, $class->id, $term, $allGrades);
-                    $acp = $termGrades->whereIn('assessment_type', [Grade::TYPE_ACP, 'exam', 'ACF'])->first()?->grade;
-                    $mt = Grade::calculateMT($student->id, $subject->id, $class->id, $term, $allGrades);
+                    $validAcs = array_filter([$acs1, $acs2, $acs3], fn($v) => $v !== null);
+                    $macs = count($validAcs) > 0 ? array_sum($validAcs) / count($validAcs) : null;
+                    $acp = $termGrades->whereIn('assessment_type', [Grade::TYPE_ACP, 'exam', 'ACF', 'continuous_test'])->first()?->grade;
+
+                    $mt = null;
+                    if ($macs !== null && $acp !== null) {
+                        $mt = (($macs * $macsWeight) + ($acp * $acpWeight)) / $totalWeight;
+                    } elseif ($macs !== null) {
+                        $mt = $macs;
+                    } elseif ($acp !== null) {
+                        $mt = $acp;
+                    }
 
                     $studentData['subjects'][$subject->id] = [
                         'acs1' => $acs1 !== null ? round($acs1, 1) : '-',
@@ -379,44 +423,57 @@ class PautaController extends Controller
                         }
                     }
                 } else {
-                    // Anual ou Final
-                    $mt1 = Grade::calculateMT($student->id, $subject->id, $class->id, 1, $allGrades);
-                    $mt2 = Grade::calculateMT($student->id, $subject->id, $class->id, 2, $allGrades);
-                    $mt3 = Grade::calculateMT($student->id, $subject->id, $class->id, 3, $allGrades);
+                    // Anual ou Final Consolidada Moçambicana (SNE)
+                    $mts = [];
+                    for ($t = 1; $t <= 3; $t++) {
+                        $tGrades = $studentSubjectGrades->where('term', $t);
+                        $tAcs = array_filter([
+                            $tGrades->where('assessment_type', Grade::TYPE_ACS1)->first()?->grade ?? $tGrades->whereIn('assessment_type', ['continuous', 'test'])->first()?->grade,
+                            $tGrades->where('assessment_type', Grade::TYPE_ACS2)->first()?->grade,
+                            $tGrades->where('assessment_type', Grade::TYPE_ACS3)->first()?->grade,
+                        ], fn($v) => $v !== null);
 
-                    $validMts = array_filter([$mt1, $mt2, $mt3], fn($v) => $v !== null);
-                    $hasAllTerms = count($validMts) === 3;
-                    $mf = $hasAllTerms ? round(($mt1 + $mt2 + $mt3) / 3, 1) : (!empty($validMts) ? round(array_sum($validMts) / count($validMts), 1) : null);
+                        $tMacs = count($tAcs) > 0 ? array_sum($tAcs) / count($tAcs) : null;
+                        $tAcp = $tGrades->whereIn('assessment_type', [Grade::TYPE_ACP, 'exam', 'ACF', 'continuous_test'])->first()?->grade;
+
+                        if ($tMacs !== null && $tAcp !== null) {
+                            $mts[$t] = (($tMacs * $macsWeight) + ($tAcp * $acpWeight)) / $totalWeight;
+                        } elseif ($tMacs !== null) {
+                            $mts[$t] = $tMacs;
+                        } elseif ($tAcp !== null) {
+                            $mts[$t] = $tAcp;
+                        } else {
+                            $mts[$t] = null;
+                        }
+                    }
+
+                    $validMts = array_filter($mts, fn($v) => $v !== null);
+                    $mf = count($validMts) === 3
+                        ? array_sum($validMts) / 3
+                        : (count($validMts) > 0 ? array_sum($validMts) / count($validMts) : null);
 
                     $ne = $studentSubjectGrades->where('assessment_type', 'exam')->first()?->grade;
-                    $nr = $studentSubjectGrades->where('assessment_type', 'ACF')->first()?->grade;
-                    $effectiveExam = $nr !== null ? max($ne ?? 0, $nr) : $ne;
+                    $acf = $studentSubjectGrades->where('assessment_type', 'ACF')->first()?->grade;
+                    $neEficaz = $acf !== null ? max($ne ?? 0, $acf) : $ne;
 
-                    $includeAcf = setting('include_acf_in_mfd', '0') == '1';
-                    $examLevels = array_map('trim', explode(',', setting('exam_class_levels', '6,7,10,12')));
-                    $isExamClass = in_array((string)$class->grade_level, $examLevels);
-
-                    if ($includeAcf && $isExamClass && $effectiveExam !== null && $mf !== null) {
-                        $acfWeight = (float) setting('acf_weight_in_mfd', 1);
-                        $termsWeight = (float) setting('terms_weight_in_mfd', 3);
-                        $totalW = $acfWeight + $termsWeight;
-                        $mfd = round(($termsWeight * $mf + $acfWeight * $effectiveExam) / $totalW, 1);
+                    if ($isExamClass && $neEficaz !== null && $mf !== null) {
+                        $mfd = round(($mf + $neEficaz) / 2);
                     } else {
-                        $mfd = $mf;
+                        $mfd = $mf !== null ? round($mf) : null;
                     }
 
                     $studentData['subjects'][$subject->id] = [
-                        'mt1' => $mt1 !== null ? round($mt1, 1) : '-',
-                        'mt2' => $mt2 !== null ? round($mt2, 1) : '-',
-                        'mt3' => $mt3 !== null ? round($mt3, 1) : '-',
+                        'mt1' => $mts[1] !== null ? round($mts[1], 1) : '-',
+                        'mt2' => $mts[2] !== null ? round($mts[2], 1) : '-',
+                        'mt3' => $mts[3] !== null ? round($mts[3], 1) : '-',
                         'mf' => $mf !== null ? round($mf, 1) : '-',
-                        'exam' => $effectiveExam !== null ? round($effectiveExam, 1) : '-',
+                        'exam' => $neEficaz !== null ? round($neEficaz, 1) : '-',
                         'mfd' => $mfd !== null ? round($mfd, 1) : '-',
                     ];
 
                     if ($mfd !== null) {
                         $totalAverages[] = $mfd;
-                        if ($mfd < $passingThreshold) {
+                        if ($mfd < 10) {
                             $failedSubjectsCount++;
                         }
                     }
@@ -425,72 +482,131 @@ class PautaController extends Controller
 
             $totalSubjectsCount = count($subjects);
             $gradedCount = count($totalAverages);
-            $avgMethod = setting('average_method', 'all_subjects');
 
             if ($gradedCount > 0) {
-                if ($avgMethod === 'all_subjects') {
-                    $studentData['overall_average'] = round(array_sum($totalAverages) / $totalSubjectsCount, 1);
+                $studentData['overall_average'] = round(array_sum($totalAverages) / count($subjects), 1);
+                if ($type === 'trimestral') {
+                    $studentData['final_status'] = $studentData['overall_average'] >= $passingThreshold ? 'Aprovado' : 'Retido';
                 } else {
-                    $studentData['overall_average'] = round(array_sum($totalAverages) / $gradedCount, 1);
+                    $studentData['final_status'] = ($studentData['overall_average'] >= 10 && $failedSubjectsCount <= 2) ? 'Aprovado' : 'Retido';
                 }
             } else {
                 $studentData['overall_average'] = 0;
-            }
-            $studentData['graded_count'] = $gradedCount;
-            $studentData['total_subjects'] = $totalSubjectsCount;
-
-            if (!empty($totalAverages)) {
-                if ($studentData['overall_average'] >= $passingThreshold && $failedSubjectsCount <= 2) {
-                    $studentData['final_status'] = 'Aprovado';
-                    $classStats['approved']++;
-                } else {
-                    $studentData['final_status'] = 'Retido';
-                    $classStats['failed']++;
-                }
-            } else {
                 $studentData['final_status'] = 'Em Curso';
             }
 
             $matrix[] = $studentData;
         }
 
+        $stats = $this->calculatePautaStats($matrix, $subjects, $type);
+
         return [
             'classes' => $allActiveClasses,
             'subjects' => $subjects,
             'matrix' => $matrix,
-            'stats' => $classStats,
+            'stats' => $stats,
+            'isExamClass' => $isExamClass,
+            'calculationRules' => [
+                'macs_calculation_method' => setting('macs_calculation_method', 'launched_only'),
+                'default_acs_count' => (int) setting('default_acs_count', 3),
+                'macs_weight' => $macsWeight,
+                'acp_weight_in_mt' => $acpWeight,
+                'passing_grade' => $passingThreshold,
+            ],
         ];
     }
 
-    private function calculateTermAverage($grades, int $term): ?float
+    private function calculatePautaStats(array $matrix, $subjects, string $type): array
     {
-        $termGrades = $grades->where('term', $term);
-        if ($termGrades->isEmpty()) {
-            return null;
-        }
+        $stats = [
+            'global' => ['total' => count($matrix), 'approved' => 0, 'failed' => 0],
+            'subjects' => [],
+        ];
 
-        $acsGrades = $termGrades->whereIn('assessment_type', ['ACS1', 'ACS2', 'ACS3', 'test', 'assignment', 'participation']);
-        $macsMethod = setting('macs_calculation_method', 'launched_only');
-        if ($acsGrades->isNotEmpty()) {
-            if ($macsMethod === 'fixed_count') {
-                $fixedCount = max(1, (int) setting('default_acs_count', 3));
-                $acs = $acsGrades->sum('grade') / $fixedCount;
+        foreach ($matrix as $row) {
+            if ($row['final_status'] === 'Aprovado') {
+                $stats['global']['approved']++;
             } else {
-                $acs = $acsGrades->avg('grade');
+                $stats['global']['failed']++;
             }
-        } else {
-            $acs = null;
-        }
-        $acp = $termGrades->whereIn('assessment_type', ['ACP', 'exam', 'ACF'])->first()?->grade;
-
-        $macsWeight = (float) setting('macs_weight', 2);
-        $acpWeight = (float) setting('acp_weight_in_mt', 1);
-        $totalWeight = $macsWeight + $acpWeight;
-
-        if ($acs !== null && $acp !== null) {
-            return round(($macsWeight * $acs + $acpWeight * $acp) / $totalWeight, 1);
         }
 
-        return round($termGrades->avg('grade'), 1);
+        foreach ($subjects as $subject) {
+            $stats['subjects'][$subject->id] = [
+                'hm_evaluated' => 0, 'm_evaluated' => 0,
+                'hm_positives' => 0, 'm_positives' => 0,
+                'hm_negatives' => 0, 'm_negatives' => 0,
+                'hm_perc' => 0, 'm_perc' => 0,
+            ];
+
+            foreach ($matrix as $row) {
+                $student = $row['student'];
+                $gender = strtolower($student->gender ?? 'male');
+                $isFemale = ($gender === 'female' || $gender === 'f' || $gender === 'mulher');
+
+                $subData = $row['subjects'][$subject->id] ?? null;
+                if (! $subData) continue;
+
+                $val = ($type === 'trimestral') ? ($subData['mt'] ?? '-') : ($subData['mfd'] ?? '-');
+                if (! is_numeric($val)) continue;
+
+                $gradeValue = (float) $val;
+                $isPositive = $gradeValue >= 9.5;
+
+                $stats['subjects'][$subject->id]['hm_evaluated']++;
+                if ($isFemale) {
+                    $stats['subjects'][$subject->id]['m_evaluated']++;
+                }
+
+                if ($isPositive) {
+                    $stats['subjects'][$subject->id]['hm_positives']++;
+                    if ($isFemale) {
+                        $stats['subjects'][$subject->id]['m_positives']++;
+                    }
+                } else {
+                    $stats['subjects'][$subject->id]['hm_negatives']++;
+                    if ($isFemale) {
+                        $stats['subjects'][$subject->id]['m_negatives']++;
+                    }
+                }
+            }
+
+            $hmEval = $stats['subjects'][$subject->id]['hm_evaluated'];
+            $mEval = $stats['subjects'][$subject->id]['m_evaluated'];
+
+            $stats['subjects'][$subject->id]['hm_perc'] = $hmEval > 0
+                ? round(($stats['subjects'][$subject->id]['hm_positives'] / $hmEval) * 100, 1)
+                : 0;
+
+            $stats['subjects'][$subject->id]['m_perc'] = $mEval > 0
+                ? round(($stats['subjects'][$subject->id]['m_positives'] / $mEval) * 100, 1)
+                : 0;
+        }
+
+        return $stats;
+    }
+
+    /**
+     * Atualizar regras de cálculo de notas (MACS, MT, Pesos e Limiar MINEDH).
+     */
+    public function updateCalculationRules(Request $request)
+    {
+        $validated = $request->validate([
+            'macs_calculation_method' => 'required|in:launched_only,fixed_count',
+            'default_acs_count' => 'required|integer|min:1|max:6',
+            'macs_weight' => 'required|numeric|min:0.1|max:10',
+            'acp_weight_in_mt' => 'required|numeric|min:0.1|max:10',
+            'passing_grade' => 'required|numeric|min:0|max:20',
+        ]);
+
+        foreach ($validated as $key => $value) {
+            \App\Models\Setting::updateOrCreate(
+                ['key' => $key],
+                ['value' => (string) $value]
+            );
+            \Illuminate\Support\Facades\Cache::forget("setting_{$key}");
+        }
+
+        return back()->with('success', 'Regras e fórmula de cálculo de notas atualizadas com sucesso!');
     }
 }

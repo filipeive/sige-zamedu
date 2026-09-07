@@ -102,17 +102,27 @@ class SettingsController extends Controller
                     $group = 'communication';
                 } elseif (str_contains($key, 'currency') || str_contains($key, 'timezone') || str_contains($key, 'language') || str_contains($key, 'backup')) {
                     $group = 'system';
+                } elseif (str_contains($key, 'menu_visibility_')) {
+                    $group = 'menu_visibility';
+                }
+
+                $finalValue = $value;
+                if (is_array($value)) {
+                    $filtered = array_values(array_filter($value, fn($item) => $item !== '__EMPTY__'));
+                    $finalValue = json_encode($filtered);
                 }
 
                 Setting::updateOrCreate(
                     ['key' => $key],
-                    ['key' => $key, 'value' => is_array($value) ? json_encode($value) : $value, 'group' => $group]
+                    ['key' => $key, 'value' => $finalValue, 'group' => $group]
                 );
                 Cache::forget("setting_{$key}");
             }
         }
 
-        return redirect()->route('admin.settings.index')
+        $tab = $request->input('active_tab', $request->input('tab', 'escola'));
+
+        return redirect()->route('admin.settings.index', ['tab' => $tab])
             ->with('success', 'Configurações atualizadas com sucesso!');
     }
 

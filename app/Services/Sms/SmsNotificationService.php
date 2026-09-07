@@ -48,6 +48,9 @@ class SmsNotificationService
             'provider' => config('services.sms.driver', 'httpsms'),
         ]);
 
+        // Notificar o encarregado in-app no portal dos pais
+        $this->notifyParentUserInApp($student, $phoneNormalized, $message);
+
         try {
             $result = $manager->send($phone, $message);
 
@@ -70,6 +73,56 @@ class SmsNotificationService
             ]);
 
             return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Enviar notificação in-app ao pai/utilizador quando um SMS é disparado.
+     */
+    protected function notifyParentUserInApp(?Student $student, string $phone, string $message): void
+    {
+        try {
+            $targetUser = null;
+
+            if ($student && $student->parent_id) {
+                $targetUser = User::find($student->parent_id)
+                    ?? User::where('id', $student->parent?->user_id)->first();
+            }
+
+            if (!$targetUser && !empty($phone)) {
+                $cleanPhone = preg_replace('/[^0-9]/', '', $phone);
+                $shortPhone = strlen($cleanPhone) >= 9 ? substr($cleanPhone, -9) : $cleanPhone;
+
+                $parentModel = \App\Models\ParentModel::where('phone', $phone)
+                    ->orWhere('phone', 'like', "%{$shortPhone}%")
+                    ->first();
+                if ($parentModel && $parentModel->user_id) {
+                    $targetUser = User::find($parentModel->user_id);
+                }
+            }
+
+            if (!$targetUser && !empty($phone)) {
+                $cleanPhone = preg_replace('/[^0-9]/', '', $phone);
+                $shortPhone = strlen($cleanPhone) >= 9 ? substr($cleanPhone, -9) : $cleanPhone;
+
+                $targetUser = User::where('phone', $phone)
+                    ->orWhere('phone', 'like', "%{$shortPhone}%")
+                    ->first();
+            }
+
+            if ($targetUser) {
+                $targetUser->notify(new \App\Notifications\GenericNotification([
+                    'title' => 'Comunicado por SMS / Notificação',
+                    'message' => $message,
+                    'action_url' => route('parent.communications'),
+                    'type' => 'info',
+                ]));
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Falha ao notificar encarregado in-app no envio de SMS', ['err' => $e->getMessage()]);
+            if (app()->environment('testing')) {
+                throw $e;
+            }
         }
     }
 

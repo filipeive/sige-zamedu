@@ -1767,6 +1767,9 @@
 
     @stack('scripts')
 
+    {{-- SweetAlert2 + interceptador de flash messages --}}
+    @include('partials.sweetalert')
+
     {{-- Alpine.js para o widget AI flutuante --}}
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"></script>
 

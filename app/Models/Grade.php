@@ -57,7 +57,7 @@ class Grade extends Model
 
     const TYPE_ACF = 'ACF';
 
-    public static array $continuousTypes = [self::TYPE_ACS1, self::TYPE_ACS2, self::TYPE_ACS3];
+    public static array $continuousTypes = [self::TYPE_ACS1, self::TYPE_ACS2, self::TYPE_ACS3, 'continuous', 'test', 'assignment', 'participation'];
 
     // Relacionamentos
     public function student()
@@ -142,18 +142,28 @@ class Grade extends Model
      * MACS - Média das Avaliações Contínuas e Sistemáticas
      * MACS = (ACS1 + ACS2 + ACS3) / 3
      */
-    public static function calculateMACS(int $studentId, ?int $subjectId, int $classId, int $term): ?float
+    public static function calculateMACS(int $studentId, ?int $subjectId, int $classId, int $term, $allGrades = null): ?float
     {
-        $query = self::where('student_id', $studentId)
-            ->where('class_id', $classId)
-            ->where('term', $term)
-            ->whereIn('assessment_type', self::$continuousTypes);
+        if ($allGrades !== null) {
+            $grades = $allGrades->filter(function ($g) use ($studentId, $subjectId, $classId, $term) {
+                return (int) $g->student_id === $studentId
+                    && (int) $g->class_id === $classId
+                    && (int) $g->term === $term
+                    && (! $subjectId || (int) $g->subject_id === $subjectId)
+                    && in_array($g->assessment_type, self::$continuousTypes);
+            });
+        } else {
+            $query = self::where('student_id', $studentId)
+                ->where('class_id', $classId)
+                ->where('term', $term)
+                ->whereIn('assessment_type', self::$continuousTypes);
 
-        if ($subjectId) {
-            $query->where('subject_id', $subjectId);
+            if ($subjectId) {
+                $query->where('subject_id', $subjectId);
+            }
+
+            $grades = $query->get();
         }
-
-        $grades = $query->get();
 
         if ($grades->isEmpty()) {
             return null;
@@ -162,6 +172,7 @@ class Grade extends Model
         $method = setting('macs_calculation_method', 'launched_only');
         if ($method === 'fixed_count') {
             $fixedCount = max(1, (int) setting('default_acs_count', 3));
+
             return round($grades->sum('grade') / $fixedCount, 1);
         }
 
@@ -187,23 +198,42 @@ class Grade extends Model
      * MT - Média Trimestral (Moçambique)
      * MT = (MACS_Weight * MACS + ACP_Weight * ACP) / (MACS_Weight + ACP_Weight)
      */
-    public static function calculateMT(int $studentId, ?int $subjectId, int $classId, int $term): ?float
+    public static function calculateMT(int $studentId, ?int $subjectId, int $classId, int $term, $allGrades = null): ?float
     {
-        $macs = self::calculateMACS($studentId, $subjectId, $classId, $term);
+        $macs = self::calculateMACS($studentId, $subjectId, $classId, $term, $allGrades);
 
-        $query = self::where('student_id', $studentId)
-            ->where('class_id', $classId)
-            ->where('term', $term)
-            ->where('assessment_type', self::TYPE_ACP);
+        if ($allGrades !== null) {
+            $acpGrades = $allGrades->filter(function ($g) use ($studentId, $subjectId, $classId, $term) {
+                return (int) $g->student_id === $studentId
+                    && (int) $g->class_id === $classId
+                    && (int) $g->term === $term
+                    && (! $subjectId || (int) $g->subject_id === $subjectId)
+                    && in_array($g->assessment_type, [self::TYPE_ACP, 'exam']);
+            });
+            $acp = $acpGrades->isNotEmpty() ? $acpGrades->avg('grade') : null;
+        } else {
+            $query = self::where('student_id', $studentId)
+                ->where('class_id', $classId)
+                ->where('term', $term)
+                ->whereIn('assessment_type', [self::TYPE_ACP, 'exam']);
 
-        if ($subjectId) {
-            $query->where('subject_id', $subjectId);
+            if ($subjectId) {
+                $query->where('subject_id', $subjectId);
+            }
+
+            $acp = $query->avg('grade');
         }
 
-        $acp = $query->avg('grade');
-
-        if ($macs === null || $acp === null) {
+        if ($macs === null && $acp === null) {
             return null;
+        }
+
+        if ($macs !== null && $acp === null) {
+            return $macs;
+        }
+
+        if ($macs === null && $acp !== null) {
+            return round((float) $acp, 1);
         }
 
         $macsWeight = self::getMACSWeight();
