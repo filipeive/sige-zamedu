@@ -48,7 +48,7 @@ class TeacherManagementTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('Carlos Mendes');
-        $response->assertSee('3 anos de experiência');
+        $response->assertSee('Matemática');
     }
 
     public function test_years_experience_accessor_returns_positive_integer()

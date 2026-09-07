@@ -5,10 +5,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use App\Traits\BelongsToSchool;
 
 class ClassRoom extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory, LogsActivity, BelongsToSchool;
 
     protected $table = 'classes';
 
@@ -19,6 +20,7 @@ class ClassRoom extends Model
     ];
 
     protected $fillable = [
+        'school_id',
         'name',
         'grade_level',
         'shift',

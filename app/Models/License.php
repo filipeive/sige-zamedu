@@ -6,11 +6,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 
+use App\Traits\BelongsToSchool;
+
 class License extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToSchool;
 
     protected $fillable = [
+        'school_id',
         'client_name',
         'license_key',
         'activated_at',

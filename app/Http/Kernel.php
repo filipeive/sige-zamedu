@@ -33,6 +33,7 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\EncryptCookies::class,
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
             \Illuminate\Session\Middleware\StartSession::class,
+            \App\Http\Middleware\IdentifySchool::class,
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
@@ -44,6 +45,7 @@ class Kernel extends HttpKernel
             // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             \Illuminate\Routing\Middleware\ThrottleRequests::class . ':api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \App\Http\Middleware\IdentifySchool::class,
         ],
     ];
 
@@ -71,5 +73,6 @@ class Kernel extends HttpKernel
         'demo_restriction' => \App\Http\Middleware\DemoRestrictionMiddleware::class,
         'license' => \App\Http\Middleware\LicenseCheckMiddleware::class,
         'financial.access' => \App\Http\Middleware\CheckFinancialAccess::class,
+        'identify_school' => \App\Http\Middleware\IdentifySchool::class,
     ];
 }

@@ -6,9 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+use App\Traits\BelongsToSchool;
+
 class FinancialCategory extends Model
 {
+    use BelongsToSchool;
+
     protected $fillable = [
+        'school_id',
         'name',
         'type',
         'color',

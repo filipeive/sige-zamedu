@@ -6,11 +6,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
+use App\Traits\BelongsToSchool;
+
 class Communication extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToSchool;
 
     protected $fillable = [
+        'school_id',
         'title',
         'message',
         'target_audience',

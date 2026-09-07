@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\License;
 use App\Models\Setting;
+use App\Models\Province;
+use App\Models\District;
+use App\Models\School;
+use App\Services\SchoolContext;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -58,8 +62,35 @@ class TrialRegisterController extends Controller
         ]);
 
         DB::transaction(function () use ($validated, &$user) {
-            // 1. Criar Utilizador Administrador da Escola
+            // 1. Resolver Província e Distrito
+            $province = Province::where('name', 'LIKE', '%' . ($validated['province'] ?? 'Maputo') . '%')->first()
+                ?? Province::firstOrCreate(
+                    ['code' => 'MPM'],
+                    ['name' => $validated['province'] ?? 'Maputo', 'capital' => 'Maputo', 'is_active' => true]
+                );
+
+            $district = District::where('name', 'LIKE', '%' . ($validated['district'] ?? 'KaMpfumo') . '%')->first()
+                ?? District::firstOrCreate(
+                    ['code' => 'MPM-KMP'],
+                    ['province_id' => $province->id, 'name' => $validated['district'] ?? 'KaMpfumo', 'is_active' => true]
+                );
+
+            // 2. Criar a Escola no Modelo Territorial Multi-Tenant
+            $school = School::create([
+                'province_id' => $province->id,
+                'district_id' => $district->id,
+                'name' => $validated['school_name'],
+                'code' => 'ESC-' . strtoupper(Str::random(6)),
+                'email' => $validated['email'],
+                'phone' => $validated['phone'],
+                'status' => 'active',
+            ]);
+
+            SchoolContext::setSchoolId($school->id);
+
+            // 3. Criar Utilizador Administrador da Escola
             $user = User::create([
+                'school_id' => $school->id,
                 'name' => $validated['director_name'],
                 'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),
@@ -67,7 +98,7 @@ class TrialRegisterController extends Controller
 
             $user->assignRole('admin');
 
-            // 2. Definir Configurações Iniciais da Escola
+            // 4. Definir Configurações Iniciais da Escola
             Setting::set('school_name', $validated['school_name']);
             Setting::set('institution_type', $validated['institution_type'], 'identity');
             Setting::set('school_phone', $validated['phone']);
@@ -82,20 +113,18 @@ class TrialRegisterController extends Controller
             Setting::set('shift_morning_late_time', $validated['shift_morning_late'] ?? '07:30', 'academic');
             Setting::set('shift_afternoon_late_time', $validated['shift_afternoon_late'] ?? '13:00', 'academic');
 
-            // 3. Gerar Licença de Avaliação Gratuita (15 Dias)
-            License::updateOrCreate(
-                ['id' => 1],
-                [
-                    'client_name' => $validated['school_name'],
-                    'license_key' => 'TRIAL-' . strtoupper(Str::random(12)),
-                    'activated_at' => now(),
-                    'expires_at' => now()->addDays(15),
-                    'grace_period_days' => 5,
-                    'status' => 'active',
-                    'plan' => 'Gestão Completa (15 Dias Grátis)',
-                    'signature' => hash('sha256', $validated['school_name'] . now()),
-                ]
-            );
+            // 5. Gerar Licença de Avaliação Gratuita (15 Dias)
+            License::create([
+                'school_id' => $school->id,
+                'client_name' => $validated['school_name'],
+                'license_key' => 'TRIAL-' . strtoupper(Str::random(12)),
+                'activated_at' => now(),
+                'expires_at' => now()->addDays(15),
+                'grace_period_days' => 5,
+                'status' => 'active',
+                'plan' => 'Gestão Completa (15 Dias Grátis)',
+                'signature' => hash('sha256', $validated['school_name'] . now()),
+            ]);
 
             // 4. Marcar setup como concluído
             Setting::set('onboarding_completed', 'true', 'system');

@@ -6,12 +6,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use App\Traits\BelongsToSchool;
 
 class Teacher extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory, LogsActivity, BelongsToSchool;
 
     protected $fillable = [
+        'school_id',
         'user_id',
         'first_name',
         'last_name',

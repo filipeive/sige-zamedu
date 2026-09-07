@@ -5,13 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use App\Traits\BelongsToSchool;
+
 class SmsInbox extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToSchool;
 
     protected $table = 'sms_inbox';
 
     protected $fillable = [
+        'school_id',
         'provider_message_id',
         'direction',
         'from_phone',

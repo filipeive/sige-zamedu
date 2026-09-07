@@ -81,7 +81,7 @@ class PautaAndEventsTest extends TestCase
     {
         $response = $this->actingAs($this->admin)->get(route('pautas.final', $this->secondaryClass->id));
         $response->assertStatus(200);
-        $response->assertSee('Pauta Final & Exames');
+        $response->assertSee('Resultados Finais de Promoção');
     }
 
     public function test_can_export_pauta_excel()

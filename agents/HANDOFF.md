@@ -20,6 +20,34 @@ Formato de cada entrada:
 
 ---
 
+## 2026-09-07 — Sprint 3 (`feature/school-scoping`) — Antigravity AI Agent
+
+**Feito:**
+- **Mecanismo de Isolamento Multi-Tenant & Scoping Eloquent Concluído**:
+  - **Branch**: `feature/school-scoping`.
+  - **`App\Services\SchoolContext`**: Criado serviço mestre de gestão do contexto de escola ativa com suporte a `setSchoolId()`, `getSchoolId()`, `hasSchoolContext()`, `clear()` e `runInContext()`, com auto-cura de verificação de existência no banco de dados para evitar inconsistências em execuções de testes ou plano de fundo.
+  - **`App\Scopes\SchoolScope`**: Criado Eloquent Global Scope com filtro automático `where('table.school_id', activeSchoolId)` evitando colisão de colunas em JOINs.
+  - **`App\Traits\BelongsToSchool`**: Criada Trait universal com atribuição automática do `school_id` no evento `creating`, relacionamento `$model->school()`, e métodos de bypass de escopo (`scopeForSchool`, `scopeWithoutSchoolScope`).
+  - **`App\Http\Middleware\IdentifySchool`**: Registado em `Kernel.php` (grupos `web` e `api`) para identificar automaticamente o contexto da escola via `user->school_id`, cabeçalho `X-School-Id` ou sessão ativa.
+  - **Modelos Atualizados (28 Tabelas)**: `User`, `Student`, `Teacher`, `ClassRoom`, `Subject`, `Grade`, `Attendance`, `Enrollment`, `Payment`, `Expense`, `FeeType`, `FinancialCategory`, `Communication`, `Event`, `GateLog`, `StaffLeaveRequest`, `MaterialList`, `EnrollmentApplication`, `EnrollmentDocument`, `Assessment`, `ClassSchedule`, `ClassSubject`, `Conversation`, `Message`, `SmsLog`, `SmsInbox`, `Setting`, `License`.
+  - **`TrialRegisterController`**: Integrado para instanciar e vincular automaticamente a nova escola no Modelo Territorial (`Province` / `District`).
+
+**Decisões tomadas:**
+- A auto-cura do `SchoolContext::hasSchoolContext()` valida se a escola existe no banco antes de aplicar o escopo, garantindo retrocompatibilidade com scripts CLI, super administradores e instalações limpas.
+- Mantido o `school_id` como `nullable()` na BD até o Sprint 4 (Ponto de Não Retorno).
+
+**Testado:**
+- `vendor/bin/phpunit --filter=SchoolScopingTest` — 100% PASS (5 testes, 11 asserções).
+- Suite completa `vendor/bin/phpunit` — 100% PASS (66 testes, 225 asserções).
+
+**Não feito / bloqueado:**
+- Alteração da coluna `school_id` para `NOT NULL` reservada para o **Sprint 4 (`feature/school-id-not-null`)**.
+
+**Próximo passo recomendado:**
+1. Iniciar **Sprint 4 (`feature/school-id-not-null`)**: Ponto de não-retorno onde a coluna `school_id` passa a `NOT NULL` após verificação final de integridade de dados.
+
+---
+
 ## 2026-09-07 — Sprint 2 (`feature/school-tenant-columns`) — Antigravity AI Agent
 
 **Feito:**

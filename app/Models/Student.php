@@ -6,15 +6,17 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
+use App\Traits\BelongsToSchool;
 
 /**
  * @property \Carbon\Carbon|null $birthdate
  */
 class Student extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory, LogsActivity, BelongsToSchool;
 
     protected $fillable = [
+        'school_id',
         'student_number',
         'first_name',
         'last_name',

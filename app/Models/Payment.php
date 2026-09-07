@@ -6,12 +6,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
+use App\Traits\BelongsToSchool;
 
 class Payment extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory, LogsActivity, BelongsToSchool;
 
     protected $fillable = [
+        'school_id',
         'reference_number',
         'student_id',
         'enrollment_id',

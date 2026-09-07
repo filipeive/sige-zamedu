@@ -8,10 +8,11 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use App\Traits\BelongsToSchool;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles, LogsActivity;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles, LogsActivity, BelongsToSchool;
 
     protected $fillable = [
         'name',
@@ -21,6 +22,7 @@ class User extends Authenticatable
         'phone',
         'avatar',
         'last_login',
+        'school_id',
     ];
 
     protected $hidden = [

@@ -23,13 +23,14 @@ class TrialRegisterTest extends TestCase
     {
         $response = $this->get(route('public.trial-register'));
         $response->assertStatus(200);
-        $response->assertSee('Crie a Sua Conta de Teste (15 Dias)');
+        $response->assertSee('Registe a Sua Escola em 3 Passos');
     }
 
     public function test_can_register_school_for_15_day_trial()
     {
         $response = $this->post(route('public.trial-register.store'), [
             'school_name' => 'Escola Teste Antigravity',
+            'institution_type' => 'escola_privada',
             'director_name' => 'Diretor Teste',
             'email' => 'direcao@escolateste.co.mz',
             'phone' => '+258841234567',

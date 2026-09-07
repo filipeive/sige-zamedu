@@ -5,11 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use App\Traits\BelongsToSchool;
+
 class Setting extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToSchool;
 
-    protected $fillable = ['key', 'value', 'group'];
+    protected $fillable = ['school_id', 'key', 'value', 'group'];
 
     /**
      * Define ou atualiza uma configuração por chave.

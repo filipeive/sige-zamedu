@@ -5,9 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+use App\Traits\BelongsToSchool;
+
 class Expense extends Model
 {
+    use BelongsToSchool;
+
     protected $fillable = [
+        'school_id',
         'category_id',
         'description',
         'amount',

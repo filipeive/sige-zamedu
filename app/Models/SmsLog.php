@@ -5,13 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use App\Traits\BelongsToSchool;
+
 class SmsLog extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToSchool;
 
     protected $table = 'sms_logs';
 
     protected $fillable = [
+        'school_id',
         'user_id',
         'student_id',
         'channel',

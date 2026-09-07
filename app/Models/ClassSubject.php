@@ -5,14 +5,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use App\Traits\BelongsToSchool;
 
 class ClassSubject extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory, LogsActivity, BelongsToSchool;
 
     protected $table = 'class_subjects';
 
     protected $fillable = [
+        'school_id',
         'class_id',
         'subject_id',
         'teacher_id',
