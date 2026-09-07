@@ -1424,6 +1424,17 @@
                                 <span class="nav-text">Dashboard</span>
                             </a>
                         </li>
+                        @hasanyrole('super_admin|province_admin|province_inspector|district_admin|district_inspector|zip_coordinator|zip_admin')
+                        <li class="nav-item">
+                            <a href="{{ route('territorial.dashboard') }}"
+                                class="nav-link {{ request()->routeIs('territorial.*') ? 'active' : '' }}">
+                                <span class="nav-icon">
+                                    <i class="fas fa-map-location-dot"></i>
+                                </span>
+                                <span class="nav-text">Inspeção MINEDH</span>
+                            </a>
+                        </li>
+                        @endhasanyrole
                     </ul>
                 </div>
             @else

@@ -18,6 +18,29 @@ Formato de cada entrada:
 **Próximo passo recomendado:** ...
 ```
 
+## 2026-09-07 — Sprint 6 (`feature/territorial-dashboards`) — Antigravity AI Agent
+
+**Feito:**
+- **Dashboards Territoriais de Inspeção MINEDH (`feature/territorial-dashboards`)**:
+  - **Branch**: `feature/territorial-dashboards`.
+  - **Controller (`app/Http/Controllers/TerritorialDashboardController.php`)**: Criado controller de agregação de métricas pedagógicas regulamentares MINEDH (Total de Escolas, Alunos HM/M, Corpo Docente, Turmas, Avaliados HM/M, Notas Positivas $\ge 9.5$ e Negativas $< 9.5$, Taxas de Aproveitamento HM e M). Suporta desagregação e agrupamento por Distrito, ZIP ou Escola.
+  - **Views (`resources/views/territorial/index.blade.php` e `school_show.blade.php`)**: Interface responsiva e moderna com tokens de design ZAMEDU (verde esmeralda `#059669`, cards estatísticos, filtros de Província/Distrito/ZIP, tabelas regulamentares MINEDH e drill-down individual por escola).
+  - **Rotas (`routes/web.php`)**: Registado grupo de rotas protegidas `territorial.dashboard` e `territorial.school`.
+  - **Menu de Navegação (`resources/views/layouts/app.blade.php`)**: Adicionado item de menu "Inspeção MINEDH" condicionado a perfis de inspectores/coordenadores territoriais ou permissão `view_territorial_dashboard`.
+  - **Testes de Funcionalidade (`tests/Feature/TerritorialDashboardTest.php`)**: 5 testes automatizados cobrindo permissões de acesso, isolamento de dados por escopo territorial e drill-down de escolas (**5/5 PASS**).
+
+**Decisões tomadas:**
+- Apenas leitura de dados agregados nos painéis territoriais via `HierarchyScopeResolver`, garantindo isolamento total de escrita operacional.
+
+**Testado:**
+- `vendor/bin/phpunit tests/Feature/TerritorialDashboardTest.php` — 100% PASS (5 testes, 11 asserções).
+- Suíte completa `vendor/bin/phpunit` — 100% PASS (78 testes, 259 asserções).
+
+**Próximo passo recomendado:**
+- Avançar para a **Sprint 7 (`feature/aggregation-drilldown`)**: Agregação avançada e drill-down em tempo real de mapas de aproveitamento por ZIP/Distrito com exportação em PDF e Excel.
+
+---
+
 ## 2026-09-07 — Sprint 5 (`feature/territorial-roles`) — Antigravity AI Agent
 
 **Feito:**

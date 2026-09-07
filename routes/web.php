@@ -30,6 +30,7 @@ use App\Http\Controllers\StudentSupportController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\TeacherPortalController;
+use App\Http\Controllers\TerritorialDashboardController;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
@@ -91,6 +92,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Dashboard Principal
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Painel Territorial de Inspeção & Analytics MINEDH
+    Route::prefix('territorial')->name('territorial.')->group(function () {
+        Route::get('/dashboard', [TerritorialDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/school/{school}', [TerritorialDashboardController::class, 'schoolDrillDown'])->name('school');
+    });
 
     // Perfil do Usuário
     Route::prefix('profile')->name('profile.')->controller(ProfileController::class)->group(function () {
