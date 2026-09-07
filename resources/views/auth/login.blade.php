@@ -605,14 +605,17 @@
                 <!-- Quick Demo Role Accounts for Testing -->
                 <div class="demo-accounts-card">
                     <div class="demo-accounts-title">
-                        <i class="fas fa-user-shield text-emerald-700"></i> Contas de Demonstração (Clique para Preencher):
+                        <i class="fas fa-key text-emerald-700"></i> Contas de Demonstração (Clique para Preencher):
                     </div>
                     <div class="d-flex flex-wrap gap-1">
-                        <span class="demo-user-badge" onclick="fillDemo('superadmin@visionarios.co.mz', 'password')">👑 Super Admin</span>
-                        <span class="demo-user-badge" onclick="fillDemo('inspector.provincial@minedh.gov.mz', 'password')">🏛️ Inspector Provincial</span>
-                        <span class="demo-user-badge" onclick="fillDemo('diretor.escola@minedh.gov.mz', 'password')">🏫 Director de Escola</span>
-                        <span class="demo-user-badge" onclick="fillDemo('professor@visionarios.co.mz', 'password')">👨‍🏫 Professor</span>
-                        <span class="demo-user-badge" onclick="fillDemo('secretaria@visionarios.co.mz', 'password')">📑 Secretária</span>
+                        <span class="demo-user-badge" onclick="fillDemo('superadmin@visionarios.co.mz', 'superadmin123')"><i class="fas fa-crown text-amber-500 me-1"></i> Super Admin</span>
+                        <span class="demo-user-badge" onclick="fillDemo('inspector.zambezia@minedh.gov.mz', 'provincia123')"><i class="fas fa-building-columns text-sky-600 me-1"></i> Insp. Provincial</span>
+                        <span class="demo-user-badge" onclick="fillDemo('director.namacurra@minedh.gov.mz', 'distrito123')"><i class="fas fa-map-location-dot text-indigo-600 me-1"></i> Dir. Distrital</span>
+                        <span class="demo-user-badge" onclick="fillDemo('zip.namacurra@minedh.gov.mz', 'zip123')"><i class="fas fa-sitemap text-teal-600 me-1"></i> Coord. ZIP</span>
+                        <span class="demo-user-badge" onclick="fillDemo('admin@visionarios.co.mz', 'admin123')"><i class="fas fa-school text-emerald-700 me-1"></i> Dir. Escola</span>
+                        <span class="demo-user-badge" onclick="fillDemo('pedagogia@visionarios.co.mz', 'pedagogia123')"><i class="fas fa-book-open-reader text-emerald-600 me-1"></i> Pedagógico</span>
+                        <span class="demo-user-badge" onclick="fillDemo('professor@visionarios.co.mz', 'professor123')"><i class="fas fa-chalkboard-user text-blue-600 me-1"></i> Professor</span>
+                        <span class="demo-user-badge" onclick="fillDemo('secretaria@visionarios.co.mz', 'secretaria123')"><i class="fas fa-id-card text-purple-600 me-1"></i> Secretária</span>
                     </div>
                 </div>
             </div>
