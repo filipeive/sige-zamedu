@@ -18,6 +18,34 @@ Formato de cada entrada:
 **Próximo passo recomendado:** ...
 ```
 
+## 2026-09-07 — Sprint 9 (`feature/tenant-performance`) — Antigravity AI Agent
+
+**Feito:**
+- **Otimização de Performance & Índices de Banco de Dados (`feature/tenant-performance`)**:
+  - **Branch**: `feature/tenant-performance`.
+  - **Migração Concluída (`2026_09_07_000013_add_multi_tenant_and_territorial_performance_indexes.php`)**: Adicionados índices compostos e de alta performance nas tabelas operacionais e territoriais:
+    - `schools`: `idx_schools_territory_hierarchy` (`province_id`, `district_id`, `zip_id`), `idx_schools_province_id`, `idx_schools_district_id`, `idx_schools_zip_id`.
+    - `users`: `idx_users_school_status`, `idx_users_territory`.
+    - `students`: `idx_students_school_status`, `idx_students_school_gender`.
+    - `grades`: `idx_grades_school_term_year`, `idx_grades_student_subject_class`.
+    - `attendances`: `idx_attendances_school_date`.
+    - `payments`: `idx_payments_school_status`, `idx_payments_student_date`.
+    - `classes`: `idx_classes_school_grade_level`.
+    - `enrollments`: `idx_enrollments_school_class_id`.
+  - **Testes de Performance (`tests/Feature/TenantPerformanceTest.php`)**: Criados testes validando a existência de índices e a execução eficiente de eager loading (`with()`) em Eloquent (**2/2 PASS**).
+
+**Decisões tomadas:**
+- A migração foi desenhada com métodos idempotentes de salvaguarda (`addIndexIfNotExists` / `dropIndexIfExists`) garantindo execução segura tanto em MySQL como em SQLite.
+
+**Testado:**
+- `vendor/bin/phpunit tests/Feature/TenantPerformanceTest.php` — 100% PASS (2 testes, 9 asserções).
+- Suíte completa `vendor/bin/phpunit` — 100% PASS (91 testes, 296 asserções).
+
+**Próximo passo recomendado:**
+- Avançar para a **Sprint 10 (`feature/school-onboarding`)**: Onboarding Multi-Escola & Onboarding Wizard para registo de novas escolas públicas, privadas e comunitárias.
+
+---
+
 ## 2026-09-07 — Sprint 8 (`feature/tenant-security-tests`) — Antigravity AI Agent
 
 **Feito:**
