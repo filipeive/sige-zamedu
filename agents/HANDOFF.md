@@ -18,6 +18,26 @@ Formato de cada entrada:
 **Próximo passo recomendado:** ...
 ```
 
+## 2026-09-08 — Super Admin Governance Panel & Support Mode (`feature/school-onboarding`) — Antigravity AI Agent
+
+**Feito:**
+- **Painel de Governação Central do Super Admin (`resources/views/dashboard/super_admin.blade.php` & `DashboardController::superAdminDashboard`)**:
+  - Criada uma visualização dedicada e centralizada para o Super Administrador da plataforma, exibindo KPIs consolidados de todas as escolas (Públicas, Privadas, Comunitárias), Total de Alunos, Professores, Cobertura Territorial (11 Províncias, Distritos e ZIPs) e estado do licenciamento nacional.
+  - Tabela Multi-Escola com listagem dinâmica de todas as instituições, dados de contacto, localização e atalhos rápidos de governação.
+- **Modo Suporte Técnico / Impersonation (`SuperAdminControlController` & `IdentifySchool` Middleware)**:
+  - **Acesso com 1 Clique**: Adicionado o botão 🎧 **"Entrar no Modo Suporte"** junto a cada escola na tabela central do Super Admin (`POST /super-admin/impersonate/{school}`).
+  - **Banner de Alerta Transversal (`layouts/app.blade.php`)**: Quando o Modo Suporte está ativo, surge um cabeçalho proeminente no topo da página:
+    `⚠️ MODO SUPORTE ATIVO: A Operar na Escola: [Nome da Escola] (#ID) | [Sair do Suporte & Voltar ao Super Admin]`.
+  - **Saída Segura**: O botão **"Sair do Suporte"** remove o escopo temporário da sessão (`POST /super-admin/stop-impersonating`) e devolve o Super Admin diretamente ao Painel de Governação Central.
+- **Testes de Integração Automatizados (`tests/Feature/SuperAdminSupportModeTest.php`)**:
+  - Criada a suíte `SuperAdminSupportModeTest` cobrindo o acesso ao painel central, ativação do modo suporte por escola e término de suporte (**3/3 PASS**).
+
+**Decisões tomadas:**
+- O `IdentifySchool` middleware só aplica o `SchoolScope` de uma escola ao `super_admin` se este estiver explicitamente em **Modo Suporte**. Caso contrário, o Super Admin opera a nível da plataforma global sem ficar preso a uma única escola.
+
+**Testado:**
+- Suíte completa `vendor/bin/phpunit` — **97/97 PASS (100% aprovado, 334 asserções)**.
+
 ## 2026-09-08 — UI/UX Portal, FontAwesome Icons & Auth Redesign (`feature/school-onboarding`) — Antigravity AI Agent
 
 **Feito:**
