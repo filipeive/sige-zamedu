@@ -37,6 +37,22 @@ class ParentModel extends Model
         'birth_date' => 'date',
     ];
 
+    public function scopeForCurrentSchool($query)
+    {
+        if (\App\Services\SchoolContext::hasSchoolContext()) {
+            $schoolId = \App\Services\SchoolContext::getSchoolId();
+            return $query->where(function ($q) use ($schoolId) {
+                $q->whereHas('students', function ($sq) use ($schoolId) {
+                    $sq->where('school_id', $schoolId);
+                })->orWhereHas('user', function ($uq) use ($schoolId) {
+                    $uq->where('school_id', $schoolId);
+                });
+            });
+        }
+
+        return $query;
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

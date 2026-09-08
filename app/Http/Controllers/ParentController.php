@@ -18,7 +18,7 @@ class ParentController extends Controller
     {
         $this->authorize('view_students');
 
-        $query = ParentModel::with(['user', 'students']);
+        $query = ParentModel::forCurrentSchool()->with(['user', 'students']);
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -31,8 +31,8 @@ class ParentController extends Controller
             });
         }
 
+        $totalParents = (clone $query)->count();
         $parents = $query->orderBy('first_name')->paginate(15);
-        $totalParents = ParentModel::count();
 
         return view('parents.index', compact('parents', 'totalParents'));
     }
@@ -78,6 +78,7 @@ class ParentController extends Controller
                 'name' => $validated['first_name'] . ' ' . $validated['last_name'],
                 'email' => $email,
                 'password' => Hash::make($plainPassword),
+                'school_id' => \App\Services\SchoolContext::getSchoolId(),
             ]);
 
             $user->assignRole('parent');
@@ -120,7 +121,7 @@ class ParentController extends Controller
     {
         $this->authorize('view_students');
 
-        $parent = ParentModel::with(['user', 'students.currentEnrollment.class'])->findOrFail($id);
+        $parent = ParentModel::forCurrentSchool()->with(['user', 'students.currentEnrollment.class'])->findOrFail($id);
 
         return view('parents.show', compact('parent'));
     }
@@ -132,7 +133,7 @@ class ParentController extends Controller
     {
         $this->authorize('edit_students');
 
-        $parent = ParentModel::findOrFail($id);
+        $parent = ParentModel::forCurrentSchool()->findOrFail($id);
 
         return view('parents.edit', compact('parent'));
     }
