@@ -35,8 +35,11 @@ Formato de cada entrada:
 **Decisões tomadas:**
 - O `IdentifySchool` middleware só aplica o `SchoolScope` de uma escola ao `super_admin` se este estiver explicitamente em **Modo Suporte**. Caso contrário, o Super Admin opera a nível da plataforma global sem ficar preso a uma única escola.
 
-**Testado:**
-- Suíte completa `vendor/bin/phpunit` — **97/97 PASS (100% aprovado, 334 asserções)**.
+- **Isolamento Multi-Tenant do Módulo de Encarregados de Educação (`ParentModel::scopeForCurrentSchool` & `ParentController`)**:
+  - **Identificação do Bug**: Ao aceder a `/parents` no Modo Suporte numa escola sem encarregados registados, eram apresentados encarregados de outras escolas devido à ausência do filtro por `school_id`.
+  - **Correção**: Criado o escopo `scopeForCurrentSchool` no `ParentModel` (filtrando registos com educandos ou utilizador afetos a `SchoolContext::getSchoolId()`) e associado o `school_id` à criação de novos utilizadores encarregados.
+  - **Testes de Integração (`tests/Feature/ParentMultiTenantTest.php`)**: Criado teste automatizado validando a listagem da escola ativa e a exibição correta de 0 encarregados em escolas sem registos (**2/2 PASS**).
+- **Testes Globais**: Suíte completa `vendor/bin/phpunit` — **99/99 PASS (100% aprovado, 339 asserções)**.
 
 ## 2026-09-08 — UI/UX Portal, FontAwesome Icons & Auth Redesign (`feature/school-onboarding`) — Antigravity AI Agent
 
