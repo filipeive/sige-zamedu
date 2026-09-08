@@ -33,8 +33,7 @@ Formato de cada entrada:
   - **Emblema da República de Moçambique Perfeitamente Centralizado** no topo do documento oficial.
   - **Matriz de 11 Colunas Regulamentares MINEDH em Quadro I**: `N/ Entradas (Matrícula)`, `Desistentes`, `Transf.`, `Anulou Matrícula`, `PPF/PDF`, `Avaliados`, `Transitados/Aprovados`, `Retidos/Negativas`, `% Aprovados`, `% Desistentes` (todos desagregados por género **HM** e **M**).
   - **Subtotais Automáticos por Ciclo**: Linhas de somatório para `1º CICLO`, `2º CICLO` e `TOTAL GERAL DA ESCOLA`.
-  - **Cabeçalho Governamental 100% Dinâmico**: Exibe dynamicamente a Província, SDEJT Distrito, Nome da ZIP (e Sede), Nome da Escola selecionada, Sub-sistema de Ensino (ESG / EP1 & EP2 / Ensino Geral) e Natureza (Pública / Privada / Comunitária).
-  - **Filtros Territoriais em Cascata (Província -> Distrito -> ZIP -> Escola)** com submissão automática e limpeza dinâmica via JavaScript.
+  - **Proteção Contra Acesso Nulo (`Null-Safety`) & Fallbacks Territoriais**: Aplicado *optional chaining* (`?->`) em todas as propriedades de `$selectedSchool` em Blade e adicionado fallback de segurança no `PedagogicalMapController`, garantindo o carregamento sem exceção `Attempt to read property on null` mesmo quando se filtra por um distrito/ZIP sem escolas ativas.
 - **Testes Globais**: Suíte de testes `vendor/bin/phpunit` — **100/100 PASS (100% aprovado, 342 asserções)**.
 
 ## 2026-09-08 — Super Admin Governance Panel & Support Mode (`feature/school-onboarding`) — Antigravity AI Agent

@@ -70,6 +70,11 @@ class PedagogicalMapController extends Controller
             $selectedSchool = $schools->first();
         }
 
+        // Fallback if no school matched filters
+        if (!$selectedSchool) {
+            $selectedSchool = School::with(['province', 'district', 'zip'])->first();
+        }
+
         // Territory dropdowns
         $provinces = Province::where('is_active', true)->get();
 

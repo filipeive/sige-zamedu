@@ -162,10 +162,10 @@
             </div>
             <h5 class="fw-bold mb-0 text-dark tracking-wide uppercase" style="font-family: serif; letter-spacing: 1.5px; font-size: 1.1rem;">REPÚBLICA DE MOÇAMBIQUE</h5>
             <h6 class="fw-semibold text-secondary mb-0 text-xs uppercase" style="letter-spacing: 0.8px;">
-                GOVERNO DA PROVÍNCIA DE {{ strtoupper($selectedSchool->province->name ?? 'ZAMBÉZIA') }}
+                GOVERNO DA PROVÍNCIA DE {{ strtoupper($selectedSchool?->province?->name ?? 'PROVÍNCIA') }}
             </h6>
             <h6 class="fw-semibold text-secondary mb-0 text-xs uppercase" style="letter-spacing: 0.8px;">
-                SERVIÇO DISTRITAL DE EDUCAÇÃO, JUVENTUDE E TECNOLOGIA (SDEJT {{ strtoupper($selectedSchool->district->name ?? 'MARRACUA') }})
+                SERVIÇO DISTRITAL DE EDUCAÇÃO, JUVENTUDE E TECNOLOGIA (SDEJT {{ strtoupper($selectedSchool?->district?->name ?? 'DISTRITO') }})
             </h6>
             @if($selectedSchool && $selectedSchool->zip)
                 <h6 class="fw-semibold text-emerald-800 mb-0 text-xs uppercase" style="color: #047857; letter-spacing: 0.5px;">
@@ -173,10 +173,10 @@
                 </h6>
             @endif
             <h4 class="fw-black text-dark mt-2 mb-1" style="color: #047857; font-size: 1.25rem;">
-                {{ strtoupper($selectedSchool->name ?? 'ESCOLA SECUNDÁRIA DE MARRACUA') }}
+                {{ strtoupper($selectedSchool?->name ?? 'ESCOLA NÃO SELECIONADA') }}
             </h4>
             <div class="text-xs fw-bold text-muted uppercase mb-2">
-                SUB-SISTEMA DE ENSINO: <span class="text-dark">{{ strtoupper($schoolTeachingType) }}</span> &bull; NATUREZA: <span class="text-dark">{{ strtoupper($selectedSchool->type ?: 'Pública') }}</span>
+                SUB-SISTEMA DE ENSINO: <span class="text-dark">{{ strtoupper($schoolTeachingType ?? 'ENSINO GERAL') }}</span> &bull; NATUREZA: <span class="text-dark">{{ strtoupper($selectedSchool?->type ?? 'Pública') }}</span>
             </div>
 
             <div class="d-inline-block px-4 py-1.5 rounded-pill bg-light border border-slate-300 mt-1">
@@ -376,7 +376,7 @@
         <!-- OFFICIAL SIGNATURE BLOCKS (DAP & DAE MINEDH Standard) -->
         <div class="mt-5 pt-3">
             <div class="text-end mb-4 text-xs font-semibold text-dark">
-                {{ $selectedSchool->district->name ?? 'Marracua' }}, {{ date('d') }} de {{ \Carbon\Carbon::now()->translatedFormat('F') }} de {{ $year }}
+                {{ $selectedSchool?->district?->name ?? 'DISTRITO' }}, {{ date('d') }} de {{ \Carbon\Carbon::now()->translatedFormat('F') }} de {{ $year }}
             </div>
 
             <div class="row text-center pt-2">
@@ -389,7 +389,7 @@
                 <div class="col-6">
                     <p class="mb-4 text-xs font-bold text-dark uppercase">O Diretor da Escola (DAE)</p>
                     <div style="border-bottom: 1.5px solid #000; width: 65%; margin: 0 auto 8px auto;"></div>
-                    <p class="mb-0 text-xs font-bold text-dark">{{ strtoupper($selectedSchool->principal_name ?? 'Prof. Diretor Geral') }}</p>
+                    <p class="mb-0 text-xs font-bold text-dark">{{ strtoupper($selectedSchool?->principal_name ?? 'Prof. Diretor Geral') }}</p>
                     <p class="text-2xs text-muted">(Assinatura e Carimbo Oficial)</p>
                 </div>
             </div>
