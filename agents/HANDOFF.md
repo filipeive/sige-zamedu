@@ -39,7 +39,14 @@ Formato de cada entrada:
   - **Identificação do Bug**: Ao aceder a `/parents` no Modo Suporte numa escola sem encarregados registados, eram apresentados encarregados de outras escolas devido à ausência do filtro por `school_id`.
   - **Correção**: Criado o escopo `scopeForCurrentSchool` no `ParentModel` (filtrando registos com educandos ou utilizador afetos a `SchoolContext::getSchoolId()`) e associado o `school_id` à criação de novos utilizadores encarregados.
   - **Testes de Integração (`tests/Feature/ParentMultiTenantTest.php`)**: Criado teste automatizado validando a listagem da escola ativa e a exibição correta de 0 encarregados em escolas sem registos (**2/2 PASS**).
-- **Testes Globais**: Suíte completa `vendor/bin/phpunit` — **99/99 PASS (100% aprovado, 339 asserções)**.
+- **Resolução do Erro 1062 de Chave Duplicada em Settings (`2026_09_08_000001_fix_settings_unique_index`, `Setting::set` & `SettingsController`)**:
+  - **Identificação do Bug**: O salvamento de configurações em `http://127.0.0.1:8000/admin/settings` lançava `SQLSTATE[23000]: Duplicate entry 'school_name' for key 'settings_key_unique'` devido a um índice único de coluna única (`key`) criado na migração inicial da tabela `settings`.
+  - **Correção**: 
+    1. Criada a migração `2026_09_08_000001_fix_settings_unique_index.php` para remover o índice restritivo de coluna única e aplicar o índice composto `idx_settings_key_school` (`['key', 'school_id']`).
+    2. Aprimorado o método `Setting::set()` para pesquisar e atualizar registos no escopo da escola com fallback seguro para configurações globais.
+    3. Atualizado o `SettingsController` para usar `Setting::set()`.
+  - **Testes de Integração (`tests/Feature/SettingsMultiTenantTest.php`)**: Criado teste automatizado confirmando atualização de configurações sem erro de chave duplicada (**1/1 PASS**).
+- **Testes Globais**: Suíte completa `vendor/bin/phpunit` — **100/100 PASS (100% aprovado, 342 asserções)**.
 
 ## 2026-09-08 — UI/UX Portal, FontAwesome Icons & Auth Redesign (`feature/school-onboarding`) — Antigravity AI Agent
 
