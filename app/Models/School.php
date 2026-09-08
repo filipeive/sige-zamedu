@@ -42,4 +42,29 @@ class School extends Model
     {
         return $this->belongsTo(Zip::class);
     }
+
+    public function students(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Student::class);
+    }
+
+    public function teachers(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Teacher::class);
+    }
+
+    public function users(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(User::class);
+    }
+
+    public function licenses(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(License::class);
+    }
+
+    public function latestLicense(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(License::class)->latestOfMany();
+    }
 }

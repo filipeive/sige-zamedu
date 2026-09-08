@@ -23,22 +23,24 @@ class IdentifySchool
         $schoolId = null;
 
         if ($user = $request->user()) {
-            $schoolId = $user->school_id;
-        }
-
-        if (!$schoolId && $request->hasHeader('X-School-Id')) {
-            $schoolId = (int) $request->header('X-School-Id');
-        }
-
-        if (!$schoolId) {
-            $schoolId = session()->has('active_school_id') ? (int) session('active_school_id') : null;
+            if ($user->role === 'super_admin' || $user->hasRole('super_admin')) {
+                if (session()->has('support_mode') && session()->has('support_mode_school_id')) {
+                    $schoolId = (int) session('support_mode_school_id');
+                } else {
+                    $schoolId = null;
+                }
+            } else {
+                $schoolId = $user->school_id;
+            }
+        } else {
+            if ($request->hasHeader('X-School-Id')) {
+                $schoolId = (int) $request->header('X-School-Id');
+            } elseif (session()->has('active_school_id')) {
+                $schoolId = (int) session('active_school_id');
+            }
         }
 
         if (Schema::hasTable('schools')) {
-            if (!$schoolId) {
-                $schoolId = School::value('id');
-            }
-
             if ($schoolId && School::where('id', $schoolId)->exists()) {
                 SchoolContext::setSchoolId((int) $schoolId);
             } else {

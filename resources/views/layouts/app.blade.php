@@ -2411,6 +2411,33 @@
                 </div>
             </div>
 
+            <!-- Support Mode Active Banner -->
+            @if(session('support_mode'))
+                <div class="m-4 p-4 rounded-2xl bg-amber-500 text-slate-950 shadow-lg border-2 border-amber-300 flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-slate-950 text-amber-400 flex items-center justify-center font-bold text-lg shadow shrink-0">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <div>
+                            <div class="font-extrabold text-sm uppercase tracking-wide flex items-center gap-2">
+                                <span class="px-2 py-0.5 rounded bg-slate-950 text-amber-400 text-[10px] font-black me-1">MODO SUPORTE ATIVO</span>
+                                <span>A Operar na Escola: <strong>{{ session('support_mode_school_name', 'Escola Selecionada') }}</strong> (#{{ session('support_mode_school_id') }})</span>
+                            </div>
+                            <div class="text-xs font-semibold text-slate-900 mt-0.5">
+                                Ações efetuadas nesta sessão aplicam-se ao escopo desta escola. Clique no botão ao lado para regressar ao painel do Super Admin.
+                            </div>
+                        </div>
+                    </div>
+                    <form action="{{ route('super-admin.stop-impersonating') }}" method="POST" class="inline-block">
+                        @csrf
+                        <button type="submit" class="px-4 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-900 text-amber-300 text-xs font-black transition border border-amber-400/40 shadow flex items-center gap-2">
+                            <i class="fas fa-right-from-bracket text-amber-400"></i>
+                            <span>Sair do Suporte & Voltar ao Super Admin</span>
+                        </button>
+                    </form>
+                </div>
+            @endif
+
             <!-- Conteúdo da Página -->
             @yield('content')
         </div>

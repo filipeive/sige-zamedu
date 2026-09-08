@@ -208,6 +208,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::delete('/{parent}', 'destroy')->name('destroy');
         });
 
+    // Rotas de Controlo do Super Admin & Modo Suporte Técnico
+    Route::middleware(['auth', 'role:super_admin'])
+        ->prefix('super-admin')
+        ->name('super-admin.')
+        ->controller(\App\Http\Controllers\SuperAdminControlController::class)
+        ->group(function () {
+            Route::post('/impersonate/{school}', 'impersonate')->name('impersonate');
+            Route::post('/stop-impersonating', 'stopImpersonating')->name('stop-impersonating');
+        });
+
     // Emissão de Certidões & Certificados Oficiais MINEDH
     Route::middleware(['auth', 'role:admin|super_admin|secretary|pedagogy'])
         ->prefix('certificates')

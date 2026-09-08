@@ -508,17 +508,17 @@
             <!-- Footer Text -->
             <div class="banner-footer-text">
                 &copy; {{ date('Y') }} <strong>ZAMEDU - SIGE</strong> · Desenvolvido por <a href="http://146.235.224.99/" target="_blank">Filipe dos Santos</a>
-            </div>
+            </div> 
         </div>
 
         <!-- RIGHT LOGIN FORM -->
         <div class="form-side">
             <div>
                 <div class="form-top-bar">
-                    <div class="d-flex align-items-center gap-2">
+                    {{-- <div class="d-flex align-items-center gap-2">
                         <img src="{{ asset('images/emblem.png') }}" alt="Emblema Oficial" style="height: 32px; width: auto;">
                         <span class="fw-bold text-success text-uppercase" style="font-size: 10px; letter-spacing: 0.5px;">MINEDH · SIGE</span>
-                    </div>
+                    </div> --}}
                     <a href="{{ route('welcome') }}" class="btn-back-home">
                         <i class="fas fa-arrow-left"></i>
                         <span>Voltar ao Início</span>

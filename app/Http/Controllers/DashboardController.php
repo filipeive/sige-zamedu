@@ -22,9 +22,14 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
 
-        // Dashboard baseado no tipo de usuário
+        if ($user->role === 'super_admin' || $user->hasRole('super_admin')) {
+            if (session()->has('support_mode') && session()->has('support_mode_school_id')) {
+                return $this->adminDashboard();
+            }
+            return $this->superAdminDashboard();
+        }
+
         switch ($user->role) {
-            case 'super_admin':
             case 'admin':
                 return $this->adminDashboard();
             case 'secretary':
@@ -141,6 +146,51 @@ class DashboardController extends Controller
             'attendances_count' => Attendance::whereDate('attendance_date', $today)->count(),
             'new_students_count' => Student::whereDate('created_at', $today)->count(),
         ];
+    }
+
+    private function superAdminDashboard()
+    {
+        $greetingData = $this->getGreetingData();
+
+        // 1. Métricas da Plataforma Nacional
+        $totalSchools = \App\Models\School::count();
+        $publicSchoolsCount = \App\Models\School::whereIn('type', ['publica', 'public'])->count();
+        $privateSchoolsCount = \App\Models\School::whereIn('type', ['privada', 'comunitaria', 'private', 'community'])->count();
+
+        $totalStudents = \App\Models\Student::withoutSchoolScope()->count();
+        $totalTeachers = \App\Models\Teacher::withoutSchoolScope()->count();
+
+        $totalProvinces = \App\Models\Province::count();
+        $totalDistricts = \App\Models\District::count();
+        $totalZips = \App\Models\Zip::count();
+
+        $totalUsers = \App\Models\User::count();
+        $activeLicenses = \App\Models\License::withoutSchoolScope()->where('status', 'active')->count();
+
+        // 2. Lista Multi-Escola com Dados Territoriais e Licenciamento
+        $schools = \App\Models\School::with(['province', 'district', 'zip', 'latestLicense'])
+            ->withCount(['students', 'teachers', 'users'])
+            ->orderBy('id', 'desc')
+            ->paginate(15);
+
+        // 3. Submissões Recentes de Pré-Inscrição
+        $recentApplications = \App\Models\EnrollmentApplication::with('school')->latest()->take(5)->get();
+
+        return view('dashboard.super_admin', compact(
+            'greetingData',
+            'totalSchools',
+            'publicSchoolsCount',
+            'privateSchoolsCount',
+            'totalStudents',
+            'totalTeachers',
+            'totalProvinces',
+            'totalDistricts',
+            'totalZips',
+            'totalUsers',
+            'activeLicenses',
+            'schools',
+            'recentApplications'
+        ));
     }
 
     private function adminDashboard()
