@@ -30,10 +30,11 @@ Formato de cada entrada:
   - Tabela com separadores (Tabs) para navegação detalhada em 4 níveis territoriais: **Escolas**, **ZIPs (Zonas de Influência Pedagógica)**, **Distritos (SDEJT)** e **Províncias (DPEDH)**.
 - **Mapa de Aproveitamento Pedagógico Oficial MINEDH (`app/Http/Controllers/PedagogicalMapController.php` & `resources/views/reports/pedagogical-map.blade.php`)**:
   - Redesenho completo do documento de relatório no modelo oficial do Ministério da Educação e Desenvolvimento Humano de Moçambique (baseado em `APROV Pedgg ES-2ºTrim -2026_MARRACUA.xlsx`).
-  - Seletores interativos de Escola (`school_id`), Trimestre (1º, 2º, 3º Trimestre, Geral Anual) e Ano Lectivo.
-  - Timbre com Emblema da República de Moçambique, Governo da Província, SDEJT e nome da escola selecionada.
-  - **Quadro I: Rendimento Escolar por Classe e Ciclo (HM e M)** e **Quadro II: Aproveitamento por Disciplina da Turma Selecionada (HM e M)**.
-  - Bloco formal de assinaturas regulamentares para o *Diretor Adjunto Pedagógico (DAP)* e *Diretor da Escola (DAE)* com suporte total a impressão A4 (`@media print`).
+  - **Emblema da República de Moçambique Perfeitamente Centralizado** no topo do documento oficial.
+  - **Filtros Territoriais (Província, Distrito, ZIP)** integrados para filtragem em cascata conforme a função do utilizador territorial logado.
+  - **Quadro I: Agrupamento por Classe (em vez de turmas)**: Se uma escola tem várias turmas para a mesma classe (ex: 1ª Classe A, B, C), o relatório consolida todas as estatísticas numa única linha por Classe (`1ª Classe`, `2ª Classe`, ..., `12ª Classe`).
+  - **Quadro II: Aproveitamento por Disciplina da Turma Selecionada (HM e M)**.
+  - Bloco formal de assinaturas regulamentares para o *Diretor Adjunto Pedagógico (DAP)* e *Diretor da Escola (DAE)* com suporte a impressão A4 (`@media print`).
 - **Testes Globais**: Suíte de testes `vendor/bin/phpunit` — **100/100 PASS (100% aprovado, 342 asserções)**.
 
 ## 2026-09-08 — Super Admin Governance Panel & Support Mode (`feature/school-onboarding`) — Antigravity AI Agent

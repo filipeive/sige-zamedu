@@ -6,10 +6,22 @@ use App\Models\ClassRoom;
 use App\Models\Grade;
 use App\Models\Student;
 use App\Models\Subject;
+use App\Models\School;
+use App\Models\Province;
+use App\Models\District;
+use App\Models\Zip;
+use App\Services\HierarchyScopeResolver;
 use Illuminate\Http\Request;
 
 class PedagogicalMapController extends Controller
 {
+    protected HierarchyScopeResolver $scopeResolver;
+
+    public function __construct(HierarchyScopeResolver $scopeResolver)
+    {
+        $this->scopeResolver = $scopeResolver;
+    }
+
     public function index(Request $request)
     {
         $this->authorize('view_grades');
@@ -17,108 +29,158 @@ class PedagogicalMapController extends Controller
         $user = auth()->user();
         $year = (int) $request->get('year', current_school_year());
         $term = (int) $request->get('term', 1);
+        
+        $selectedProvinceId = $request->get('province_id');
+        $selectedDistrictId = $request->get('district_id');
+        $selectedZipId = $request->get('zip_id');
         $schoolId = $request->get('school_id');
         $classId = $request->get('class_id');
 
-        // Available Schools
-        $schools = \App\Models\School::with(['province', 'district', 'zip'])->get();
-        
+        // 1. Resolve Territorial Scope for Schools
+        $allowedSchoolIds = $this->scopeResolver->resolveVisibleSchoolIds($user);
+
+        $schoolsQuery = School::with(['province', 'district', 'zip']);
+
+        if (!is_null($allowedSchoolIds)) {
+            $schoolsQuery->whereIn('id', $allowedSchoolIds);
+        }
+
+        if ($selectedProvinceId) {
+            $schoolsQuery->where('province_id', $selectedProvinceId);
+        }
+        if ($selectedDistrictId) {
+            $schoolsQuery->where('district_id', $selectedDistrictId);
+        }
+        if ($selectedZipId) {
+            $schoolsQuery->where('zip_id', $selectedZipId);
+        }
+
+        $schools = $schoolsQuery->get();
+
+        // Selected school fallback
         if ($schoolId) {
             $selectedSchool = $schools->firstWhere('id', $schoolId);
         } else {
-            $selectedSchool = $user->school ?? $schools->first();
+            $selectedSchool = $schools->firstWhere('id', $user->school_id) ?? $schools->first();
         }
 
         if (!$selectedSchool && $schools->isNotEmpty()) {
             $selectedSchool = $schools->first();
         }
 
-        // Classes for selected school
-        $classesQuery = ClassRoom::withoutGlobalScopes();
-        if ($selectedSchool) {
-            $classesQuery->where('school_id', $selectedSchool->id);
+        // Territory dropdowns
+        $provinces = Province::where('is_active', true)->get();
+
+        $districtsQuery = District::where('is_active', true);
+        if ($selectedProvinceId) {
+            $districtsQuery->where('province_id', $selectedProvinceId);
         }
-        $classes = $classesQuery->orderBy('grade_level')->orderBy('name')->get();
-        
-        $selectedClass = $classId ? $classes->firstWhere('id', $classId) : $classes->first();
+        $districts = $districtsQuery->get();
+
+        $zipsQuery = Zip::where('is_active', true);
+        if ($selectedDistrictId) {
+            $zipsQuery->where('district_id', $selectedDistrictId);
+        }
+        $zips = $zipsQuery->get();
+
+        // Classes for selected school
+        $allClasses = collect([]);
+        if ($selectedSchool) {
+            $allClasses = ClassRoom::withoutGlobalScopes()
+                ->where('school_id', $selectedSchool->id)
+                ->orderBy('grade_level')
+                ->orderBy('name')
+                ->get();
+        }
+
+        $selectedClass = $classId ? $allClasses->firstWhere('id', $classId) : $allClasses->first();
 
         $mapData = [];
         $classMatrix = [];
         $passingThreshold = (float) setting('passing_grade', 9.5);
 
-        // 1. Class-by-Class Matrix for the selected school (MINEDH Standard Table)
-        foreach ($classes as $c) {
-            $students = Student::withoutGlobalScopes()
-                ->where('school_id', $selectedSchool->id)
-                ->whereHas('enrollments', function ($q) use ($c) {
-                    $q->where('class_id', $c->id);
-                })
-                ->get();
+        // 2. QUADRO 1: Group BY CLASSE (Grade Level) instead of Turma
+        if ($selectedSchool && $allClasses->isNotEmpty()) {
+            $groupedByGrade = $allClasses->groupBy('grade_level');
 
-            if ($students->isEmpty()) {
+            foreach ($groupedByGrade as $gradeLevel => $classGroup) {
+                $classIds = $classGroup->pluck('id')->toArray();
+                $gradeLevelName = $classGroup->first()->grade_level_name;
+
+                // Students in this grade level
                 $students = Student::withoutGlobalScopes()
                     ->where('school_id', $selectedSchool->id)
-                    ->where('class_id', $c->id)
+                    ->whereHas('enrollments', function ($q) use ($classIds) {
+                        $q->whereIn('class_id', $classIds);
+                    })
                     ->get();
-            }
 
-            $totalHM = $students->count();
-            $totalM = $students->where('gender', 'F')->count();
+                if ($students->isEmpty()) {
+                    $students = Student::withoutGlobalScopes()
+                        ->where('school_id', $selectedSchool->id)
+                        ->whereIn('class_id', $classIds)
+                        ->get();
+                }
 
-            // Grades for this class
-            $classGrades = Grade::withoutGlobalScopes()
-                ->where('school_id', $selectedSchool->id)
-                ->where('class_id', $c->id)
-                ->where('term', $term)
-                ->where('year', $year)
-                ->whereNotNull('grade')
-                ->get();
+                $totalHM = $students->count();
+                $totalM = $students->where('gender', 'F')->count();
 
-            $evaluatedStudents = $students->filter(function ($s) use ($classGrades) {
-                return $classGrades->where('student_id', $s->id)->isNotEmpty();
-            });
+                // Grades for all classes of this grade level
+                $classGrades = Grade::withoutGlobalScopes()
+                    ->where('school_id', $selectedSchool->id)
+                    ->whereIn('class_id', $classIds)
+                    ->where('term', $term)
+                    ->where('year', $year)
+                    ->whereNotNull('grade')
+                    ->get();
 
-            $evalHM = $evaluatedStudents->count();
-            $evalM = $evaluatedStudents->where('gender', 'F')->count();
+                $evaluatedStudents = $students->filter(function ($s) use ($classGrades) {
+                    return $classGrades->where('student_id', $s->id)->isNotEmpty();
+                });
 
-            // Student level passing check
-            $passedHM = 0;
-            $passedM = 0;
+                $evalHM = $evaluatedStudents->count();
+                $evalM = $evaluatedStudents->where('gender', 'F')->count();
 
-            foreach ($evaluatedStudents as $student) {
-                $stGrades = $classGrades->where('student_id', $student->id);
-                $avgGrade = $stGrades->avg('grade') ?? 0;
-                if ($avgGrade >= $passingThreshold) {
-                    $passedHM++;
-                    if (strtolower($student->gender) === 'f' || strtolower($student->gender) === 'female') {
-                        $passedM++;
+                $passedHM = 0;
+                $passedM = 0;
+
+                foreach ($evaluatedStudents as $student) {
+                    $stGrades = $classGrades->where('student_id', $student->id);
+                    $avgGrade = $stGrades->avg('grade') ?? 0;
+                    if ($avgGrade >= $passingThreshold) {
+                        $passedHM++;
+                        if (strtolower($student->gender) === 'f' || strtolower($student->gender) === 'female') {
+                            $passedM++;
+                        }
                     }
                 }
+
+                $failedHM = $evalHM - $passedHM;
+                $failedM = $evalM - $passedM;
+
+                $rateHM = $evalHM > 0 ? round(($passedHM / $evalHM) * 100, 1) : 0.0;
+                $rateM = $evalM > 0 ? round(($passedM / $evalM) * 100, 1) : 0.0;
+
+                $classMatrix[] = [
+                    'grade_level' => $gradeLevel,
+                    'grade_level_name' => $gradeLevelName,
+                    'turmas_count' => count($classIds),
+                    'total_hm' => $totalHM,
+                    'total_m' => $totalM,
+                    'eval_hm' => $evalHM,
+                    'eval_m' => $evalM,
+                    'passed_hm' => $passedHM,
+                    'passed_m' => $passedM,
+                    'failed_hm' => $failedHM,
+                    'failed_m' => $failedM,
+                    'rate_hm' => $rateHM,
+                    'rate_m' => $rateM,
+                ];
             }
-
-            $failedHM = $evalHM - $passedHM;
-            $failedM = $evalM - $passedM;
-
-            $rateHM = $evalHM > 0 ? round(($passedHM / $evalHM) * 100, 1) : 0.0;
-            $rateM = $evalM > 0 ? round(($passedM / $evalM) * 100, 1) : 0.0;
-
-            $classMatrix[] = [
-                'class' => $c,
-                'total_hm' => $totalHM,
-                'total_m' => $totalM,
-                'eval_hm' => $evalHM,
-                'eval_m' => $evalM,
-                'passed_hm' => $passedHM,
-                'passed_m' => $passedM,
-                'failed_hm' => $failedHM,
-                'failed_m' => $failedM,
-                'rate_hm' => $rateHM,
-                'rate_m' => $rateM,
-            ];
         }
 
-        // 2. Subject performance for selected class (or overall)
-        if ($selectedClass) {
+        // 3. QUADRO 2: Subject performance for selected class (or overall)
+        if ($selectedSchool && $selectedClass) {
             $students = Student::withoutGlobalScopes()
                 ->where('school_id', $selectedSchool->id)
                 ->whereHas('enrollments', function ($q) use ($selectedClass) {
@@ -201,7 +263,13 @@ class PedagogicalMapController extends Controller
         return view('reports.pedagogical-map', compact(
             'schools',
             'selectedSchool',
-            'classes',
+            'provinces',
+            'districts',
+            'zips',
+            'selectedProvinceId',
+            'selectedDistrictId',
+            'selectedZipId',
+            'allClasses',
             'selectedClass',
             'year',
             'term',
