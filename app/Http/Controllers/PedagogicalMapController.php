@@ -14,34 +14,133 @@ class PedagogicalMapController extends Controller
     {
         $this->authorize('view_grades');
 
+        $user = auth()->user();
         $year = (int) $request->get('year', current_school_year());
         $term = (int) $request->get('term', 1);
+        $schoolId = $request->get('school_id');
         $classId = $request->get('class_id');
 
-        $classes = ClassRoom::active()->orderBy('grade_level')->orderBy('name')->get();
-        $selectedClass = $classId ? ClassRoom::find($classId) : $classes->first();
-
-        if (! $selectedClass && $classes->isNotEmpty()) {
-            $selectedClass = $classes->first();
+        // Available Schools
+        $schools = \App\Models\School::with(['province', 'district', 'zip'])->get();
+        
+        if ($schoolId) {
+            $selectedSchool = $schools->firstWhere('id', $schoolId);
+        } else {
+            $selectedSchool = $user->school ?? $schools->first();
         }
 
+        if (!$selectedSchool && $schools->isNotEmpty()) {
+            $selectedSchool = $schools->first();
+        }
+
+        // Classes for selected school
+        $classesQuery = ClassRoom::withoutGlobalScopes();
+        if ($selectedSchool) {
+            $classesQuery->where('school_id', $selectedSchool->id);
+        }
+        $classes = $classesQuery->orderBy('grade_level')->orderBy('name')->get();
+        
+        $selectedClass = $classId ? $classes->firstWhere('id', $classId) : $classes->first();
+
         $mapData = [];
+        $classMatrix = [];
         $passingThreshold = (float) setting('passing_grade', 9.5);
 
-        if ($selectedClass) {
-            $students = Student::whereHas('enrollments', function ($q) use ($selectedClass) {
-                $q->where('class_id', $selectedClass->id);
-            })->orderBy('first_name')->get();
+        // 1. Class-by-Class Matrix for the selected school (MINEDH Standard Table)
+        foreach ($classes as $c) {
+            $students = Student::withoutGlobalScopes()
+                ->where('school_id', $selectedSchool->id)
+                ->whereHas('enrollments', function ($q) use ($c) {
+                    $q->where('class_id', $c->id);
+                })
+                ->get();
 
             if ($students->isEmpty()) {
-                $students = $selectedClass->students;
+                $students = Student::withoutGlobalScopes()
+                    ->where('school_id', $selectedSchool->id)
+                    ->where('class_id', $c->id)
+                    ->get();
+            }
+
+            $totalHM = $students->count();
+            $totalM = $students->where('gender', 'F')->count();
+
+            // Grades for this class
+            $classGrades = Grade::withoutGlobalScopes()
+                ->where('school_id', $selectedSchool->id)
+                ->where('class_id', $c->id)
+                ->where('term', $term)
+                ->where('year', $year)
+                ->whereNotNull('grade')
+                ->get();
+
+            $evaluatedStudents = $students->filter(function ($s) use ($classGrades) {
+                return $classGrades->where('student_id', $s->id)->isNotEmpty();
+            });
+
+            $evalHM = $evaluatedStudents->count();
+            $evalM = $evaluatedStudents->where('gender', 'F')->count();
+
+            // Student level passing check
+            $passedHM = 0;
+            $passedM = 0;
+
+            foreach ($evaluatedStudents as $student) {
+                $stGrades = $classGrades->where('student_id', $student->id);
+                $avgGrade = $stGrades->avg('grade') ?? 0;
+                if ($avgGrade >= $passingThreshold) {
+                    $passedHM++;
+                    if (strtolower($student->gender) === 'f' || strtolower($student->gender) === 'female') {
+                        $passedM++;
+                    }
+                }
+            }
+
+            $failedHM = $evalHM - $passedHM;
+            $failedM = $evalM - $passedM;
+
+            $rateHM = $evalHM > 0 ? round(($passedHM / $evalHM) * 100, 1) : 0.0;
+            $rateM = $evalM > 0 ? round(($passedM / $evalM) * 100, 1) : 0.0;
+
+            $classMatrix[] = [
+                'class' => $c,
+                'total_hm' => $totalHM,
+                'total_m' => $totalM,
+                'eval_hm' => $evalHM,
+                'eval_m' => $evalM,
+                'passed_hm' => $passedHM,
+                'passed_m' => $passedM,
+                'failed_hm' => $failedHM,
+                'failed_m' => $failedM,
+                'rate_hm' => $rateHM,
+                'rate_m' => $rateM,
+            ];
+        }
+
+        // 2. Subject performance for selected class (or overall)
+        if ($selectedClass) {
+            $students = Student::withoutGlobalScopes()
+                ->where('school_id', $selectedSchool->id)
+                ->whereHas('enrollments', function ($q) use ($selectedClass) {
+                    $q->where('class_id', $selectedClass->id);
+                })
+                ->orderBy('first_name')
+                ->get();
+
+            if ($students->isEmpty()) {
+                $students = Student::withoutGlobalScopes()
+                    ->where('school_id', $selectedSchool->id)
+                    ->where('class_id', $selectedClass->id)
+                    ->get();
             }
 
             $subjects = $selectedClass->subjects->isEmpty()
                 ? Subject::active()->get()
                 : $selectedClass->subjects;
 
-            $allGrades = Grade::whereIn('student_id', $students->pluck('id'))
+            $allGrades = Grade::withoutGlobalScopes()
+                ->where('school_id', $selectedSchool->id)
+                ->whereIn('student_id', $students->pluck('id'))
                 ->where('class_id', $selectedClass->id)
                 ->where('term', $term)
                 ->where('year', $year)
@@ -100,10 +199,13 @@ class PedagogicalMapController extends Controller
         }
 
         return view('reports.pedagogical-map', compact(
+            'schools',
+            'selectedSchool',
             'classes',
             'selectedClass',
             'year',
             'term',
+            'classMatrix',
             'mapData',
             'passingThreshold'
         ));

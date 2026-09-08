@@ -1,151 +1,301 @@
 @extends('layouts.app')
 
-@section('title', 'Mapa de Aproveitamento Pedagógico')
-@section('page-title', 'Mapa de Aproveitamento Pedagógico (MINEDH)')
-@section('page-title-icon', 'fas fa-chart-pie')
-
-@section('breadcrumbs')
-    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Início</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('reports.academic') }}">Relatórios</a></li>
-    <li class="breadcrumb-item active">Mapa Pedagógico</li>
-@endsection
+@section('title', 'Mapa de Aproveitamento Pedagógico MINEDH')
 
 @section('content')
-<div class="space-y-5">
+<style>
+    @media print {
+        header, sidebar, nav, .no-print, footer { display: none !important; }
+        body { background: white !important; font-size: 10pt; color: black; }
+        .print-document { border: none !important; shadow: none !important; padding: 0 !important; margin: 0 !important; }
+        .table-minedh th, .table-minedh td { border: 1px solid #000 !important; padding: 4px 6px !important; }
+    }
 
-    {{-- 1. Header Principal --}}
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-slate-200/80">
-        <div>
-            <div class="flex items-center gap-2 flex-wrap mb-1.5">
-                <span class="px-2.5 py-0.5 rounded-full text-3xs font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200 uppercase tracking-wider">
-                    <i class="fas fa-file-invoice me-1"></i> Documento Oficial de Inspeção
-                </span>
-                <span class="px-2.5 py-0.5 rounded-full text-3xs font-extrabold bg-slate-100 text-slate-700 border border-slate-200">
-                    Ano Lectivo {{ $year }}
-                </span>
-            </div>
-            <h1 class="text-xl font-black text-slate-800 tracking-tight flex items-center gap-2">
-                <i class="fas fa-chart-pie text-emerald-600"></i> Mapa de Aproveitamento Pedagógico por Género (HM / M)
-            </h1>
-            <p class="text-xs text-slate-500 mt-0.5">Estatísticas consolidadas por disciplina e por gênero para homologação pedagógica e inspeção escolar.</p>
-        </div>
+    .table-minedh {
+        border-collapse: collapse;
+        width: 100%;
+    }
+    .table-minedh th, .table-minedh td {
+        border: 1px solid #cbd5e1;
+        padding: 6px 8px;
+    }
+    .table-minedh th {
+        background-color: #0f172a;
+        color: #ffffff;
+        font-weight: 800;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+    }
+    .table-minedh tr:nth-child(even) td {
+        background-color: #f8fafc;
+    }
+    .bg-hm { background-color: #f1f5f9; }
+    .bg-m { background-color: #faf5ff; color: #7e22ce; }
+    .bg-pos { background-color: #f0fdf4; color: #15803d; }
+    .bg-neg { background-color: #fef2f2; color: #b91c1c; }
+</style>
 
-        <div class="flex items-center gap-2 flex-wrap">
-            @if($selectedClass)
-                <a href="{{ route('reports.pedagogical-map.export', ['class_id' => $selectedClass->id, 'term' => $term, 'year' => $year]) }}" class="no-underline inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-xs font-bold text-white shadow-2xs transition">
-                    <i class="fas fa-file-excel"></i> Exportar Mapa Excel
-                </a>
-            @endif
-            <a href="{{ route('reports.academic') }}" class="no-underline inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 shadow-2xs transition">
-                <i class="fas fa-arrow-left"></i> Voltar
-            </a>
+<div class="container-fluid py-4 space-y-4">
+
+    <!-- Top Selection Filter Bar (No Print) -->
+    <div class="card border-0 rounded-4 shadow-sm mb-4 no-print bg-white">
+        <div class="card-body p-3">
+            <form action="{{ route('reports.pedagogical-map') }}" method="GET" class="row g-3 align-items-end">
+                <!-- Select School -->
+                <div class="col-md-3">
+                    <label class="form-label text-xs fw-bold text-muted uppercase tracking-wider mb-1">
+                        <i class="fa-solid fa-school text-emerald me-1" style="color: #059669;"></i> Escola
+                    </label>
+                    <select name="school_id" class="form-select form-select-sm rounded-3 fw-semibold" onchange="this.form.submit()">
+                        @foreach($schools as $sc)
+                            <option value="{{ $sc->id }}" @selected($selectedSchool && $selectedSchool->id === $sc->id)>
+                                {{ $sc->name }} ({{ $sc->province->name ?? '' }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Select Class -->
+                <div class="col-md-3">
+                    <label class="form-label text-xs fw-bold text-muted uppercase tracking-wider mb-1">
+                        <i class="fa-solid fa-chalkboard text-emerald me-1" style="color: #059669;"></i> Turma / Disciplinas
+                    </label>
+                    <select name="class_id" class="form-select form-select-sm rounded-3 fw-semibold" onchange="this.form.submit()">
+                        @foreach($classes as $c)
+                            <option value="{{ $c->id }}" @selected($selectedClass && $selectedClass->id === $c->id)>
+                                {{ $c->name }} ({{ $c->grade_level_name }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Select Term -->
+                <div class="col-md-2">
+                    <label class="form-label text-xs fw-bold text-muted uppercase tracking-wider mb-1">
+                        <i class="fa-solid fa-clock text-emerald me-1" style="color: #059669;"></i> Trimestre
+                    </label>
+                    <select name="term" class="form-select form-select-sm rounded-3 fw-semibold" onchange="this.form.submit()">
+                        <option value="1" @selected($term == 1)>1º Trimestre</option>
+                        <option value="2" @selected($term == 2)>2º Trimestre</option>
+                        <option value="3" @selected($term == 3)>3º Trimestre</option>
+                        <option value="4" @selected($term == 4)>Geral Anual</option>
+                    </select>
+                </div>
+
+                <!-- Select Year -->
+                <div class="col-md-2">
+                    <label class="form-label text-xs fw-bold text-muted uppercase tracking-wider mb-1">
+                        <i class="fa-solid fa-calendar text-emerald me-1" style="color: #059669;"></i> Ano Lectivo
+                    </label>
+                    <select name="year" class="form-select form-select-sm rounded-3 fw-semibold" onchange="this.form.submit()">
+                        <option value="2026" @selected($year == 2026)>2026</option>
+                        <option value="2025" @selected($year == 2025)>2025</option>
+                    </select>
+                </div>
+
+                <!-- Actions -->
+                <div class="col-md-2 d-flex align-items-end gap-2">
+                    <button type="button" onclick="window.print()" class="btn btn-emerald btn-sm rounded-3 w-100 fw-semibold text-white" style="background-color: #059669;">
+                        <i class="fa-solid fa-print me-1"></i> Imprimir
+                    </button>
+                    @if($selectedClass)
+                        <a href="{{ route('reports.pedagogical-map.export', ['class_id' => $selectedClass->id, 'term' => $term, 'year' => $year]) }}" class="btn btn-outline-success btn-sm rounded-3" title="Exportar CSV Excel">
+                            <i class="fa-solid fa-file-excel"></i>
+                        </a>
+                    @endif
+                </div>
+            </form>
         </div>
     </div>
 
-    {{-- 2. Filtro de Seleção --}}
-    <div class="bg-white rounded-xl border border-slate-200/80 p-3.5 shadow-2xs">
-        <form action="{{ route('reports.pedagogical-map') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
-            <div>
-                <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-1">
-                    <i class="fas fa-chalkboard text-emerald-600 me-1"></i> Selecionar Turma
-                </label>
-                <select name="class_id" class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-800 focus:border-emerald-500 focus:ring-emerald-500" onchange="this.form.submit()">
-                    @foreach($classes as $c)
-                        <option value="{{ $c->id }}" @selected($selectedClass && $selectedClass->id === $c->id)>
-                            {{ $c->name }} ({{ $c->grade_level_name }})
-                        </option>
-                    @endforeach
-                </select>
+    <!-- MAIN OFFICIAL MINEDH PAPER DOCUMENT -->
+    <div class="card border border-slate-200 rounded-4 shadow-sm bg-white p-4 p-md-5 print-document">
+        
+        <!-- MINEDH OFFICIAL HEADER WITH COAT OF ARMS / EMBLEM -->
+        <div class="text-center mb-4">
+            <img src="{{ asset('image.png') }}" alt="Emblema da República de Moçambique" style="height: 75px; width: auto;" class="mb-2">
+            <h5 class="fw-bold mb-0 text-dark tracking-wide uppercase" style="font-family: serif; letter-spacing: 1px;">REPÚBLICA DE MOÇAMBIQUE</h5>
+            <h6 class="fw-semibold text-secondary mb-0 text-xs uppercase">GOVERNO DA PROVÍNCIA DE {{ strtoupper($selectedSchool->province->name ?? 'ZAMBÉZIA') }}</h6>
+            <h6 class="fw-semibold text-secondary mb-0 text-xs uppercase">SERVIÇO DISTRITAL DE EDUCAÇÃO, JUVENTUDE E TECNOLOGIA (SDEJT {{ strtoupper($selectedSchool->district->name ?? 'MARRACUA') }})</h6>
+            <h5 class="fw-bold text-dark mt-2 mb-1" style="color: #047857;">{{ strtoupper($selectedSchool->name ?? 'ESCOLA SECUNDÁRIA DE MARRACUA') }}</h5>
+            
+            <div class="d-inline-block px-4 py-1.5 rounded-pill bg-light border border-slate-300 mt-2">
+                <strong class="text-dark uppercase text-sm" style="letter-spacing: 0.5px;">
+                    MAPA DE APROVEITAMENTO PEDAGÓGICO — {{ $term == 4 ? 'GERAL ANUAL' : $term . 'º TRIMESTRE' }} DE {{ $year }}
+                </strong>
             </div>
-
-            <div>
-                <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-1">
-                    <i class="fas fa-clock text-emerald-600 me-1"></i> Trimestre
-                </label>
-                <select name="term" class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-800 focus:border-emerald-500 focus:ring-emerald-500" onchange="this.form.submit()">
-                    <option value="1" @selected($term == 1)>1º Trimestre</option>
-                    <option value="2" @selected($term == 2)>2º Trimestre</option>
-                    <option value="3" @selected($term == 3)>3º Trimestre</option>
-                </select>
-            </div>
-
-            <div>
-                <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-1">
-                    <i class="fas fa-calendar text-emerald-600 me-1"></i> Ano Lectivo
-                </label>
-                <select name="year" class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-800 focus:border-emerald-500 focus:ring-emerald-500" onchange="this.form.submit()">
-                    <option value="2026" @selected($year == 2026)>2026 (Ano Atual)</option>
-                    <option value="2025" @selected($year == 2025)>2025 (Histórico)</option>
-                </select>
-            </div>
-        </form>
-    </div>
-
-    {{-- 3. Tabela do Mapa de Aproveitamento Pedagógico --}}
-    @if($selectedClass)
-    <div class="bg-white rounded-xl border border-slate-200/80 shadow-2xs overflow-hidden">
-        <div class="px-4 py-3 bg-slate-50/80 border-b border-slate-200/80 flex items-center justify-between">
-            <h3 class="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                <i class="fas fa-table text-emerald-600"></i> Turma {{ $selectedClass->name }} — Mapa do {{ $term }}º Trimestre
-            </h3>
-            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-200">
-                Limiar Mínimo: {{ $passingThreshold }} valores
-            </span>
         </div>
 
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs border-collapse">
-                <thead>
-                    <tr class="bg-slate-800 text-white font-black uppercase tracking-wider text-[10px]">
-                        <th class="py-3 px-4" rowspan="2">Disciplina</th>
-                        <th class="py-2 px-3 text-center border-l border-slate-700" colspan="2">Avaliados</th>
-                        <th class="py-2 px-3 text-center border-l border-slate-700" colspan="2">Positivas / Aprovados</th>
-                        <th class="py-2 px-3 text-center border-l border-slate-700" colspan="2">Negativas / Retidos</th>
-                        <th class="py-2 px-3 text-center border-l border-slate-700 bg-emerald-900" colspan="2">% Aproveitamento</th>
-                    </tr>
-                    <tr class="bg-slate-700 text-white font-extrabold text-[9px] border-b border-slate-600">
-                        <th class="py-1.5 px-3 text-center border-l border-slate-600">HM (Total)</th>
-                        <th class="py-1.5 px-3 text-center text-purple-300">M (Mulheres)</th>
-                        <th class="py-1.5 px-3 text-center border-l border-slate-600 text-emerald-300">HM (Total)</th>
-                        <th class="py-1.5 px-3 text-center text-purple-300">M (Mulheres)</th>
-                        <th class="py-1.5 px-3 text-center border-l border-slate-600 text-rose-300">HM (Total)</th>
-                        <th class="py-1.5 px-3 text-center text-purple-300">M (Mulheres)</th>
-                        <th class="py-1.5 px-3 text-center border-l border-slate-600 bg-emerald-800 text-emerald-200">HM %</th>
-                        <th class="py-1.5 px-3 text-center bg-emerald-800 text-purple-200">M %</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                    @forelse($mapData as $item)
-                        <tr class="hover:bg-slate-50/80 transition">
-                            <td class="py-3 px-4 font-black text-slate-800">
-                                {{ $item['subject']->name }}
-                                <span class="text-[10px] text-slate-400 font-mono">({{ $item['subject']->code ?? '—' }})</span>
-                            </td>
-                            <td class="py-3 px-3 text-center font-extrabold text-slate-800 border-l border-slate-100">{{ $item['hm_evaluated'] }}</td>
-                            <td class="py-3 px-3 text-center font-extrabold text-purple-700 bg-purple-50/30">{{ $item['m_evaluated'] }}</td>
-                            
-                            <td class="py-3 px-3 text-center font-black text-emerald-700 bg-emerald-50/30 border-l border-slate-100">{{ $item['hm_positives'] }}</td>
-                            <td class="py-3 px-3 text-center font-black text-purple-700 bg-purple-50/30">{{ $item['m_positives'] }}</td>
+        <!-- QUADRO 1: RENDIMENTO ESCOLAR POR CLASSE E CICLO (MINEDH Standard Excel Format) -->
+        <div class="mb-4">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <h6 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-list-ol text-emerald" style="color: #059669;"></i> I. Quadro Resumo de Aproveitamento por Classe (HM / M)
+                </h6>
+                <span class="text-xs text-muted">Avaliados na escala regulamentar 0.0 - 20.0 (Limiar: {{ $passingThreshold }} val)</span>
+            </div>
 
-                            <td class="py-3 px-3 text-center font-black text-rose-600 bg-rose-50/30 border-l border-slate-100">{{ $item['hm_negatives'] }}</td>
-                            <td class="py-3 px-3 text-center font-black text-purple-700 bg-purple-50/30">{{ $item['m_negatives'] }}</td>
-
-                            <td class="py-3 px-3 text-center font-black text-emerald-800 bg-emerald-100/50 border-l border-slate-100">{{ $item['hm_perc'] }}%</td>
-                            <td class="py-3 px-3 text-center font-black text-purple-800 bg-purple-100/50">{{ $item['m_perc'] }}%</td>
-                        </tr>
-                    @empty
+            <div class="table-responsive">
+                <table class="table-minedh text-center align-middle">
+                    <thead>
                         <tr>
-                            <td colspan="9" class="py-8 text-center text-slate-400">
-                                <i class="fas fa-folder-open text-2xl mb-2 text-slate-300"></i>
-                                <p class="text-xs font-semibold text-slate-600">Nenhuma avaliação registada para esta turma.</p>
-                            </td>
+                            <th rowspan="2" class="text-start ps-3" style="width: 22%;">Classe / Ciclo</th>
+                            <th colspan="2">Matrícula (Entradas)</th>
+                            <th colspan="2">Avaliados</th>
+                            <th colspan="2">Aprovados / Transitados</th>
+                            <th colspan="2">Retidos / Negativas</th>
+                            <th colspan="2" class="bg-emerald-800" style="background-color: #047857;">% Aproveitamento</th>
                         </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                        <tr style="font-size: 0.7rem; background-color: #1e293b;">
+                            <th>HM</th><th>M</th>
+                            <th>HM</th><th>M</th>
+                            <th>HM</th><th>M</th>
+                            <th>HM</th><th>M</th>
+                            <th style="background-color: #065f46;">HM %</th><th style="background-color: #065f46;">M %</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-xs">
+                        @php
+                            $totHM = 0; $totM = 0;
+                            $totEvalHM = 0; $totEvalM = 0;
+                            $totPassHM = 0; $totPassM = 0;
+                            $totFailHM = 0; $totFailM = 0;
+                        @endphp
+                        @forelse($classMatrix as $cm)
+                            @php
+                                $totHM += $cm['total_hm']; $totM += $cm['total_m'];
+                                $totEvalHM += $cm['eval_hm']; $totEvalM += $cm['eval_m'];
+                                $totPassHM += $cm['passed_hm']; $totPassM += $cm['passed_m'];
+                                $totFailHM += $cm['failed_hm']; $totFailM += $cm['failed_m'];
+                            @endphp
+                            <tr>
+                                <td class="text-start ps-3 fw-bold text-dark">
+                                    <i class="fa-solid fa-chalkboard text-muted me-1"></i> {{ $cm['class']->name }} ({{ $cm['class']->grade_level_name }})
+                                </td>
+                                <td class="fw-semibold bg-hm">{{ number_format($cm['total_hm']) }}</td>
+                                <td class="fw-semibold bg-m">{{ number_format($cm['total_m']) }}</td>
+                                
+                                <td class="fw-bold">{{ number_format($cm['eval_hm']) }}</td>
+                                <td class="fw-bold text-purple">{{ number_format($cm['eval_m']) }}</td>
+
+                                <td class="fw-bold text-success bg-pos">{{ number_format($cm['passed_hm']) }}</td>
+                                <td class="fw-bold text-success bg-pos">{{ number_format($cm['passed_m']) }}</td>
+
+                                <td class="fw-bold text-danger bg-neg">{{ number_format($cm['failed_hm']) }}</td>
+                                <td class="fw-bold text-danger bg-neg">{{ number_format($cm['failed_m']) }}</td>
+
+                                <td class="fw-extrabold text-success" style="background-color: #ecfdf5;">{{ $cm['rate_hm'] }}%</td>
+                                <td class="fw-extrabold text-purple" style="background-color: #faf5ff;">{{ $cm['rate_m'] }}%</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="11" class="text-center py-3 text-muted">Nenhuma turma registada nesta escola.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                    <tfoot>
+                        @php
+                            $totalRateHM = $totEvalHM > 0 ? round(($totPassHM / $totEvalHM) * 100, 1) : 0;
+                            $totalRateM = $totEvalM > 0 ? round(($totPassM / $totEvalM) * 100, 1) : 0;
+                        @endphp
+                        <tr class="fw-bold text-dark" style="background-color: #e2e8f0; font-size: 0.8rem;">
+                            <td class="text-start ps-3">TOTAL GERAL DA ESCOLA</td>
+                            <td>{{ number_format($totHM) }}</td>
+                            <td>{{ number_format($totM) }}</td>
+                            <td>{{ number_format($totEvalHM) }}</td>
+                            <td>{{ number_format($totEvalM) }}</td>
+                            <td class="text-success">{{ number_format($totPassHM) }}</td>
+                            <td class="text-success">{{ number_format($totPassM) }}</td>
+                            <td class="text-danger">{{ number_format($totFailHM) }}</td>
+                            <td class="text-danger">{{ number_format($totFailM) }}</td>
+                            <td class="text-success fw-black">{{ $totalRateHM }}%</td>
+                            <td class="text-purple fw-black">{{ $totalRateM }}%</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
         </div>
+
+        <!-- QUADRO 2: DESEMPENHO DISCIPLINAR DA TURMA SELECIONADA -->
+        @if($selectedClass)
+        <div class="mb-4">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <h6 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-book-open text-emerald" style="color: #059669;"></i> II. Aproveitamento por Disciplina — Turma {{ $selectedClass->name }}
+                </h6>
+                <span class="badge bg-emerald-subtle text-emerald px-3 py-1" style="background-color: #d1fae5; color: #047857;">{{ count($mapData) }} Disciplinas Avaliadas</span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table-minedh text-center align-middle">
+                    <thead>
+                        <tr>
+                            <th rowspan="2" class="text-start ps-3" style="width: 25%;">Disciplina</th>
+                            <th colspan="2">Avaliados</th>
+                            <th colspan="2">Positivas (>= 9.5 val)</th>
+                            <th colspan="2">Negativas (< 9.5 val)</th>
+                            <th colspan="2" style="background-color: #047857;">% Aproveitamento</th>
+                        </tr>
+                        <tr style="font-size: 0.7rem; background-color: #1e293b;">
+                            <th>HM (Total)</th><th>M (Mulheres)</th>
+                            <th>HM (Total)</th><th>M (Mulheres)</th>
+                            <th>HM (Total)</th><th>M (Mulheres)</th>
+                            <th style="background-color: #065f46;">HM %</th><th style="background-color: #065f46;">M %</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-xs">
+                        @forelse($mapData as $item)
+                            <tr>
+                                <td class="text-start ps-3 fw-bold text-dark">
+                                    {{ $item['subject']->name }}
+                                    <span class="text-muted font-mono text-xs">({{ $item['subject']->code ?? '—' }})</span>
+                                </td>
+                                <td class="fw-semibold bg-hm">{{ $item['hm_evaluated'] }}</td>
+                                <td class="fw-semibold bg-m">{{ $item['m_evaluated'] }}</td>
+
+                                <td class="fw-bold text-success bg-pos">{{ $item['hm_positives'] }}</td>
+                                <td class="fw-bold text-success bg-pos">{{ $item['m_positives'] }}</td>
+
+                                <td class="fw-bold text-danger bg-neg">{{ $item['hm_negatives'] }}</td>
+                                <td class="fw-bold text-danger bg-neg">{{ $item['m_negatives'] }}</td>
+
+                                <td class="fw-extrabold text-success" style="background-color: #ecfdf5;">{{ $item['hm_perc'] }}%</td>
+                                <td class="fw-extrabold text-purple" style="background-color: #faf5ff;">{{ $item['m_perc'] }}%</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="9" class="text-center py-3 text-muted">Nenhuma avaliação registada para esta turma.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        @endif
+
+        <!-- OFFICIAL SIGNATURE BLOCKS (DAP & DAE MINEDH Standard) -->
+        <div class="mt-5 pt-3">
+            <div class="text-end mb-4 text-xs font-semibold text-dark">
+                {{ $selectedSchool->district->name ?? 'Marracua' }}, {{ date('d') }} de {{ \Carbon\Carbon::now()->translatedFormat('F') }} de {{ $year }}
+            </div>
+
+            <div class="row text-center pt-2">
+                <div class="col-6">
+                    <p class="mb-4 text-xs font-bold text-dark uppercase">O Diretor Adjunto Pedagógico (DAP)</p>
+                    <div style="border-bottom: 1.5px solid #000; width: 65%; margin: 0 auto 8px auto;"></div>
+                    <p class="mb-0 text-xs font-semibold text-muted">_______________________________________</p>
+                    <p class="text-2xs text-muted">(Assinatura e Carimbo Oficial)</p>
+                </div>
+                <div class="col-6">
+                    <p class="mb-4 text-xs font-bold text-dark uppercase">O Diretor da Escola (DAE)</p>
+                    <div style="border-bottom: 1.5px solid #000; width: 65%; margin: 0 auto 8px auto;"></div>
+                    <p class="mb-0 text-xs font-bold text-dark">{{ strtoupper($selectedSchool->principal_name ?? 'Prof. Diretor Geral') }}</p>
+                    <p class="text-2xs text-muted">(Assinatura e Carimbo Oficial)</p>
+                </div>
+            </div>
+        </div>
+
     </div>
-    @endif
 
 </div>
 @endsection

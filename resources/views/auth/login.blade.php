@@ -620,7 +620,7 @@
                 </div>
             </div>
 
-            <div class="footer-copyright">
+            <div class="footer-copyright" style="display: none">
                 &copy; {{ date('Y') }} <strong>ZAMEDU - SIGE</strong> · Desenvolvido por <a href="http://146.235.224.99/" target="_blank">Filipe dos Santos</a>
             </div>
         </div>

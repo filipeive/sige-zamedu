@@ -18,6 +18,24 @@ Formato de cada entrada:
 **Próximo passo recomendado:** ...
 ```
 
+## 2026-09-08 — Audit Diff Modal, Interactive Territorial Map & MINEDH Pedagogical Map Report (`feature/school-onboarding`) — Antigravity AI Agent
+
+**Feito:**
+- **Logs de Auditoria Aprimorados (`app/Http/Controllers/Admin/AuditController.php` & `resources/views/admin/audit/index.blade.php`)**:
+  - Implementados filtros avançados de pesquisa (pesquisa por palavra-chave, utilizador, tipo de evento `created`/`updated`/`deleted`/`impersonated`, e intervalo de datas).
+  - Modal interativo de inspeção com **Tabela Comparativa de Alterações Lado a Lado (Diff Field-by-Field)**, exibindo o valor anterior riscado em vermelho e o novo valor em verde com nomes de campos traduzidos em português, metadados do navegador/dispositivo e tab de código JSON bruto para desenvolvedores.
+- **Painel Territorial com Mapa Interativo Georreferenciado (`app/Http/Controllers/TerritorialDashboardController.php` & `resources/views/territorial/index.blade.php`)**:
+  - Incorporado mapa interativo em Leaflet.js (OpenStreetMap) cobrindo todas as escolas de Moçambique com marcadores georreferenciados.
+  - Popups informativos com dados do **Diretor da Escola (`principal_name`)**, telefone de contacto, e-mail, estatísticas de alunos (HM e M), taxa de aproveitamento pedagógico e atalho direto 🎧 **"Entrar no Modo Suporte"** para Super Administradores.
+  - Tabela com separadores (Tabs) para navegação detalhada em 4 níveis territoriais: **Escolas**, **ZIPs (Zonas de Influência Pedagógica)**, **Distritos (SDEJT)** e **Províncias (DPEDH)**.
+- **Mapa de Aproveitamento Pedagógico Oficial MINEDH (`app/Http/Controllers/PedagogicalMapController.php` & `resources/views/reports/pedagogical-map.blade.php`)**:
+  - Redesenho completo do documento de relatório no modelo oficial do Ministério da Educação e Desenvolvimento Humano de Moçambique (baseado em `APROV Pedgg ES-2ºTrim -2026_MARRACUA.xlsx`).
+  - Seletores interativos de Escola (`school_id`), Trimestre (1º, 2º, 3º Trimestre, Geral Anual) e Ano Lectivo.
+  - Timbre com Emblema da República de Moçambique, Governo da Província, SDEJT e nome da escola selecionada.
+  - **Quadro I: Rendimento Escolar por Classe e Ciclo (HM e M)** e **Quadro II: Aproveitamento por Disciplina da Turma Selecionada (HM e M)**.
+  - Bloco formal de assinaturas regulamentares para o *Diretor Adjunto Pedagógico (DAP)* e *Diretor da Escola (DAE)* com suporte total a impressão A4 (`@media print`).
+- **Testes Globais**: Suíte de testes `vendor/bin/phpunit` — **100/100 PASS (100% aprovado, 342 asserções)**.
+
 ## 2026-09-08 — Super Admin Governance Panel & Support Mode (`feature/school-onboarding`) — Antigravity AI Agent
 
 **Feito:**
