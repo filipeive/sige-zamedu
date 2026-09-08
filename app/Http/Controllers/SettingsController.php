@@ -112,11 +112,7 @@ class SettingsController extends Controller
                     $finalValue = json_encode($filtered);
                 }
 
-                Setting::updateOrCreate(
-                    ['key' => $key],
-                    ['key' => $key, 'value' => $finalValue, 'group' => $group]
-                );
-                Cache::forget("setting_{$key}");
+                Setting::set($key, $finalValue, $group);
             }
         }
 
