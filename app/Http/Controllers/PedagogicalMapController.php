@@ -10,6 +10,7 @@ use App\Models\School;
 use App\Models\Province;
 use App\Models\District;
 use App\Models\Zip;
+use App\Models\Enrollment;
 use App\Services\HierarchyScopeResolver;
 use Illuminate\Http\Request;
 
@@ -64,7 +65,8 @@ class PedagogicalMapController extends Controller
             $selectedSchool = $schools->firstWhere('id', $user->school_id) ?? $schools->first();
         }
 
-        if (!$selectedSchool && $schools->isNotEmpty()) {
+        // Ensure selected school is inside filtered schools list if filters were applied
+        if ($selectedSchool && !$schools->contains('id', $selectedSchool->id)) {
             $selectedSchool = $schools->first();
         }
 
@@ -85,21 +87,72 @@ class PedagogicalMapController extends Controller
 
         // Classes for selected school
         $allClasses = collect([]);
+        $schoolTeachingType = 'Ensino Secundário Geral (ESG)';
+
         if ($selectedSchool) {
             $allClasses = ClassRoom::withoutGlobalScopes()
                 ->where('school_id', $selectedSchool->id)
                 ->orderBy('grade_level')
                 ->orderBy('name')
                 ->get();
+
+            $gradeLevels = $allClasses->pluck('grade_level')->toArray();
+            $maxGrade = max($gradeLevels ?: [0]);
+            $minGrade = min($gradeLevels ?: [0]);
+
+            if ($maxGrade <= 7) {
+                $schoolTeachingType = 'Ensino Básico / Primário (EP1 & EP2)';
+            } else if ($minGrade >= 8) {
+                $schoolTeachingType = 'Ensino Secundário Geral (ESG)';
+            } else {
+                $schoolTeachingType = 'Ensino Geral (Primário & Secundário)';
+            }
         }
 
         $selectedClass = $classId ? $allClasses->firstWhere('id', $classId) : $allClasses->first();
 
         $mapData = [];
-        $classMatrix = [];
+        $classRows = [];
+        $ciclo1Data = [
+            'title' => '1º Ciclo',
+            'turmas_count' => 0,
+            'total_hm' => 0, 'total_m' => 0,
+            'desist_hm' => 0, 'desist_m' => 0,
+            'transf_hm' => 0, 'transf_m' => 0,
+            'anulou_hm' => 0, 'anulou_m' => 0,
+            'ppf_hm' => 0, 'ppf_m' => 0,
+            'eval_hm' => 0, 'eval_m' => 0,
+            'passed_hm' => 0, 'passed_m' => 0,
+            'failed_hm' => 0, 'failed_m' => 0,
+        ];
+        $ciclo2Data = [
+            'title' => '2º Ciclo',
+            'turmas_count' => 0,
+            'total_hm' => 0, 'total_m' => 0,
+            'desist_hm' => 0, 'desist_m' => 0,
+            'transf_hm' => 0, 'transf_m' => 0,
+            'anulou_hm' => 0, 'anulou_m' => 0,
+            'ppf_hm' => 0, 'ppf_m' => 0,
+            'eval_hm' => 0, 'eval_m' => 0,
+            'passed_hm' => 0, 'passed_m' => 0,
+            'failed_hm' => 0, 'failed_m' => 0,
+        ];
+        $totalGeralData = [
+            'title' => 'TOTAL GERAL DA ESCOLA',
+            'turmas_count' => 0,
+            'total_hm' => 0, 'total_m' => 0,
+            'desist_hm' => 0, 'desist_m' => 0,
+            'transf_hm' => 0, 'transf_m' => 0,
+            'anulou_hm' => 0, 'anulou_m' => 0,
+            'ppf_hm' => 0, 'ppf_m' => 0,
+            'eval_hm' => 0, 'eval_m' => 0,
+            'passed_hm' => 0, 'passed_m' => 0,
+            'failed_hm' => 0, 'failed_m' => 0,
+        ];
+
         $passingThreshold = (float) setting('passing_grade', 9.5);
 
-        // 2. QUADRO 1: Group BY CLASSE (Grade Level) instead of Turma
+        // 2. QUADRO 1: Group BY CLASSE (Grade Level) according to MINEDH official layout
         if ($selectedSchool && $allClasses->isNotEmpty()) {
             $groupedByGrade = $allClasses->groupBy('grade_level');
 
@@ -107,23 +160,36 @@ class PedagogicalMapController extends Controller
                 $classIds = $classGroup->pluck('id')->toArray();
                 $gradeLevelName = $classGroup->first()->grade_level_name;
 
-                // Students in this grade level
-                $students = Student::withoutGlobalScopes()
-                    ->where('school_id', $selectedSchool->id)
-                    ->whereHas('enrollments', function ($q) use ($classIds) {
-                        $q->whereIn('class_id', $classIds);
-                    })
+                // Enrollments and students in this grade level
+                $enrollments = Enrollment::withoutGlobalScopes()
+                    ->whereIn('class_id', $classIds)
+                    ->where('school_year', $year)
+                    ->with('student')
                     ->get();
 
-                if ($students->isEmpty()) {
+                if ($enrollments->isEmpty()) {
                     $students = Student::withoutGlobalScopes()
                         ->where('school_id', $selectedSchool->id)
                         ->whereIn('class_id', $classIds)
                         ->get();
+                } else {
+                    $students = $enrollments->pluck('student')->filter()->unique('id');
                 }
 
                 $totalHM = $students->count();
                 $totalM = $students->where('gender', 'F')->count();
+
+                $desistHM = $students->filter(fn($s) => in_array($s->status ?? '', ['dropped', 'desistente']))->count();
+                $desistM = $students->filter(fn($s) => in_array($s->status ?? '', ['dropped', 'desistente']) && $s->gender === 'F')->count();
+
+                $transfHM = $students->filter(fn($s) => in_array($s->status ?? '', ['transferred', 'transferido']))->count();
+                $transfM = $students->filter(fn($s) => in_array($s->status ?? '', ['transferred', 'transferido']) && $s->gender === 'F')->count();
+
+                $anulouHM = $students->filter(fn($s) => in_array($s->status ?? '', ['cancelled', 'anulou', 'suspended']))->count();
+                $anulouM = $students->filter(fn($s) => in_array($s->status ?? '', ['cancelled', 'anulou', 'suspended']) && $s->gender === 'F')->count();
+
+                $ppfHM = $students->filter(fn($s) => in_array($s->status ?? '', ['deceased', 'prescribed', 'falecido']))->count();
+                $ppfM = $students->filter(fn($s) => in_array($s->status ?? '', ['deceased', 'prescribed', 'falecido']) && $s->gender === 'F')->count();
 
                 // Grades for all classes of this grade level
                 $classGrades = Grade::withoutGlobalScopes()
@@ -155,31 +221,75 @@ class PedagogicalMapController extends Controller
                     }
                 }
 
-                $failedHM = $evalHM - $passedHM;
-                $failedM = $evalM - $passedM;
+                $failedHM = max(0, $evalHM - $passedHM);
+                $failedM = max(0, $evalM - $passedM);
 
                 $rateHM = $evalHM > 0 ? round(($passedHM / $evalHM) * 100, 1) : 0.0;
                 $rateM = $evalM > 0 ? round(($passedM / $evalM) * 100, 1) : 0.0;
+                $desistRateHM = $totalHM > 0 ? round(($desistHM / $totalHM) * 100, 1) : 0.0;
+                $desistRateM = $totalM > 0 ? round(($desistM / $totalM) * 100, 1) : 0.0;
 
-                $classMatrix[] = [
+                $rowItem = [
+                    'is_ciclo' => false,
                     'grade_level' => $gradeLevel,
                     'grade_level_name' => $gradeLevelName,
                     'turmas_count' => count($classIds),
-                    'total_hm' => $totalHM,
-                    'total_m' => $totalM,
-                    'eval_hm' => $evalHM,
-                    'eval_m' => $evalM,
-                    'passed_hm' => $passedHM,
-                    'passed_m' => $passedM,
-                    'failed_hm' => $failedHM,
-                    'failed_m' => $failedM,
-                    'rate_hm' => $rateHM,
-                    'rate_m' => $rateM,
+                    'total_hm' => $totalHM, 'total_m' => $totalM,
+                    'desist_hm' => $desistHM, 'desist_m' => $desistM,
+                    'transf_hm' => $transfHM, 'transf_m' => $transfM,
+                    'anulou_hm' => $anulouHM, 'anulou_m' => $anulouM,
+                    'ppf_hm' => $ppfHM, 'ppf_m' => $ppfM,
+                    'eval_hm' => $evalHM, 'eval_m' => $evalM,
+                    'passed_hm' => $passedHM, 'passed_m' => $passedM,
+                    'failed_hm' => $failedHM, 'failed_m' => $failedM,
+                    'rate_hm' => $rateHM, 'rate_m' => $rateM,
+                    'desist_rate_hm' => $desistRateHM, 'desist_rate_m' => $desistRateM,
                 ];
+
+                $classRows[] = $rowItem;
+
+                // Add to Ciclo 1 vs Ciclo 2
+                // Secondary: 8..10 = 1º Ciclo, 11..13 = 2º Ciclo
+                // Primary: 2..5 = 1º Ciclo, 6..7 = 2º Ciclo
+                $isCiclo1 = ($gradeLevel <= 5 || ($gradeLevel >= 8 && $gradeLevel <= 11));
+                
+                $targetCiclo = &$ciclo1Data;
+                if (!$isCiclo1) {
+                    $targetCiclo = &$ciclo2Data;
+                }
+
+                $targetCiclo['turmas_count'] += count($classIds);
+                $targetCiclo['total_hm'] += $totalHM; $targetCiclo['total_m'] += $totalM;
+                $targetCiclo['desist_hm'] += $desistHM; $targetCiclo['desist_m'] += $desistM;
+                $targetCiclo['transf_hm'] += $transfHM; $targetCiclo['transf_m'] += $transfM;
+                $targetCiclo['anulou_hm'] += $anulouHM; $targetCiclo['anulou_m'] += $anulouM;
+                $targetCiclo['ppf_hm'] += $ppfHM; $targetCiclo['ppf_m'] += $ppfM;
+                $targetCiclo['eval_hm'] += $evalHM; $targetCiclo['eval_m'] += $evalM;
+                $targetCiclo['passed_hm'] += $passedHM; $targetCiclo['passed_m'] += $passedM;
+                $targetCiclo['failed_hm'] += $failedHM; $targetCiclo['failed_m'] += $failedM;
+
+                // Add to Total Geral
+                $totalGeralData['turmas_count'] += count($classIds);
+                $totalGeralData['total_hm'] += $totalHM; $totalGeralData['total_m'] += $totalM;
+                $totalGeralData['desist_hm'] += $desistHM; $totalGeralData['desist_m'] += $desistM;
+                $totalGeralData['transf_hm'] += $transfHM; $totalGeralData['transf_m'] += $transfM;
+                $totalGeralData['anulou_hm'] += $anulouHM; $totalGeralData['anulou_m'] += $anulouM;
+                $totalGeralData['ppf_hm'] += $ppfHM; $totalGeralData['ppf_m'] += $ppfM;
+                $totalGeralData['eval_hm'] += $evalHM; $totalGeralData['eval_m'] += $evalM;
+                $totalGeralData['passed_hm'] += $passedHM; $totalGeralData['passed_m'] += $passedM;
+                $totalGeralData['failed_hm'] += $failedHM; $totalGeralData['failed_m'] += $failedM;
             }
         }
 
-        // 3. QUADRO 2: Subject performance for selected class (or overall)
+        // Calculate rates for Ciclos and Total Geral
+        foreach ([&$ciclo1Data, &$ciclo2Data, &$totalGeralData] as &$cData) {
+            $cData['rate_hm'] = $cData['eval_hm'] > 0 ? round(($cData['passed_hm'] / $cData['eval_hm']) * 100, 1) : 0.0;
+            $cData['rate_m'] = $cData['eval_m'] > 0 ? round(($cData['passed_m'] / $cData['eval_m']) * 100, 1) : 0.0;
+            $cData['desist_rate_hm'] = $cData['total_hm'] > 0 ? round(($cData['desist_hm'] / $cData['total_hm']) * 100, 1) : 0.0;
+            $cData['desist_rate_m'] = $cData['total_m'] > 0 ? round(($cData['desist_m'] / $cData['total_m']) * 100, 1) : 0.0;
+        }
+
+        // 3. QUADRO 2: Subject performance for selected class
         if ($selectedSchool && $selectedClass) {
             $students = Student::withoutGlobalScopes()
                 ->where('school_id', $selectedSchool->id)
@@ -263,6 +373,7 @@ class PedagogicalMapController extends Controller
         return view('reports.pedagogical-map', compact(
             'schools',
             'selectedSchool',
+            'schoolTeachingType',
             'provinces',
             'districts',
             'zips',
@@ -273,7 +384,10 @@ class PedagogicalMapController extends Controller
             'selectedClass',
             'year',
             'term',
-            'classMatrix',
+            'classRows',
+            'ciclo1Data',
+            'ciclo2Data',
+            'totalGeralData',
             'mapData',
             'passingThreshold'
         ));

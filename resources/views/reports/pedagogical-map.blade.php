@@ -6,25 +6,26 @@
 <style>
     @media print {
         header, sidebar, nav, .no-print, footer { display: none !important; }
-        body { background: white !important; font-size: 10pt; color: black; }
+        body { background: white !important; font-size: 9pt; color: black; }
         .print-document { border: none !important; shadow: none !important; padding: 0 !important; margin: 0 !important; }
-        .table-minedh th, .table-minedh td { border: 1px solid #000 !important; padding: 4px 6px !important; }
+        .table-minedh th, .table-minedh td { border: 1px solid #000 !important; padding: 3px 4px !important; }
     }
 
     .table-minedh {
         border-collapse: collapse;
         width: 100%;
+        font-size: 0.72rem;
     }
     .table-minedh th, .table-minedh td {
         border: 1px solid #cbd5e1;
-        padding: 6px 8px;
+        padding: 5px 6px;
     }
     .table-minedh th {
         background-color: #0f172a;
         color: #ffffff;
         font-weight: 800;
         text-transform: uppercase;
-        font-size: 0.75rem;
+        font-size: 0.68rem;
     }
     .table-minedh tr:nth-child(even) td {
         background-color: #f8fafc;
@@ -33,6 +34,7 @@
     .bg-m { background-color: #faf5ff; color: #7e22ce; }
     .bg-pos { background-color: #f0fdf4; color: #15803d; }
     .bg-neg { background-color: #fef2f2; color: #b91c1c; }
+    .bg-ciclo { background-color: #e2e8f0; font-weight: bold; }
 </style>
 
 <div class="container-fluid py-4 space-y-4">
@@ -40,14 +42,14 @@
     <!-- Top Selection & Territorial Filter Bar (No Print) -->
     <div class="card border-0 rounded-4 shadow-sm mb-4 no-print bg-white">
         <div class="card-body p-3">
-            <form action="{{ route('reports.pedagogical-map') }}" method="GET" class="row g-3 align-items-end">
+            <form id="pedagogicalMapFilterForm" action="{{ route('reports.pedagogical-map') }}" method="GET" class="row g-3 align-items-end">
                 
                 <!-- Territorial Filters (Província, Distrito, ZIP) -->
                 <div class="col-md-2">
                     <label class="form-label text-xs fw-bold text-muted uppercase tracking-wider mb-1">
                         <i class="fa-solid fa-map-pin text-emerald me-1" style="color: #059669;"></i> Província
                     </label>
-                    <select name="province_id" class="form-select form-select-sm rounded-3 fw-semibold text-xs" onchange="this.form.submit()">
+                    <select name="province_id" class="form-select form-select-sm rounded-3 fw-semibold text-xs" onchange="onProvinceChange(this)">
                         <option value="">Todas Províncias</option>
                         @foreach($provinces as $prov)
                             <option value="{{ $prov->id }}" @selected($selectedProvinceId == $prov->id)>
@@ -61,7 +63,7 @@
                     <label class="form-label text-xs fw-bold text-muted uppercase tracking-wider mb-1">
                         <i class="fa-solid fa-city text-emerald me-1" style="color: #059669;"></i> Distrito
                     </label>
-                    <select name="district_id" class="form-select form-select-sm rounded-3 fw-semibold text-xs" onchange="this.form.submit()">
+                    <select name="district_id" class="form-select form-select-sm rounded-3 fw-semibold text-xs" onchange="onDistrictChange(this)">
                         <option value="">Todos Distritos</option>
                         @foreach($districts as $dist)
                             <option value="{{ $dist->id }}" @selected($selectedDistrictId == $dist->id)>
@@ -75,7 +77,7 @@
                     <label class="form-label text-xs fw-bold text-muted uppercase tracking-wider mb-1">
                         <i class="fa-solid fa-network-wired text-emerald me-1" style="color: #059669;"></i> ZIP
                     </label>
-                    <select name="zip_id" class="form-select form-select-sm rounded-3 fw-semibold text-xs" onchange="this.form.submit()">
+                    <select name="zip_id" class="form-select form-select-sm rounded-3 fw-semibold text-xs" onchange="onZipChange(this)">
                         <option value="">Todas as ZIPs</option>
                         @foreach($zips as $zip)
                             <option value="{{ $zip->id }}" @selected($selectedZipId == $zip->id)>
@@ -90,7 +92,7 @@
                     <label class="form-label text-xs fw-bold text-muted uppercase tracking-wider mb-1">
                         <i class="fa-solid fa-school text-emerald me-1" style="color: #059669;"></i> Escola
                     </label>
-                    <select name="school_id" class="form-select form-select-sm rounded-3 fw-semibold text-xs" onchange="this.form.submit()">
+                    <select name="school_id" class="form-select form-select-sm rounded-3 fw-semibold text-xs" onchange="onSchoolChange(this)">
                         @foreach($schools as $sc)
                             <option value="{{ $sc->id }}" @selected($selectedSchool && $selectedSchool->id === $sc->id)>
                                 {{ $sc->name }} ({{ $sc->province->name ?? '' }})
@@ -156,62 +158,74 @@
         <!-- MINEDH OFFICIAL HEADER WITH CENTERED EMBLEM LOGO -->
         <div class="text-center mb-4">
             <div class="d-flex justify-content-center align-items-center mb-2">
-                <img src="{{ asset('image.png') }}" alt="Emblema da República de Moçambique" style="height: 80px; width: auto;" class="mx-auto d-block">
+                <img src="{{ asset('image.png') }}" alt="Emblema da República de Moçambique" style="height: 85px; width: auto;" class="mx-auto d-block">
             </div>
-            <h5 class="fw-bold mb-0 text-dark tracking-wide uppercase" style="font-family: serif; letter-spacing: 1px;">REPÚBLICA DE MOÇAMBIQUE</h5>
-            <h6 class="fw-semibold text-secondary mb-0 text-xs uppercase">GOVERNO DA PROVÍNCIA DE {{ strtoupper($selectedSchool->province->name ?? 'ZAMBÉZIA') }}</h6>
-            <h6 class="fw-semibold text-secondary mb-0 text-xs uppercase">SERVIÇO DISTRITAL DE EDUCAÇÃO, JUVENTUDE E TECNOLOGIA (SDEJT {{ strtoupper($selectedSchool->district->name ?? 'MARRACUA') }})</h6>
-            <h5 class="fw-bold text-dark mt-2 mb-1" style="color: #047857;">{{ strtoupper($selectedSchool->name ?? 'ESCOLA SECUNDÁRIA DE MARRACUA') }}</h5>
-            
-            <div class="d-inline-block px-4 py-1.5 rounded-pill bg-light border border-slate-300 mt-2">
-                <strong class="text-dark uppercase text-sm" style="letter-spacing: 0.5px;">
-                    MAPA DE APROVEITAMENTO PEDAGÓGICO — {{ $term == 4 ? 'GERAL ANUAL' : $term . 'º TRIMESTRE' }} DE {{ $year }}
+            <h5 class="fw-bold mb-0 text-dark tracking-wide uppercase" style="font-family: serif; letter-spacing: 1.5px; font-size: 1.1rem;">REPÚBLICA DE MOÇAMBIQUE</h5>
+            <h6 class="fw-semibold text-secondary mb-0 text-xs uppercase" style="letter-spacing: 0.8px;">
+                GOVERNO DA PROVÍNCIA DE {{ strtoupper($selectedSchool->province->name ?? 'ZAMBÉZIA') }}
+            </h6>
+            <h6 class="fw-semibold text-secondary mb-0 text-xs uppercase" style="letter-spacing: 0.8px;">
+                SERVIÇO DISTRITAL DE EDUCAÇÃO, JUVENTUDE E TECNOLOGIA (SDEJT {{ strtoupper($selectedSchool->district->name ?? 'MARRACUA') }})
+            </h6>
+            @if($selectedSchool && $selectedSchool->zip)
+                <h6 class="fw-semibold text-emerald-800 mb-0 text-xs uppercase" style="color: #047857; letter-spacing: 0.5px;">
+                    ZONA DE INFLUÊNCIA PEDAGÓGICA: {{ strtoupper($selectedSchool->zip->name) }} {{ $selectedSchool->zip->headquarters ? '('.strtoupper($selectedSchool->zip->headquarters).')' : '' }}
+                </h6>
+            @endif
+            <h4 class="fw-black text-dark mt-2 mb-1" style="color: #047857; font-size: 1.25rem;">
+                {{ strtoupper($selectedSchool->name ?? 'ESCOLA SECUNDÁRIA DE MARRACUA') }}
+            </h4>
+            <div class="text-xs fw-bold text-muted uppercase mb-2">
+                SUB-SISTEMA DE ENSINO: <span class="text-dark">{{ strtoupper($schoolTeachingType) }}</span> &bull; NATUREZA: <span class="text-dark">{{ strtoupper($selectedSchool->type ?: 'Pública') }}</span>
+            </div>
+
+            <div class="d-inline-block px-4 py-1.5 rounded-pill bg-light border border-slate-300 mt-1">
+                <strong class="text-dark uppercase text-sm" style="letter-spacing: 0.8px;">
+                    MAPA DE APROVEITAMENTO PEDAGÓGICO — {{ $term == 4 ? 'FINAL DO ANO' : $term . 'º TRIMESTRE' }} DE {{ $year }}
                 </strong>
             </div>
         </div>
 
-        <!-- QUADRO 1: RENDIMENTO ESCOLAR AGROPADO POR CLASSE (1ª a 12ª Classe) -->
+        <!-- QUADRO 1: RENDIMENTO ESCOLAR COMPLETO MINEDH (11 COLUNAS HM / M) -->
         <div class="mb-4">
             <div class="d-flex align-items-center justify-content-between mb-2">
                 <h6 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-                    <i class="fa-solid fa-list-ol text-emerald" style="color: #059669;"></i> I. Quadro Resumo de Aproveitamento por Classe (HM / M)
+                    <i class="fa-solid fa-list-ol text-emerald" style="color: #059669;"></i> I. Quadro Geral de Rendimento Escolar por Classe e Ciclo (MINEDH Standard)
                 </h6>
-                <span class="text-xs text-muted">Agrupado por Classe &bull; Avaliados na escala 0.0 - 20.0 (Limiar: {{ $passingThreshold }} val)</span>
+                <span class="text-xs text-muted">Avaliados na escala regulamentar 0.0 - 20.0 (Limiar: {{ $passingThreshold }} val)</span>
             </div>
 
             <div class="table-responsive">
                 <table class="table-minedh text-center align-middle">
                     <thead>
                         <tr>
-                            <th rowspan="2" class="text-start ps-3" style="width: 24%;">Classe</th>
-                            <th colspan="2">Matrícula (Entradas)</th>
+                            <th rowspan="2" class="text-start ps-3" style="width: 18%;">Classe</th>
+                            <th colspan="2">N/ Entradas (Matrícula)</th>
+                            <th colspan="2">Desistentes</th>
+                            <th colspan="2">Transf.</th>
+                            <th colspan="2">Anulou Matrícula</th>
+                            <th colspan="2">PPF / PDF</th>
                             <th colspan="2">Avaliados</th>
-                            <th colspan="2">Aprovados / Transitados</th>
+                            <th colspan="2">Transitados / Aprovados</th>
                             <th colspan="2">Retidos / Negativas</th>
-                            <th colspan="2" style="background-color: #047857;">% Aproveitamento</th>
+                            <th colspan="2" style="background-color: #047857;">% Aprovados</th>
+                            <th colspan="2" style="background-color: #991b1b;">% Desistentes</th>
                         </tr>
-                        <tr style="font-size: 0.7rem; background-color: #1e293b;">
+                        <tr style="font-size: 0.65rem; background-color: #1e293b;">
+                            <th>HM</th><th>M</th>
+                            <th>HM</th><th>M</th>
+                            <th>HM</th><th>M</th>
+                            <th>HM</th><th>M</th>
                             <th>HM</th><th>M</th>
                             <th>HM</th><th>M</th>
                             <th>HM</th><th>M</th>
                             <th>HM</th><th>M</th>
                             <th style="background-color: #065f46;">HM %</th><th style="background-color: #065f46;">M %</th>
+                            <th style="background-color: #7f1d1d;">HM %</th><th style="background-color: #7f1d1d;">M %</th>
                         </tr>
                     </thead>
                     <tbody class="text-xs">
-                        @php
-                            $totHM = 0; $totM = 0;
-                            $totEvalHM = 0; $totEvalM = 0;
-                            $totPassHM = 0; $totPassM = 0;
-                            $totFailHM = 0; $totFailM = 0;
-                        @endphp
-                        @forelse($classMatrix as $cm)
-                            @php
-                                $totHM += $cm['total_hm']; $totM += $cm['total_m'];
-                                $totEvalHM += $cm['eval_hm']; $totEvalM += $cm['eval_m'];
-                                $totPassHM += $cm['passed_hm']; $totPassM += $cm['passed_m'];
-                                $totFailHM += $cm['failed_hm']; $totFailM += $cm['failed_m'];
-                            @endphp
+                        @forelse($classRows as $cm)
                             <tr>
                                 <td class="text-start ps-3 fw-bold text-dark">
                                     <i class="fa-solid fa-graduation-cap text-emerald me-1" style="color: #059669;"></i> {{ $cm['grade_level_name'] }}
@@ -219,6 +233,18 @@
                                 </td>
                                 <td class="fw-semibold bg-hm">{{ number_format($cm['total_hm']) }}</td>
                                 <td class="fw-semibold bg-m">{{ number_format($cm['total_m']) }}</td>
+
+                                <td>{{ number_format($cm['desist_hm']) }}</td>
+                                <td class="text-purple">{{ number_format($cm['desist_m']) }}</td>
+
+                                <td>{{ number_format($cm['transf_hm']) }}</td>
+                                <td class="text-purple">{{ number_format($cm['transf_m']) }}</td>
+
+                                <td>{{ number_format($cm['anulou_hm']) }}</td>
+                                <td class="text-purple">{{ number_format($cm['anulou_m']) }}</td>
+
+                                <td>{{ number_format($cm['ppf_hm']) }}</td>
+                                <td class="text-purple">{{ number_format($cm['ppf_m']) }}</td>
                                 
                                 <td class="fw-bold">{{ number_format($cm['eval_hm']) }}</td>
                                 <td class="fw-bold text-purple">{{ number_format($cm['eval_m']) }}</td>
@@ -231,30 +257,59 @@
 
                                 <td class="fw-extrabold text-success" style="background-color: #ecfdf5;">{{ $cm['rate_hm'] }}%</td>
                                 <td class="fw-extrabold text-purple" style="background-color: #faf5ff;">{{ $cm['rate_m'] }}%</td>
+
+                                <td class="fw-semibold text-danger">{{ $cm['desist_rate_hm'] }}%</td>
+                                <td class="fw-semibold text-danger">{{ $cm['desist_rate_m'] }}%</td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="11" class="text-center py-3 text-muted">Nenhuma classe registada nesta escola.</td>
+                                <td colspan="21" class="text-center py-3 text-muted">Nenhuma classe registada nesta escola.</td>
                             </tr>
                         @endforelse
+
+                        <!-- SUBTOTAL 1º CICLO -->
+                        <tr class="bg-ciclo">
+                            <td class="text-start ps-3 fw-bold">1º CICLO</td>
+                            <td>{{ number_format($ciclo1Data['total_hm']) }}</td><td>{{ number_format($ciclo1Data['total_m']) }}</td>
+                            <td>{{ number_format($ciclo1Data['desist_hm']) }}</td><td>{{ number_format($ciclo1Data['desist_m']) }}</td>
+                            <td>{{ number_format($ciclo1Data['transf_hm']) }}</td><td>{{ number_format($ciclo1Data['transf_m']) }}</td>
+                            <td>{{ number_format($ciclo1Data['anulou_hm']) }}</td><td>{{ number_format($ciclo1Data['anulou_m']) }}</td>
+                            <td>{{ number_format($ciclo1Data['ppf_hm']) }}</td><td>{{ number_format($ciclo1Data['ppf_m']) }}</td>
+                            <td>{{ number_format($ciclo1Data['eval_hm']) }}</td><td>{{ number_format($ciclo1Data['eval_m']) }}</td>
+                            <td class="text-success">{{ number_format($ciclo1Data['passed_hm']) }}</td><td class="text-success">{{ number_format($ciclo1Data['passed_m']) }}</td>
+                            <td class="text-danger">{{ number_format($ciclo1Data['failed_hm']) }}</td><td class="text-danger">{{ number_format($ciclo1Data['failed_m']) }}</td>
+                            <td class="text-success fw-extrabold">{{ $ciclo1Data['rate_hm'] }}%</td><td class="text-purple fw-extrabold">{{ $ciclo1Data['rate_m'] }}%</td>
+                            <td class="text-danger">{{ $ciclo1Data['desist_rate_hm'] }}%</td><td class="text-danger">{{ $ciclo1Data['desist_rate_m'] }}%</td>
+                        </tr>
+
+                        <!-- SUBTOTAL 2º CICLO -->
+                        <tr class="bg-ciclo">
+                            <td class="text-start ps-3 fw-bold">2º CICLO</td>
+                            <td>{{ number_format($ciclo2Data['total_hm']) }}</td><td>{{ number_format($ciclo2Data['total_m']) }}</td>
+                            <td>{{ number_format($ciclo2Data['desist_hm']) }}</td><td>{{ number_format($ciclo2Data['desist_m']) }}</td>
+                            <td>{{ number_format($ciclo2Data['transf_hm']) }}</td><td>{{ number_format($ciclo2Data['transf_m']) }}</td>
+                            <td>{{ number_format($ciclo2Data['anulou_hm']) }}</td><td>{{ number_format($ciclo2Data['anulou_m']) }}</td>
+                            <td>{{ number_format($ciclo2Data['ppf_hm']) }}</td><td>{{ number_format($ciclo2Data['ppf_m']) }}</td>
+                            <td>{{ number_format($ciclo2Data['eval_hm']) }}</td><td>{{ number_format($ciclo2Data['eval_m']) }}</td>
+                            <td class="text-success">{{ number_format($ciclo2Data['passed_hm']) }}</td><td class="text-success">{{ number_format($ciclo2Data['passed_m']) }}</td>
+                            <td class="text-danger">{{ number_format($ciclo2Data['failed_hm']) }}</td><td class="text-danger">{{ number_format($ciclo2Data['failed_m']) }}</td>
+                            <td class="text-success fw-extrabold">{{ $ciclo2Data['rate_hm'] }}%</td><td class="text-purple fw-extrabold">{{ $ciclo2Data['rate_m'] }}%</td>
+                            <td class="text-danger">{{ $ciclo2Data['desist_rate_hm'] }}%</td><td class="text-danger">{{ $ciclo2Data['desist_rate_m'] }}%</td>
+                        </tr>
                     </tbody>
                     <tfoot>
-                        @php
-                            $totalRateHM = $totEvalHM > 0 ? round(($totPassHM / $totEvalHM) * 100, 1) : 0;
-                            $totalRateM = $totEvalM > 0 ? round(($totPassM / $totEvalM) * 100, 1) : 0;
-                        @endphp
-                        <tr class="fw-bold text-dark" style="background-color: #e2e8f0; font-size: 0.8rem;">
+                        <tr class="fw-bold text-dark" style="background-color: #cbd5e1; font-size: 0.8rem;">
                             <td class="text-start ps-3">TOTAL GERAL DA ESCOLA</td>
-                            <td>{{ number_format($totHM) }}</td>
-                            <td>{{ number_format($totM) }}</td>
-                            <td>{{ number_format($totEvalHM) }}</td>
-                            <td>{{ number_format($totEvalM) }}</td>
-                            <td class="text-success">{{ number_format($totPassHM) }}</td>
-                            <td class="text-success">{{ number_format($totPassM) }}</td>
-                            <td class="text-danger">{{ number_format($totFailHM) }}</td>
-                            <td class="text-danger">{{ number_format($totFailM) }}</td>
-                            <td class="text-success fw-black">{{ $totalRateHM }}%</td>
-                            <td class="text-purple fw-black">{{ $totalRateM }}%</td>
+                            <td>{{ number_format($totalGeralData['total_hm']) }}</td><td>{{ number_format($totalGeralData['total_m']) }}</td>
+                            <td>{{ number_format($totalGeralData['desist_hm']) }}</td><td>{{ number_format($totalGeralData['desist_m']) }}</td>
+                            <td>{{ number_format($totalGeralData['transf_hm']) }}</td><td>{{ number_format($totalGeralData['transf_m']) }}</td>
+                            <td>{{ number_format($totalGeralData['anulou_hm']) }}</td><td>{{ number_format($totalGeralData['anulou_m']) }}</td>
+                            <td>{{ number_format($totalGeralData['ppf_hm']) }}</td><td>{{ number_format($totalGeralData['ppf_m']) }}</td>
+                            <td>{{ number_format($totalGeralData['eval_hm']) }}</td><td>{{ number_format($totalGeralData['eval_m']) }}</td>
+                            <td class="text-success">{{ number_format($totalGeralData['passed_hm']) }}</td><td class="text-success">{{ number_format($totalGeralData['passed_m']) }}</td>
+                            <td class="text-danger">{{ number_format($totalGeralData['failed_hm']) }}</td><td class="text-danger">{{ number_format($totalGeralData['failed_m']) }}</td>
+                            <td class="text-success fw-black">{{ $totalGeralData['rate_hm'] }}%</td><td class="text-purple fw-black">{{ $totalGeralData['rate_m'] }}%</td>
+                            <td class="text-danger fw-bold">{{ $totalGeralData['desist_rate_hm'] }}%</td><td class="text-danger fw-bold">{{ $totalGeralData['desist_rate_m'] }}%</td>
                         </tr>
                     </tfoot>
                 </table>
@@ -343,4 +398,37 @@
     </div>
 
 </div>
+
+<!-- Filter Cascade Submit Script -->
+<script>
+function onProvinceChange(select) {
+    var form = document.getElementById('pedagogicalMapFilterForm');
+    form.querySelector('[name="district_id"]').value = '';
+    form.querySelector('[name="zip_id"]').value = '';
+    form.querySelector('[name="school_id"]').value = '';
+    form.querySelector('[name="class_id"]').value = '';
+    form.submit();
+}
+
+function onDistrictChange(select) {
+    var form = document.getElementById('pedagogicalMapFilterForm');
+    form.querySelector('[name="zip_id"]').value = '';
+    form.querySelector('[name="school_id"]').value = '';
+    form.querySelector('[name="class_id"]').value = '';
+    form.submit();
+}
+
+function onZipChange(select) {
+    var form = document.getElementById('pedagogicalMapFilterForm');
+    form.querySelector('[name="school_id"]').value = '';
+    form.querySelector('[name="class_id"]').value = '';
+    form.submit();
+}
+
+function onSchoolChange(select) {
+    var form = document.getElementById('pedagogicalMapFilterForm');
+    form.querySelector('[name="class_id"]').value = '';
+    form.submit();
+}
+</script>
 @endsection
