@@ -40,16 +40,20 @@
 <div class="container-fluid py-4 space-y-4">
 
     <!-- Top Selection & Territorial Filter Bar (No Print) -->
-    <div class="card border-0 rounded-4 shadow-sm mb-4 no-print bg-white">
-        <div class="card-body p-3">
-            <form id="pedagogicalMapFilterForm" action="{{ route('reports.pedagogical-map') }}" method="GET" class="row g-3 align-items-end">
-                
-                <!-- Territorial Filters (Província, Distrito, ZIP) -->
-                <div class="col-md-2">
-                    <label class="form-label text-xs fw-bold text-muted uppercase tracking-wider mb-1">
-                        <i class="fa-solid fa-map-pin text-emerald me-1" style="color: #059669;"></i> Província
+    <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs mb-6 no-print">
+        <div class="flex items-center gap-2 mb-3">
+            <i class="fas fa-filter text-emerald-600 text-xs"></i>
+            <span class="text-xs font-extrabold uppercase tracking-wider text-slate-500">Filtros Territoriais &amp; Seleção de Mapa Pedagógico</span>
+        </div>
+        <form id="pedagogicalMapFilterForm" action="{{ route('reports.pedagogical-map') }}" method="GET" class="space-y-3">
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                <!-- Província -->
+                <div>
+                    <label class="block text-2xs font-bold text-slate-500 uppercase mb-1">
+                        <i class="fa-solid fa-map-pin text-emerald-600 me-1"></i> Província
                     </label>
-                    <select name="province_id" class="form-select form-select-sm rounded-3 fw-semibold text-xs" onchange="onProvinceChange(this)">
+                    <select name="province_id" class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500" onchange="onProvinceChange(this)">
                         <option value="">Todas Províncias</option>
                         @foreach($provinces as $prov)
                             <option value="{{ $prov->id }}" @selected($selectedProvinceId == $prov->id)>
@@ -59,11 +63,12 @@
                     </select>
                 </div>
 
-                <div class="col-md-2">
-                    <label class="form-label text-xs fw-bold text-muted uppercase tracking-wider mb-1">
-                        <i class="fa-solid fa-city text-emerald me-1" style="color: #059669;"></i> Distrito
+                <!-- Distrito -->
+                <div>
+                    <label class="block text-2xs font-bold text-slate-500 uppercase mb-1">
+                        <i class="fa-solid fa-city text-emerald-600 me-1"></i> Distrito
                     </label>
-                    <select name="district_id" class="form-select form-select-sm rounded-3 fw-semibold text-xs" onchange="onDistrictChange(this)">
+                    <select name="district_id" class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500" onchange="onDistrictChange(this)">
                         <option value="">Todos Distritos</option>
                         @foreach($districts as $dist)
                             <option value="{{ $dist->id }}" @selected($selectedDistrictId == $dist->id)>
@@ -73,11 +78,12 @@
                     </select>
                 </div>
 
-                <div class="col-md-2">
-                    <label class="form-label text-xs fw-bold text-muted uppercase tracking-wider mb-1">
-                        <i class="fa-solid fa-network-wired text-emerald me-1" style="color: #059669;"></i> ZIP
+                <!-- ZIP -->
+                <div>
+                    <label class="block text-2xs font-bold text-slate-500 uppercase mb-1">
+                        <i class="fa-solid fa-network-wired text-emerald-600 me-1"></i> ZIP
                     </label>
-                    <select name="zip_id" class="form-select form-select-sm rounded-3 fw-semibold text-xs" onchange="onZipChange(this)">
+                    <select name="zip_id" class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500" onchange="onZipChange(this)">
                         <option value="">Todas as ZIPs</option>
                         @foreach($zips as $zip)
                             <option value="{{ $zip->id }}" @selected($selectedZipId == $zip->id)>
@@ -87,12 +93,12 @@
                     </select>
                 </div>
 
-                <!-- Select School -->
-                <div class="col-md-3">
-                    <label class="form-label text-xs fw-bold text-muted uppercase tracking-wider mb-1">
-                        <i class="fa-solid fa-school text-emerald me-1" style="color: #059669;"></i> Escola
+                <!-- Escola -->
+                <div>
+                    <label class="block text-2xs font-bold text-slate-500 uppercase mb-1">
+                        <i class="fa-solid fa-school text-emerald-600 me-1"></i> Escola
                     </label>
-                    <select name="school_id" class="form-select form-select-sm rounded-3 fw-semibold text-xs" onchange="onSchoolChange(this)">
+                    <select name="school_id" class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500" onchange="onSchoolChange(this)">
                         @foreach($schools as $sc)
                             <option value="{{ $sc->id }}" @selected($selectedSchool && $selectedSchool->id === $sc->id)>
                                 {{ $sc->name }} ({{ $sc->province->name ?? '' }})
@@ -100,13 +106,28 @@
                         @endforeach
                     </select>
                 </div>
+            </div>
 
-                <!-- Select Turma / Disciplinas -->
-                <div class="col-md-3">
-                    <label class="form-label text-xs fw-bold text-muted uppercase tracking-wider mb-1">
-                        <i class="fa-solid fa-chalkboard text-emerald me-1" style="color: #059669;"></i> Turma (Disciplinas II)
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 items-end">
+                <!-- Nível de Ensino -->
+                <div>
+                    <label class="block text-2xs font-bold text-slate-500 uppercase mb-1">
+                        <i class="fa-solid fa-layer-group text-emerald-600 me-1"></i> Nível
                     </label>
-                    <select name="class_id" class="form-select form-select-sm rounded-3 fw-semibold text-xs" onchange="this.form.submit()">
+                    <select name="level" class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500" onchange="onLevelChange(this)">
+                        <option value="primary" @selected(($educationLevel ?? 'primary') == 'primary')>Ensino Primário (1.ª - 6.ª)</option>
+                        <option value="secondary" @selected(($educationLevel ?? '') == 'secondary')>Ensino Secundário (7.ª - 12.ª)</option>
+                        <option value="preschool" @selected(($educationLevel ?? '') == 'preschool')>Pré-Escolar</option>
+                        <option value="all" @selected(($educationLevel ?? '') == 'all')>Todos os Níveis</option>
+                    </select>
+                </div>
+
+                <!-- Turma -->
+                <div>
+                    <label class="block text-2xs font-bold text-slate-500 uppercase mb-1">
+                        <i class="fa-solid fa-chalkboard text-emerald-600 me-1"></i> Turma
+                    </label>
+                    <select name="class_id" class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500" onchange="this.form.submit()">
                         @foreach($allClasses as $c)
                             <option value="{{ $c->id }}" @selected($selectedClass && $selectedClass->id === $c->id)>
                                 {{ $c->name }} ({{ $c->grade_level_name }})
@@ -115,12 +136,12 @@
                     </select>
                 </div>
 
-                <!-- Select Term & Year & Actions -->
-                <div class="col-md-3">
-                    <label class="form-label text-xs fw-bold text-muted uppercase tracking-wider mb-1">
-                        <i class="fa-solid fa-clock text-emerald me-1" style="color: #059669;"></i> Trimestre
+                <!-- Trimestre -->
+                <div>
+                    <label class="block text-2xs font-bold text-slate-500 uppercase mb-1">
+                        <i class="fa-solid fa-clock text-emerald-600 me-1"></i> Trimestre
                     </label>
-                    <select name="term" class="form-select form-select-sm rounded-3 fw-semibold text-xs" onchange="this.form.submit()">
+                    <select name="term" class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500" onchange="this.form.submit()">
                         <option value="1" @selected($term == 1)>1º Trimestre</option>
                         <option value="2" @selected($term == 2)>2º Trimestre</option>
                         <option value="3" @selected($term == 3)>3º Trimestre</option>
@@ -128,28 +149,31 @@
                     </select>
                 </div>
 
-                <div class="col-md-3">
-                    <label class="form-label text-xs fw-bold text-muted uppercase tracking-wider mb-1">
-                        <i class="fa-solid fa-calendar text-emerald me-1" style="color: #059669;"></i> Ano Lectivo
+                <!-- Ano Lectivo -->
+                <div>
+                    <label class="block text-2xs font-bold text-slate-500 uppercase mb-1">
+                        <i class="fa-solid fa-calendar text-emerald-600 me-1"></i> Ano Lectivo
                     </label>
-                    <select name="year" class="form-select form-select-sm rounded-3 fw-semibold text-xs" onchange="this.form.submit()">
+                    <select name="year" class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500" onchange="this.form.submit()">
                         <option value="2026" @selected($year == 2026)>2026</option>
                         <option value="2025" @selected($year == 2025)>2025</option>
                     </select>
                 </div>
 
-                <div class="col-md-6 d-flex align-items-end justify-content-end gap-2">
-                    <button type="button" onclick="window.print()" class="btn btn-emerald btn-sm rounded-3 px-4 fw-semibold text-white" style="background-color: #059669;">
-                        <i class="fa-solid fa-print me-1"></i> Imprimir Documento
+                <!-- Ações -->
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="window.print()" class="no-underline inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-slate-800 hover:bg-slate-900 text-xs font-bold text-white shadow-2xs transition cursor-pointer shrink-0">
+                        <i class="fa-solid fa-print"></i> Imprimir
                     </button>
-                    @if($selectedClass)
-                        <a href="{{ route('reports.pedagogical-map.export', ['class_id' => $selectedClass->id, 'term' => $term, 'year' => $year]) }}" class="btn btn-outline-success btn-sm rounded-3 px-3" title="Exportar CSV Excel">
-                            <i class="fa-solid fa-file-excel me-1"></i> Exportar
-                        </a>
-                    @endif
+                    <a href="{{ route('reports.pedagogical-map.export-pdf', request()->query()) }}" target="_blank" class="no-underline inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-red-600 hover:bg-red-700 text-xs font-bold text-white shadow-2xs transition shrink-0" title="Exportar PDF Oficial (Apenas Mapa e Assinaturas)">
+                        <i class="fa-solid fa-file-pdf"></i> PDF
+                    </a>
+                    <a href="{{ route('reports.pedagogical-map.export', request()->query()) }}" class="no-underline inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-xs font-bold text-white shadow-2xs transition shrink-0" title="Exportar Excel (Apenas Mapa e Assinaturas)">
+                        <i class="fa-solid fa-file-excel"></i> Excel
+                    </a>
                 </div>
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
 
     <!-- MAIN OFFICIAL MINEDH PAPER DOCUMENT -->
@@ -207,12 +231,10 @@
                             <th colspan="2">PPF / PDF</th>
                             <th colspan="2">Avaliados</th>
                             <th colspan="2">Transitados / Aprovados</th>
-                            <th colspan="2">Retidos / Negativas</th>
-                            <th colspan="2" style="background-color: #047857;">% Aprovados</th>
+                            <th colspan="2" style="background-color: #047857;">% TRANS/ APROVADOS</th>
                             <th colspan="2" style="background-color: #991b1b;">% Desistentes</th>
                         </tr>
                         <tr style="font-size: 0.65rem; background-color: #1e293b;">
-                            <th>HM</th><th>M</th>
                             <th>HM</th><th>M</th>
                             <th>HM</th><th>M</th>
                             <th>HM</th><th>M</th>
@@ -225,77 +247,156 @@
                         </tr>
                     </thead>
                     <tbody class="text-xs">
-                        @forelse($classRows as $cm)
-                            <tr>
-                                <td class="text-start ps-3 fw-bold text-dark">
-                                    <i class="fa-solid fa-graduation-cap text-emerald me-1" style="color: #059669;"></i> {{ $cm['grade_level_name'] }}
-                                    <span class="text-muted font-normal text-2xs">({{ $cm['turmas_count'] }} {{ $cm['turmas_count'] == 1 ? 'Turma' : 'Turmas' }})</span>
+                        @if(!empty($preschoolRows) && count($preschoolRows) > 0)
+                            <tr class="bg-slate-100 font-extrabold text-slate-900 border-y border-slate-300">
+                                <td colspan="19" class="text-start ps-3 py-1.5 bg-slate-200/90 font-black tracking-wider text-uppercase">
+                                    PRÉ-ESCOLAR / PRÉ-INFANTIL
                                 </td>
-                                <td class="fw-semibold bg-hm">{{ number_format($cm['total_hm']) }}</td>
-                                <td class="fw-semibold bg-m">{{ number_format($cm['total_m']) }}</td>
-
-                                <td>{{ number_format($cm['desist_hm']) }}</td>
-                                <td class="text-purple">{{ number_format($cm['desist_m']) }}</td>
-
-                                <td>{{ number_format($cm['transf_hm']) }}</td>
-                                <td class="text-purple">{{ number_format($cm['transf_m']) }}</td>
-
-                                <td>{{ number_format($cm['anulou_hm']) }}</td>
-                                <td class="text-purple">{{ number_format($cm['anulou_m']) }}</td>
-
-                                <td>{{ number_format($cm['ppf_hm']) }}</td>
-                                <td class="text-purple">{{ number_format($cm['ppf_m']) }}</td>
-                                
-                                <td class="fw-bold">{{ number_format($cm['eval_hm']) }}</td>
-                                <td class="fw-bold text-purple">{{ number_format($cm['eval_m']) }}</td>
-
-                                <td class="fw-bold text-success bg-pos">{{ number_format($cm['passed_hm']) }}</td>
-                                <td class="fw-bold text-success bg-pos">{{ number_format($cm['passed_m']) }}</td>
-
-                                <td class="fw-bold text-danger bg-neg">{{ number_format($cm['failed_hm']) }}</td>
-                                <td class="fw-bold text-danger bg-neg">{{ number_format($cm['failed_m']) }}</td>
-
-                                <td class="fw-extrabold text-success" style="background-color: #ecfdf5;">{{ $cm['rate_hm'] }}%</td>
-                                <td class="fw-extrabold text-purple" style="background-color: #faf5ff;">{{ $cm['rate_m'] }}%</td>
-
-                                <td class="fw-semibold text-danger">{{ $cm['desist_rate_hm'] }}%</td>
-                                <td class="fw-semibold text-danger">{{ $cm['desist_rate_m'] }}%</td>
                             </tr>
-                        @empty
+                            @foreach($preschoolRows as $cm)
+                                <tr>
+                                    <td class="text-start ps-3 fw-bold text-dark">{{ $cm['grade_level_name'] }}</td>
+                                    <td class="fw-semibold bg-hm">{{ number_format($cm['total_hm']) }}</td>
+                                    <td class="fw-semibold bg-m">{{ number_format($cm['total_m']) }}</td>
+
+                                    <td>{{ number_format($cm['desist_hm']) }}</td>
+                                    <td class="text-purple">{{ number_format($cm['desist_m']) }}</td>
+
+                                    <td>{{ number_format($cm['transf_hm']) }}</td>
+                                    <td class="text-purple">{{ number_format($cm['transf_m']) }}</td>
+
+                                    <td>{{ number_format($cm['anulou_hm']) }}</td>
+                                    <td class="text-purple">{{ number_format($cm['anulou_m']) }}</td>
+
+                                    <td>{{ number_format($cm['ppf_hm']) }}</td>
+                                    <td class="text-purple">{{ number_format($cm['ppf_m']) }}</td>
+                                    
+                                    <td class="fw-bold">{{ number_format($cm['eval_hm']) }}</td>
+                                    <td class="fw-bold text-purple">{{ number_format($cm['eval_m']) }}</td>
+
+                                    <td class="fw-bold text-success bg-pos">{{ number_format($cm['passed_hm']) }}</td>
+                                    <td class="fw-bold text-success bg-pos">{{ number_format($cm['passed_m']) }}</td>
+
+                                    <td class="fw-extrabold text-success" style="background-color: #ecfdf5;">{{ $cm['rate_hm'] }}%</td>
+                                    <td class="fw-extrabold text-purple" style="background-color: #faf5ff;">{{ $cm['rate_m'] }}%</td>
+
+                                    <td class="fw-semibold text-danger">{{ $cm['desist_rate_hm'] }}%</td>
+                                    <td class="fw-semibold text-danger">{{ $cm['desist_rate_m'] }}%</td>
+                                </tr>
+                            @endforeach
+                        @endif
+
+                        @if(!empty($ciclo1Rows) && count($ciclo1Rows) > 0)
+                            <!-- CABEÇALHO 1º CICLO -->
+                            <tr class="bg-slate-100 font-extrabold text-slate-900 border-y border-slate-300">
+                                <td colspan="19" class="text-start ps-3 py-1.5 bg-slate-200/90 font-black tracking-wider text-uppercase">
+                                    {{ $ciclo1Data['title'] }}
+                                </td>
+                            </tr>
+                            @foreach($ciclo1Rows as $cm)
+                                <tr>
+                                    <td class="text-start ps-3 fw-bold text-dark">{{ $cm['grade_level_name'] }}</td>
+                                    <td class="fw-semibold bg-hm">{{ number_format($cm['total_hm']) }}</td>
+                                    <td class="fw-semibold bg-m">{{ number_format($cm['total_m']) }}</td>
+
+                                    <td>{{ number_format($cm['desist_hm']) }}</td>
+                                    <td class="text-purple">{{ number_format($cm['desist_m']) }}</td>
+
+                                    <td>{{ number_format($cm['transf_hm']) }}</td>
+                                    <td class="text-purple">{{ number_format($cm['transf_m']) }}</td>
+
+                                    <td>{{ number_format($cm['anulou_hm']) }}</td>
+                                    <td class="text-purple">{{ number_format($cm['anulou_m']) }}</td>
+
+                                    <td>{{ number_format($cm['ppf_hm']) }}</td>
+                                    <td class="text-purple">{{ number_format($cm['ppf_m']) }}</td>
+                                    
+                                    <td class="fw-bold">{{ number_format($cm['eval_hm']) }}</td>
+                                    <td class="fw-bold text-purple">{{ number_format($cm['eval_m']) }}</td>
+
+                                    <td class="fw-bold text-success bg-pos">{{ number_format($cm['passed_hm']) }}</td>
+                                    <td class="fw-bold text-success bg-pos">{{ number_format($cm['passed_m']) }}</td>
+
+                                    <td class="fw-extrabold text-success" style="background-color: #ecfdf5;">{{ $cm['rate_hm'] }}%</td>
+                                    <td class="fw-extrabold text-purple" style="background-color: #faf5ff;">{{ $cm['rate_m'] }}%</td>
+
+                                    <td class="fw-semibold text-danger">{{ $cm['desist_rate_hm'] }}%</td>
+                                    <td class="fw-semibold text-danger">{{ $cm['desist_rate_m'] }}%</td>
+                                </tr>
+                            @endforeach
+                            <!-- SUBTOTAL 1º CICLO -->
+                            <tr class="bg-ciclo">
+                                <td class="text-start ps-3 fw-bold">TOTAL 1º CICLO</td>
+                                <td>{{ number_format($ciclo1Data['total_hm']) }}</td><td>{{ number_format($ciclo1Data['total_m']) }}</td>
+                                <td>{{ number_format($ciclo1Data['desist_hm']) }}</td><td>{{ number_format($ciclo1Data['desist_m']) }}</td>
+                                <td>{{ number_format($ciclo1Data['transf_hm']) }}</td><td>{{ number_format($ciclo1Data['transf_m']) }}</td>
+                                <td>{{ number_format($ciclo1Data['anulou_hm']) }}</td><td>{{ number_format($ciclo1Data['anulou_m']) }}</td>
+                                <td>{{ number_format($ciclo1Data['ppf_hm']) }}</td><td>{{ number_format($ciclo1Data['ppf_m']) }}</td>
+                                <td>{{ number_format($ciclo1Data['eval_hm']) }}</td><td>{{ number_format($ciclo1Data['eval_m']) }}</td>
+                                <td class="text-success">{{ number_format($ciclo1Data['passed_hm']) }}</td><td class="text-success">{{ number_format($ciclo1Data['passed_m']) }}</td>
+                                <td class="text-success fw-extrabold">{{ $ciclo1Data['rate_hm'] }}%</td><td class="text-purple fw-extrabold">{{ $ciclo1Data['rate_m'] }}%</td>
+                                <td class="text-danger">{{ $ciclo1Data['desist_rate_hm'] }}%</td><td class="text-danger">{{ $ciclo1Data['desist_rate_m'] }}%</td>
+                            </tr>
+                        @endif
+
+                        @if(!empty($ciclo2Rows) && count($ciclo2Rows) > 0)
+                            <!-- CABEÇALHO 2º CICLO -->
+                            <tr class="bg-slate-100 font-extrabold text-slate-900 border-y border-slate-300">
+                                <td colspan="19" class="text-start ps-3 py-1.5 bg-slate-200/90 font-black tracking-wider text-uppercase">
+                                    {{ $ciclo2Data['title'] }}
+                                </td>
+                            </tr>
+                            @foreach($ciclo2Rows as $cm)
+                                <tr>
+                                    <td class="text-start ps-3 fw-bold text-dark">{{ $cm['grade_level_name'] }}</td>
+                                    <td class="fw-semibold bg-hm">{{ number_format($cm['total_hm']) }}</td>
+                                    <td class="fw-semibold bg-m">{{ number_format($cm['total_m']) }}</td>
+
+                                    <td>{{ number_format($cm['desist_hm']) }}</td>
+                                    <td class="text-purple">{{ number_format($cm['desist_m']) }}</td>
+
+                                    <td>{{ number_format($cm['transf_hm']) }}</td>
+                                    <td class="text-purple">{{ number_format($cm['transf_m']) }}</td>
+
+                                    <td>{{ number_format($cm['anulou_hm']) }}</td>
+                                    <td class="text-purple">{{ number_format($cm['anulou_m']) }}</td>
+
+                                    <td>{{ number_format($cm['ppf_hm']) }}</td>
+                                    <td class="text-purple">{{ number_format($cm['ppf_m']) }}</td>
+                                    
+                                    <td class="fw-bold">{{ number_format($cm['eval_hm']) }}</td>
+                                    <td class="fw-bold text-purple">{{ number_format($cm['eval_m']) }}</td>
+
+                                    <td class="fw-bold text-success bg-pos">{{ number_format($cm['passed_hm']) }}</td>
+                                    <td class="fw-bold text-success bg-pos">{{ number_format($cm['passed_m']) }}</td>
+
+                                    <td class="fw-extrabold text-success" style="background-color: #ecfdf5;">{{ $cm['rate_hm'] }}%</td>
+                                    <td class="fw-extrabold text-purple" style="background-color: #faf5ff;">{{ $cm['rate_m'] }}%</td>
+
+                                    <td class="fw-semibold text-danger">{{ $cm['desist_rate_hm'] }}%</td>
+                                    <td class="fw-semibold text-danger">{{ $cm['desist_rate_m'] }}%</td>
+                                </tr>
+                            @endforeach
+                            <!-- SUBTOTAL 2º CICLO -->
+                            <tr class="bg-ciclo">
+                                <td class="text-start ps-3 fw-bold">TOTAL 2º CICLO</td>
+                                <td>{{ number_format($ciclo2Data['total_hm']) }}</td><td>{{ number_format($ciclo2Data['total_m']) }}</td>
+                                <td>{{ number_format($ciclo2Data['desist_hm']) }}</td><td>{{ number_format($ciclo2Data['desist_m']) }}</td>
+                                <td>{{ number_format($ciclo2Data['transf_hm']) }}</td><td>{{ number_format($ciclo2Data['transf_m']) }}</td>
+                                <td>{{ number_format($ciclo2Data['anulou_hm']) }}</td><td>{{ number_format($ciclo2Data['anulou_m']) }}</td>
+                                <td>{{ number_format($ciclo2Data['ppf_hm']) }}</td><td>{{ number_format($ciclo2Data['ppf_m']) }}</td>
+                                <td>{{ number_format($ciclo2Data['eval_hm']) }}</td><td>{{ number_format($ciclo2Data['eval_m']) }}</td>
+                                <td class="text-success">{{ number_format($ciclo2Data['passed_hm']) }}</td><td class="text-success">{{ number_format($ciclo2Data['passed_m']) }}</td>
+                                <td class="text-success fw-extrabold">{{ $ciclo2Data['rate_hm'] }}%</td><td class="text-purple fw-extrabold">{{ $ciclo2Data['rate_m'] }}%</td>
+                                <td class="text-danger">{{ $ciclo2Data['desist_rate_hm'] }}%</td><td class="text-danger">{{ $ciclo2Data['desist_rate_m'] }}%</td>
+                            </tr>
+                        @endif
+
+                        @if(empty($ciclo1Rows) && empty($ciclo2Rows) && empty($preschoolRows))
                             <tr>
-                                <td colspan="21" class="text-center py-3 text-muted">Nenhuma classe registada nesta escola.</td>
+                                <td colspan="19" class="text-center py-3 text-muted">Nenhuma classe registada nesta escola para o nível selecionado.</td>
                             </tr>
-                        @endforelse
-
-                        <!-- SUBTOTAL 1º CICLO -->
-                        <tr class="bg-ciclo">
-                            <td class="text-start ps-3 fw-bold">1º CICLO</td>
-                            <td>{{ number_format($ciclo1Data['total_hm']) }}</td><td>{{ number_format($ciclo1Data['total_m']) }}</td>
-                            <td>{{ number_format($ciclo1Data['desist_hm']) }}</td><td>{{ number_format($ciclo1Data['desist_m']) }}</td>
-                            <td>{{ number_format($ciclo1Data['transf_hm']) }}</td><td>{{ number_format($ciclo1Data['transf_m']) }}</td>
-                            <td>{{ number_format($ciclo1Data['anulou_hm']) }}</td><td>{{ number_format($ciclo1Data['anulou_m']) }}</td>
-                            <td>{{ number_format($ciclo1Data['ppf_hm']) }}</td><td>{{ number_format($ciclo1Data['ppf_m']) }}</td>
-                            <td>{{ number_format($ciclo1Data['eval_hm']) }}</td><td>{{ number_format($ciclo1Data['eval_m']) }}</td>
-                            <td class="text-success">{{ number_format($ciclo1Data['passed_hm']) }}</td><td class="text-success">{{ number_format($ciclo1Data['passed_m']) }}</td>
-                            <td class="text-danger">{{ number_format($ciclo1Data['failed_hm']) }}</td><td class="text-danger">{{ number_format($ciclo1Data['failed_m']) }}</td>
-                            <td class="text-success fw-extrabold">{{ $ciclo1Data['rate_hm'] }}%</td><td class="text-purple fw-extrabold">{{ $ciclo1Data['rate_m'] }}%</td>
-                            <td class="text-danger">{{ $ciclo1Data['desist_rate_hm'] }}%</td><td class="text-danger">{{ $ciclo1Data['desist_rate_m'] }}%</td>
-                        </tr>
-
-                        <!-- SUBTOTAL 2º CICLO -->
-                        <tr class="bg-ciclo">
-                            <td class="text-start ps-3 fw-bold">2º CICLO</td>
-                            <td>{{ number_format($ciclo2Data['total_hm']) }}</td><td>{{ number_format($ciclo2Data['total_m']) }}</td>
-                            <td>{{ number_format($ciclo2Data['desist_hm']) }}</td><td>{{ number_format($ciclo2Data['desist_m']) }}</td>
-                            <td>{{ number_format($ciclo2Data['transf_hm']) }}</td><td>{{ number_format($ciclo2Data['transf_m']) }}</td>
-                            <td>{{ number_format($ciclo2Data['anulou_hm']) }}</td><td>{{ number_format($ciclo2Data['anulou_m']) }}</td>
-                            <td>{{ number_format($ciclo2Data['ppf_hm']) }}</td><td>{{ number_format($ciclo2Data['ppf_m']) }}</td>
-                            <td>{{ number_format($ciclo2Data['eval_hm']) }}</td><td>{{ number_format($ciclo2Data['eval_m']) }}</td>
-                            <td class="text-success">{{ number_format($ciclo2Data['passed_hm']) }}</td><td class="text-success">{{ number_format($ciclo2Data['passed_m']) }}</td>
-                            <td class="text-danger">{{ number_format($ciclo2Data['failed_hm']) }}</td><td class="text-danger">{{ number_format($ciclo2Data['failed_m']) }}</td>
-                            <td class="text-success fw-extrabold">{{ $ciclo2Data['rate_hm'] }}%</td><td class="text-purple fw-extrabold">{{ $ciclo2Data['rate_m'] }}%</td>
-                            <td class="text-danger">{{ $ciclo2Data['desist_rate_hm'] }}%</td><td class="text-danger">{{ $ciclo2Data['desist_rate_m'] }}%</td>
-                        </tr>
+                        @endif
                     </tbody>
                     <tfoot>
                         <tr class="fw-bold text-dark" style="background-color: #cbd5e1; font-size: 0.8rem;">
@@ -307,7 +408,6 @@
                             <td>{{ number_format($totalGeralData['ppf_hm']) }}</td><td>{{ number_format($totalGeralData['ppf_m']) }}</td>
                             <td>{{ number_format($totalGeralData['eval_hm']) }}</td><td>{{ number_format($totalGeralData['eval_m']) }}</td>
                             <td class="text-success">{{ number_format($totalGeralData['passed_hm']) }}</td><td class="text-success">{{ number_format($totalGeralData['passed_m']) }}</td>
-                            <td class="text-danger">{{ number_format($totalGeralData['failed_hm']) }}</td><td class="text-danger">{{ number_format($totalGeralData['failed_m']) }}</td>
                             <td class="text-success fw-black">{{ $totalGeralData['rate_hm'] }}%</td><td class="text-purple fw-black">{{ $totalGeralData['rate_m'] }}%</td>
                             <td class="text-danger fw-bold">{{ $totalGeralData['desist_rate_hm'] }}%</td><td class="text-danger fw-bold">{{ $totalGeralData['desist_rate_m'] }}%</td>
                         </tr>
@@ -374,26 +474,7 @@
         @endif
 
         <!-- OFFICIAL SIGNATURE BLOCKS (DAP & DAE MINEDH Standard) -->
-        <div class="mt-5 pt-3">
-            <div class="text-end mb-4 text-xs font-semibold text-dark">
-                {{ $selectedSchool?->district?->name ?? 'DISTRITO' }}, {{ date('d') }} de {{ \Carbon\Carbon::now()->translatedFormat('F') }} de {{ $year }}
-            </div>
-
-            <div class="row text-center pt-2">
-                <div class="col-6">
-                    <p class="mb-4 text-xs font-bold text-dark uppercase">O Diretor Adjunto Pedagógico (DAP)</p>
-                    <div style="border-bottom: 1.5px solid #000; width: 65%; margin: 0 auto 8px auto;"></div>
-                    <p class="mb-0 text-xs font-semibold text-muted">_______________________________________</p>
-                    <p class="text-2xs text-muted">(Assinatura e Carimbo Oficial)</p>
-                </div>
-                <div class="col-6">
-                    <p class="mb-4 text-xs font-bold text-dark uppercase">O Diretor da Escola (DAE)</p>
-                    <div style="border-bottom: 1.5px solid #000; width: 65%; margin: 0 auto 8px auto;"></div>
-                    <p class="mb-0 text-xs font-bold text-dark">{{ strtoupper($selectedSchool?->principal_name ?? 'Prof. Diretor Geral') }}</p>
-                    <p class="text-2xs text-muted">(Assinatura e Carimbo Oficial)</p>
-                </div>
-            </div>
-        </div>
+        <x-official-signatures :school="$selectedSchool" :year="$year" />
 
     </div>
 
@@ -426,6 +507,12 @@ function onZipChange(select) {
 }
 
 function onSchoolChange(select) {
+    var form = document.getElementById('pedagogicalMapFilterForm');
+    form.querySelector('[name="class_id"]').value = '';
+    form.submit();
+}
+
+function onLevelChange(select) {
     var form = document.getElementById('pedagogicalMapFilterForm');
     form.querySelector('[name="class_id"]').value = '';
     form.submit();

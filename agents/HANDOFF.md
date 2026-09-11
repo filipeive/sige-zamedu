@@ -18,6 +18,230 @@ Formato de cada entrada:
 **Próximo passo recomendado:** ...
 ```
 
+## 2026-09-11 — Exportação PDF e Excel do Mapa Pedagógico Exclusiva para o Quadro I (MINEDH Standard) — Antigravity AI Agent
+
+**Feito:**
+- **Exportação PDF do Mapa Pedagógico (`resources/views/reports/pedagogical-map-pdf.blade.php`)**:
+  - Criada vista Blade A4 paisagem dedicada contendo exclusivamente o **Quadro I (Quadro Geral de Rendimento Escolar por Classe e Ciclo)** e o **Bloco de Assinaturas Oficiais MINEDH** (DAP à esquerda, DAE à direita com nome dinâmico da escola/diretor), omitindo integralmente o Quadro II (Aproveitamento por Disciplina).
+  - Adicionado método `exportPdf(Request $request)` no `PedagogicalMapController.php` acionando a biblioteca `Barryvdh\DomPDF\Facade\Pdf`.
+- **Exportação Excel / CSV do Mapa Pedagógico (`app/Http/Controllers/PedagogicalMapController.php`)**:
+  - Atualizado método `exportCsv(Request $request)` para exportar exclusivamente o Quadro I e bloco de assinaturas em formato CSV/Excel UTF-8 (com BOM), contendo os títulos das províncias/SDEJT/ZIP, seções por ciclo, subtotais por ciclo, total geral da escola e assinaturas oficiais.
+- **Integração de Rotas e Botões na Interface (`routes/web.php` & `resources/views/reports/pedagogical-map.blade.php`)**:
+  - Registada rota `Route::get('/pedagogical-map/export-pdf', ...)->name('pedagogical-map.export-pdf');`.
+  - Adicionados os botões com ícones oficiais **PDF** e **Excel** na barra de ações/filtros do Mapa Pedagógico transmitindo todos os parâmetros e filtros selecionados (`request()->query()`).
+
+**Testado:**
+- `vendor/bin/phpunit`: Sucesso total em todos os 103 testes (`103/103 PASS`, 360 assertions).
+
+**Próximo passo recomendado:**
+- Continuar acompanhando o feedback do utilizador.
+
+## 2026-09-11 — Filtro por Nível de Ensino (Primário vs Secundário), Ciclos Oficiais SNE/MINEDH e Limpeza da Coluna Classe no Mapa Pedagógico — Antigravity AI Agent
+
+**Feito:**
+- **Limpeza Visual da Coluna Classe no Mapa Pedagógico (`resources/views/reports/pedagogical-map.blade.php`)**:
+  - Removidos o ícone de graduação (`fa-graduation-cap`) e a contagem entre parênteses de turmas (`(X Turmas)`), deixando apenas a rotulagem limpa da classe (ex: `1.ª Classe`, `2.ª Classe`, `Pré-Escolar / Pré-Infantil`).
+- **Filtro por Nível de Ensino (`level` / `education_level`) no Mapa Pedagógico (`app/Http/Controllers/PedagogicalMapController.php`)**:
+  - Adicionado o seletor `Nível` no painel de filtros (options: `Ensino Primário (1.ª - 6.ª)`, `Ensino Secundário (7.ª - 12.ª)`, `Pré-Escolar`, `Todos os Níveis`).
+- **Resolução de `QueryException: Unknown column 'class_id' in 'WHERE'` (`app/Http/Controllers/PedagogicalMapController.php`)**:
+  - Corrigidas as consultas fallback ao modelo `Student` substituindo chamadas diretas a `class_id` por relacionamentos `whereHas('enrollments', ...)` com a tabela pivot `enrollments`, eliminando a exceção de coluna inexistente na BD.
+- **Remoção da Coluna Retidos / Negativas & Recálculo de % TRANS/ APROVADOS**:
+  - Removidas as colunas `Retidos / Negativas` (HM e M) do Quadro I do Mapa Pedagógico.
+  - Renomeada a coluna `% Aprovados` para `% TRANS/ APROVADOS`.
+  - Recalculadas as médias por disciplina de cada estudante via `Grade::calculateMT(...)` para computar com precisão os totais de avaliados e transitados/aprovados e as respetivas percentagens (`rate_hm`, `rate_m`).
+- **Reorganização Sequencial da Tabela por Seções de Ciclos (MINEDH Standard)**:
+  - **Ensino Primário**:
+    1. Cabeçalho de Seção: `1º CICLO (1ª A 3ª CLASSE)`
+    2. Linhas de classes: `1.ª Classe`, `2.ª Classe`, `3.ª Classe`
+    3. Linha Subtotal: `TOTAL 1º CICLO`
+    4. Cabeçalho de Seção: `2º CICLO (4ª A 6ª CLASSE)`
+    5. Linhas de classes: `4.ª Classe`, `5.ª Classe`, `6.ª Classe`
+    6. Linha Subtotal: `TOTAL 2º CICLO`
+    7. Linha de Rodapé: `TOTAL GERAL DA ESCOLA`
+  - **Ensino Secundário**:
+    1. Cabeçalho de Seção: `1º CICLO / ESG1 (7ª A 9ª CLASSE)`
+    2. Linhas de classes: `7.ª Classe`, `8.ª Classe`, `9.ª Classe`
+    3. Linha Subtotal: `TOTAL 1º CICLO`
+    4. Cabeçalho de Seção: `2º CICLO / ESG2 (10ª A 12ª CLASSE)`
+    5. Linhas de classes: `10.ª Classe`, `11.ª Classe`, `12.ª Classe`
+    6. Linha Subtotal: `TOTAL 2º CICLO`
+    7. Linha de Rodapé: `TOTAL GERAL DA ESCOLA`
+
+**Testado:**
+- `vendor/bin/phpunit`: Todos os 103 testes a passar (`103/103 PASS`, 360 assertions).
+
+**Próximo passo recomendado:**
+- Continuar acompanhando o feedback do utilizador e evoluir outros relatórios pedagógicos territoriais conforme necessário.
+
+## 2026-09-11 — Redesign Tailwind UX Pro Max (Alunos & Pautas), Remoção de Emojis por Ícones FontAwesome & Resolução da Exceção Request::hasAnyRole — Antigravity AI Agent
+
+**Feito:**
+- **Resolução da Exceção `BadMethodCallException: Request::hasAnyRole does not exist` (`app/Providers/AppServiceProvider.php`)**:
+  - Registadas as diretivas `@hasanyrole`, `@hasrole`, `@anyrole` e `@role` no `AppServiceProvider`, garantindo parsing nativo do Blade com suporte a strings separadas por barra vertical (`'super_admin|province_admin|...'`) e arrays.
+- **Remoção de Emojis e Padronização de Badges (`resources/views/pautas/*`, `resources/views/classes/*`)**:
+  - Eliminados todos os emojis das insígnias (ex: `⭐ Exame Nacional MINEDH` e `📚 Educação Básica`) substituindo-os por ícones FontAwesome (`<i class="fas fa-file-signature text-rose-600"></i>` e `<i class="fas fa-graduation-cap text-blue-600"></i>`), eliminando a estética "IA taste" e elevando a interface para o padrão enterprise `ui-ux-pro-max`.
+- **Correção e Robustez do Modal de Aniversariantes (`resources/views/classes/show.blade.php`)**:
+  - Adicionado suporte fail-safe (Alpine.js `x-data`/`x-show` + gatilho DOM `id="birthdayModalContainer"`), assegurando abertura e fecho instantâneo ao clicar em *Aniversariantes*.
+- **Redesign 100% Tailwind CSS do Perfil 360º do Aluno (`resources/views/students/show.blade.php`)**:
+  - Refatorada a view substituindo totalmente o legado Bootstrap por Tailwind CSS:
+    - **Header & Cartão Lateral**: Avatar com borda esmeralda, número de processo, badge de status, turma atual, botões de ação e dados de contacto de emergência/encarregado.
+    - **Cards de Métricas**: Presença %, Média Geral, Pagamentos/Taxas e Idade.
+    - **Separadores 360º com Alpine.js**: Gráfico de Desempenho por Disciplina (Chart.js), Gráfico de Assiduidade, Pautas Trimestrais/Ficha Anual, Tabela de Frequência, Histórico de Taxas/Propinas e Timeline de Eventos.
+- **Redesign 100% Tailwind CSS de Todas as Pautas (`resources/views/pautas/trimestral`, `anual`, `exame`, `final` & `pdf`)**:
+  - Refatoradas todas asviews de pautas para Tailwind CSS com header de taxonomia MINEDH (Nível, Ciclo, Classe e Ano Lectivo), barra de filtros (Turma, Disciplina, Ano, Trimestre), fórmulas de cálculo oficial ($MT$, $MAF$, $NE\_Eficaz$, $NFD$) e matrizes pedagógicas consolidadas com realce de cores por limiar de aprovação ($\ge 9.5$v).
+- **Componente Reutilizável de Assinaturas Oficiais MINEDH (`resources/views/components/official-signatures.blade.php`)**:
+  - Criado o componente `<x-official-signatures />` implementando o layout de duas colunas exigido pelo MINEDH:
+    - **Lado Esquerdo (DAP)**: *O Diretor Adjunto Pedagógico (DAP)* + linha de assinatura + *(Assinatura e Carimbo Oficial)*.
+    - **Lado Direito (DAE)**: *O Diretor da Escola (DAE)* + Nome do Diretor em destaque (ex: `PROF. MARIA NHABINDE` / nome dinâmico) + linha de assinatura + *(Assinatura e Carimbo Oficial)*.
+  - Integrado em todas as pautas (`trimestral`, `anual`, `exame`, `final`, `pdf`) e no Mapa de Aproveitamento Pedagógico (`reports/pedagogical-map.blade.php`).
+- **Organização da Barra de Filtros do Mapa Pedagógico (`resources/views/reports/pedagogical-map.blade.php`)**:
+  - Reestruturada a secção de filtros em grelha responsiva Tailwind CSS (Província, Distrito, ZIP, Escola, Turma, Trimestre, Ano Lectivo e Ações de Impressão/Exportação Excel), perfeitamente integrada no design system ZAMEDU.
+
+**Testado:**
+- `vendor/bin/phpunit`: **103/103 testes PASS (360 assertions)** sem falhas nem regressões.
+- Limpeza de caches: `php artisan config:clear && php artisan view:clear && php artisan cache:clear` concluída com sucesso.
+
+**Não feito / bloqueado:**
+- Nenhum bloqueio. Todas as correções e redesenhos solicitados foram implementados e validados.
+
+## 2026-09-11 — Alinhamento da Taxonomia MINEDH (Lei 18/2018), Acomodação Pré-Escolar/Privada & Agrupamento de Níveis — Antigravity AI Agent
+
+**Feito:**
+- **Taxonomia MINEDH Completa & Acomodação Pré-Escolar/Privada (`app/Helpers/EducationLevel.php`)**:
+  - Implementado o helper `EducationLevel` cobrindo integralmente a estrutura do Sistema Nacional de Educação (SNE - Lei n.º 18/2018):
+    - **Pré-Infantil & Pré-Escolar** (Creches e Jardins de Infância): acomodado estrategicamente com suporte ao ecossistema de escolas privadas e propinas/mensalidades.
+    - **Ensino Primário (EP)**: 1.º Ciclo (1.ª a 3.ª classe, 6–8 anos) e 2.º Ciclo (4.ª a 6.ª classe, 9–11 anos) — Educação Básica Obrigatória & Gratuita.
+    - **Ensino Secundário Geral (ESG)**: ESG1 (7.ª a 9.ª classe, 12–14 anos) e ESG2 (10.ª a 12.ª classe, 15–17 anos).
+    - **Ensino Técnico-Profissional (ETP)**: Elementar (6.ª–8.ª), Básico (9.ª–10.ª) e Médio (11.ª–12.ª).
+    - **Formação de Professores (IFP)** e **Ensino Superior**.
+  - Adicionados helpers utilitários: `getCyclesForLevel()`, `getCycleForGrade()`, `getAllLevelsGrouped()`, `getGradeSelectOptions()`, `isBasicEducation()`, `hasNationalExam()`, `getExamClasses()`, `getGradeName()`, `getCycleName()`, `getLevelName()`.
+- **Migration Dual-Engine SQLite/MySQL (`database/migrations/2026_09_11_084929_normalize_grade_level_offset_on_classes_and_subjects.php`)**:
+  - Migration de normalização de `grade_level` atualizada com transição segura via laço inverso em vez de `ORDER BY` no `UPDATE`, garantindo compatibilidade total com o motor SQLite usado na suíte de testes PHPUnit e MySQL em produção.
+- **Refatoração dos Models `ClassModel` e `Subject`**:
+  - Adicionados accessors: `grade_name`, `cycle_name`, `education_level_name`, `is_basic_education`, `has_national_exam`.
+  - Adicionados scopes query: `scopeByLevel()`, `scopeByCycle()`, `scopeBasicEducation()`, `scopeExamClasses()`.
+- **Controllers & Interface Blade (Turmas, Disciplinas e Pautas)**:
+  - `ClassController` & `SubjectController`: adicionados filtros por `level` e `cycle`, injetando `$levelsGrouped` nos formulários.
+  - Views `classes/index`, `create`, `edit` e `subjects/index`, `create`, `edit`: tabs de filtragem por Nível Educacional e selects `<optgroup>` categorizados por Nível e Ciclo MINEDH.
+  - Headers das Pautas Pedagógicas (`pautas/trimestral`, `anual`, `exame`, `final`): atualizados com badges oficiais da taxonomia MINEDH (Nível, Ciclo, Classe e insígnias de Educação Básica / Exame Nacional).
+
+**Testado:**
+- `vendor/bin/phpunit`: **103/103 testes PASS (360 assertions)** sem erros nem falhas.
+- `php artisan config:clear && php artisan view:clear && php artisan cache:clear`: limpos com sucesso.
+
+**Não feito / bloqueado:**
+- Nenhum bloqueio. Todas as solicitações e requisitos de taxonomia pedagógica foram totalmente validados e concluídos.
+
+## 2026-09-10 — Redesign da Paginação Tailwind ZAMEDU, Contexto Multi-Escola no Directório de Alunos & Menu Super Admin — Antigravity AI Agent
+
+**Feito:**
+- **Sistema de Paginação Tailwind Universal (`resources/views/vendor/pagination/tailwind.blade.php`)**:
+  - Criado o componente Blade de paginação 100% alinhado com o design system do ZAMEDU (tons esmeralda `#007A3D`, botões responsivos, resumo de registos ex: *"Mostrando 1 a 10 de 190 resultados"*).
+  - Configurado `Paginator::useTailwind()` e `Paginator::defaultView('vendor.pagination.tailwind')` em `AppServiceProvider.php`.
+  - Substituídas todas as referências legadas de `pagination::bootstrap-5` por `->links()` em mais de 10 views (Alunos, Professores, Turmas, Disciplinas, Matrículas, Pagamentos, Despesas, Certidões, Comunicados, Licenças).
+- **Revisão do Menu do Super Admin (`resources/views/layouts/app.blade.php`)**:
+  - Adicionada a secção **"Administração Global & Territorial"** no topo da sidebar para o Super Admin / Perfis Territoriais (Inspeção MINEDH, Gestão Territorial & Escolas, Registo de Novas Escolas).
+  - Adicionado badge de subtítulo no topo da barra lateral: `MINEDH · Super Admin`.
+- **Contexto Multi-Escola no Directório de Alunos (`app/Http/Controllers/StudentController.php` e `resources/views/students/index.blade.php`)**:
+  - Adicionado o **Banner de Modo Super Admin** com indicação da consulta Multi-Escola ativa.
+  - Adicionado o **Filtro por Escola** na barra de pesquisa para filtrar alunos por instituição.
+  - Adicionada a **Coluna Escola** na tabela com badge indicando a escola a que cada aluno pertence.
+
+**Testado:**
+- `vendor/bin/phpunit`: **103/103 testes PASS (360 assertions)** sem falhas.
+- Verificado no browser via `browser_subagent`: visualização perfeita da sidebar do Super Admin, do filtro/coluna de escola e do novo componente de paginação Tailwind.
+
+**Não feito / bloqueado:**
+- Nenhum bloqueio. Todas as solicitações foram concluídas com sucesso.
+
+## 2026-09-10 — Widget de IA, Prompt Contextual ZAMEDU, Barra Territorial de Relatórios e Ajuste de Tabelas no Dashboard Territorial — Antigravity AI Agent
+
+**Feito:**
+- **Widget de Assistente IA (`resources/views/partials/ai-widget.blade.php`)**:
+  - Removido `x-cloak` da `div` container raiz para assegurar a visibilidade contínua do botão flutuante do assistente no DOM.
+  - Refatorada a sintaxe do Alpine.js com registo duplo (`Alpine.data('floatingAiWidget', ...)` e fallback `window.floatingAiWidget`) prevenindo conflitos de inicialização.
+- **Prompt do Sistema e Conhecimento do Assistente IA (`app/Http/Controllers/AiController.php`)**:
+  - Expandido o método `systemPrompt()` com todo o domínio pedagógico e arquitetural do ZAMEDU: regras MINEDH (Lei 18/2018, fórmulas de MACS/MT/MAF/NFD, escala 0.0-20.0, aprovação a 9.5/10.0), desagregação por género (HM/M), estrutura de tenancy hierárquica (Província -> Distrito -> ZIP -> Escola) e navegação completa entre módulos do sistema.
+- **Central de Relatórios Contextual & Links para Mapas (`app/Http/Controllers/ReportController.php` e `resources/views/reports/index.blade.php`)**:
+  - Atualizado o `ReportController@index` para injetar a hierarquia territorial ativa (`$activeSchool`, `$provinces`, `$districts`, `$zips`, `$schools`).
+  - Adicionada a **Barra de Contexto Territorial & Acesso Direto aos Mapas** no topo da Central de Relatórios, permitindo visualização imediata da jurisdição ativa e acesso direto às rotas `territorial.dashboard` e `admin.territory.index`.
+- **Ajustes no Dashboard Territorial (`resources/views/territorial/index.blade.php`)**:
+  - Removido o card resumo "Quadro Geral de Aproveitamento Pedagógico (MINEDH Lei 18/2018)".
+  - Removida a coluna "Aproveitamento" das 4 tabelas territoriais (Escolas, ZIPs, Distritos e Províncias), conservando a coluna "Total de Alunos (HM / M)".
+
+**Tested:**
+- `vendor/bin/phpunit`: **103/103 testes PASS (360 assertions)** sem regressões nem falhas.
+- Verificação visual e comportamental via navegação no browser em `http://127.0.0.1:8000`.
+
+**Não feito / bloqueado:**
+- Nenhum bloqueio. Todos os requisitos da solicitação foram atendidos e validados.
+
+## 2026-09-08 — Campos de Coordenadas GPS & Resolução de Truncamento do Tipo de Escola (`feature/school-onboarding`) — Antigravity AI Agent
+
+**Feito:**
+- **Adicionados Campos de Coordenadas GPS (`latitude` & `longitude`)**:
+  - Migration `2026_09_08_000002_add_coordinates_and_fix_type_on_schools_table.php` executada adicionando as colunas `latitude` (decimal 10,7) e `longitude` (decimal 10,7) à tabela `schools`.
+  - Atualizado o model `App\Models\School.php` para incluir `latitude` e `longitude` no `$fillable` e em `$casts` como `float`.
+  - Atualizados os métodos `storeSchool` e `updateSchool` do `TerritoryManagementController` com regras de validação para coordenadas (`between:-90,90` e `between:-180,180`).
+  - Adicionados os campos de **Latitude** e **Longitude** no modal de criação e edição de escolas (`resources/views/admin/territory/index.blade.php`), com preenchimento automático em JS ao clicar em Editar.
+  - Atualizado `TerritorialDashboardController::getSchoolCoordinates()` para utilizar prioritariamente as coordenadas personalizadas salvas na BD.
+- **Resolução do Erro SQL 1265 (Data Truncated for Column 'type')**:
+  - Implementado o mutator `setTypeAttribute` no model `School.php` para mapear de forma transparente os valores `'Pública'`, `'Privada'`, `'Comunitária'` para as chaves internas da base de dados (`'public'`, `'private'`, `'community'`), mantendo compatibilidade 100% com o MySQL (`ENUM`) e SQLite (`CHECK constraint`).
+  - Adicionada a propriedade acessora `getTypeLabelAttribute` (`$school->type_label`) para exibição perfeita nos formulários e tabelas.
+
+**Testado:**
+- `vendor/bin/phpunit` executado com sucesso: **100/100 testes PASS (342 assertions)** sem erros de SQLite/MySQL.
+- Testado no browser real via `browser_subagent`: atualização de coordenadas da Escola Secundária de Namacurra para `-17.878600`, `36.888300` concluída com sucesso e badge `GPS` ativo na tabela.
+
+**Não feito / bloqueado:**
+- Nenhum bloqueio.
+
+**Próximo passo recomendado:**
+- Continuar expansão de onboarding de novas escolas e personalização de relatórios do MINEDH conforme necessário.
+
+## 2026-09-08 — Detalhes Avançados da Escola & Mapa Geográfico Leaflet (`feature/school-onboarding`) — Antigravity AI Agent
+
+**Feito:**
+- **Detalhamento da Ficha da Escola (`app/Http/Controllers/TerritorialDashboardController.php` & `resources/views/territorial/school_show.blade.php`)**:
+  - Incorporado mapa georreferenciado em **Leaflet.js** exibindo as coordenadas reais da escola, pino personalizado em tom esmeralda, popup com nome da escola, diretor, contagem de alunos, taxa de aprovação e botão para abrir localização direta no Google Maps.
+  - Adicionado painel de **Ficha Técnica Territorial**: Coordenadas GPS formatadas, Província, Distrito (SDEJT), ZIP, Escola Sede de ZIP e Endereço Físico completo.
+  - Criada barra de **Atalhos Rápidos de Gestão**: 🎧 *Entrar no Modo Suporte Técnico*, ⚙️ *Configurar Escola* (redirecionando para o Centro de Gestão Territorial), e 📄 *Mapa Pedagógico MINEDH*.
+  - Calculadas e apresentadas métricas avançadas de infraestrutura: Rácio Aluno/Professor (al./prof.), Média Alunos/Turma, Rácio de Alunas do Sexo Feminino (M %), Matriz Regulamentar MINEDH (Lei 18/2018), e tabelas de Turmas em Funcionamento e Corpo Docente Alocado.
+
+**Testado:**
+- `vendor/bin/phpunit` executado com sucesso: **100/100 testes PASS (342 assertions)**.
+- Validação visual com `browser_subagent` em `http://127.0.0.1:8000/territorial/school/1` confirmando o carregamento do mapa, dados do diretor, ficha técnica, atalhos de ação e matriz de rendimento.
+
+**Não feito / bloqueado:**
+- Nenhum bloqueio.
+
+**Próximo passo recomendado:**
+- Continuar expansão de onboarding de novas escolas e personalização de relatórios do MINEDH conforme necessário.
+
+## 2026-09-08 — Centro de Gestão Territorial & Escolas (CRUD, Tabs, Modais & Menu) (`feature/school-onboarding`) — Antigravity AI Agent
+
+**Feito:**
+- **Centro Unificado de Gestão Territorial & Escolas (`app/Http/Controllers/Admin/TerritoryManagementController.php` & `resources/views/admin/territory/index.blade.php`)**:
+  - Criada página dedicada com abas (Tabs) para **Escolas**, **ZIPs (Zonas de Influência Pedagógica)**, **Distritos (SDEJT)** e **Províncias (DPEDH)**.
+  - CRUD completo para registo, edição e ativação/desativação de cada entidade territorial.
+  - Toolbar de filtros rápidos por Província, Distrito, ZIP e pesquisa por palavra-chave (Nome/Código/Diretor).
+  - Modais responsivos para criação e edição com validação no backend e preenchimento dinâmico em JS.
+  - Integração do botão de **Modo Suporte Técnico** para Super Administradores diretamente nas tabelas de escolas.
+- **Navegação do Menu Lateral (`resources/views/layouts/app.blade.php`)**:
+  - Adicionado item de menu **"Gestão Territorial & Escolas"** com ícone `fas fa-sitemap` em ambas as secções (Inspeção Territorial do topo e Configurações & Sistema).
+- **Rotas Registadas (`routes/web.php`)**:
+  - Adicionado grupo de rotas `/admin/territory` sob o prefixo `admin.` apontando para os métodos de `TerritoryManagementController`.
+
+**Testado:**
+- `vendor/bin/phpunit` executado com sucesso: **100/100 testes PASS (342 assertions)**.
+- Validação visual em browser real com `browser_subagent` em `http://127.0.0.1:8000/admin/territory` cobrindo navegação pelas 4 abas, filtros e abertura de modais.
+
+**Não feito / bloqueado:**
+- Nenhum bloqueio.
+
+**Próximo passo recomendado:**
+- Continuar expansão de onboarding de novas escolas e personalização de relatórios do MINEDH conforme necessário.
+
 ## 2026-09-08 — Audit Diff Modal, Interactive Territorial Map & MINEDH Pedagogical Map Report (`feature/school-onboarding`) — Antigravity AI Agent
 
 **Feito:**
