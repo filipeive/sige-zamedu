@@ -54,10 +54,18 @@
                 <a href="{{ route('pautas.trimestral', $class->id) }}" class="no-underline inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-teal-700 hover:bg-teal-800 text-xs font-bold text-white shadow-2xs transition">
                     <i class="fas fa-table"></i> Pauta Trimestral
                 </a>
-                @if(in_array((int)$class->grade_level, [9, 10, 12]))
+                @if($class->isNationalExamGrade())
                     <a href="{{ route('pautas.exame', $class->id) }}" class="no-underline inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-rose-700 hover:bg-rose-800 text-xs font-bold text-white shadow-2xs transition">
-                        <i class="fas fa-file-signature"></i> Exames & Júri
+                        <i class="fas fa-file-signature"></i> Exames &amp; Júri
                     </a>
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 text-[10px] font-bold border border-rose-200">
+                        <i class="fas fa-file-signature text-rose-600 me-1"></i> Exame Nacional MINEDH
+                    </span>
+                @endif
+                @if($class->isBasicEducation())
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 text-[10px] font-bold border border-blue-200">
+                        <i class="fas fa-graduation-cap text-blue-600 me-1"></i> Educação Básica
+                    </span>
                 @endif
             @endcan
 
@@ -185,7 +193,10 @@
             </a>
             @endcan
 
-            <button type="button" @click="birthdayModalOpen = true" class="relative flex flex-col items-center justify-center p-3 rounded-xl bg-purple-50/70 hover:bg-purple-100/80 text-purple-800 border border-purple-200/80 transition group shadow-2xs cursor-pointer">
+            <button type="button" 
+                    @click="birthdayModalOpen = true" 
+                    onclick="const m = document.getElementById('birthdayModalContainer'); if(m) { m.style.display = 'flex'; m.classList.remove('hidden'); }" 
+                    class="relative flex flex-col items-center justify-center p-3 rounded-xl bg-purple-50/70 hover:bg-purple-100/80 text-purple-800 border border-purple-200/80 transition group shadow-2xs cursor-pointer">
                 @if($upcomingBirthdays->count() > 0)
                     <span class="absolute -top-1.5 -right-1.5 px-2 py-0.5 rounded-full bg-amber-500 text-white font-black text-[10px] shadow-sm">
                         {{ $upcomingBirthdays->count() }}
@@ -582,8 +593,10 @@
     </div>
 
     {{-- 5. Modal de Aniversariantes (Z-Index Elevado: z-[9999]) --}}
-    <div x-show="birthdayModalOpen" 
+    <div id="birthdayModalContainer"
+         x-show="birthdayModalOpen" 
          x-cloak 
+         style="display: none;"
          class="fixed inset-0 z-[9999] overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4"
          x-transition:enter="transition ease-out duration-200"
          x-transition:enter-start="opacity-0 scale-95"
@@ -592,7 +605,7 @@
          x-transition:leave-start="opacity-100 scale-100"
          x-transition:leave-end="opacity-0 scale-95">
         
-        <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl max-w-md w-full overflow-hidden" @click.away="birthdayModalOpen = false">
+        <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xl max-w-md w-full overflow-hidden" @click.away="birthdayModalOpen = false; const m = document.getElementById('birthdayModalContainer'); if(m) m.style.display='none';">
             <div class="px-5 py-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white flex items-center justify-between">
                 <div class="flex items-center gap-2.5">
                     <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center text-white text-base font-bold shadow-2xs">
@@ -603,7 +616,7 @@
                         <p class="text-[10px] text-amber-100 font-medium">{{ $upcomingBirthdays->count() }} aluno(s) celebram aniversário nos próximos 30 dias</p>
                     </div>
                 </div>
-                <button type="button" @click="birthdayModalOpen = false" class="text-white/80 hover:text-white text-lg font-bold cursor-pointer transition">
+                <button type="button" @click="birthdayModalOpen = false" onclick="const m = document.getElementById('birthdayModalContainer'); if(m) m.style.display='none';" class="text-white/80 hover:text-white text-lg font-bold cursor-pointer transition">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -639,7 +652,7 @@
             </div>
 
             <div class="px-5 py-3 bg-slate-50 border-t border-slate-100 text-right">
-                <button type="button" @click="birthdayModalOpen = false" class="px-4 py-2 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-black transition cursor-pointer">
+                <button type="button" @click="birthdayModalOpen = false" onclick="const m = document.getElementById('birthdayModalContainer'); if(m) m.style.display='none';" class="px-4 py-2 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-black transition cursor-pointer">
                     Fechar
                 </button>
             </div>

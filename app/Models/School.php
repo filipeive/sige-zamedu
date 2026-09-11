@@ -18,6 +18,8 @@ class School extends Model
         'code',
         'type',
         'address',
+        'latitude',
+        'longitude',
         'phone',
         'email',
         'principal_name',
@@ -26,7 +28,29 @@ class School extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
+        'latitude' => 'float',
+        'longitude' => 'float',
     ];
+
+    public function setTypeAttribute($value): void
+    {
+        $this->attributes['type'] = match (strtolower($value ?? '')) {
+            'pública', 'publica', 'public' => 'public',
+            'privada', 'private' => 'private',
+            'comunitária', 'comunitaria', 'community' => 'community',
+            default => 'public',
+        };
+    }
+
+    public function getTypeLabelAttribute(): string
+    {
+        return match (strtolower($this->type ?? '')) {
+            'public', 'pública', 'publica' => 'Pública',
+            'private', 'privada' => 'Privada',
+            'community', 'comunitária', 'comunitaria' => 'Comunitária',
+            default => $this->type ?? 'Pública',
+        };
+    }
 
     public function province(): BelongsTo
     {

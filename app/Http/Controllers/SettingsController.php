@@ -114,6 +114,18 @@ class SettingsController extends Controller
 
                 Setting::set($key, $finalValue, $group);
             }
+
+            // Sincronizar latitude e longitude com a tabela 'schools' se disponível
+            $activeSchoolId = \App\Services\SchoolContext::getSchoolId() ?? auth()->user()?->school_id;
+            if ($activeSchoolId && (isset($request->settings['school_latitude']) || isset($request->settings['school_longitude']))) {
+                $schoolModel = \App\Models\School::find($activeSchoolId);
+                if ($schoolModel) {
+                    $schoolModel->update([
+                        'latitude' => $request->settings['school_latitude'] ?? $schoolModel->latitude,
+                        'longitude' => $request->settings['school_longitude'] ?? $schoolModel->longitude,
+                    ]);
+                }
+            }
         }
 
         $tab = $request->input('active_tab', $request->input('tab', 'escola'));

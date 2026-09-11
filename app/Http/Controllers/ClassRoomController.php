@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\EducationLevel;
 use App\Models\ClassRoom;
 use App\Models\Teacher;
 use App\Models\Subject;
 use App\Models\Student;
 use App\Models\Enrollment;
 use App\Models\ClassSubject;
+use App\Models\School;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -27,6 +29,11 @@ class ClassRoomController extends Controller
         // Filtro por nível de ensino (tabs server-side)
         $level = $request->get('level', 'all');
         $query->byEducationLevel($level);
+
+        // Filtro por escola (super admin / territorial)
+        if ($request->filled('school_id')) {
+            $query->where('school_id', $request->school_id);
+        }
 
         // Filtros adicionais
         if ($request->has('teacher_id') && $request->teacher_id != '') {
@@ -55,16 +62,21 @@ class ClassRoomController extends Controller
 
         $classes = $query->orderBy('grade_level')->orderBy('name')->paginate(20)->withQueryString();
 
-        // Stats por nível (para as tabs)
+        // Stats por nível e ciclo MINEDH
         $levelStats = [
             'all'       => ClassRoom::count(),
             'preschool' => ClassRoom::byEducationLevel('preschool')->count(),
             'primary'   => ClassRoom::byEducationLevel('primary')->count(),
             'secondary' => ClassRoom::byEducationLevel('secondary')->count(),
+            'ep1'       => ClassRoom::byEducationLevel('ep1')->count(),
+            'ep2'       => ClassRoom::byEducationLevel('ep2')->count(),
+            'esg1'      => ClassRoom::byEducationLevel('esg1')->count(),
+            'esg2'      => ClassRoom::byEducationLevel('esg2')->count(),
         ];
 
         $teachers = Teacher::active()->get();
         $currentYear = current_school_year();
+        $schools = School::orderBy('name')->get();
 
         $gradeLevels = $this->getGradeLevelsList();
 
@@ -74,7 +86,8 @@ class ClassRoomController extends Controller
             'currentYear',
             'gradeLevels',
             'level',
-            'levelStats'
+            'levelStats',
+            'schools'
         ));
     }
 
@@ -496,7 +509,7 @@ class ClassRoomController extends Controller
 
     private function isSecondaryGrade(int $gradeLevel): bool
     {
-        return $gradeLevel >= 8 && $gradeLevel <= 13;
+        return EducationLevel::isSecondary($gradeLevel);
     }
 
     // Métodos auxiliares
@@ -530,23 +543,9 @@ class ClassRoomController extends Controller
             ->get();
     }
 
+    // Métodos auxiliares
     private function getGradeLevelsList(): array
     {
-        return [
-            0 => 'Pré-Infantil (Pré-Escolar & Infantil)',
-            1 => 'Pré-Escolar (Pré-Escolar & Infantil)',
-            2 => '1ª Classe (Ensino Primário)',
-            3 => '2ª Classe (Ensino Primário)',
-            4 => '3ª Classe (Ensino Primário)',
-            5 => '4ª Classe (Ensino Primário)',
-            6 => '5ª Classe (Ensino Primário)',
-            7 => '6ª Classe (Ensino Primário)',
-            8 => '7ª Classe (Ensino Secundário)',
-            9 => '8ª Classe (Ensino Secundário)',
-            10 => '9ª Classe (Ensino Secundário)',
-            11 => '10ª Classe (Ensino Secundário)',
-            12 => '11ª Classe (Ensino Secundário)',
-            13 => '12ª Classe (Ensino Secundário)',
-        ];
+        return EducationLevel::GRADES;
     }
 }

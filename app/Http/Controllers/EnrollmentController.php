@@ -6,6 +6,7 @@ use App\Models\ClassRoom as SchoolClass;
 use App\Models\Enrollment;
 use App\Models\Payment;
 use App\Models\Student;
+use App\Models\School;
 use App\Notifications\GenericNotification;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -22,6 +23,14 @@ class EnrollmentController extends Controller
 
         // Filtro por ano lectivo (padrão: ano atual)
         $query->where('school_year', $selectedYear);
+
+        // Filtro por escola (super admin / territorial)
+        if ($request->filled('school_id')) {
+            $query->withoutGlobalScope(\App\Scopes\SchoolScope::class)
+                ->whereHas('student', function ($q) use ($request) {
+                    $q->where('school_id', $request->school_id);
+                });
+        }
 
         // Filtros adicionais
         if ($request->filled('status')) {
@@ -58,7 +67,10 @@ class EnrollmentController extends Controller
         // Turmas filtradas pelo ano selecionado
         $classes = SchoolClass::where('school_year', $selectedYear)->get();
 
-        return view('enrollments.index', compact('enrollments', 'classes', 'currentYear', 'selectedYear', 'availableYears'));
+        // Escolas para filtro (super admin / territorial)
+        $schools = School::orderBy('name')->get();
+
+        return view('enrollments.index', compact('enrollments', 'classes', 'currentYear', 'selectedYear', 'availableYears', 'schools'));
     }
 
     public function create()

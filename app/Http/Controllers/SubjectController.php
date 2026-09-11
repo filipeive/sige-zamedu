@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\EducationLevel;
 use App\Models\Subject;
 use App\Models\ClassRoom;
 use App\Models\Teacher;
 use App\Models\ClassSubject;
+use App\Models\School;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -19,6 +21,11 @@ class SubjectController extends Controller
         $this->authorize('view_subjects');
 
         $query = Subject::withCount(['classes', 'grades']);
+
+        // Filtro por escola (super admin / territorial)
+        if ($request->filled('school_id')) {
+            $query->where('school_id', $request->school_id);
+        }
 
         // Filtros
         if ($request->filled('search')) {
@@ -39,25 +46,18 @@ class SubjectController extends Controller
 
         $subjects = $query->orderBy('grade_level')->orderBy('name')->paginate(20);
 
-        $gradeLevels = [
-            0 => 'Pré-Infantil',
-            1 => 'Pré-Escolar', 
-            2 => '1ª Classe',
-            3 => '2ª Classe',
-            4 => '3ª Classe',
-            5 => '4ª Classe',
-            6 => '5ª Classe',
-            7 => '6ª Classe',
-        ];
+        $gradeLevels = EducationLevel::GRADES;
 
         $totalSubjects = Subject::count();
         $activeSubjects = Subject::active()->count();
+        $schools = School::orderBy('name')->get();
 
         return view('subjects.index', compact(
             'subjects', 
             'gradeLevels',
             'totalSubjects',
-            'activeSubjects'
+            'activeSubjects',
+            'schools'
         ));
     }
 
@@ -68,16 +68,7 @@ class SubjectController extends Controller
     {
         $this->authorize('create_subjects');
 
-        $gradeLevels = [
-            0 => 'Pré-Infantil',
-            1 => 'Pré-Escolar', 
-            2 => '1ª Classe',
-            3 => '2ª Classe',
-            4 => '3ª Classe',
-            5 => '4ª Classe',
-            6 => '5ª Classe',
-            7 => '6ª Classe',
-        ];
+        $gradeLevels = EducationLevel::GRADES;
 
         return view('subjects.create', compact('gradeLevels'));
     }
@@ -159,16 +150,7 @@ class SubjectController extends Controller
     {
         $this->authorize('edit_subjects');
 
-        $gradeLevels = [
-            0 => 'Pré-Infantil',
-            1 => 'Pré-Escolar', 
-            2 => '1ª Classe',
-            3 => '2ª Classe',
-            4 => '3ª Classe',
-            5 => '4ª Classe',
-            6 => '5ª Classe',
-            7 => '6ª Classe',
-        ];
+        $gradeLevels = EducationLevel::GRADES;
 
         return view('subjects.edit', compact('subject', 'gradeLevels'));
     }

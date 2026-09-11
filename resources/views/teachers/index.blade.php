@@ -28,6 +28,8 @@
         </div>
     </div>
 
+    @include('partials.super-admin-banner')
+
     <!-- 2. Stat Cards (Pílula de Cor na Esquerda) -->
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <!-- Total Professores (Emerald Pill Accent) -->
@@ -82,7 +84,20 @@
     <!-- 3. Filter Bar -->
     <div class="bg-white rounded-xl p-3 border border-slate-200 shadow-2xs">
         <form action="{{ route('teachers.index') }}" method="GET" class="grid gap-2 sm:grid-cols-2 md:grid-cols-4 items-center">
-            <div class="md:col-span-2">
+            @hasanyrole('super_admin|province_admin|province_inspector|district_admin|district_inspector|zip_coordinator|zip_admin')
+            <div>
+                <select name="school_id" class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500" onchange="this.form.submit()">
+                    <option value="">Todas as Escolas</option>
+                    @foreach($schools as $sch)
+                        <option value="{{ $sch->id }}" {{ request('school_id') == $sch->id ? 'selected' : '' }}>
+                            {{ $sch->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            @endhasanyrole
+
+            <div>
                 <div class="relative">
                     <input type="text" name="search" class="w-full rounded-lg border-slate-200 ps-8 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500" 
                            placeholder="Pesquisar por nome, email ou BI..." value="{{ request('search') }}">
@@ -102,7 +117,7 @@
                 <button type="submit" class="w-full inline-flex justify-center items-center gap-1 rounded-lg bg-emerald-700 hover:bg-emerald-800 py-1.5 px-3 text-xs font-bold text-white transition shadow-2xs">
                     <i class="fas fa-filter text-[10px]"></i> Filtrar
                 </button>
-                @if(request()->anyFilled(['search', 'status']))
+                @if(request()->anyFilled(['search', 'status', 'school_id']))
                     <a href="{{ route('teachers.index') }}" class="no-underline inline-flex justify-center items-center rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 p-1.5 text-xs text-slate-600 transition" title="Limpar Filtros">
                         <i class="fas fa-times"></i>
                     </a>
@@ -194,7 +209,7 @@
 
         @if($teachers->hasPages())
             <div class="px-4 py-2 border-t border-slate-100">
-                {{ $teachers->links('pagination::bootstrap-5') }}
+                {{ $teachers->links() }}
             </div>
         @endif
     </div>

@@ -38,6 +38,7 @@ class SmsNotificationService
 
         $log = SmsLog::create([
             'user_id' => $user?->id ?? auth()->id(),
+            'school_id' => $student?->school_id,
             'student_id' => $student?->id,
             'channel' => $channel,
             'context' => $context,

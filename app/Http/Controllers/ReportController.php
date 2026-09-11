@@ -19,29 +19,38 @@ class ReportController extends Controller
     /**
      * Main reports dashboard.
      */
-    public function index()
+    public function index(Request $request)
     {
+        $activeSchoolId = \App\Services\SchoolContext::getSchoolId() ?? auth()->user()?->school_id;
+        $selectedSchoolId = $request->filled('school_id') ? $request->school_id : $activeSchoolId;
+
         $monthlyRevenue = Payment::whereMonth('payment_date', now()->month)
             ->whereYear('payment_date', now()->year)
             ->where('status', 'paid')
+            ->when($selectedSchoolId, function ($q) use ($selectedSchoolId) {
+                $q->whereHas('enrollment.student', function ($sq) use ($selectedSchoolId) {
+                    $sq->where('school_id', $selectedSchoolId);
+                });
+            })
             ->sum('amount');
 
         $stats = [
-            'total_students' => Student::active()->count(),
+            'total_students' => Student::active()->when($selectedSchoolId, fn($q) => $q->where('school_id', $selectedSchoolId))->count(),
             'total_teachers' => Teacher::active()->count(),
-            'total_classes' => ClassRoom::active()->count(),
+            'total_classes' => ClassRoom::active()->when($selectedSchoolId, fn($q) => $q->where('school_id', $selectedSchoolId))->count(),
             'monthly_revenue' => $monthlyRevenue,
             'revenue_this_month' => $monthlyRevenue,
         ];
 
         // Demografia dos Estudantes
         $genderStats = [
-            'male' => Student::where('gender', 'male')->count(),
-            'female' => Student::where('gender', 'female')->count(),
+            'male' => Student::where('gender', 'male')->when($selectedSchoolId, fn($q) => $q->where('school_id', $selectedSchoolId))->count(),
+            'female' => Student::where('gender', 'female')->when($selectedSchoolId, fn($q) => $q->where('school_id', $selectedSchoolId))->count(),
         ];
 
         // Distribuição por Nível de Ensino (Turmas)
         $rawGradeDist = ClassRoom::active()
+            ->when($selectedSchoolId, fn($q) => $q->where('school_id', $selectedSchoolId))
             ->select('grade_level', DB::raw('count(*) as total'))
             ->groupBy('grade_level')
             ->orderBy('grade_level')
@@ -63,16 +72,36 @@ class ReportController extends Controller
             $monthlyRevenueTrend[] = (float) Payment::whereMonth('payment_date', $date->month)
                 ->whereYear('payment_date', $date->year)
                 ->where('status', 'paid')
+                ->when($selectedSchoolId, function ($q) use ($selectedSchoolId) {
+                    $q->whereHas('enrollment.student', function ($sq) use ($selectedSchoolId) {
+                        $sq->where('school_id', $selectedSchoolId);
+                    });
+                })
                 ->sum('amount');
         }
 
         // Assiduidade Global
         $attendanceStats = [
-            'present' => Attendance::where('status', 'present')->count(),
-            'absent' => Attendance::where('status', 'absent')->count(),
-            'late' => Attendance::where('status', 'late')->count(),
-            'excused' => Attendance::where('status', 'excused')->count(),
+            'present' => Attendance::where('status', 'present')->when($selectedSchoolId, function ($q) use ($selectedSchoolId) {
+                $q->whereHas('student', fn($sq) => $sq->where('school_id', $selectedSchoolId));
+            })->count(),
+            'absent' => Attendance::where('status', 'absent')->when($selectedSchoolId, function ($q) use ($selectedSchoolId) {
+                $q->whereHas('student', fn($sq) => $sq->where('school_id', $selectedSchoolId));
+            })->count(),
+            'late' => Attendance::where('status', 'late')->when($selectedSchoolId, function ($q) use ($selectedSchoolId) {
+                $q->whereHas('student', fn($sq) => $sq->where('school_id', $selectedSchoolId));
+            })->count(),
+            'excused' => Attendance::where('status', 'excused')->when($selectedSchoolId, function ($q) use ($selectedSchoolId) {
+                $q->whereHas('student', fn($sq) => $sq->where('school_id', $selectedSchoolId));
+            })->count(),
         ];
+
+        $activeSchool = $selectedSchoolId ? \App\Models\School::with(['zip', 'district', 'province'])->find($selectedSchoolId) : null;
+
+        $provinces = \App\Models\Province::orderBy('name')->get();
+        $districts = \App\Models\District::orderBy('name')->get();
+        $zips = \App\Models\Zip::orderBy('name')->get();
+        $schools = \App\Models\School::orderBy('name')->get();
 
         return view('reports.index', compact(
             'stats',
@@ -80,7 +109,13 @@ class ReportController extends Controller
             'gradeDistribution',
             'monthsLabels',
             'monthlyRevenueTrend',
-            'attendanceStats'
+            'attendanceStats',
+            'activeSchool',
+            'provinces',
+            'districts',
+            'zips',
+            'schools',
+            'selectedSchoolId'
         ));
     }
 

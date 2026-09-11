@@ -9,9 +9,9 @@
     'error' => null,
 ])
 
-<div class="form-group">
+<div class="space-y-1">
     @if($label)
-        <label for="{{ $name }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+        <label for="{{ $name }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
             {{ $label }}
             @if($required) <span class="text-rose-500">*</span> @endif
         </label>
@@ -23,8 +23,9 @@
            placeholder="{{ $placeholder }}"
            @if($required) required @endif
            @if($readonly) readonly @endif
-           {{ $attributes->merge(['class' => 'form-control rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-[#151E3D] text-slate-900 dark:text-white p-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition']) }}>
+           {{ $attributes->merge(['class' => 'w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#151E3D] text-slate-900 dark:text-white py-2.5 px-3 text-xs font-semibold focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition']) }}>
     @if($error || $errors->has($name))
-        <span class="text-xs text-rose-500 mt-1 block font-medium">{{ $error ?? $errors->first($name) }}</span>
+        <span class="text-[11px] text-rose-500 mt-1 block font-bold">{{ $error ?? $errors->first($name) }}</span>
     @endif
 </div>
+

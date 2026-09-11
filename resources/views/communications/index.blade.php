@@ -173,7 +173,7 @@
 
         @if($communications->hasPages())
             <div class="px-4 py-3 border-t border-slate-100 bg-slate-50/50">
-                {{ $communications->links('pagination::bootstrap-5') }}
+                {{ $communications->links() }}
             </div>
         @endif
     </div>

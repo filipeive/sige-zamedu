@@ -25,7 +25,7 @@
     </div>
 
     <!-- Form Card -->
-    <div class="w-full bg-white rounded-xl border border-slate-200 border-t-4 border-t-emerald-600 shadow-2xs p-5 max-w-3xl">
+    <div class="w-full bg-white rounded-xl border border-slate-200 border-t-4 border-t-emerald-600 shadow-2xs p-5">
         <form action="{{ route('communications.send') }}" method="POST" class="space-y-4">
             @csrf
 

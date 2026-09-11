@@ -58,9 +58,80 @@
                 </button>
             </div>
 
-            <!-- Background Decorative Glow -->
+        <!-- Background Decorative Glow -->
             <div class="absolute -right-12 -bottom-12 w-64 h-64 rounded-full blur-3xl pointer-events-none opacity-20"
                  style="background: var(--accent);"></div>
+        </div>
+
+        <!-- Bar de Contexto Territorial & Acesso Direto aos Mapas -->
+        <div class="rounded-3xl bg-[var(--card-bg)] p-5 border border-[var(--border-color)] shadow-xs space-y-4">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-[var(--border-color)]">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 flex items-center justify-center text-lg shrink-0 font-bold border border-emerald-200 dark:border-emerald-800">
+                        <i class="fas fa-sitemap"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-black text-[var(--text-primary)] leading-tight flex items-center gap-2 font-heading">
+                            Contexto Territorial dos Relatórios
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">Multi-Tenant Scoping</span>
+                        </h3>
+                        <p class="text-xs text-[var(--text-muted)]">
+                            Filtre indicadores por Província, Distrito, ZIP ou Instituição Escolar.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 shrink-0">
+                    <a href="{{ route('territorial.dashboard') }}" class="no-underline inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition">
+                        <i class="fas fa-map-location-dot"></i> Mapa Territorial & Inspeção MINEDH
+                    </a>
+                    <a href="{{ route('admin.territory.index') }}" class="no-underline inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 font-bold text-xs transition border border-slate-200 dark:border-slate-700">
+                        <i class="fas fa-school"></i> Gestão de Escolas & Coordenadas
+                    </a>
+                </div>
+            </div>
+
+            <!-- Badges de Âmbito Territorial Atual -->
+            <div class="flex flex-wrap items-center gap-2 text-xs font-semibold">
+                <span class="text-[11px] uppercase tracking-wider text-[var(--text-muted)] font-black">Escopo Ativo:</span>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-50 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                    <i class="fas fa-building-columns text-emerald-600"></i>
+                    Escola: {{ $activeSchool?->name ?? setting('school_name', 'Escola Secundária de Namacurra') }}
+                </span>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-sky-50 text-sky-800 dark:bg-sky-950/80 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
+                    <i class="fas fa-network-wired text-sky-600"></i>
+                    ZIP: {{ $activeSchool?->zip?->name ?? 'Namacurra Sede' }}
+                </span>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-purple-50 text-purple-800 dark:bg-purple-950/80 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                    <i class="fas fa-city text-purple-600"></i>
+                    Distrito: {{ $activeSchool?->district?->name ?? setting('school_district', 'Namacurra') }}
+                </span>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-50 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                    <i class="fas fa-map text-amber-600"></i>
+                    Província: {{ $activeSchool?->province?->name ?? setting('school_province', 'Zambézia') }}
+                </span>
+            </div>
+
+            @hasanyrole('super_admin|province_admin|province_inspector|district_admin|district_inspector|zip_coordinator|zip_admin')
+            <form action="{{ route('reports.index') }}" method="GET" class="mt-3">
+                <div class="flex items-center gap-2">
+                    <label class="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">Filtrar por Escola:</label>
+                    <select name="school_id" class="rounded-lg border border-[var(--border-color)] bg-[var(--card-bg)] py-1.5 px-3 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500" onchange="this.form.submit()">
+                        <option value="">Todas as Escolas</option>
+                        @foreach($schools as $sch)
+                            <option value="{{ $sch->id }}" {{ ($selectedSchoolId ?? $activeSchool?->id) == $sch->id ? 'selected' : '' }}>
+                                {{ $sch->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @if(($selectedSchoolId ?? $activeSchool?->id))
+                        <a href="{{ route('reports.index') }}" class="text-xs text-slate-500 hover:text-slate-700 underline">Limpar</a>
+                    @endif
+                </div>
+            </form>
+            @endhasanyrole
+
+            @include('partials.super-admin-banner')
         </div>
 
         <!-- Stat Summary Cards Grid (4 KPI Cards com Cores Parametrizadas) -->

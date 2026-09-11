@@ -14,30 +14,47 @@ class Setting extends Model
 
     protected $fillable = ['school_id', 'key', 'value', 'group'];
 
+    protected static function booted()
+    {
+        static::creating(function ($setting) {
+            if (!$setting->school_id) {
+                $setting->school_id = SchoolContext::getSchoolId() 
+                    ?? auth()->user()?->school_id 
+                    ?? \App\Models\School::value('id') 
+                    ?? 1;
+            }
+        });
+    }
+
     /**
      * Define ou atualiza uma configuração por chave com contexto de escola seguro.
      */
-    public static function set(string $key, ?string $value, string $group = 'general'): self
+    public static function set(string $key, ?string $value, string $group = 'general', ?int $targetSchoolId = null): self
     {
-        $schoolId = SchoolContext::getSchoolId();
+        $schoolId = $targetSchoolId 
+            ?? SchoolContext::getSchoolId() 
+            ?? auth()->user()?->school_id 
+            ?? \App\Models\School::value('id') 
+            ?? 1;
 
         $setting = static::withoutGlobalScope(\App\Scopes\SchoolScope::class)
             ->where('key', $key)
             ->where(function ($q) use ($schoolId) {
-                if ($schoolId) {
-                    $q->where('school_id', $schoolId)->orWhereNull('school_id');
-                } else {
-                    $q->whereNull('school_id');
-                }
+                $q->where('school_id', $schoolId);
             })
-            ->orderByRaw('school_id IS NOT NULL DESC')
             ->first();
+
+        if (!$setting) {
+            $setting = static::withoutGlobalScope(\App\Scopes\SchoolScope::class)
+                ->where('key', $key)
+                ->first();
+        }
 
         if ($setting) {
             $setting->update([
                 'value' => $value,
                 'group' => $group,
-                'school_id' => $schoolId ?? $setting->school_id,
+                'school_id' => $schoolId,
             ]);
             Cache::forget("setting_{$key}");
             return $setting;
@@ -60,12 +77,24 @@ class Setting extends Model
      */
     public static function get(string $key, mixed $default = null): mixed
     {
+        $schoolId = SchoolContext::getSchoolId() ?? auth()->user()?->school_id;
+
         $setting = static::where('key', $key)->first();
         
         if (!$setting) {
             $setting = static::withoutGlobalScope(\App\Scopes\SchoolScope::class)
                 ->where('key', $key)
-                ->whereNull('school_id')
+                ->where(function ($q) use ($schoolId) {
+                    if ($schoolId) {
+                        $q->where('school_id', $schoolId);
+                    }
+                })
+                ->first();
+        }
+
+        if (!$setting) {
+            $setting = static::withoutGlobalScope(\App\Scopes\SchoolScope::class)
+                ->where('key', $key)
                 ->first();
         }
 

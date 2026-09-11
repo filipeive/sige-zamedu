@@ -202,6 +202,8 @@ class DashboardController extends Controller
 
             // 1. Estatísticas Fundamentais & KPIs
             $totalStudents = Student::active()->count();
+            $femaleStudents = Student::active()->where('gender', 'F')->count();
+            $maleStudents = Student::active()->where('gender', 'M')->count();
             $totalTeachers = Teacher::active()->count();
             $totalClasses = ClassRoom::active()->where('school_year', $year)->count();
 
@@ -309,6 +311,8 @@ class DashboardController extends Controller
 
             $stats = [
                 'total_students' => $totalStudents,
+                'female_students' => $femaleStudents,
+                'male_students' => $maleStudents,
                 'total_teachers' => $totalTeachers,
                 'total_classes' => $totalClasses,
                 'monthly_revenue' => $currentMonthRevenue,

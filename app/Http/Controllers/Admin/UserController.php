@@ -112,10 +112,11 @@ class UserController extends Controller
     {
         $this->authorize('view_users');
 
-        $user->load(['roles', 'teacher', 'parent']);
+        $user->load(['roles', 'teacher', 'parent', 'school.province', 'school.district', 'school.zip', 'province', 'district', 'zip']);
         $loginHistory = $this->getLoginHistory($user);
+        $auditLogs = \App\Models\AuditLog::where('user_id', $user->id)->latest()->take(10)->get();
 
-        return view('admin.users.show', compact('user', 'loginHistory'));
+        return view('admin.users.show', compact('user', 'loginHistory', 'auditLogs'));
     }
 
     /**

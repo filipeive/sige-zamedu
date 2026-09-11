@@ -37,13 +37,36 @@
                     @error('name')<p class="mt-1 text-[10px] text-rose-600 font-semibold">{{ $message }}</p>@enderror
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Nível de Ensino *</label>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Nível de Ensino * <span class="text-emerald-600">(SNE — Lei 18/2018)</span></label>
                     <select name="grade_level" id="grade_level" required
                             class="w-full rounded-lg border border-slate-200 bg-white text-slate-800 py-2 px-3 text-xs font-semibold focus:border-amber-500 focus:ring-amber-500 @error('grade_level') border-rose-500 @enderror">
                         <option value="">Selecione o nível...</option>
-                        @foreach($gradeLevels as $key => $level)
-                            <option value="{{ $key }}" {{ old('grade_level', $class->grade_level) == $key ? 'selected' : '' }}>{{ $level }}</option>
-                        @endforeach
+                        @php use App\Helpers\EducationLevel; @endphp
+                        @if(auth()->user()?->school?->type !== 'public')
+                        <optgroup label="🏫 Pré-Escolar (Privado / Comunitário)">
+                            <option value="0" {{ old('grade_level', $class->grade_level) == '0' ? 'selected' : '' }}>Pré-Escolar / Pré-Infantil</option>
+                        </optgroup>
+                        @endif
+                        <optgroup label="📘 Ensino Primário — 1.º Ciclo (1ª – 3ª Classe)">
+                            <option value="1" {{ old('grade_level', $class->grade_level) == '1' ? 'selected' : '' }}>1ª Classe</option>
+                            <option value="2" {{ old('grade_level', $class->grade_level) == '2' ? 'selected' : '' }}>2ª Classe</option>
+                            <option value="3" {{ old('grade_level', $class->grade_level) == '3' ? 'selected' : '' }}>3ª Classe</option>
+                        </optgroup>
+                        <optgroup label="📗 Ensino Primário — 2.º Ciclo (4ª – 6ª Classe)">
+                            <option value="4" {{ old('grade_level', $class->grade_level) == '4' ? 'selected' : '' }}>4ª Classe</option>
+                            <option value="5" {{ old('grade_level', $class->grade_level) == '5' ? 'selected' : '' }}>5ª Classe</option>
+                            <option value="6" {{ old('grade_level', $class->grade_level) == '6' ? 'selected' : '' }}>6ª Classe</option>
+                        </optgroup>
+                        <optgroup label="📙 Ensino Secundário — ESG1, 1.º Ciclo (7ª – 9ª)">
+                            <option value="7" {{ old('grade_level', $class->grade_level) == '7' ? 'selected' : '' }}>7ª Classe</option>
+                            <option value="8" {{ old('grade_level', $class->grade_level) == '8' ? 'selected' : '' }}>8ª Classe</option>
+                            <option value="9" {{ old('grade_level', $class->grade_level) == '9' ? 'selected' : '' }}>9ª Classe ⭐ Exame Nacional</option>
+                        </optgroup>
+                        <optgroup label="📕 Ensino Secundário — ESG2, 2.º Ciclo (10ª – 12ª)">
+                            <option value="10" {{ old('grade_level', $class->grade_level) == '10' ? 'selected' : '' }}>10ª Classe ⭐ Exame Nacional</option>
+                            <option value="11" {{ old('grade_level', $class->grade_level) == '11' ? 'selected' : '' }}>11ª Classe</option>
+                            <option value="12" {{ old('grade_level', $class->grade_level) == '12' ? 'selected' : '' }}>12ª Classe ⭐ Exame Nacional</option>
+                        </optgroup>
                     </select>
                     @error('grade_level')<p class="mt-1 text-[10px] text-rose-600 font-semibold">{{ $message }}</p>@enderror
                 </div>

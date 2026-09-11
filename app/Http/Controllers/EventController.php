@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use App\Models\User;
+use App\Models\School;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
@@ -17,6 +18,11 @@ class EventController extends Controller
     public function index(Request $request)
     {
         $query = Event::query();
+
+        // Filtro por escola (super admin / territorial)
+        if ($request->filled('school_id')) {
+            $query->where('school_id', $request->school_id);
+        }
 
         // Filters
         if ($request->filled('type')) {
@@ -32,8 +38,9 @@ class EventController extends Controller
         }
 
         $events = $query->with('createdBy')->orderBy('event_date', 'desc')->paginate(10);
+        $schools = School::orderBy('name')->get();
 
-        return view('events.index', compact('events'));
+        return view('events.index', compact('events', 'schools'));
     }
 
     /**

@@ -21,7 +21,7 @@ class StudentController extends Controller
     {
         $this->authorize('view_students');
 
-        $query = Student::with(['currentEnrollment.class', 'parent']);
+        $query = Student::with(['currentEnrollment.class', 'parent', 'school']);
 
         // Filtros
         if ($request->filled('search')) {
@@ -37,6 +37,11 @@ class StudentController extends Controller
             $query->where('status', $request->status);
         }
 
+        if ($request->filled('school_id')) {
+            $query->withoutGlobalScope(\App\Scopes\SchoolScope::class)
+                ->where('students.school_id', $request->school_id);
+        }
+
         if ($request->filled('class_id')) {
             $query->whereHas('currentEnrollment', function ($q) use ($request) {
                 $q->where('class_id', $request->class_id);
@@ -49,10 +54,11 @@ class StudentController extends Controller
 
         $students = $query->latest()->paginate(10);
         $classes = ClassRoom::active()->get();
+        $schools = \App\Models\School::orderBy('name')->get();
         $totalStudents = Student::count();
         $activeStudents = Student::active()->count();
 
-        return view('students.index', compact('students', 'classes', 'totalStudents', 'activeStudents'));
+        return view('students.index', compact('students', 'classes', 'schools', 'totalStudents', 'activeStudents'));
     }
 
     /**
@@ -63,7 +69,7 @@ class StudentController extends Controller
         $this->authorize('create_students');
 
         $classes = ClassRoom::active()->get();
-        $parents = ParentModel::with('user')->get();
+        $parents = ParentModel::forCurrentSchool()->with('user')->get();
 
         return view('students.create', compact('classes', 'parents'));
     }
@@ -358,7 +364,7 @@ class StudentController extends Controller
         $this->authorize('edit_students');
 
         $classes = ClassRoom::active()->get();
-        $parents = ParentModel::with('user')->get();
+        $parents = ParentModel::forCurrentSchool()->with('user')->get();
         $currentEnrollment = $student->currentEnrollment;
 
         return view('students.edit', compact('student', 'classes', 'parents', 'currentEnrollment'));

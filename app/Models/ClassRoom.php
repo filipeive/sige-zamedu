@@ -1,6 +1,7 @@
 <?php
 namespace App\Models;
 
+use App\Helpers\EducationLevel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -159,19 +160,16 @@ class ClassRoom extends Model
     }
 
     /**
-     * Filtrar por nível de ensino (preschool | primary | secondary).
+     * Filtrar por nível de ensino conforme taxonomia SNE/MINEDH (Lei 18/2018).
+     * Chaves: preschool | primary | secondary | ep1 | ep2 | esg1 | esg2 | basic | sne
      */
     public function scopeByEducationLevel($query, ?string $level)
     {
         if (empty($level) || $level === 'all') {
             return $query;
         }
-        return match ($level) {
-            'preschool' => $query->whereIn('grade_level', [0, 1]),
-            'primary'   => $query->whereIn('grade_level', [2, 3, 4, 5, 6, 7]),
-            'secondary' => $query->whereIn('grade_level', [8, 9, 10, 11, 12, 13]),
-            default     => $query,
-        };
+        $grades = EducationLevel::gradesForLevel($level);
+        return $query->whereIn('grade_level', $grades);
     }
 
     public function scopeWithTeacher($query)
@@ -183,64 +181,81 @@ class ClassRoom extends Model
         ]);
     }
 
-    // Accessors
-    public function getGradeLevelNameAttribute()
-    {
-        $grades = [
-            0 => 'Pré-Infantil',
-            1 => 'Pré-Escolar / Infantil',
-            2 => '1ª Classe',
-            3 => '2ª Classe',
-            4 => '3ª Classe',
-            5 => '4ª Classe',
-            6 => '5ª Classe',
-            7 => '6ª Classe',
-            8 => '7ª Classe',
-            9 => '8ª Classe',
-            10 => '9ª Classe',
-            11 => '10ª Classe',
-            12 => '11ª Classe',
-            13 => '12ª Classe',
-        ];
+    // ─── Accessors SNE/MINEDH (Lei 18/2018) ───────────────────────────────
 
-        return $grades[$this->grade_level] ?? (is_numeric($this->grade_level) ? $this->grade_level . 'ª Classe' : $this->grade_level);
+    /** Rótulo direto do grade_level (ex: "3ª Classe") */
+    public function getGradeLevelNameAttribute(): string
+    {
+        return EducationLevel::label((int) $this->grade_level);
     }
 
+    /** Chave textual do nível: preschool | primary | secondary */
     public function getEducationLevelAttribute(): string
     {
-        $num = (int) $this->grade_level;
-        if ($num === 0 || $num === 1 || str_contains(strtolower((string)$this->grade_level), 'pré') || str_contains(strtolower((string)$this->grade_level), 'infantil')) {
-            return 'preschool';
-        }
-        if ($num >= 2 && $num <= 7) {
-            return 'primary';
-        }
-        return 'secondary';
+        return EducationLevel::levelKey((int) $this->grade_level);
     }
 
+    /** Nome por extenso do nível de ensino (ex: "Ensino Primário") */
     public function getEducationLevelNameAttribute(): string
     {
-        return match ($this->education_level) {
-            'preschool' => 'Pré-Escolar & Infantil',
-            'primary' => 'Ensino Primário',
-            'secondary' => 'Ensino Secundário',
-            default => 'Ensino Geral'
-        };
+        return EducationLevel::levelName((int) $this->grade_level);
     }
 
+    /** Nome do ciclo MINEDH (ex: "1.º Ciclo do Ensino Primário") */
+    public function getCycleNameAttribute(): string
+    {
+        return EducationLevel::cycleName((int) $this->grade_level);
+    }
+
+    /** Abreviatura do ciclo para badges (ex: "EP1", "ESG2") */
+    public function getCycleAbbrAttribute(): string
+    {
+        return EducationLevel::cycleAbbr((int) $this->grade_level);
+    }
+
+    /** Cor Tailwind do nível (pink / blue / purple) */
+    public function getEducationLevelColorAttribute(): string
+    {
+        return EducationLevel::tailwindColor((int) $this->grade_level);
+    }
+
+    // ─── Predicados ────────────────────────────────────────────────────────
+
+    /**
+     * Pré-Escolar — fora do SNE Geral.
+     * Visível apenas em escolas privadas/comunitárias (cobram propinas).
+     */
     public function isPreschool(): bool
     {
-        return $this->education_level === 'preschool';
+        return EducationLevel::isPreschool((int) $this->grade_level);
     }
 
     public function isPrimary(): bool
     {
-        return $this->education_level === 'primary';
+        return EducationLevel::isPrimary((int) $this->grade_level);
     }
 
     public function isSecondary(): bool
     {
-        return $this->education_level === 'secondary';
+        return EducationLevel::isSecondary((int) $this->grade_level);
+    }
+
+    /** Educação Básica = escolaridade obrigatória (1ª–9ª Classe, Lei 18/2018) */
+    public function isBasicEducation(): bool
+    {
+        return EducationLevel::isBasicEducation((int) $this->grade_level);
+    }
+
+    /** Esta turma realiza Exame Nacional MINEDH (9ª, 10ª ou 12ª Classe) */
+    public function isNationalExamGrade(): bool
+    {
+        return EducationLevel::isNationalExamGrade((int) $this->grade_level);
+    }
+
+    /** Pertence ao SNE Geral (exclui Pré-Escolar) */
+    public function isSneGeral(): bool
+    {
+        return EducationLevel::isSneGeral((int) $this->grade_level);
     }
 
     public function getCapacityPercentageAttribute()

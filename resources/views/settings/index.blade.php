@@ -282,6 +282,49 @@
                                class="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
                     </div>
 
+                    <!-- Localização Geográfica & Mapa Interativo da Escola -->
+                    <div class="md:col-span-2 space-y-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div>
+                                <h4 class="text-xs font-black text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                                    <i class="fas fa-map-location-dot text-emerald-600"></i> Localização Geográfica & Mapa GPS da Instituição
+                                </h4>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400">Configure as coordenadas de latitude e longitude para marcar a escola no mapa oficial e relatórios territoriais.</p>
+                            </div>
+                            <button type="button" onclick="getCurrentGpsLocation()" class="no-underline inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-700 text-[#007A3D] dark:text-emerald-300 text-xs font-bold transition cursor-pointer shrink-0">
+                                <i class="fas fa-location-crosshairs text-amber-500"></i> Obter Localização GPS Atual
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Latitude (GPS) *</label>
+                                <input type="text" id="school_latitude_input" name="settings[school_latitude]" value="{{ setting('school_latitude', '-17.8764') }}"
+                                       class="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500" placeholder="Ex: -17.8764" oninput="updateMapPreview()">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Longitude (GPS) *</label>
+                                <input type="text" id="school_longitude_input" name="settings[school_longitude]" value="{{ setting('school_longitude', '36.8791') }}"
+                                       class="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500" placeholder="Ex: 36.8791" oninput="updateMapPreview()">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Link Direto Google Maps / Waze</label>
+                                <input type="url" name="settings[school_google_maps_url]" value="{{ setting('school_google_maps_url', 'https://maps.google.com') }}"
+                                       class="w-full rounded-lg border border-slate-200 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-2 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500" placeholder="https://maps.google.com/...">
+                            </div>
+                        </div>
+
+                        <!-- Leaflet Interactive Map Container -->
+                        <div class="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm bg-slate-100 dark:bg-slate-800 relative h-72 mt-2 z-0">
+                            <div id="settings_interactive_map" class="w-full h-full"></div>
+                        </div>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                            <i class="fas fa-hand-pointer text-emerald-600 me-1"></i> Clique em qualquer ponto do mapa ou arraste o pino para selecionar a localização exata da escola.
+                        </p>
+                    </div>
+
                     <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Telefone Principal</label>
                         <input type="text" name="settings[school_phone]" value="{{ setting('school_phone', '+258 84 123 4567') }}"
@@ -850,6 +893,105 @@ function toggleRoleCheckboxes(className, checkState) {
             cb.checked = checkState;
         }
     });
+}
+
+let settingsMap = null;
+let settingsMarker = null;
+
+function initSettingsLeafletMap() {
+    const latInput = document.getElementById('school_latitude_input');
+    const lngInput = document.getElementById('school_longitude_input');
+    const container = document.getElementById('settings_interactive_map');
+    
+    if (!container) return;
+
+    let lat = parseFloat(latInput?.value) || -17.8764;
+    let lng = parseFloat(lngInput?.value) || 36.8791;
+
+    if (!settingsMap) {
+        settingsMap = L.map('settings_interactive_map').setView([lat, lng], 14);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(settingsMap);
+
+        const pinIcon = L.divIcon({
+            className: 'custom-settings-pin',
+            html: `<div class="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xl border-2 border-white transform -translate-x-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing"><i class="fas fa-school text-base"></i></div>`,
+            iconSize: [36, 36],
+            iconAnchor: [18, 18]
+        });
+
+        settingsMarker = L.marker([lat, lng], { draggable: true, icon: pinIcon }).addTo(settingsMap);
+
+        function syncInputValues(newLat, newLng) {
+            if (latInput) latInput.value = newLat.toFixed(6);
+            if (lngInput) lngInput.value = newLng.toFixed(6);
+        }
+
+        settingsMarker.on('dragend', function(e) {
+            const pos = e.target.getLatLng();
+            syncInputValues(pos.lat, pos.lng);
+        });
+
+        settingsMap.on('click', function(e) {
+            settingsMarker.setLatLng(e.latlng);
+            syncInputValues(e.latlng.lat, e.latlng.lng);
+        });
+    } else {
+        settingsMap.setView([lat, lng], 14);
+        if (settingsMarker) settingsMarker.setLatLng([lat, lng]);
+    }
+
+    setTimeout(() => settingsMap.invalidateSize(), 300);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    initSettingsLeafletMap();
+
+    // Re-initialize map when switching tabs if needed
+    document.querySelectorAll('[data-bs-toggle="tab"], .nav-link').forEach(tab => {
+        tab.addEventListener('click', () => {
+            setTimeout(() => {
+                if (settingsMap) settingsMap.invalidateSize();
+            }, 200);
+        });
+    });
+});
+
+function updateMapPreview() {
+    const lat = parseFloat(document.getElementById('school_latitude_input')?.value);
+    const lng = parseFloat(document.getElementById('school_longitude_input')?.value);
+    if (!isNaN(lat) && !isNaN(lng) && settingsMap && settingsMarker) {
+        settingsMarker.setLatLng([lat, lng]);
+        settingsMap.panTo([lat, lng]);
+    }
+}
+
+function getCurrentGpsLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            document.getElementById('school_latitude_input').value = lat.toFixed(6);
+            document.getElementById('school_longitude_input').value = lng.toFixed(6);
+            
+            if (settingsMap && settingsMarker) {
+                settingsMarker.setLatLng([lat, lng]);
+                settingsMap.setView([lat, lng], 16);
+            }
+            if (typeof showToast === 'function') {
+                showToast('Localização GPS capturada com sucesso! Lat: ' + lat.toFixed(6) + ', Lng: ' + lng.toFixed(6), 'success');
+            } else {
+                alert('Localização GPS capturada com sucesso! Lat: ' + lat.toFixed(6) + ', Lng: ' + lng.toFixed(6));
+            }
+        }, function(error) {
+            alert('Não foi possível obter a localização GPS: ' + error.message);
+        });
+    } else {
+        alert('A navegação GPS não é suportada pelo seu navegador.');
+    }
 }
 </script>
 @endsection

@@ -10,7 +10,7 @@
 @endsection
 
 @section('content')
-<div class="max-w-4xl mx-auto space-y-4">
+<div class="w-full mx-auto space-y-4">
 
     <!-- Header Row -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-slate-200">
@@ -42,15 +42,38 @@
                 </div>
 
                 <div>
-                    <label for="grade_level" class="block text-xs font-bold text-slate-700 mb-1">Nível de Ensino *</label>
+                    <label for="grade_level" class="block text-xs font-bold text-slate-700 mb-1">Nível de Ensino * <span class="text-emerald-600">(SNE — Lei 18/2018)</span></label>
                     <select id="grade_level" name="grade_level" required
-                            class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500">
+                            class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500"
+                            onchange="updateTeachingMode(this.value)">
                         <option value="">Selecione o nível...</option>
-                        @foreach($gradeLevels as $key => $level)
-                            <option value="{{ $key }}" {{ old('grade_level') == $key ? 'selected' : '' }}>
-                                {{ $level }}
-                            </option>
-                        @endforeach
+                        @php use App\Helpers\EducationLevel; @endphp
+                        {{-- Pré-Escolar: visível apenas para escolas privadas/comunitárias --}}
+                        @if(auth()->user()?->school?->type !== 'public')
+                        <optgroup label="🏫 Pré-Escolar (Privado / Comunitário)">
+                            <option value="0" {{ old('grade_level') == '0' ? 'selected' : '' }}>Pré-Escolar / Pré-Infantil</option>
+                        </optgroup>
+                        @endif
+                        <optgroup label="📘 Ensino Primário — 1.º Ciclo (1ª – 3ª Classe)">
+                            <option value="1" {{ old('grade_level') == '1' ? 'selected' : '' }}>1ª Classe</option>
+                            <option value="2" {{ old('grade_level') == '2' ? 'selected' : '' }}>2ª Classe</option>
+                            <option value="3" {{ old('grade_level') == '3' ? 'selected' : '' }}>3ª Classe</option>
+                        </optgroup>
+                        <optgroup label="📗 Ensino Primário — 2.º Ciclo (4ª – 6ª Classe)">
+                            <option value="4" {{ old('grade_level') == '4' ? 'selected' : '' }}>4ª Classe</option>
+                            <option value="5" {{ old('grade_level') == '5' ? 'selected' : '' }}>5ª Classe</option>
+                            <option value="6" {{ old('grade_level') == '6' ? 'selected' : '' }}>6ª Classe</option>
+                        </optgroup>
+                        <optgroup label="📙 Ensino Secundário — ESG1, 1.º Ciclo (7ª – 9ª Classe)">
+                            <option value="7" {{ old('grade_level') == '7' ? 'selected' : '' }}>7ª Classe</option>
+                            <option value="8" {{ old('grade_level') == '8' ? 'selected' : '' }}>8ª Classe</option>
+                            <option value="9" {{ old('grade_level') == '9' ? 'selected' : '' }}>9ª Classe ⭐ Exame Nacional</option>
+                        </optgroup>
+                        <optgroup label="📕 Ensino Secundário — ESG2, 2.º Ciclo (10ª – 12ª Classe)">
+                            <option value="10" {{ old('grade_level') == '10' ? 'selected' : '' }}>10ª Classe ⭐ Exame Nacional</option>
+                            <option value="11" {{ old('grade_level') == '11' ? 'selected' : '' }}>11ª Classe</option>
+                            <option value="12" {{ old('grade_level') == '12' ? 'selected' : '' }}>12ª Classe ⭐ Exame Nacional</option>
+                        </optgroup>
                     </select>
                     @error('grade_level')
                         <span class="text-[10px] text-rose-600 font-semibold">{{ $message }}</span>

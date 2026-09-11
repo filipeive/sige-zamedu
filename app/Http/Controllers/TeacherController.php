@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Teacher;
 use App\Models\User;
 use App\Models\ClassRoom;
+use App\Models\School;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -15,6 +16,13 @@ class TeacherController extends Controller
     public function index(Request $request)
     {
         $query = Teacher::with(['user', 'classes']);
+
+        // Filtro por escola (super admin / territorial)
+        if ($request->filled('school_id')) {
+            $query->whereHas('classes', function ($q) use ($request) {
+                $q->where('school_id', $request->school_id);
+            });
+        }
 
         // Filtros
         if ($request->has('status') && $request->status != '') {
@@ -32,8 +40,9 @@ class TeacherController extends Controller
         }
 
         $teachers = $query->latest()->paginate(20);
+        $schools = School::orderBy('name')->get();
         
-        return view('teachers.index', compact('teachers'));
+        return view('teachers.index', compact('teachers', 'schools'));
     }
 
     public function create()

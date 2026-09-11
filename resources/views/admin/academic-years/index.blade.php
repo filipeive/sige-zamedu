@@ -2,59 +2,78 @@
 
 @section('title', 'Gestão de Ano Lectivo')
 @section('page-title', 'Gestão de Ano Lectivo')
+@section('page-title-icon', 'fas fa-calendar-days')
+
+@section('breadcrumbs')
+    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="no-underline">Início</a></li>
+    <li class="breadcrumb-item active">Gestão de Ano Lectivo</li>
+@endsection
 
 @section('content')
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="school-card">
-                <div class="school-card-header bg-primary-school text-white">
-                    <h3 class="school-card-title"><i class="fas fa-calendar-alt me-2"></i> Configuração do Ano Lectivo</h3>
+<div class="w-full space-y-6">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
+        <!-- Header with MINEDH Green Gradient -->
+        <div class="bg-gradient-to-r from-[#034522] via-[#007A3D] to-[#059669] px-6 py-5 text-white flex items-center justify-between">
+            <h3 class="text-xl font-black tracking-tight flex items-center gap-2.5 font-heading">
+                <i class="fa-solid fa-calendar-days text-amber-300"></i>
+                <span>Configuração & Transição do Ano Lectivo</span>
+            </h3>
+            <span class="px-3 py-1 rounded-full bg-white/15 border border-white/20 text-xs font-bold uppercase tracking-wider backdrop-blur-md">
+                MINEDH · SNE
+            </span>
+        </div>
+
+        <div class="p-6 md:p-8 space-y-6">
+            <!-- Year Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
+                <div class="bg-slate-50 dark:bg-slate-800/60 p-6 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-xs">
+                    <h6 class="text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Ano Lectivo Actual</h6>
+                    <div class="text-4xl sm:text-5xl font-black text-slate-900 dark:text-white font-mono tracking-tight">{{ $currentYear }}</div>
                 </div>
-                <div class="school-card-body p-4">
-                    <div class="row mb-4 text-center">
-                        <div class="col-md-6 border-end">
-                            <h6 class="text-muted mb-1">Ano Lectivo Actual</h6>
-                            <div class="h2 fw-bold text-primary">{{ $currentYear }}</div>
-                        </div>
-                        <div class="col-md-6">
-                            <h6 class="text-muted mb-1">Próximo Ano (Preparação)</h6>
-                            <div class="h2 fw-bold text-success">{{ $nextYear }}</div>
-                        </div>
-                    </div>
 
-                    <div class="alert alert-info border-0 shadow-sm mb-4">
-                        <h5 class="alert-heading"><i class="fas fa-info-circle me-2"></i> Como funciona a transição?</h5>
-                        <p class="mb-0">Ao iniciar a transição para o novo ano lectivo:</p>
-                        <ul class="mt-2 mb-0">
-                            <li>O <strong>Ano Actual</strong> passará a ser <strong>{{ $nextYear }}</strong>.</li>
-                            <li>Todas as matrículas activas de <strong>{{ $currentYear }}</strong> serão marcadas como
-                                <strong>Concluídas</strong>.</li>
-                            <li>Os alunos serão marcados como <strong>Inactivos</strong>, o que activará o botão de
-                                <strong>Renovação</strong> no portal dos pais.</li>
-                            <li>O sistema estará pronto para receber novas inscrições para <strong>{{ $nextYear }}</strong>.
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div class="card border-warning mb-4">
-                        <div class="card-body bg-light">
-                            <h5 class="text-warning"><i class="fas fa-exclamation-triangle me-2"></i> Atenção!</h5>
-                            <p class="mb-0">Esta acção é irreversível e deve ser feita apenas quando o ano lectivo actual
-                                terminar e os resultados finais forem publicados.</p>
-                        </div>
-                    </div>
-
-                    <form action="{{ route('admin.academic-years.transition') }}" method="POST"
-                        data-confirm="Tem certeza que deseja iniciar a transição para o novo ano lectivo? Esta acção afectará todas as matrículas activas.">
-                        @csrf
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary-school btn-lg py-3">
-                                <i class="fas fa-forward me-2"></i> Iniciar Transição para {{ $nextYear }}
-                            </button>
-                        </div>
-                    </form>
+                <div class="bg-emerald-50/80 dark:bg-emerald-950/40 p-6 rounded-2xl border-2 border-emerald-300 dark:border-emerald-700 shadow-xs">
+                    <h6 class="text-xs font-extrabold text-[#007A3D] dark:text-emerald-400 uppercase tracking-wider mb-2">Próximo Ano (Em Preparação)</h6>
+                    <div class="text-4xl sm:text-5xl font-black text-[#007A3D] dark:text-emerald-300 font-mono tracking-tight">{{ $nextYear }}</div>
                 </div>
             </div>
+
+            <!-- Informational Box -->
+            <div class="bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800 text-sky-900 dark:text-sky-200 rounded-2xl p-5">
+                <h5 class="text-sm font-bold flex items-center gap-2 mb-2 text-sky-800 dark:text-sky-300">
+                    <i class="fa-solid fa-circle-info text-sky-600 text-base"></i> Como funciona a transição de ano lectivo?
+                </h5>
+                <p class="text-xs text-sky-800 dark:text-sky-300 mb-2 font-medium">Ao iniciar a transição para o novo ano lectivo:</p>
+                <ul class="text-xs space-y-1.5 list-disc list-inside text-sky-800 dark:text-sky-300 font-medium">
+                    <li>O <strong>Ano Actual</strong> passará a ser <strong>{{ $nextYear }}</strong>.</li>
+                    <li>Todas as matrículas activas de <strong>{{ $currentYear }}</strong> serão marcadas como <strong>Concluídas</strong>.</li>
+                    <li>Os alunos serão marcados como <strong>Inactivos</strong>, activando o botão de <strong>Renovação</strong> no portal dos pais.</li>
+                    <li>O sistema estará pronto para receber novas inscrições e turmas para <strong>{{ $nextYear }}</strong>.</li>
+                </ul>
+            </div>
+
+            <!-- Warning Box -->
+            <div class="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-200 rounded-2xl p-5">
+                <div class="flex items-start gap-3">
+                    <i class="fa-solid fa-triangle-exclamation text-amber-600 text-xl shrink-0 mt-0.5"></i>
+                    <div>
+                        <h5 class="text-sm font-bold text-amber-900 dark:text-amber-300 mb-1">Atenção Importante!</h5>
+                        <p class="text-xs text-amber-800 dark:text-amber-300 font-medium">
+                            Esta acção é irreversível e deve ser feita apenas quando o ano lectivo actual terminar e os resultados finais (Pautas de Exame) forem homologados.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Button -->
+            <form action="{{ route('admin.academic-years.transition') }}" method="POST"
+                data-confirm="Tem certeza que deseja iniciar a transição para o novo ano lectivo? Esta acção afectará todas as matrículas activas.">
+                @csrf
+                <button type="submit" class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-[#007A3D] to-[#034522] hover:from-[#059669] hover:to-[#007A3D] text-white font-extrabold text-sm uppercase tracking-wider shadow-lg shadow-emerald-900/20 hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2 group">
+                    <i class="fa-solid fa-forward text-amber-300 group-hover:translate-x-1 transition-transform"></i>
+                    <span>Iniciar Transição para {{ $nextYear }}</span>
+                </button>
+            </form>
         </div>
     </div>
+</div>
 @endsection

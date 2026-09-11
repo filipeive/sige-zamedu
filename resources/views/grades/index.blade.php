@@ -36,6 +36,8 @@
         </div>
     </div>
 
+    @include('partials.super-admin-banner')
+
     <!-- 2. Stat Cards (Pílula de Cor na Esquerda) -->
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <!-- Notas Registadas (Emerald Pill Accent) -->
@@ -89,7 +91,20 @@
 
     <!-- 3. Filter Bar -->
     <div class="bg-white rounded-xl p-3 border border-slate-200 shadow-2xs">
-        <form method="GET" action="{{ route('grades.index') }}" class="grid gap-2 sm:grid-cols-2 md:grid-cols-4 items-center">
+        <form method="GET" action="{{ route('grades.index') }}" class="grid gap-2 sm:grid-cols-2 md:grid-cols-5 items-center">
+            @hasanyrole('super_admin|province_admin|province_inspector|district_admin|district_inspector|zip_coordinator|zip_admin')
+            <div>
+                <select name="school_id" class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500" onchange="this.form.submit()">
+                    <option value="">Todas as Escolas</option>
+                    @foreach($schools as $sch)
+                        <option value="{{ $sch->id }}" {{ request('school_id') == $sch->id ? 'selected' : '' }}>
+                            {{ $sch->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            @endhasanyrole
+
             <div>
                 <select name="level" class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500" onchange="if(this.form.class_id) this.form.class_id.value = ''; this.form.submit();">
                     <option value="all" {{ $level === 'all' ? 'selected' : '' }}>Todos os Níveis</option>

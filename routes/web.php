@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AuditController;
+use App\Http\Controllers\Admin\TerritoryManagementController;
 use App\Http\Controllers\Admin\LicenseController;
 use App\Http\Controllers\Admin\StudentArchiveController;
 use App\Http\Controllers\Admin\StudentPromotionController;
@@ -626,6 +627,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/academic/performance', 'performance')->name('academic.performance');
             Route::get('/academic/attendance', 'attendanceReport')->name('academic.attendance');
             Route::get('/pedagogical-map', [\App\Http\Controllers\PedagogicalMapController::class, 'index'])->name('pedagogical-map');
+            Route::get('/pedagogical-map/export-pdf', [\App\Http\Controllers\PedagogicalMapController::class, 'exportPdf'])->name('pedagogical-map.export-pdf');
             Route::get('/pedagogical-map/export', [\App\Http\Controllers\PedagogicalMapController::class, 'exportCsv'])->name('pedagogical-map.export');
 
             // Relatórios Financeiros
@@ -787,6 +789,34 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::patch('/{user}', 'update')->name('update');
                 Route::delete('/{user}', 'destroy')->name('destroy');
                 Route::post('/{user}/toggle-status', 'toggleStatus')->name('toggle-status');
+            });
+
+            // Gestão Territorial (Escolas, ZIPs, Distritos, Províncias)
+            Route::prefix('territory')->name('territory.')->controller(TerritoryManagementController::class)->group(function () {
+                Route::get('/', 'index')->name('index');
+
+                // Escolas
+                Route::post('/schools', 'storeSchool')->name('schools.store');
+                Route::put('/schools/{school}', 'updateSchool')->name('schools.update');
+                Route::post('/schools/{school}/toggle-status', 'toggleSchoolStatus')->name('schools.toggle-status');
+
+                // ZIPs
+                Route::get('/zips/{zip}', 'showZip')->name('zips.show');
+                Route::post('/zips', 'storeZip')->name('zips.store');
+                Route::put('/zips/{zip}', 'updateZip')->name('zips.update');
+                Route::post('/zips/{zip}/toggle-status', 'toggleZipStatus')->name('zips.toggle-status');
+
+                // Distritos
+                Route::get('/districts/{district}', 'showDistrict')->name('districts.show');
+                Route::post('/districts', 'storeDistrict')->name('districts.store');
+                Route::put('/districts/{district}', 'updateDistrict')->name('districts.update');
+                Route::post('/districts/{district}/toggle-status', 'toggleDistrictStatus')->name('districts.toggle-status');
+
+                // Províncias
+                Route::get('/provinces/{province}', 'showProvince')->name('provinces.show');
+                Route::post('/provinces', 'storeProvince')->name('provinces.store');
+                Route::put('/provinces/{province}', 'updateProvince')->name('provinces.update');
+                Route::post('/provinces/{province}/toggle-status', 'toggleProvinceStatus')->name('provinces.toggle-status');
             });
 
             // Configurações do Sistema

@@ -1,552 +1,62 @@
 <x-guest-layout>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <div class="min-h-screen w-full flex flex-col items-center justify-between p-4 sm:p-6 lg:p-8 relative bg-gradient-to-br from-[#023318] via-[#00572b] to-[#034522] selection:bg-[#FCD116] selection:text-slate-950 overflow-y-auto">
+        
+        <!-- Ambient Glowing Lights Background Elements -->
+        <div class="absolute top-[-100px] left-[-100px] w-[500px] h-[500px] bg-emerald-400/15 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute bottom-[-100px] right-[-100px] w-[600px] h-[600px] bg-amber-400/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-emerald-600/10 rounded-full blur-[120px] pointer-events-none"></div>
 
-    <style>
-        :root {
-            --mz-green-dark: #034522;
-            --mz-green-primary: #007A3D;
-            --mz-green-light: #059669;
-            --mz-gold: #FCD116;
-            --mz-gold-dark: #D97706;
-            --mz-red: #CE1126;
-            --mz-navy: #0F172A;
-            --mz-slate: #1E293B;
-            --mz-bg: #F8FAFC;
-        }
+        <!-- Top Navigation Header -->
+        <div class="w-full max-w-md sm:max-w-lg flex items-center justify-between z-10 pt-2 pb-4">
+            <a href="{{ route('welcome') }}" class="no-underline group inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/15 text-white text-xs font-bold transition-all duration-300 backdrop-blur-md shadow-sm">
+                <i class="fas fa-arrow-left text-amber-300 group-hover:-translate-x-1 transition-transform duration-200"></i>
+                <span>Voltar ao Início</span>
+            </a>
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--mz-bg);
-            color: var(--mz-navy);
-            min-height: 100vh;
-        }
-
-        h1, h2, h3, h4, .font-heading {
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .split-layout {
-            display: flex;
-            min-height: 100vh;
-            width: 100%;
-        }
-
-        /* ===== LEFT VISUAL BANNER ===== */
-        .banner-side {
-            flex: 1.1;
-            background: linear-gradient(145deg, rgba(3, 69, 34, 0.96) 0%, rgba(0, 122, 61, 0.92) 100%),
-                        url('https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 48px 56px;
-            color: #FFFFFF;
-            position: relative;
-            box-shadow: 4px 0 25px rgba(0,0,0,0.15);
-        }
-
-        .banner-top {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .emblem-box {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 8px 12px;
-            border-radius: 16px;
-            border: 2px solid var(--mz-gold);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .emblem-img {
-            height: 54px;
-            width: auto;
-            object-fit: contain;
-        }
-
-        .banner-title-box h1 {
-            font-size: 24px;
-            font-weight: 900;
-            line-height: 1.1;
-            color: #FFFFFF;
-            letter-spacing: 0.5px;
-        }
-
-        .banner-title-box span {
-            font-size: 11px;
-            color: var(--mz-gold);
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .banner-center {
-            max-width: 540px;
-            margin: 40px 0;
-        }
-
-        .gov-pill-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 16px;
-            background: rgba(252, 209, 22, 0.15);
-            border: 1px solid rgba(252, 209, 22, 0.4);
-            border-radius: 30px;
-            font-size: 11px;
-            font-weight: 800;
-            color: var(--mz-gold);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 20px;
-            backdrop-filter: blur(8px);
-        }
-
-        .hero-headline {
-            font-size: 34px;
-            font-weight: 900;
-            line-height: 1.25;
-            margin-bottom: 18px;
-            color: #FFFFFF;
-        }
-
-        .hero-headline .gold-text {
-            color: var(--mz-gold);
-        }
-
-        .hero-subtext {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.9);
-            line-height: 1.6;
-            margin-bottom: 30px;
-        }
-
-        /* Glassmorphism Feature Cards */
-        .feature-cards-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .glass-card-item {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 14px 18px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 14px;
-            backdrop-filter: blur(10px);
-            transition: all 0.25s ease;
-        }
-
-        .glass-card-item:hover {
-            background: rgba(255, 255, 255, 0.18);
-            border-color: var(--mz-gold);
-            transform: translateX(4px);
-        }
-
-        .glass-card-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            background: var(--mz-gold);
-            color: var(--mz-green-dark);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            flex-shrink: 0;
-            font-weight: 800;
-        }
-
-        .glass-card-text h4 {
-            font-size: 13px;
-            font-weight: 800;
-            color: #FFFFFF;
-            line-height: 1.2;
-        }
-
-        .glass-card-text p {
-            font-size: 11px;
-            color: rgba(255, 255, 255, 0.8);
-            margin-top: 2px;
-        }
-
-        .banner-footer-text {
-            font-size: 11px;
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .banner-footer-text a {
-            color: var(--mz-gold);
-            font-weight: 800;
-            text-decoration: underline;
-        }
-
-        /* ===== RIGHT LOGIN FORM ===== */
-        .form-side {
-            width: 540px;
-            background: #FFFFFF;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 44px 48px;
-            position: relative;
-        }
-
-        .form-top-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 24px;
-        }
-
-        .btn-back-home {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            background: #F1F5F9;
-            color: var(--mz-slate);
-            border-radius: 10px;
-            font-size: 12px;
-            font-weight: 700;
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-
-        .btn-back-home:hover {
-            background: var(--mz-green-primary);
-            color: #FFFFFF;
-        }
-
-        .form-header-center {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .emblem-seal-wrapper {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 14px auto;
-            padding: 8px;
-            background: #F0FDF4;
-            border: 2px dashed var(--mz-green-primary);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 15px rgba(0, 122, 61, 0.12);
-        }
-
-        .emblem-seal-img {
-            height: 56px;
-            width: auto;
-            object-fit: contain;
-        }
-
-        .form-header-center h2 {
-            font-size: 22px;
-            font-weight: 900;
-            color: var(--mz-navy);
-            margin-bottom: 4px;
-        }
-
-        .form-header-center p {
-            font-size: 12px;
-            color: #64748B;
-            font-weight: 500;
-        }
-
-        .form-field-group {
-            margin-bottom: 20px;
-        }
-
-        .form-field-label {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 11px;
-            font-weight: 800;
-            color: var(--mz-slate);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 8px;
-        }
-
-        .form-field-label i {
-            color: var(--mz-green-primary);
-        }
-
-        .input-relative {
-            position: relative;
-        }
-
-        .custom-input {
-            width: 100%;
-            padding: 12px 14px 12px 42px;
-            border: 1.5px solid #E2E8F0;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--mz-navy);
-            background: #F8FAFC;
-            transition: all 0.2s ease;
-            outline: none;
-        }
-
-        .custom-input:focus {
-            background: #FFFFFF;
-            border-color: var(--mz-green-primary);
-            box-shadow: 0 0 0 4px rgba(0, 122, 61, 0.12);
-        }
-
-        .input-left-icon {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #94A3B8;
-            font-size: 14px;
-        }
-
-        .btn-toggle-eye {
-            position: absolute;
-            right: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: #94A3B8;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .btn-toggle-eye:hover { color: var(--mz-navy); }
-
-        .form-options-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 24px;
-            font-size: 12px;
-        }
-
-        .remember-checkbox-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 600;
-            color: var(--mz-slate);
-            cursor: pointer;
-        }
-
-        .remember-checkbox-label input {
-            accent-color: var(--mz-green-primary);
-            width: 16px;
-            height: 16px;
-        }
-
-        .link-forgot {
-            color: var(--mz-green-primary);
-            font-weight: 800;
-            text-decoration: none;
-        }
-
-        .link-forgot:hover {
-            text-decoration: underline;
-        }
-
-        .btn-submit-login {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, var(--mz-green-primary) 0%, var(--mz-green-dark) 100%);
-            color: #FFFFFF;
-            border: none;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 800;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            box-shadow: 0 4px 15px rgba(0, 122, 61, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .btn-submit-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 122, 61, 0.4);
-        }
-
-        /* Demo Accounts Box */
-        .demo-accounts-card {
-            margin-top: 24px;
-            padding: 16px;
-            background: #F0FDF4;
-            border: 1px solid #BBF7D0;
-            border-radius: 14px;
-        }
-
-        .demo-accounts-title {
-            font-size: 11px;
-            font-weight: 800;
-            color: var(--mz-green-dark);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .demo-user-badge {
-            display: inline-block;
-            padding: 4px 8px;
-            background: #FFFFFF;
-            border: 1px solid #CBD5E1;
-            border-radius: 6px;
-            font-size: 10px;
-            font-weight: 700;
-            color: var(--mz-slate);
-            margin: 2px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .demo-user-badge:hover {
-            border-color: var(--mz-green-primary);
-            color: var(--mz-green-primary);
-        }
-
-        .footer-copyright {
-            text-align: center;
-            font-size: 11px;
-            color: #94A3B8;
-            margin-top: 16px;
-        }
-
-        .footer-copyright a {
-            color: var(--mz-green-primary);
-            font-weight: 800;
-            text-decoration: none;
-        }
-
-        @media (max-width: 992px) {
-            .banner-side { display: none; }
-            .form-side { width: 100%; min-height: 100vh; padding: 32px 24px; }
-        }
-    </style>
-
-    <div class="split-layout">
-        <!-- LEFT VISUAL BANNER -->
-        <div class="banner-side">
-            <!-- Top Branding Header -->
-            <div class="banner-top">
-                <div class="emblem-box">
-                    <img src="{{ asset('images/emblem.png') }}" alt="Emblema da República de Moçambique" class="emblem-img">
-                </div>
-                <div class="banner-title-box">
-                    <span>REPÚBLICA DE MOÇAMBIQUE · MINEDH</span>
-                    <h1>ZAMEDU - SIGE</h1>
-                </div>
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-400/15 border border-amber-400/30 text-amber-300 text-[11px] font-extrabold tracking-wider uppercase backdrop-blur-md">
+                <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                <span>MINEDH · SIGE</span>
             </div>
-
-            <!-- Center Content -->
-            <div class="banner-center">
-                <div class="gov-pill-badge">
-                    <i class="fas fa-shield-halved"></i>
-                    <span>Plataforma Oficial do Sistema Nacional de Educação</span>
-                </div>
-
-                <h2 class="hero-headline font-heading">
-                    Gestão Escolar com <span class="gold-text">Eficiência, Transparência & Inovação</span>
-                </h2>
-
-                <p class="hero-subtext">
-                    Plataforma integrada de Gestão Escolar e Inteligência Educacional para escolas públicas, privadas e comunitárias de Moçambique, em conformidade integral com a Lei 18/2018 do SNE.
-                </p>
-
-                <div class="feature-cards-grid">
-                    <div class="glass-card-item">
-                        <div class="glass-card-icon"><i class="fas fa-landmark"></i></div>
-                        <div class="glass-card-text">
-                            <h4>Onboarding Autónomo para Escola Pública & Privada</h4>
-                            <p>Regimes flexíveis com isenção ou cobrança de propinas e relatórios estatísticos.</p>
-                        </div>
-                    </div>
-
-                    <div class="glass-card-item">
-                        <div class="glass-card-icon"><i class="fas fa-users-slash"></i></div>
-                        <div class="glass-card-text">
-                            <h4>Pré-Inscrição Inteligente por Região (Fim das Filas)</h4>
-                            <p>Submissão remota de candidatos com alocação territorial de vagas.</p>
-                        </div>
-                    </div>
-
-                    <div class="glass-card-item">
-                        <div class="glass-card-icon"><i class="fas fa-award"></i></div>
-                        <div class="glass-card-text">
-                            <h4>Pautas, Boletins e Certificados Oficiais MINEDH</h4>
-                            <p>Motor de avaliação SNE com desagregação por género (HM/M) e Emblema da República.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Footer Text -->
-            <div class="banner-footer-text">
-                &copy; {{ date('Y') }} <strong>ZAMEDU - SIGE</strong> · Desenvolvido por <a href="http://146.235.224.99/" target="_blank">Filipe dos Santos</a>
-            </div> 
         </div>
 
-        <!-- RIGHT LOGIN FORM -->
-        <div class="form-side">
-            <div>
-                <div class="form-top-bar">
-                    {{-- <div class="d-flex align-items-center gap-2">
-                        <img src="{{ asset('images/emblem.png') }}" alt="Emblema Oficial" style="height: 32px; width: auto;">
-                        <span class="fw-bold text-success text-uppercase" style="font-size: 10px; letter-spacing: 0.5px;">MINEDH · SIGE</span>
-                    </div> --}}
-                    <a href="{{ route('welcome') }}" class="btn-back-home">
-                        <i class="fas fa-arrow-left"></i>
-                        <span>Voltar ao Início</span>
-                    </a>
-                </div>
-
-                <div class="form-header-center">
-                    <div class="emblem-seal-wrapper">
-                        <img src="{{ asset('images/emblem.png') }}" alt="Emblema da República de Moçambique" class="emblem-seal-img">
+        <!-- CENTERED LOGIN CARD -->
+        <div class="w-full max-w-md sm:max-w-lg z-10 my-auto">
+            <div class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-white/40 dark:border-slate-800 rounded-[28px] shadow-2xl p-6 sm:p-9 text-slate-900 dark:text-white transition-all duration-300">
+                
+                <!-- Card Header with Emblem Seal -->
+                <div class="text-center mb-6">
+                    <div class="inline-flex p-3 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border-2 border-dashed border-[#007A3D] shadow-lg shadow-emerald-900/10 mb-3">
+                        <img src="{{ asset('images/emblem.png') }}" alt="Emblema da República de Moçambique" class="h-14 w-auto object-contain drop-shadow-sm">
                     </div>
-                    <span class="badge mb-2" style="background: #E6F4EA; color: #007A3D; font-size: 10px; font-weight: 800; text-transform: uppercase; padding: 5px 12px; border-radius: 20px;">PORTAL GOVERNAMENTAL DE ACESSO</span>
-                    <h2 class="font-heading">Portal de Acesso</h2>
-                    <p>Autenticação do Sistema Integrado de Gestão Escolar</p>
+
+                    <div class="space-y-1">
+                        <span class="inline-block px-3 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-[#007A3D] dark:text-emerald-300 text-[10px] font-black uppercase tracking-widest">
+                            República de Moçambique
+                        </span>
+                        <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white font-heading mt-1">
+                            ZAMEDU - SIGE
+                            <br>
+                            <span class="text-sm text-[#007A3D]">Entrar na plataforma</span>
+                        </h1>
+                    </div>
                 </div>
 
-                <!-- Session Status -->
+                <!-- Session Status Alert -->
                 @if (session('status'))
-                    <div class="p-3 mb-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-bold flex items-center gap-2">
-                        <i class="fas fa-check-circle"></i>
+                    <div class="p-3.5 mb-5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200 text-xs font-bold flex items-center gap-2.5">
+                        <i class="fas fa-circle-check text-emerald-600 text-base shrink-0"></i>
                         <div>{{ session('status') }}</div>
                     </div>
                 @endif
 
-                <!-- Validation Errors -->
+                <!-- Validation Errors Alert -->
                 @if ($errors->any())
-                    <div class="p-3 mb-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold">
-                        <div class="font-bold mb-1"><i class="fas fa-exclamation-triangle me-1"></i>Erro de Autenticação:</div>
-                        <ul class="list-disc list-inside">
+                    <div class="p-4 mb-5 rounded-2xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-rose-900 dark:text-rose-200 text-xs font-semibold">
+                        <div class="font-extrabold flex items-center gap-2 mb-1 text-rose-700 dark:text-rose-300">
+                            <i class="fas fa-triangle-exclamation"></i>
+                            <span>Erro de Autenticação:</span>
+                        </div>
+                        <ul class="list-disc list-inside space-y-0.5 text-[11px] text-rose-800 dark:text-rose-300">
                             @foreach ($errors->all() as $error)
                                 <li>{{ $error }}</li>
                             @endforeach
@@ -554,76 +64,119 @@
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('login') }}">
+                <!-- LOGIN FORM -->
+                <form method="POST" action="{{ route('login') }}" class="space-y-4">
                     @csrf
 
-                    <!-- Email Address -->
-                    <div class="form-field-group">
-                        <label for="email" class="form-field-label">
-                            <i class="fas fa-envelope"></i> Endereço de E-mail
+                    <!-- Email Field -->
+                    <div>
+                        <label for="email" class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-1.5">
+                            <i class="fas fa-envelope text-[#007A3D]"></i>E-mail ou Código
                         </label>
-                        <div class="input-relative">
-                            <i class="fas fa-at input-left-icon"></i>
-                            <input id="email" class="custom-input" type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username" placeholder="utilizador@escola.gov.mz">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <i class="fas fa-at text-xs"></i>
+                            </div>
+                            <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username"
+                                placeholder="utilizador@escola.gov.mz"
+                                class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-bold focus:bg-white dark:focus:bg-slate-900 focus:border-[#007A3D] focus:ring-4 focus:ring-emerald-500/15 outline-none transition-all duration-200">
                         </div>
                     </div>
 
-                    <!-- Password -->
-                    <div class="form-field-group">
-                        <label for="password" class="form-field-label">
-                            <i class="fas fa-key"></i> Palavra-Passe
+                    <!-- Password Field -->
+                    <div>
+                        <label for="password" class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-1.5">
+                            <i class="fas fa-key text-[#007A3D]"></i> Palavra-Passe
                         </label>
-                        <div class="input-relative">
-                            <i class="fas fa-lock input-left-icon"></i>
-                            <input id="password" class="custom-input" type="password" name="password" required autocomplete="current-password" placeholder="••••••••">
-                            <button type="button" class="btn-toggle-eye" onclick="togglePasswordVisibility()">
-                                <i class="fas fa-eye" id="eyeIcon"></i>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <i class="fas fa-lock text-xs"></i>
+                            </div>
+                            <input id="password" type="password" name="password" required autocomplete="current-password"
+                                placeholder="••••••••"
+                                class="w-full pl-10 pr-10 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-bold focus:bg-white dark:focus:bg-slate-900 focus:border-[#007A3D] focus:ring-4 focus:ring-emerald-500/15 outline-none transition-all duration-200">
+                            <button type="button" onclick="togglePasswordVisibility()" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                                <i class="fas fa-eye text-xs" id="eyeIcon"></i>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Remember Me & Forgot Password -->
-                    <div class="form-options-row">
-                        <label for="remember_me" class="remember-checkbox-label">
-                            <input id="remember_me" type="checkbox" name="remember">
-                            <span>Lembrar-me neste dispositivo</span>
+                    <!-- Options Row: Remember Me & Forgot Password -->
+                    <div class="flex items-center justify-between pt-1 text-xs">
+                        <label for="remember_me" class="inline-flex items-center gap-2 cursor-pointer select-none">
+                            <input id="remember_me" type="checkbox" name="remember" class="w-4 h-4 rounded border-slate-300 text-[#007A3D] focus:ring-emerald-500 accent-[#007A3D]">
+                            <span class="font-semibold text-slate-600 dark:text-slate-400">Lembrar neste dispositivo</span>
                         </label>
 
                         @if (Route::has('password.request'))
-                            <a class="link-forgot" href="{{ route('password.request') }}">
+                            <a href="{{ route('password.request') }}" class="no-underline font-extrabold text-[#007A3D] hover:text-[#034522] dark:text-emerald-400 hover:underline">
                                 Esqueceu a senha?
                             </a>
                         @endif
                     </div>
 
-                    <button type="submit" class="btn-submit-login">
-                        <i class="fas fa-right-to-bracket"></i>
-                        <span>ENTRAR NO SISTEMA</span>
+                    <!-- SUBMIT BUTTON -->
+                    <button type="submit" class="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-[#007A3D] to-[#034522] hover:from-[#059669] hover:to-[#007A3D] text-white font-extrabold text-xs uppercase tracking-wider shadow-lg shadow-emerald-900/25 hover:shadow-xl hover:shadow-emerald-800/35 transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 flex items-center justify-center gap-2 group">
+                        <span>Entrar no Sistema</span>
+                        <i class="fas fa-arrow-right-to-bracket text-amber-300 group-hover:translate-x-1 transition-transform duration-200"></i>
                     </button>
                 </form>
 
-                <!-- Quick Demo Role Accounts for Testing -->
-                <div class="demo-accounts-card">
-                    <div class="demo-accounts-title">
-                        <i class="fas fa-key text-emerald-700"></i> Contas de Demonstração (Clique para Preencher):
+                <!-- DEMO ACCOUNTS QUICK FILL SECTION -->
+                <div class="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800">
+                    <div class="text-[11px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                        <i class="fas fa-bolt text-amber-500"></i>
+                        <span>Contas de Demonstração (Clique para Preencher):</span>
                     </div>
-                    <div class="d-flex flex-wrap gap-1">
-                        <span class="demo-user-badge" onclick="fillDemo('superadmin@visionarios.co.mz', 'superadmin123')"><i class="fas fa-crown text-amber-500 me-1"></i> Super Admin</span>
-                        <span class="demo-user-badge" onclick="fillDemo('inspector.zambezia@minedh.gov.mz', 'provincia123')"><i class="fas fa-building-columns text-sky-600 me-1"></i> Insp. Provincial</span>
-                        <span class="demo-user-badge" onclick="fillDemo('director.namacurra@minedh.gov.mz', 'distrito123')"><i class="fas fa-map-location-dot text-indigo-600 me-1"></i> Dir. Distrital</span>
-                        <span class="demo-user-badge" onclick="fillDemo('zip.namacurra@minedh.gov.mz', 'zip123')"><i class="fas fa-sitemap text-teal-600 me-1"></i> Coord. ZIP</span>
-                        <span class="demo-user-badge" onclick="fillDemo('admin@visionarios.co.mz', 'admin123')"><i class="fas fa-school text-emerald-700 me-1"></i> Dir. Escola</span>
-                        <span class="demo-user-badge" onclick="fillDemo('pedagogia@visionarios.co.mz', 'pedagogia123')"><i class="fas fa-book-open-reader text-emerald-600 me-1"></i> Pedagógico</span>
-                        <span class="demo-user-badge" onclick="fillDemo('professor@visionarios.co.mz', 'professor123')"><i class="fas fa-chalkboard-user text-blue-600 me-1"></i> Professor</span>
-                        <span class="demo-user-badge" onclick="fillDemo('secretaria@visionarios.co.mz', 'secretaria123')"><i class="fas fa-id-card text-purple-600 me-1"></i> Secretária</span>
+
+                    <div class="flex flex-wrap gap-1.5">
+                        <button type="button" onclick="fillDemo('superadmin@visionarios.co.mz', 'superadmin123')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-emerald-50 dark:bg-slate-800 dark:hover:bg-emerald-950/50 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-bold transition flex items-center gap-1">
+                            <i class="fas fa-crown text-amber-500"></i> Super Admin
+                        </button>
+
+                        <button type="button" onclick="fillDemo('inspector.zambezia@minedh.gov.mz', 'provincia123')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-emerald-50 dark:bg-slate-800 dark:hover:bg-emerald-950/50 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-bold transition flex items-center gap-1">
+                            <i class="fas fa-building-columns text-sky-600"></i> Insp. Provincial
+                        </button>
+
+                        <button type="button" onclick="fillDemo('director.namacurra@minedh.gov.mz', 'distrito123')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-emerald-50 dark:bg-slate-800 dark:hover:bg-emerald-950/50 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-bold transition flex items-center gap-1">
+                            <i class="fas fa-map-location-dot text-indigo-600"></i> Dir. Distrital
+                        </button>
+
+                        <button type="button" onclick="fillDemo('zip.namacurra@minedh.gov.mz', 'zip123')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-emerald-50 dark:bg-slate-800 dark:hover:bg-emerald-950/50 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-bold transition flex items-center gap-1">
+                            <i class="fas fa-sitemap text-teal-600"></i> Coord. ZIP
+                        </button>
+
+                        <button type="button" onclick="fillDemo('admin@visionarios.co.mz', 'admin123')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-emerald-50 dark:bg-slate-800 dark:hover:bg-emerald-950/50 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-bold transition flex items-center gap-1">
+                            <i class="fas fa-school text-emerald-600"></i> Dir. Escola
+                        </button>
+
+                        <button type="button" onclick="fillDemo('pedagogia@visionarios.co.mz', 'pedagogia123')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-emerald-50 dark:bg-slate-800 dark:hover:bg-emerald-950/50 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-bold transition flex items-center gap-1">
+                            <i class="fas fa-book-open-reader text-purple-600"></i> Pedagógico
+                        </button>
+
+                        <button type="button" onclick="fillDemo('professor@visionarios.co.mz', 'professor123')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-emerald-50 dark:bg-slate-800 dark:hover:bg-emerald-950/50 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-bold transition flex items-center gap-1">
+                            <i class="fas fa-chalkboard-user text-blue-600"></i> Professor
+                        </button>
+
+                        <button type="button" onclick="fillDemo('secretaria@visionarios.co.mz', 'secretaria123')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-emerald-50 dark:bg-slate-800 dark:hover:bg-emerald-950/50 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-bold transition flex items-center gap-1">
+                            <i class="fas fa-id-card text-rose-600"></i> Secretária
+                        </button>
                     </div>
                 </div>
-            </div>
 
-            <div class="footer-copyright" style="display: none">
-                &copy; {{ date('Y') }} <strong>ZAMEDU - SIGE</strong> · Desenvolvido por <a href="http://146.235.224.99/" target="_blank">Filipe dos Santos</a>
             </div>
         </div>
+
+        <!-- FOOTER -->
+        <div class="w-full max-w-md text-center z-10 pt-4 pb-2">
+            <p class="text-[11px] text-emerald-100/70 font-medium">
+                &copy; {{ date('Y') }} <strong>ZAMEDU - SIGE</strong> · MINEDH Moçambique · Lei 18/2018 SNE
+            </p>
+            <p class="text-[10px] text-emerald-200/50 mt-0.5">
+                Desenvolvido por <a href="http://146.235.224.99/" target="_blank" class="no-underline text-amber-300 font-bold hover:underline">Filipe dos Santos</a>
+            </p>
+        </div>
+
     </div>
 
     <script>

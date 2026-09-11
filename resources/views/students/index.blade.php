@@ -33,6 +33,24 @@
         </div>
     </div>
 
+    <!-- Banner Informativo para Super Admin & Usuários Territoriais -->
+    @hasanyrole('super_admin|province_admin|province_inspector|district_admin|district_inspector|zip_coordinator|zip_admin')
+    <div class="bg-emerald-50/80 border border-emerald-200/80 rounded-xl p-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
+        <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded-full bg-emerald-700 text-white font-extrabold text-[10px] uppercase tracking-wider">Modo Super Admin</span>
+            <span class="font-bold text-slate-700">Visualização Multi-Escola Ativa. Seleccione uma escola no filtro para restringir a consulta.</span>
+        </div>
+        @if(request()->filled('school_id'))
+            @php $selectedSchool = $schools->firstWhere('id', request('school_id')); @endphp
+            @if($selectedSchool)
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-emerald-300 font-extrabold text-emerald-800 text-[11px] shadow-2xs">
+                    <i class="fas fa-school text-emerald-600"></i> {{ $selectedSchool->name }}
+                </span>
+            @endif
+        @endif
+    </div>
+    @endhasanyrole
+
     <!-- 2. Stat Cards (Pílula de Cor na Esquerda + Ícone Circular) -->
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <!-- Total Alunos (Emerald Pill Accent) -->
@@ -86,7 +104,7 @@
 
     <!-- 3. Filter Bar -->
     <div class="bg-white rounded-xl p-3 border border-slate-200 shadow-2xs">
-        <form action="{{ route('students.index') }}" method="GET" class="grid gap-2 sm:grid-cols-2 md:grid-cols-5 items-center">
+        <form action="{{ route('students.index') }}" method="GET" class="grid gap-2 sm:grid-cols-2 md:grid-cols-6 items-center">
             <div class="md:col-span-2">
                 <div class="relative">
                     <input type="text" name="search" class="w-full rounded-lg border-slate-200 ps-8 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500" 
@@ -94,6 +112,19 @@
                     <i class="fas fa-search absolute left-2.5 top-2.5 text-slate-400 text-xs"></i>
                 </div>
             </div>
+
+            @hasanyrole('super_admin|province_admin|province_inspector|district_admin|district_inspector|zip_coordinator|zip_admin')
+            <div>
+                <select name="school_id" class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500" onchange="this.form.submit()">
+                    <option value="">Todas as Escolas</option>
+                    @foreach($schools as $sch)
+                        <option value="{{ $sch->id }}" {{ request('school_id') == $sch->id ? 'selected' : '' }}>
+                            {{ $sch->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            @endhasanyrole
 
             <div>
                 <select name="status" class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500" onchange="this.form.submit()">
@@ -121,7 +152,7 @@
                 <button type="submit" class="w-full inline-flex justify-center items-center gap-1 rounded-lg bg-emerald-700 hover:bg-emerald-800 py-1.5 px-3 text-xs font-bold text-white transition shadow-2xs">
                     <i class="fas fa-filter text-[10px]"></i> Filtrar
                 </button>
-                @if(request()->anyFilled(['search', 'status', 'class_id', 'gender']))
+                @if(request()->anyFilled(['search', 'status', 'class_id', 'gender', 'school_id']))
                     <a href="{{ route('students.index') }}" class="no-underline inline-flex justify-center items-center rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 p-1.5 text-xs text-slate-600 transition" title="Limpar Filtros">
                         <i class="fas fa-times"></i>
                     </a>
@@ -144,6 +175,9 @@
                 <thead>
                     <tr class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider text-[10px] border-b border-slate-100">
                         <th class="py-2.5 px-4">Estudante</th>
+                        @hasanyrole('super_admin|province_admin|province_inspector|district_admin|district_inspector|zip_coordinator|zip_admin')
+                        <th class="py-2.5 px-3">Escola</th>
+                        @endhasanyrole
                         <th class="py-2.5 px-3">Número</th>
                         <th class="py-2.5 px-3">Turma</th>
                         <th class="py-2.5 px-3">Encarregado</th>
@@ -183,6 +217,17 @@
                                     </div>
                                 </div>
                             </td>
+                            @hasanyrole('super_admin|province_admin|province_inspector|district_admin|district_inspector|zip_coordinator|zip_admin')
+                            <td class="py-2.5 px-3">
+                                @if($student->school)
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-100 text-slate-800 font-bold text-[10px] border border-slate-200">
+                                        <i class="fas fa-school text-emerald-600 text-[9px]"></i> {{ $student->school->name }}
+                                    </span>
+                                @else
+                                    <span class="text-slate-400 text-[10px]">Sem escola</span>
+                                @endif
+                            </td>
+                            @endhasanyrole
                             <td class="py-2.5 px-3 font-mono font-bold text-slate-700">
                                 <span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-800 font-mono text-[11px]">
                                     {{ $student->student_number }}
@@ -268,7 +313,7 @@
 
         @if($students->hasPages())
             <div class="px-4 py-2 border-t border-slate-100">
-                {{ $students->links('pagination::bootstrap-5') }}
+                {{ $students->links() }}
             </div>
         @endif
     </div>

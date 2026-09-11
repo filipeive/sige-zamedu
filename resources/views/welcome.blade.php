@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>ZAMEDU - SIGE — Sistema Integrado de Gestão Escolar de Moçambique</title>
+
+    <!-- Favicon Icons -->
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/emblem.png') }}">
+    <meta name="theme-color" content="#007A3D">
     @if(file_exists(public_path('build/manifest.json')))
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     @else
@@ -713,6 +719,9 @@
             </div>
         </div>
     </footer>
+
+    {{-- AI Widget Público --}}
+    @include('partials.ai-widget-public')
 
 </body>
 </html>

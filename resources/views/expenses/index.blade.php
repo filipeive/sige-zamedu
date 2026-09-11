@@ -186,7 +186,7 @@
 
         @if($expenses->hasPages())
             <div class="px-4 py-2 border-t border-slate-100">
-                {{ $expenses->links('pagination::bootstrap-5') }}
+                {{ $expenses->links() }}
             </div>
         @endif
     </div>

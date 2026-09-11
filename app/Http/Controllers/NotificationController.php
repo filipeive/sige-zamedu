@@ -115,7 +115,7 @@ class NotificationController extends Controller
         if ($request->has('send_sms')) {
             try {
                 $smsService = app(\App\Services\Sms\SmsNotificationService::class);
-                $parents = \App\Models\ParentModel::whereNotNull('phone')->where('phone', '!=', '')->get();
+                $parents = \App\Models\ParentModel::forCurrentSchool()->whereNotNull('phone')->where('phone', '!=', '')->get();
                 $schoolName = \App\Models\Setting::get('school_name', 'Escola');
                 
                 foreach ($parents as $parent) {

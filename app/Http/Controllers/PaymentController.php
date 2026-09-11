@@ -6,6 +6,7 @@ use App\Models\Payment;
 use App\Models\Student;
 use App\Models\Enrollment;
 use App\Models\ClassRoom;
+use App\Models\School;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -33,6 +34,13 @@ class PaymentController extends Controller
         // Filtros por Tipo de Escola
         if (is_public_school()) {
             $query->where('type', '!=', 'mensalidade');
+        }
+
+        // Filtro por escola (super admin / territorial)
+        if ($request->filled('school_id')) {
+            $query->whereHas('enrollment.student', function ($q) use ($request) {
+                $q->where('school_id', $request->school_id);
+            });
         }
 
         // Filtros
@@ -98,8 +106,9 @@ class PaymentController extends Controller
 
         $classes = ClassRoom::active()->orderBy('name')->get();
         $months = $this->getMonths();
+        $schools = School::orderBy('name')->get();
 
-        return view('payments.index', compact('payments', 'stats', 'classes', 'months'));
+        return view('payments.index', compact('payments', 'stats', 'classes', 'months', 'schools'));
     }
 
     /**

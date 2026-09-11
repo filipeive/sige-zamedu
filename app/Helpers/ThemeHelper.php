@@ -9,9 +9,9 @@ class ThemeHelper
      */
     public static function getCssVariables(): string
     {
-        $primary = setting('primary_color', '#4F46E5');
-        $secondary = setting('secondary_color', '#06B6D4');
-        $accent = setting('accent_color', '#F59E0B');
+        $primary = setting('primary_color', '#007A3D');
+        $secondary = setting('secondary_color', '#034522');
+        $accent = setting('accent_color', '#FCD116');
         $borderRadius = setting('border_radius', '16px');
 
         return "

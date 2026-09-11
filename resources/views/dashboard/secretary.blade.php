@@ -1,347 +1,210 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard da Secretaria')
-@section('page-title', 'Dashboard da Secretaria')
-@section('page-title-icon', 'fas fa-user-tie')
-
-@section('breadcrumbs')
-    <li class="breadcrumb-item active">Dashboard</li>
-@endsection
-
-@section('page-actions')
-    <button type="button"
-        class="inline-flex items-center gap-2 rounded-full bg-sky-700 px-5 py-2.5 text-xs font-bold text-white shadow-md hover:bg-sky-800 transition"
-        onclick="window.location.reload()">
-        <i class="fas fa-sync-alt"></i>
-        Atualizar
-    </button>
-@endsection
-
-@push('styles')
-<style>
-    .dash-card {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 1rem;
-        padding: 1.5rem;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-        transition: box-shadow 0.2s, transform 0.2s;
-    }
-    .dash-card:hover {
-        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-        transform: translateY(-1px);
-    }
-    .dash-card-flat {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 1rem;
-        padding: 1.5rem;
-        box-shadow: none;
-    }
-    .dash-section {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 1rem;
-        padding-bottom: 0.75rem;
-        border-bottom: 1px solid #f1f5f9;
-    }
-    .dash-section-title {
-        font-size: 0.95rem;
-        font-weight: 800;
-        color: #0f172a;
-        margin: 0;
-    }
-    .dash-section-subtitle {
-        font-size: 0.75rem;
-        color: #64748b;
-        margin: 0;
-    }
-    .dash-kpi-value {
-        font-size: 1.6rem;
-        font-weight: 900;
-        color: #0f172a;
-        line-height: 1.1;
-    }
-    .dash-kpi-label {
-        font-size: 0.75rem;
-        font-weight: 700;
-        color: #64748b;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-    .dash-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-        border-radius: 9999px;
-        padding: 0.35rem 0.75rem;
-        font-size: 0.75rem;
-        font-weight: 700;
-    }
-    .dash-quick-action {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        padding: 1rem 0.5rem;
-        border-radius: 0.75rem;
-        border: 1px solid #e2e8f0;
-        background: #ffffff;
-        color: #334155;
-        font-size: 0.75rem;
-        font-weight: 700;
-        text-decoration: none;
-        transition: all 0.2s;
-    }
-    .dash-quick-action:hover {
-        background: #f8fafc;
-        border-color: #cbd5e1;
-        color: #0f172a;
-        transform: translateY(-1px);
-    }
-    .dash-quick-action i {
-        font-size: 1.1rem;
-        color: #059669;
-    }
-</style>
-@endpush
+@section('title', 'Painel da Secretaria')
 
 @section('content')
-<div class="space-y-5">
+<div class="w-full max-w-7xl mx-auto px-4 py-6 space-y-6">
 
     <!-- Header Contextual -->
-    <div class="dash-card-flat">
-        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
-            <div>
-                <p class="dash-kpi-label" style="margin-bottom:0.25rem;">{{ $greetingData['school_name'] }} · Ano Lectivo {{ $greetingData['school_year'] }}</p>
-                <h1 class="dash-kpi-value" style="font-size:1.4rem;">{{ $greetingData['greeting'] }}</h1>
-            </div>
-            <div class="text-end">
-                <p class="dash-kpi-label">{{ $greetingData['current_date'] }}</p>
-            </div>
+    <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
+            <p class="text-xs font-bold uppercase tracking-wider text-emerald-700 mb-1">{{ $greetingData['school_name'] }} · Ano Lectivo {{ $greetingData['school_year'] }}</p>
+            <h1 class="text-2xl font-bold text-slate-900 tracking-tight">{{ $greetingData['greeting'] }}</h1>
+        </div>
+        <div class="text-right">
+            <p class="text-xs font-semibold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-xl inline-block">{{ $greetingData['current_date'] }}</p>
         </div>
     </div>
 
     <!-- KPIs -->
-    <section class="row g-3">
-        <div class="col-md-6 col-xl-3">
-            <div class="dash-card">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <p class="dash-kpi-label">Total Alunos</p>
-                        <p class="dash-kpi-value">{{ number_format($stats['total_students']) }}</p>
-                        <span class="dash-badge mt-2" style="background:#f1f5f9; color:#475569;">
-                            <i class="fas fa-arrow-trend-up" style="color:#10b981;"></i> {{ $stats['new_enrollments_month'] }} este mês
-                        </span>
-                    </div>
-                    <div class="rounded-lg p-2" style="background:#e0e7ff; color:#4f46e5;"><i class="fas fa-user-graduate"></i></div>
-                </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex items-start justify-between">
+            <div>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Alunos</p>
+                <p class="text-2xl font-black text-slate-900 mt-1">{{ number_format($stats['total_students']) }}</p>
+                <span class="inline-flex items-center gap-1.5 mt-2 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-medium">
+                    <i class="fas fa-arrow-trend-up"></i> {{ $stats['new_enrollments_month'] }} este mês
+                </span>
+            </div>
+            <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
+                <i class="fas fa-user-graduate text-xl"></i>
             </div>
         </div>
 
-        <div class="col-md-6 col-xl-3">
-            <div class="dash-card">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <p class="dash-kpi-label">Matrículas Pendentes</p>
-                        <p class="dash-kpi-value">{{ number_format($stats['pending_enrollments']) }}</p>
-                        <span class="dash-badge mt-2" style="background:#f1f5f9; color:#475569;">Aguardando revisão</span>
-                    </div>
-                    <div class="rounded-lg p-2" style="background:#fef3c7; color:#d97706;"><i class="fas fa-clock"></i></div>
-                </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex items-start justify-between">
+            <div>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Matrículas Pendentes</p>
+                <p class="text-2xl font-black text-slate-900 mt-1">{{ number_format($stats['pending_enrollments']) }}</p>
+                <span class="inline-block mt-2 px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-medium">
+                    Aguardando revisão
+                </span>
+            </div>
+            <div class="p-3 bg-amber-50 text-amber-600 rounded-xl">
+                <i class="fas fa-clock text-xl"></i>
             </div>
         </div>
 
         @if(is_private_school())
-        <div class="col-md-6 col-xl-3">
-            <div class="dash-card" style="background:linear-gradient(135deg,#0f766e,#115e59); color:#ffffff; border-color:#115e59;">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <p class="dash-kpi-label" style="color:#ccfbf1;">Receita Mensal</p>
-                        <p class="dash-kpi-value" style="color:#ffffff;">{{ number_format($stats['monthly_revenue'], 0, ',', '.') }} <span style="font-size:0.75rem; font-weight:600; color:#ccfbf1;">MT</span></p>
-                        <span class="dash-badge mt-2" style="background:#ffffff20; color:#ffffff;">
-                            {{ $stats['todays_payments'] }} pagamentos hoje
-                        </span>
-                    </div>
-                    <div class="rounded-lg p-2" style="background:#ffffff20; color:#ffffff;"><i class="fas fa-wallet"></i></div>
-                </div>
+        <div class="bg-gradient-to-br from-teal-700 to-teal-900 rounded-2xl p-5 shadow-md text-white flex items-start justify-between">
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-teal-200">Receita Mensal</p>
+                <p class="text-2xl font-black text-white mt-1">{{ number_format($stats['monthly_revenue'], 0, ',', '.') }} <span class="text-xs font-semibold text-teal-200">MT</span></p>
+                <span class="inline-block mt-2 px-2.5 py-1 rounded-full bg-white/20 text-white text-xs font-medium backdrop-blur-md">
+                    {{ $stats['todays_payments'] }} pagamentos hoje
+                </span>
+            </div>
+            <div class="p-3 bg-white/20 text-white rounded-xl backdrop-blur-md">
+                <i class="fas fa-wallet text-xl"></i>
             </div>
         </div>
 
-        <div class="col-md-6 col-xl-3">
-            <div class="dash-card">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <p class="dash-kpi-label">Propinas em Atraso</p>
-                        <p class="dash-kpi-value" style="color:#dc2626;">{{ number_format($stats['overdue_payments']) }}</p>
-                        <span class="dash-badge mt-2" style="background:#fef2f2; color:#991b1b;">
-                            {{ number_format($stats['overdue_amount'], 0, ',', '.') }} MT
-                        </span>
-                    </div>
-                    <div class="rounded-lg p-2" style="background:#fee2e2; color:#dc2626;"><i class="fas fa-exclamation-triangle"></i></div>
-                </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex items-start justify-between">
+            <div>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Propinas em Atraso</p>
+                <p class="text-2xl font-black text-rose-600 mt-1">{{ number_format($stats['overdue_payments']) }}</p>
+                <span class="inline-block mt-2 px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 text-xs font-bold">
+                    {{ number_format($stats['overdue_amount'], 0, ',', '.') }} MT
+                </span>
+            </div>
+            <div class="p-3 bg-rose-50 text-rose-600 rounded-xl">
+                <i class="fas fa-exclamation-triangle text-xl"></i>
             </div>
         </div>
         @endif
-    </section>
+    </div>
 
     <!-- Ações Rápidas -->
-    <section>
-        <div class="dash-section" style="border-bottom:0; padding-bottom:0; margin-bottom:0;">
-            <div>
-                <p class="dash-section-title">Ações Rápidas</p>
-                <p class="dash-section-subtitle">Acesso directo às tarefas mais frequentes</p>
-            </div>
-        </div>
-        <div class="row g-2">
-            <div class="col-6 col-md-3 col-xl-2">
-                <a href="{{ route('students.create') }}" class="dash-quick-action">
-                    <i class="fas fa-user-plus"></i>
-                    <span>Novo Aluno</span>
-                </a>
-            </div>
+    <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+        <h2 class="text-base font-bold text-slate-900 mb-1">Ações Rápidas</h2>
+        <p class="text-xs text-slate-500 mb-4">Acesso directo às tarefas e formulários mais frequentes</p>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+            <a href="{{ route('students.create') }}" class="flex flex-col items-center justify-center p-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-emerald-50 hover:border-emerald-200 text-slate-700 hover:text-emerald-700 transition group">
+                <i class="fas fa-user-plus text-xl text-slate-500 group-hover:text-emerald-600 mb-2"></i>
+                <span class="text-xs font-bold">Novo Aluno</span>
+            </a>
             @if(is_private_school())
-            <div class="col-6 col-md-3 col-xl-2">
-                <a href="{{ route('payments.create') }}" class="dash-quick-action">
-                    <i class="fas fa-money-bill-wave"></i>
-                    <span>Pagamento</span>
-                </a>
-            </div>
+            <a href="{{ route('payments.create') }}" class="flex flex-col items-center justify-center p-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-emerald-50 hover:border-emerald-200 text-slate-700 hover:text-emerald-700 transition group">
+                <i class="fas fa-money-bill-wave text-xl text-slate-500 group-hover:text-emerald-600 mb-2"></i>
+                <span class="text-xs font-bold">Pagamento</span>
+            </a>
             @endif
-            <div class="col-6 col-md-3 col-xl-2">
-                <a href="{{ route('enrollments.create') }}" class="dash-quick-action">
-                    <i class="fas fa-id-card"></i>
-                    <span>Matrícula</span>
-                </a>
-            </div>
-            <div class="col-6 col-md-3 col-xl-2">
-                <a href="{{ route('communications.create') }}" class="dash-quick-action">
-                    <i class="fas fa-bullhorn"></i>
-                    <span>Comunicado</span>
-                </a>
-            </div>
+            <a href="{{ route('enrollments.create') }}" class="flex flex-col items-center justify-center p-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-emerald-50 hover:border-emerald-200 text-slate-700 hover:text-emerald-700 transition group">
+                <i class="fas fa-id-card text-xl text-slate-500 group-hover:text-emerald-600 mb-2"></i>
+                <span class="text-xs font-bold">Matrícula</span>
+            </a>
+            <a href="{{ route('communications.create') }}" class="flex flex-col items-center justify-center p-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-emerald-50 hover:border-emerald-200 text-slate-700 hover:text-emerald-700 transition group">
+                <i class="fas fa-bullhorn text-xl text-slate-500 group-hover:text-emerald-600 mb-2"></i>
+                <span class="text-xs font-bold">Comunicado</span>
+            </a>
         </div>
-    </section>
+    </div>
 
     @if(is_private_school())
-    <!-- Tabelas -->
-    <section class="row g-3">
-        <div class="col-lg-6">
-            <div class="dash-card h-100">
-                <div class="dash-section">
-                    <div>
-                        <p class="dash-section-title">Últimos Pagamentos</p>
-                        <p class="dash-section-subtitle">Recebidos recentemente</p>
-                    </div>
-                    <a href="{{ route('payments.index') }}" class="dash-badge" style="background:#f1f5f9; color:#334155; text-decoration:none;">Histórico</a>
+    <!-- Tabelas de Pagamentos -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-6 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/50 flex items-center justify-between">
+                <div>
+                    <h2 class="text-sm font-bold text-slate-900">Últimos Pagamentos</h2>
+                    <p class="text-xs text-slate-500">Recebidos recentemente</p>
                 </div>
-                <div class="dash-collapse-content">
-                    <div class="table-responsive">
-                        <table class="table table-sm mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Aluno</th>
-                                    <th>Data</th>
-                                    <th class="text-end">Valor</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($recentPayments as $payment)
-                                    <tr>
-                                        <td class="fw-semibold">{{ $payment->student->full_name }}</td>
-                                        <td class="text-muted">{{ $payment->payment_date?->format('d/m/Y') ?? 'N/A' }}</td>
-                                        <td class="text-end fw-bold text-success">{{ number_format($payment->amount, 2, ',', '.') }} MT</td>
-                                    </tr>
-                                @empty
-                                    <tr><td colspan="3" class="text-center py-3 text-muted">Nenhum pagamento registado.</td></tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                <a href="{{ route('payments.index') }}" class="px-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">Histórico</a>
+            </div>
+            <div class="overflow-x-auto flex-1">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead class="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200">
+                        <tr>
+                            <th class="py-3 px-6">Aluno</th>
+                            <th class="py-3 px-4">Data</th>
+                            <th class="py-3 px-6 text-right">Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-slate-700">
+                        @forelse($recentPayments as $payment)
+                            <tr class="hover:bg-slate-50/80 transition">
+                                <td class="py-3 px-6 font-bold text-slate-900">{{ $payment->student->full_name }}</td>
+                                <td class="py-3 px-4 text-slate-500">{{ $payment->payment_date?->format('d/m/Y') ?? 'N/A' }}</td>
+                                <td class="py-3 px-6 text-right font-bold text-emerald-600">{{ number_format($payment->amount, 2, ',', '.') }} MT</td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="3" class="text-center py-6 text-slate-400 font-medium">Nenhum pagamento registado.</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
 
-        <div class="col-lg-6">
-            <div class="dash-card h-100">
-                <div class="dash-section">
-                    <div>
-                        <p class="dash-section-title">Pagamentos em Atraso</p>
-                        <p class="dash-section-subtitle">Requerem acção</p>
-                    </div>
-                    <a href="{{ route('payments.index') }}?status=overdue" class="dash-badge" style="background:#fef2f2; color:#991b1b; text-decoration:none;">Ver todos</a>
+        <div class="lg:col-span-6 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/50 flex items-center justify-between">
+                <div>
+                    <h2 class="text-sm font-bold text-slate-900">Pagamentos em Atraso</h2>
+                    <p class="text-xs text-slate-500">Requerem acção da secretaria</p>
                 </div>
-                <div class="dash-collapse-content">
-                    <div class="table-responsive">
-                        <table class="table table-sm mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Aluno</th>
-                                    <th>Vencimento</th>
-                                    <th class="text-end">Valor</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($overduePayments as $payment)
-                                    <tr>
-                                        <td class="fw-semibold">{{ $payment->student->full_name }}</td>
-                                        <td class="text-muted">{{ $payment->due_date?->format('d/m/Y') ?? 'N/A' }}</td>
-                                        <td class="text-end fw-bold text-danger">{{ number_format($payment->amount, 2, ',', '.') }} MT</td>
-                                    </tr>
-                                @empty
-                                    <tr><td colspan="3" class="text-center py-3 text-muted">Nenhum pagamento em atraso.</td></tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                <a href="{{ route('payments.index') }}?status=overdue" class="px-3 py-1 rounded-full bg-rose-100 hover:bg-rose-200 text-rose-800 text-xs font-bold transition">Ver todos</a>
+            </div>
+            <div class="overflow-x-auto flex-1">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead class="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200">
+                        <tr>
+                            <th class="py-3 px-6">Aluno</th>
+                            <th class="py-3 px-4">Vencimento</th>
+                            <th class="py-3 px-6 text-right">Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-slate-700">
+                        @forelse($overduePayments as $payment)
+                            <tr class="hover:bg-slate-50/80 transition">
+                                <td class="py-3 px-6 font-bold text-slate-900">{{ $payment->student->full_name }}</td>
+                                <td class="py-3 px-4 text-slate-500">{{ $payment->due_date?->format('d/m/Y') ?? 'N/A' }}</td>
+                                <td class="py-3 px-6 text-right font-bold text-rose-600">{{ number_format($payment->amount, 2, ',', '.') }} MT</td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="3" class="text-center py-6 text-slate-400 font-medium">Nenhum pagamento em atraso.</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
-    </section>
+    </div>
     @endif
 
     <!-- Matrículas Pendentes -->
-    <section>
-        <div class="dash-card-flat">
-            <div class="dash-section">
-                <div>
-                    <p class="dash-section-title">Pré-Matrículas Pendentes</p>
-                    <p class="dash-section-subtitle">Aguardando aprovação da secretaria</p>
-                </div>
-                <a href="{{ route('enrollments.index') }}?status=pending" class="dash-badge" style="background:#f1f5f9; color:#334155; text-decoration:none;">Ver todas</a>
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/50 flex items-center justify-between">
+            <div>
+                <h2 class="text-sm font-bold text-slate-900">Pré-Matrículas Pendentes</h2>
+                <p class="text-xs text-slate-500">Aguardando aprovação da secretaria</p>
             </div>
-            <div class="dash-collapse-content">
-                <div class="table-responsive">
-                    <table class="table table-sm mb-0">
-                        <thead>
-                            <tr>
-                                <th>Aluno</th>
-                                <th>Turma</th>
-                                <th>Data</th>
-                                <th class="text-end">Acção</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($pendingEnrollments as $enrollment)
-                                <tr>
-                                    <td class="fw-semibold">{{ $enrollment->student->full_name }}</td>
-                                    <td class="text-muted">{{ $enrollment->class->name ?? 'N/A' }}</td>
-                                    <td class="text-muted">{{ $enrollment->created_at->format('d/m/Y') }}</td>
-                                    <td class="text-end">
-                                        <a href="{{ route('enrollments.show', $enrollment) }}" class="dash-badge" style="background:#f1f5f9; color:#334155; text-decoration:none;">Ver</a>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr><td colspan="4" class="text-center py-3 text-muted">Nenhuma matrícula pendente.</td></tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <a href="{{ route('enrollments.index') }}?status=pending" class="px-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">Ver todas</a>
         </div>
-    </section>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+                <thead class="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200">
+                    <tr>
+                        <th class="py-3 px-6">Aluno</th>
+                        <th class="py-3 px-4">Turma</th>
+                        <th class="py-3 px-4">Data</th>
+                        <th class="py-3 px-6 text-right">Acção</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-slate-700">
+                    @forelse($pendingEnrollments as $enrollment)
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3 px-6 font-bold text-slate-900">{{ $enrollment->student->full_name }}</td>
+                            <td class="py-3 px-4 text-slate-600">{{ $enrollment->class->name ?? 'N/A' }}</td>
+                            <td class="py-3 px-4 text-slate-500">{{ $enrollment->created_at->format('d/m/Y') }}</td>
+                            <td class="py-3 px-6 text-right">
+                                <a href="{{ route('enrollments.show', $enrollment) }}" class="px-3 py-1 rounded-lg bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 font-semibold transition">Ver</a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="4" class="text-center py-6 text-slate-400 font-medium">Nenhuma matrícula pendente.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
 
 </div>
 @endsection

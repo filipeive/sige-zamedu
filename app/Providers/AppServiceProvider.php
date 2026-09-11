@@ -6,6 +6,7 @@ use App\Notifications\Channels\SmsChannel;
 use App\Services\Ai\AiManager;
 use App\Services\Sms\SmsManager;
 use App\Services\Sms\SmsNotificationService;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -22,7 +23,10 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot()
     {
-        // Directives para permissões
+        Paginator::useTailwind();
+        Paginator::defaultView('vendor.pagination.tailwind');
+
+        // Directives para permissões e roles
         Blade::if('can', function ($permission) {
             return auth()->check() && auth()->user()->can($permission);
         });
@@ -31,15 +35,20 @@ class AppServiceProvider extends ServiceProvider
             return auth()->check() && auth()->user()->hasRole($role);
         });
 
+        Blade::if('hasrole', function ($role) {
+            return auth()->check() && auth()->user()->hasRole($role);
+        });
+
         Blade::if('anyrole', function ($roles) {
             if (!auth()->check()) return false;
+            $rolesArray = is_array($roles) ? $roles : explode('|', $roles);
+            return auth()->user()->hasAnyRole($rolesArray);
+        });
 
-            foreach ($roles as $role) {
-                if (auth()->user()->hasRole($role)) {
-                    return true;
-                }
-            }
-            return false;
+        Blade::if('hasanyrole', function ($roles) {
+            if (!auth()->check()) return false;
+            $rolesArray = is_array($roles) ? $roles : explode('|', $roles);
+            return auth()->user()->hasAnyRole($rolesArray);
         });
 
         // Canal de notificação 'sms' — registado em lazy para evitar dependências circulares

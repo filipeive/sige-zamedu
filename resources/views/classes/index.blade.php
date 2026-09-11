@@ -42,22 +42,50 @@
         <a href="{{ route('classes.index', ['level' => 'preschool']) }}"
             class="px-4 py-2.5 text-xs font-bold border-b-2 transition flex items-center gap-2 whitespace-nowrap no-underline
                 {{ $level === 'preschool' ? 'border-pink-500 text-pink-700' : 'border-transparent text-slate-500 hover:text-slate-800' }}">
-            <i class="fas fa-shapes"></i> Pré-Escolar &amp; Infantil
+            <i class="fas fa-shapes"></i> Pré-Escolar
             <span class="px-1.5 py-0.5 rounded-full bg-pink-50 text-pink-700 text-[10px] font-extrabold">{{ $levelStats['preschool'] }}</span>
         </a>
+        {{-- Ensino Primário com subciclos --}}
         <a href="{{ route('classes.index', ['level' => 'primary']) }}"
             class="px-4 py-2.5 text-xs font-bold border-b-2 transition flex items-center gap-2 whitespace-nowrap no-underline
                 {{ $level === 'primary' ? 'border-blue-500 text-blue-700' : 'border-transparent text-slate-500 hover:text-slate-800' }}">
             <i class="fas fa-child"></i> Ensino Primário
             <span class="px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-extrabold">{{ $levelStats['primary'] }}</span>
         </a>
+        <a href="{{ route('classes.index', ['level' => 'ep1']) }}"
+            class="px-3 py-2.5 text-[11px] font-bold border-b-2 transition flex items-center gap-1.5 whitespace-nowrap no-underline
+                {{ $level === 'ep1' ? 'border-blue-400 text-blue-600' : 'border-transparent text-slate-400 hover:text-slate-600' }}">
+            1.ºCiclo EP
+            <span class="px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-500 text-[10px] font-extrabold">{{ $levelStats['ep1'] }}</span>
+        </a>
+        <a href="{{ route('classes.index', ['level' => 'ep2']) }}"
+            class="px-3 py-2.5 text-[11px] font-bold border-b-2 transition flex items-center gap-1.5 whitespace-nowrap no-underline
+                {{ $level === 'ep2' ? 'border-blue-400 text-blue-600' : 'border-transparent text-slate-400 hover:text-slate-600' }}">
+            2.ºCiclo EP
+            <span class="px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-500 text-[10px] font-extrabold">{{ $levelStats['ep2'] }}</span>
+        </a>
+        {{-- Ensino Secundário com subciclos --}}
         <a href="{{ route('classes.index', ['level' => 'secondary']) }}"
             class="px-4 py-2.5 text-xs font-bold border-b-2 transition flex items-center gap-2 whitespace-nowrap no-underline
                 {{ $level === 'secondary' ? 'border-purple-500 text-purple-700' : 'border-transparent text-slate-500 hover:text-slate-800' }}">
             <i class="fas fa-graduation-cap"></i> Ensino Secundário
             <span class="px-1.5 py-0.5 rounded-full bg-purple-50 text-purple-700 text-[10px] font-extrabold">{{ $levelStats['secondary'] }}</span>
         </a>
+        <a href="{{ route('classes.index', ['level' => 'esg1']) }}"
+            class="px-3 py-2.5 text-[11px] font-bold border-b-2 transition flex items-center gap-1.5 whitespace-nowrap no-underline
+                {{ $level === 'esg1' ? 'border-purple-400 text-purple-600' : 'border-transparent text-slate-400 hover:text-slate-600' }}">
+            ESG1 <span class="text-[9px]">(7ª–9ª)</span>
+            <span class="px-1.5 py-0.5 rounded-full bg-purple-50 text-purple-500 text-[10px] font-extrabold">{{ $levelStats['esg1'] }}</span>
+        </a>
+        <a href="{{ route('classes.index', ['level' => 'esg2']) }}"
+            class="px-3 py-2.5 text-[11px] font-bold border-b-2 transition flex items-center gap-1.5 whitespace-nowrap no-underline
+                {{ $level === 'esg2' ? 'border-purple-400 text-purple-600' : 'border-transparent text-slate-400 hover:text-slate-600' }}">
+            ESG2 <span class="text-[9px]">(10ª–12ª)</span>
+            <span class="px-1.5 py-0.5 rounded-full bg-purple-50 text-purple-500 text-[10px] font-extrabold">{{ $levelStats['esg2'] }}</span>
+        </a>
     </div>
+
+    @include('partials.super-admin-banner')
 
     {{-- 3. Stat Cards --}}
     @php
@@ -115,7 +143,20 @@
     <div class="bg-white rounded-xl p-3 border border-slate-200 shadow-2xs">
         <form action="{{ route('classes.index') }}" method="GET" class="grid gap-2 sm:grid-cols-2 md:grid-cols-5 items-center">
             <input type="hidden" name="level" value="{{ $level }}">
+
+            @hasanyrole('super_admin|province_admin|province_inspector|district_admin|district_inspector|zip_coordinator|zip_admin')
             <div>
+                <select name="school_id" class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500" onchange="this.form.submit()">
+                    <option value="">Todas as Escolas</option>
+                    @foreach($schools as $sch)
+                        <option value="{{ $sch->id }}" {{ request('school_id') == $sch->id ? 'selected' : '' }}>
+                            {{ $sch->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            @endhasanyrole
+            
                 <select name="grade_level" class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500" onchange="this.form.submit()">
                     <option value="">Todas as Classes</option>
                     @foreach($gradeLevels as $key => $label)
@@ -155,7 +196,7 @@
                 <button type="submit" class="w-full inline-flex justify-center items-center gap-1 rounded-lg bg-emerald-700 hover:bg-emerald-800 py-1.5 px-3 text-xs font-bold text-white transition shadow-2xs">
                     <i class="fas fa-filter text-[10px]"></i> Filtrar
                 </button>
-                @if(request()->anyFilled(['grade_level', 'teacher_id', 'teaching_mode', 'search']))
+                @if(request()->anyFilled(['grade_level', 'teacher_id', 'teaching_mode', 'search', 'school_id']))
                     <a href="{{ route('classes.index', ['level' => $level]) }}" class="no-underline inline-flex justify-center items-center rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 p-1.5 text-xs text-slate-600 transition" title="Limpar Filtros">
                         <i class="fas fa-times"></i>
                     </a>
@@ -289,7 +330,7 @@
 
         @if($classes->hasPages())
             <div class="px-4 py-2 border-t border-slate-100">
-                {{ $classes->links('pagination::bootstrap-5') }}
+                {{ $classes->links() }}
             </div>
         @endif
     </div>

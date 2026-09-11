@@ -180,7 +180,7 @@
 
         @if($leaveRequests->hasPages())
             <div class="px-4 py-2 border-t border-slate-100">
-                {{ $leaveRequests->links('pagination::bootstrap-5') }}
+                {{ $leaveRequests->links() }}
             </div>
         @endif
     </div>

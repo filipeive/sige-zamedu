@@ -2,37 +2,29 @@
 
 @section('title', 'Arquivo - ' . $student->full_name)
 @section('page-title', 'Arquivo: ' . $student->full_name)
-@section('page-title-icon', 'fas fa-archive')
-
-@section('breadcrumbs')
-    <li class="breadcrumb-item"><a href="{{ route('enrollments.index') }}">Matrículas</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('admin.students-archive.index') }}">Alunos Arquivados</a></li>
-    <li class="breadcrumb-item active">{{ $student->full_name }}</li>
-@endsection
 
 @section('content')
-<div class="row g-4">
-    <div class="col-lg-4">
-        <div class="card border-0 shadow-sm rounded-4">
-            <div class="card-body p-4 text-center">
+<div class="w-full px-4 py-6" x-data="{ reactivateModal: false }">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Sidebar Info -->
+        <div class="lg:col-span-4">
+            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 text-center">
                 @if ($student->passport_photo)
                     <img src="{{ Storage::url($student->passport_photo) }}" alt="{{ $student->full_name }}"
-                        class="rounded-circle shadow-md border border-4 border-white mb-3"
-                        style="width: 120px; height: 120px; object-fit: cover;">
+                        class="w-28 h-28 rounded-full shadow-md border-4 border-white mx-auto object-cover mb-4">
                 @else
-                    <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto shadow-md mb-3"
-                        style="width: 120px; height: 120px; font-size: 40px; font-weight: 800;">
+                    <div class="w-28 h-28 rounded-full bg-slate-200 text-slate-700 font-black text-3xl flex items-center justify-center mx-auto shadow-md mb-4 border-4 border-white">
                         {{ substr($student->first_name, 0, 1) }}{{ substr($student->last_name, 0, 1) }}
                     </div>
                 @endif
-                <h4 class="fw-bold mb-1 text-slate-800">{{ $student->full_name }}</h4>
-                <p class="text-muted small font-mono">{{ $student->student_number }}</p>
+                <h4 class="text-xl font-extrabold text-slate-900 tracking-tight mb-1">{{ $student->full_name }}</h4>
+                <p class="text-xs font-mono text-slate-500 mb-3">{{ $student->student_number }}</p>
 
                 @php
                     $statusColors = [
-                        'transferred' => 'bg-info text-white',
-                        'graduated' => 'bg-success text-white',
-                        'inactive' => 'bg-secondary text-white',
+                        'transferred' => 'bg-sky-100 text-sky-800 border-sky-200',
+                        'graduated' => 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                        'inactive' => 'bg-slate-100 text-slate-700 border-slate-200',
                     ];
                     $statusLabels = [
                         'transferred' => 'Transferido',
@@ -40,95 +32,95 @@
                         'inactive' => 'Desistente',
                     ];
                 @endphp
-                <span class="badge {{ $statusColors[$student->status] ?? 'bg-secondary text-white' }} px-3 py-1.5 rounded-pill text-xs font-semibold">
-                    <i class="fas fa-archive me-1"></i> {{ $statusLabels[$student->status] ?? ucfirst($student->status) }}
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-extrabold {{ $statusColors[$student->status] ?? 'bg-slate-100 text-slate-700 border-slate-200' }}">
+                    <i class="fa-solid fa-box-archive"></i> {{ $statusLabels[$student->status] ?? ucfirst($student->status) }}
                 </span>
 
-                <hr>
+                <div class="border-t border-slate-200 my-5"></div>
 
-                <div class="text-start text-sm space-y-2">
-                    <div class="d-flex justify-content-between">
-                        <span class="text-muted">Idade:</span>
-                        <strong>{{ $student->age ?? 'N/A' }} anos</strong>
+                <div class="text-left text-xs space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-500 font-medium">Idade:</span>
+                        <strong class="text-slate-800 font-bold">{{ $student->age ?? 'N/A' }} anos</strong>
                     </div>
-                    <div class="d-flex justify-content-between">
-                        <span class="text-muted">Gênero:</span>
-                        <strong>{{ $student->gender === 'M' ? 'Masculino' : ($student->gender === 'F' ? 'Feminino' : 'N/A') }}</strong>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-500 font-medium">Gênero:</span>
+                        <strong class="text-slate-800 font-bold">{{ $student->gender === 'M' ? 'Masculino' : ($student->gender === 'F' ? 'Feminino' : 'N/A') }}</strong>
                     </div>
-                    <div class="d-flex justify-content-between">
-                        <span class="text-muted">Contacto:</span>
-                        <strong class="font-mono">{{ $student->emergency_phone ?? 'N/A' }}</strong>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-500 font-medium">Contacto:</span>
+                        <strong class="font-mono text-slate-800 font-bold">{{ $student->emergency_phone ?? 'N/A' }}</strong>
                     </div>
                     @if ($student->parent)
-                        <div class="d-flex justify-content-between">
-                            <span class="text-muted">Encarregado:</span>
-                            <strong>{{ $student->parent->first_name }} {{ $student->parent->last_name }}</strong>
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-500 font-medium">Encarregado:</span>
+                            <strong class="text-slate-800 font-bold">{{ $student->parent->first_name }} {{ $student->parent->last_name }}</strong>
                         </div>
                     @endif
-                    <div class="d-flex justify-content-between">
-                        <span class="text-muted">Arquivado em:</span>
-                        <strong>{{ $student->updated_at?->format('d/m/Y') ?? 'N/A' }}</strong>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-500 font-medium">Arquivado em:</span>
+                        <strong class="text-slate-800 font-bold">{{ $student->updated_at?->format('d/m/Y') ?? 'N/A' }}</strong>
                     </div>
                 </div>
 
-                <div class="d-grid gap-2 mt-4">
-                    <button type="button" class="btn btn-success rounded-pill py-2 text-xs font-bold shadow-xs"
-                        data-bs-toggle="modal" data-bs-target="#reactivateModal">
-                        <i class="fas fa-redo me-1.5"></i> Reativar Aluno
+                <div class="space-y-2.5 mt-6">
+                    <button type="button" @click="reactivateModal = true" class="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition inline-flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-rotate-right"></i> Reativar Aluno
                     </button>
-                    <a href="{{ route('students.support.index', $student) }}"
-                        class="btn btn-outline-warning rounded-pill py-2 text-xs font-bold shadow-xs">
-                        <i class="fas fa-exclamation-triangle me-1.5"></i> Ver Histórico / Ocorrências
+                    <a href="{{ route('students.support.index', $student) }}" class="w-full py-2.5 px-4 rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-xs transition inline-flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Ver Histórico / Ocorrências
                     </a>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="col-lg-8">
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-header bg-white border-bottom p-3">
-                <h5 class="fw-bold mb-0 text-slate-800"><i class="fas fa-school me-2 text-primary"></i>Histórico de Matrículas</h5>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle text-sm mb-0">
-                        <thead class="table-light">
+        <!-- Main Content -->
+        <div class="lg:col-span-8 space-y-6">
+            <!-- Histórico de Matrículas -->
+            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-4 md:p-6 bg-slate-50/50 border-b border-slate-200">
+                    <h5 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-school text-emerald-600"></i> Histórico de Matrículas
+                    </h5>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-left text-slate-600 divide-y divide-slate-200">
+                        <thead class="bg-slate-50 uppercase font-semibold text-slate-500">
                             <tr>
-                                <th>Ano Lectivo</th>
-                                <th>Turma</th>
-                                <th>Estado</th>
-                                <th>Data Matrícula</th>
-                                <th>Mensalidade</th>
+                                <th class="px-4 py-3">Ano Lectivo</th>
+                                <th class="px-4 py-3">Turma</th>
+                                <th class="px-4 py-3">Estado</th>
+                                <th class="px-4 py-3">Data Matrícula</th>
+                                <th class="px-4 py-3">Mensalidade</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="divide-y divide-slate-200 font-medium">
                             @forelse($student->enrollments as $enrollment)
-                                <tr>
-                                    <td><strong>{{ $enrollment->school_year }}</strong></td>
-                                    <td>{{ $enrollment->class->name ?? 'N/A' }}</td>
-                                    <td>
+                                <tr class="hover:bg-slate-50 transition">
+                                    <td class="px-4 py-3 font-bold text-slate-900">{{ $enrollment->school_year }}</td>
+                                    <td class="px-4 py-3 font-semibold text-slate-800">{{ $enrollment->class->name ?? 'N/A' }}</td>
+                                    <td class="px-4 py-3">
                                         @php
                                             $enrollStatus = [
-                                                'active' => 'bg-success',
-                                                'pending' => 'bg-warning',
-                                                'completed' => 'bg-info',
-                                                'cancelled' => 'bg-danger',
-                                                'transferred' => 'bg-info',
+                                                'active' => 'bg-emerald-100 text-emerald-800',
+                                                'pending' => 'bg-amber-100 text-amber-800',
+                                                'completed' => 'bg-sky-100 text-sky-800',
+                                                'cancelled' => 'bg-rose-100 text-rose-800',
+                                                'transferred' => 'bg-sky-100 text-sky-800',
                                             ];
                                         @endphp
-                                        <span class="badge {{ $enrollStatus[$enrollment->status] ?? 'bg-secondary' }}">
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold {{ $enrollStatus[$enrollment->status] ?? 'bg-slate-100 text-slate-600' }}">
                                             {{ ucfirst($enrollment->status) }}
                                         </span>
                                     </td>
-                                    <td>{{ $enrollment->enrollment_date?->format('d/m/Y') ?? '-' }}</td>
-                                    <td>{{ number_format($enrollment->monthly_fee ?? 0, 2, ',', '.') }} MT</td>
+                                    <td class="px-4 py-3 text-slate-500">{{ $enrollment->enrollment_date?->format('d/m/Y') ?? '-' }}</td>
+                                    <td class="px-4 py-3 font-bold text-slate-800">{{ number_format($enrollment->monthly_fee ?? 0, 2, ',', '.') }} MT</td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-center py-4 text-muted">
-                                        <i class="fas fa-folder-open fa-2x mb-2 text-slate-300"></i>
-                                        <p class="mb-0">Nenhuma matrícula registada.</p>
+                                    <td colspan="5" class="text-center py-8 text-slate-400">
+                                        <i class="fa-solid fa-folder-open text-3xl mb-2 block"></i>
+                                        <p>Nenhuma matrícula registada.</p>
                                     </td>
                                 </tr>
                             @endforelse
@@ -136,77 +128,79 @@
                     </table>
                 </div>
             </div>
-        </div>
 
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-header bg-white border-bottom p-3">
-                <h5 class="fw-bold mb-0 text-slate-800"><i class="fas fa-comments me-2 text-info"></i>Observações Registadas</h5>
-            </div>
-            <div class="card-body p-4">
-                @forelse($student->observations()->with('creator')->latest()->limit(10)->get() as $observation)
-                    <div class="rounded-lg border border-slate-200 p-3 mb-3">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <small class="text-slate-500">
-                                {{ $observation->created_at->format('d/m/Y H:i') }} por
-                                {{ $observation->creator->name ?? 'Sistema' }}
-                            </small>
-                            @if ($observation->special_needs)
-                                <span class="badge bg-amber-100 text-amber-700">Nec. especial</span>
-                            @endif
+            <!-- Observações Registadas -->
+            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-4 md:p-6 bg-slate-50/50 border-b border-slate-200">
+                    <h5 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-comments text-sky-600"></i> Observações Registadas
+                    </h5>
+                </div>
+                <div class="p-6 space-y-3">
+                    @forelse($student->observations()->with('creator')->latest()->limit(10)->get() as $observation)
+                        <div class="rounded-2xl border border-slate-200 p-4 bg-slate-50/40">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs text-slate-400">
+                                    {{ $observation->created_at->format('d/m/Y H:i') }} por {{ $observation->creator->name ?? 'Sistema' }}
+                                </span>
+                                @if ($observation->special_needs)
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold">Nec. especial</span>
+                                @endif
+                            </div>
+                            <p class="text-xs font-medium text-slate-700">{{ $observation->observations }}</p>
                         </div>
-                        <p class="mb-0 text-sm text-slate-700">{{ $observation->observations }}</p>
-                    </div>
-                @empty
-                    <p class="text-sm text-slate-500 mb-0 text-center py-3">Nenhuma observação registada.</p>
-                @endforelse
+                    @empty
+                        <p class="text-xs text-slate-400 text-center py-4">Nenhuma observação registada.</p>
+                    @endforelse
+                </div>
             </div>
-        </div>
 
-        <div class="card border-0 shadow-sm rounded-4">
-            <div class="card-header bg-white border-bottom p-3">
-                <h5 class="fw-bold mb-0 text-slate-800"><i class="fas fa-folder-open me-2 text-emerald-600"></i>Registos / Ocorrências</h5>
-            </div>
-            <div class="card-body p-4">
-                @forelse($student->studentRecords()->with('creator')->latest('record_date')->limit(10)->get() as $record)
-                    <div class="rounded-lg border border-slate-200 p-3 mb-3">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <small class="text-slate-500">
-                                {{ \Carbon\Carbon::parse($record->record_date)->format('d/m/Y') }} por
-                                {{ $record->creator->name ?? 'Sistema' }}
-                            </small>
-                            <span class="badge bg-cyan-100 text-cyan-700">{{ $record->record_type_name }}</span>
+            <!-- Registos / Ocorrências -->
+            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-4 md:p-6 bg-slate-50/50 border-b border-slate-200">
+                    <h5 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-folder-open text-emerald-600"></i> Registos / Ocorrências
+                    </h5>
+                </div>
+                <div class="p-6 space-y-3">
+                    @forelse($student->studentRecords()->with('creator')->latest('record_date')->limit(10)->get() as $record)
+                        <div class="rounded-2xl border border-slate-200 p-4 bg-slate-50/40">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs text-slate-400">
+                                    {{ \Carbon\Carbon::parse($record->record_date)->format('d/m/Y') }} por {{ $record->creator->name ?? 'Sistema' }}
+                                </span>
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 text-[10px] font-bold">{{ $record->record_type_name }}</span>
+                            </div>
+                            <p class="text-xs font-medium text-slate-700">{{ $record->record_details }}</p>
                         </div>
-                        <p class="mb-0 text-sm text-slate-700">{{ $record->record_details }}</p>
-                    </div>
-                @empty
-                    <p class="text-sm text-slate-500 mb-0 text-center py-3">Nenhuma ocorrência/registo encontrado.</p>
-                @endforelse
+                    @empty
+                        <p class="text-xs text-slate-400 text-center py-4">Nenhuma ocorrência/registo encontrado.</p>
+                    @endforelse
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="modal fade" id="reactivateModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden text-start">
+    <!-- Modal de Reativação Alpine.js -->
+    <div x-show="reactivateModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div @click.away="reactivateModal = false" class="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-md w-full overflow-hidden text-left">
             <form action="{{ route('admin.students-archive.reactivate', $student) }}" method="POST">
                 @csrf
-                <div class="modal-header bg-light py-3 border-bottom">
-                    <h5 class="modal-title fw-bold text-slate-800">
-                        <i class="fas fa-redo me-2 text-success"></i>
-                        Reativar: {{ $student->full_name }}
+                <div class="p-5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                    <h5 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-rotate-right text-emerald-600"></i> Reativar: {{ $student->full_name }}
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" @click="reactivateModal = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
                 </div>
-                <div class="modal-body p-4">
-                    <div class="alert alert-warning border-0 rounded-xl mb-3">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        O aluno será reativado no ano letivo <strong>{{ current_school_year() }}</strong>.
+                <div class="p-6 space-y-4">
+                    <div class="bg-amber-50 border border-amber-200 text-amber-900 rounded-xl p-3.5 text-xs flex items-center gap-2">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-600 text-base"></i>
+                        <span>O aluno será reativado no ano letivo <strong>{{ current_school_year() }}</strong>.</span>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label text-xs font-bold text-slate-700 uppercase tracking-wider">Nova Turma *</label>
-                        <select name="class_id" class="form-select rounded-xl" required>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Nova Turma *</label>
+                        <select name="class_id" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500 bg-white" required>
                             <option value="">Selecione...</option>
                             @foreach(\App\Models\ClassRoom::where('school_year', current_school_year())->where('is_active', true)->get() as $class)
                                 <option value="{{ $class->id }}">
@@ -216,23 +210,23 @@
                         </select>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label text-xs font-bold text-slate-700 uppercase tracking-wider">Mensalidade (MT) *</label>
-                            <input type="number" name="monthly_fee" class="form-control rounded-xl"
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Mensalidade (MT) *</label>
+                            <input type="number" name="monthly_fee" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500 bg-white"
                                 value="{{ $student->monthly_fee ?? 0 }}" step="0.01" required>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label text-xs font-bold text-slate-700 uppercase tracking-wider">Observações</label>
-                            <input type="text" name="reason" class="form-control rounded-xl"
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Observações</label>
+                            <input type="text" name="reason" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500 bg-white"
                                 placeholder="Motivo da reativação">
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer bg-light py-2 px-4">
-                    <button type="button" class="btn btn-outline-secondary btn-sm rounded-xl" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-success btn-sm rounded-xl font-semibold">
-                        <i class="fas fa-check me-1"></i> Confirmar Reativação
+                <div class="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-end gap-2">
+                    <button type="button" @click="reactivateModal = false" class="px-4 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-sm transition">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition inline-flex items-center gap-1.5">
+                        <i class="fa-solid fa-check"></i> Confirmar Reativação
                     </button>
                 </div>
             </form>

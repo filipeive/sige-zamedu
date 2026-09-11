@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\EducationLevel;
 use App\Models\School;
 use App\Models\Student;
 use App\Models\Grade;
@@ -28,12 +29,15 @@ class TerritorialAggregationController extends Controller
      */
     protected function buildPedagogicalMapData(array $schoolIds, int $year, int $term): array
     {
+        // Grade levels para o Mapa Pedagógico do Ensino Secundário (ESG1 + ESG2)
+        // Valores pós-normalização (grade_level direto: 7=7ªClasse, ..., 12=12ªClasse)
         $gradeLevels = [
-            '8' => '8ª Classificatória',
-            '9' => '9ª Exame Nacional',
-            '10' => '10ª Exame Nacional',
-            '11' => '11ª Classificatória',
-            '12' => '12ª Exame Nacional',
+            '7'  => '7ª Classe — ESG1 (1.º Ciclo)',
+            '8'  => '8ª Classe — ESG1 (1.º Ciclo)',
+            '9'  => '9ª Classe — ESG1 ⭐ Exame Nacional',
+            '10' => '10ª Classe — ESG2 (2.º Ciclo) ⭐ Exame Nacional',
+            '11' => '11ª Classe — ESG2 (2.º Ciclo)',
+            '12' => '12ª Classe — ESG2 ⭐ Exame Nacional',
         ];
 
         $passingThreshold = (float) setting('passing_grade', 9.5);

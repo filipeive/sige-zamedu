@@ -8,9 +8,14 @@
 
     <title>{{ setting('school_name', config('app.name', 'ZamEdu')) }} - @yield('title', 'Gestão Escolar')</title>
     
+    <!-- Favicon Icons -->
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/emblem.png') }}">
+
     <!-- PWA & Mobile Optimization -->
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#4F46E5">
+    <meta name="theme-color" content="#007A3D">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -20,10 +25,11 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     @endif
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <!-- Leaflet.js Interactive Maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <!-- Google Fonts -->
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap"
@@ -32,11 +38,52 @@
     <style>
         {!! \App\Helpers\ThemeHelper::getCssVariables() !!}
 
+        [x-cloak] { display: none !important; }
+
         a {
             text-decoration: none !important;
         }
         a:hover {
             text-decoration: none !important;
+        }
+
+        /* ===== UNIVERSAL TAILWIND MODAL SYSTEM (REPLACES BOOTSTRAP CSS) ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1055;
+            background-color: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+        .modal.show, .modal[style*="display: flex"], .modal[style*="display: block"] {
+            display: flex !important;
+        }
+        .modal-dialog {
+            width: 100%;
+            max-width: 540px;
+            margin: auto;
+            position: relative;
+            pointer-events: auto;
+        }
+        .modal-dialog.modal-lg { max-width: 800px; }
+        .modal-dialog.modal-xl { max-width: 1140px; }
+        .modal-dialog.modal-sm { max-width: 380px; }
+        .modal-content {
+            background: var(--card-bg, #ffffff);
+            color: var(--text-primary, #0f172a);
+            border-radius: 1.25rem;
+            border: 1px solid var(--border-color, #e2e8f0);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            width: 100%;
         }
 
         /* ===== DARK MODE COMPLETE HARMONIZATION ===== */
@@ -192,6 +239,32 @@
 
         .school-sidebar.collapsed {
             width: var(--sidebar-collapsed-width);
+        }
+
+        .school-emblem-box {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .school-emblem-img {
+            height: 38px;
+            width: auto;
+            object-fit: contain;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12));
+        }
+
+        .school-sidebar.collapsed .school-header {
+            padding: 12px 6px;
+            justify-content: center;
+        }
+        .school-sidebar.collapsed .school-emblem-box {
+            margin: 0 auto;
+        }
+        .school-sidebar.collapsed .school-emblem-img {
+            height: 24px !important;
+            transform: scale(0.85);
         }
 
         /* Header da Escola - MOPHY Harmonized */
@@ -856,34 +929,90 @@
             /* Reduzido */
         }
 
-        /* Breadcrumb Escolar - Reduzido */
+        /* ===== SHAREPOINT / ENTERPRISE BREADCRUMB SYSTEM ===== */
         .school-breadcrumb {
             background: transparent;
             padding: 0;
-            margin-bottom: 20px;
-            /* Reduzido */
+            margin-bottom: 18px;
+            width: 100%;
         }
 
         .breadcrumb {
-            background: var(--card-bg);
-            border-radius: var(--border-radius);
-            padding: 12px 18px;
-            /* Reduzido */
-            box-shadow: var(--shadow);
+            display: flex !important;
+            flex-wrap: wrap !important;
+            align-items: center !important;
+            gap: 6px !important;
+            list-style: none !important;
+            margin: 0 !important;
+            padding: 8px 14px !important;
+            background: var(--card-bg, #ffffff) !important;
+            border: 1px solid var(--border-color, #e2e8f0) !important;
+            border-radius: 14px !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+        }
+
+        .breadcrumb-item {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+            font-size: 12px !important;
+            font-weight: 600 !important;
+            color: var(--text-muted, #64748b) !important;
+        }
+
+        .breadcrumb-item + .breadcrumb-item::before {
+            content: "\f054" !important; /* FontAwesome fa-chevron-right */
+            font-family: "Font Awesome 6 Free" !important;
+            font-weight: 900 !important;
+            font-size: 9px !important;
+            color: var(--text-muted, #94a3b8) !important;
+            opacity: 0.6 !important;
+            padding: 0 2px !important;
         }
 
         .breadcrumb-item a {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 500;
+            color: var(--primary, #007A3D) !important;
+            text-decoration: none !important;
+            font-weight: 700 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 4px !important;
+            padding: 3px 8px !important;
+            border-radius: 8px !important;
+            transition: all 0.2s ease !important;
         }
 
         .breadcrumb-item a:hover {
-            color: var(--primary-dark);
+            background: color-mix(in srgb, var(--primary, #007A3D) 10%, #ffffff) !important;
+            color: var(--secondary, #034522) !important;
         }
 
         .breadcrumb-item.active {
-            color: var(--text-secondary);
+            color: var(--primary, #007A3D) !important;
+            font-weight: 800 !important;
+            padding: 3px 10px !important;
+            background: color-mix(in srgb, var(--primary, #007A3D) 8%, #ffffff) !important;
+            border-radius: 8px !important;
+            border: 1px solid color-mix(in srgb, var(--primary, #007A3D) 20%, transparent) !important;
+        }
+
+        [data-bs-theme="dark"] .breadcrumb {
+            background-color: var(--card-bg) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        [data-bs-theme="dark"] .breadcrumb-item.active {
+            background: color-mix(in srgb, var(--primary) 25%, transparent) !important;
+            color: #34D399 !important;
+            border-color: color-mix(in srgb, var(--primary) 40%, transparent) !important;
+        }
+
+        [data-bs-theme="dark"] .breadcrumb-item a {
+            color: #34D399 !important;
+        }
+
+        [data-bs-theme="dark"] .breadcrumb-item a:hover {
+            background: rgba(255, 255, 255, 0.08) !important;
         }
 
         /* Cards Escolares - MOPHY UI Style */
@@ -1386,25 +1515,25 @@
 
     <!-- Sidebar Escolar -->
     <nav class="school-sidebar" id="sidebar">
-        <div class="school-header p-4 border-b border-white/10 flex items-center justify-between">
+        <div class="school-header p-4 border-b border-slate-200/50 flex items-center justify-between">
             <a href="{{ route('dashboard') }}" class="flex items-center gap-3 no-underline group overflow-hidden">
-                <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-white shadow-md border border-white/20 shrink-0 transition group-hover:scale-105">
-                    @if(setting('school_logo'))
-                        <img src="{{ setting('school_logo') }}" alt="Logo" class="w-8 h-8 object-contain rounded-xl">
-                    @else
-                        <i class="fas fa-graduation-cap text-lg"></i>
-                    @endif
+                <div class="school-emblem-box shrink-0 transition-all duration-300">
+                    <img src="{{ asset('images/emblem.png') }}" alt="Emblema da República de Moçambique" class="school-emblem-img h-9 w-auto object-contain transition-all duration-300">
                 </div>
                 <div class="school-brand min-w-0">
-                    <div class="school-name text-sm font-extrabold text-success truncate tracking-tight font-heading group-hover:text-emerald-300 transition">
+                    <div class="school-name text-sm font-extrabold text-slate-800 truncate tracking-tight font-heading group-hover:text-emerald-700 transition">
                         {{ setting('school_short_name', config('app.name', 'ZamEdu')) }}
                     </div>
-                    <div class="school-subtitle text-[10px] text-slate-300 font-medium truncate flex items-center gap-1">
-                        @if(is_public_school())
-                            <span class="inline-block w-1.5 h-1.5 rounded-full bg-blue-400"></span> Escola Pública
+                    <div class="school-subtitle text-[10px] text-slate-400 font-medium truncate flex items-center gap-1">
+                        @hasanyrole('super_admin|province_admin|province_inspector|district_admin|district_inspector|zip_coordinator|zip_admin')
+                            <span class="inline-block w-1.5 h-1.5 rounded-full bg-purple-500"></span> MINEDH · Super Admin
                         @else
-                            <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Escola Privada
-                        @endif
+                            @if(is_public_school())
+                                <span class="inline-block w-1.5 h-1.5 rounded-full bg-blue-500"></span> MINEDH · Pública
+                            @else
+                                <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Privada · ZamEdu
+                            @endif
+                        @endhasanyrole
                     </div>
                 </div>
             </a>
@@ -1412,8 +1541,11 @@
 
         <div class="school-nav">
             @auth
-                <!-- 1. DASHBOARD -->
+                <!-- 1. DASHBOARD & GESTÃO TERRITORIAL SUPER ADMIN -->
                 <div class="nav-section">
+                    @hasanyrole('super_admin|province_admin|province_inspector|district_admin|district_inspector|zip_coordinator|zip_admin')
+                        <div class="nav-section-title">Administração Global & Territorial</div>
+                    @endhasanyrole
                     <ul class="nav-list">
                         <li class="nav-item">
                             <a href="{{ route('dashboard') }}"
@@ -1429,16 +1561,25 @@
                             <a href="{{ route('territorial.dashboard') }}"
                                 class="nav-link {{ request()->routeIs('territorial.*') ? 'active' : '' }}">
                                 <span class="nav-icon">
-                                    <i class="fas fa-map-location-dot"></i>
+                                    <i class="fas fa-map-location-dot text-emerald-500"></i>
                                 </span>
                                 <span class="nav-text">Inspeção MINEDH</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('admin.territory.index') }}"
+                                class="nav-link {{ request()->routeIs('admin.territory.*') ? 'active' : '' }}">
+                                <span class="nav-icon">
+                                    <i class="fas fa-sitemap text-emerald-500"></i>
+                                </span>
+                                <span class="nav-text">Gestão Territorial & Escolas</span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="{{ route('onboarding.school') }}"
                                 class="nav-link {{ request()->routeIs('onboarding.*') ? 'active' : '' }}">
                                 <span class="nav-icon">
-                                    <i class="fas fa-plus-circle"></i>
+                                    <i class="fas fa-plus-circle text-emerald-500"></i>
                                 </span>
                                 <span class="nav-text">Registar Nova Escola</span>
                             </a>
@@ -1990,6 +2131,13 @@
                                 </a>
                             </li>
                             @endif
+                            <li class="nav-item">
+                                <a href="{{ route('admin.territory.index') }}"
+                                    class="nav-link {{ request()->routeIs('admin.territory.*') ? 'active' : '' }}">
+                                    <span class="nav-icon"><i class="fas fa-sitemap"></i></span>
+                                    <span class="nav-text">Gestão Territorial & Escolas</span>
+                                </a>
+                            </li>
                             @if(is_menu_visible('menu_license'))
                             <li class="nav-item">
                                 <a href="{{ route('admin.license') }}"
@@ -2151,68 +2299,72 @@
                 </div>
 
                 @auth
-                <button class="header-btn" id="notification-btn" data-bs-toggle="dropdown" title="Notificações">
-                    <i class="fas fa-bell"></i>
-                    @if (auth()->user()->unreadNotifications->count() > 0)
-                        <span class="notification-badge">
-                            {{ auth()->user()->unreadNotifications->count() }}
-                        </span>
-                    @endif
-                </button>
+                <!-- Notification Dropdown with Alpine.js -->
+                <div x-data="{ open: false }" class="relative">
+                    <button @click="open = !open" @click.outside="open = false" class="header-btn" title="Notificações">
+                        <i class="fas fa-bell"></i>
+                        @if (auth()->user()->unreadNotifications->count() > 0)
+                            <span class="notification-badge">
+                                {{ auth()->user()->unreadNotifications->count() }}
+                            </span>
+                        @endif
+                    </button>
 
-                <ul class="dropdown-menu dropdown-menu-end shadow-lg" style="width: 360px; max-width: 92vw; border-radius: 16px; overflow: hidden;">
-                    <li class="dropdown-header d-flex justify-content-between align-items-center p-3" style="background: var(--surface-bg); border-bottom: 1px solid var(--border-color);">
-                        <strong style="color: var(--text-primary);">Notificações</strong>
-                        <a href="#" class="text-decoration-none small font-semibold" style="color: var(--primary);"
-                            onclick="markAllAsRead(event)">
-                            Marcar todas como lidas
-                        </a>
-                    </li>
-                    <li>
-                        <hr class="dropdown-divider m-0">
-                    </li>
-
-                    @forelse(auth()->user()->notifications->take(5) as $notification)
-                        <li>
-                            <a class="dropdown-item d-flex align-items-start py-3 px-3 {{ $notification->read_at ? '' : 'bg-light' }}"
-                                href="{{ $notification->data['action_url'] ?? '#' }}"
-                                onclick="markAsRead('{{ $notification->id }}', event)"
-                                style="border-bottom: 1px solid var(--border-color-soft, #f1f5f9); white-space: normal;">
-                                <div class="flex-shrink-0 me-3 mt-1">
-                                    <i class="{{ $notification->data['icon'] ?? 'fas fa-bell' }} text-{{ $notification->data['type'] ?? 'info' }} fs-5"></i>
-                                </div>
-                                <div class="flex-grow-1 min-w-0" style="min-width: 0; word-break: break-word; overflow-wrap: anywhere;">
-                                    <div class="fw-bold mb-1 text-wrap" style="color: var(--text-primary); font-size: 12px; line-height: 1.35; word-break: break-word; overflow-wrap: anywhere;">
-                                        {{ $notification->data['title'] ?? 'Notificação' }}
-                                    </div>
-                                    <div class="text-muted small mb-1 text-wrap" style="font-size: 11px; line-height: 1.4; word-break: break-word; overflow-wrap: anywhere;">
-                                        {{ $notification->data['message'] ?? 'Nova notificação' }}
-                                    </div>
-                                    <small class="text-muted opacity-75 d-block" style="font-size: 10px;">{{ $notification->created_at->diffForHumans() }}</small>
-                                </div>
-                                @if (!$notification->read_at)
-                                    <div class="flex-shrink-0 ms-2">
-                                        <span class="badge rounded-pill px-2 py-1 text-[9px] font-bold" style="background: var(--primary); color: #fff;">NOVO</span>
-                                    </div>
-                                @endif
+                    <div x-show="open" 
+                         x-transition:enter="transition ease-out duration-100"
+                         x-transition:enter-start="transform opacity-0 scale-95"
+                         x-transition:enter-end="transform opacity-100 scale-100"
+                         x-transition:leave="transition ease-in duration-75"
+                         x-transition:leave-start="transform opacity-100 scale-100"
+                         x-transition:leave-end="transform opacity-0 scale-95"
+                         class="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden z-50" 
+                         style="display: none;">
+                        <div class="p-3.5 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+                            <strong class="text-xs font-black text-slate-800 uppercase tracking-wider">Notificações</strong>
+                            <a href="#" class="no-underline text-[11px] font-bold text-emerald-700 hover:text-emerald-800 transition"
+                                onclick="markAllAsRead(event)">
+                                Marcar todas como lidas
                             </a>
-                        </li>
-                    @empty
-                        <li class="dropdown-item-text text-center text-muted py-4">
-                            <i class="fas fa-bell-slash fs-3 mb-2 d-block opacity-50"></i>
-                            Nenhuma notificação registrada
-                        </li>
-                    @endforelse
+                        </div>
 
-                    <li>
-                        <hr class="dropdown-divider m-0">
-                    </li>
-                    <li class="text-center p-2.5" style="background: var(--surface-bg);">
-                        <a href="{{ route('notifications.index') }}" class="small text-decoration-none font-bold" style="color: var(--primary);">
-                            Ver todas as notificações <i class="fas fa-arrow-right text-xs ms-1"></i>
-                        </a>
-                    </li>
-                </ul>
+                        <div class="max-h-80 overflow-y-auto divide-y divide-slate-100">
+                            @forelse(auth()->user()->notifications->take(5) as $notification)
+                                <a class="block p-3.5 hover:bg-slate-50 transition {{ $notification->read_at ? '' : 'bg-emerald-50/40' }}"
+                                    href="{{ $notification->data['action_url'] ?? '#' }}"
+                                    onclick="markAsRead('{{ $notification->id }}', event)">
+                                    <div class="flex items-start gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-xs shrink-0 mt-0.5">
+                                            <i class="{{ $notification->data['icon'] ?? 'fas fa-bell' }} text-emerald-600"></i>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <h4 class="text-xs font-bold text-slate-800 line-clamp-1">
+                                                {{ $notification->data['title'] ?? 'Notificação' }}
+                                            </h4>
+                                            <p class="text-[11px] text-slate-500 mt-0.5 line-clamp-2">
+                                                {{ $notification->data['message'] ?? 'Nova notificação' }}
+                                            </p>
+                                            <span class="text-[10px] text-slate-400 mt-1 block">{{ $notification->created_at->diffForHumans() }}</span>
+                                        </div>
+                                        @if (!$notification->read_at)
+                                            <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-emerald-600 text-white shrink-0">NOVO</span>
+                                        @endif
+                                    </div>
+                                </a>
+                            @empty
+                                <div class="p-8 text-center text-slate-400 text-xs">
+                                    <i class="fas fa-bell-slash text-2xl text-slate-300 mb-1 block"></i>
+                                    Nenhuma notificação registrada
+                                </div>
+                            @endforelse
+                        </div>
+
+                        <div class="p-2.5 bg-slate-50 border-t border-slate-100 text-center">
+                            <a href="{{ route('notifications.index') }}" class="no-underline text-xs font-bold text-emerald-700 hover:text-emerald-800 transition inline-flex items-center gap-1">
+                                Ver todas as notificações <i class="fas fa-arrow-right text-[10px]"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
                 @endauth
 
                 <button class="header-btn" onclick="toggleTheme()" title="Alternar Tema">
@@ -2220,83 +2372,66 @@
                 </button>
 
                 @auth
-                <div class="dropdown">
-                    <button class="header-btn" data-bs-toggle="dropdown" title="Menu do Usuário">
-                        <div class="user-avatar"
-                            style="width: 32px; height: 32px; font-size: 13px; margin: 0; background: var(--primary);">
+                <!-- User Profile Dropdown with Alpine.js -->
+                <div x-data="{ open: false }" class="relative">
+                    <button @click="open = !open" @click.outside="open = false" class="header-btn" title="Menu do Usuário">
+                        <div class="user-avatar" style="width: 32px; height: 32px; font-size: 13px; margin: 0; background: var(--primary);">
                             {{ substr(auth()->user()->name, 0, 1) }}
                         </div>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow">
-                        <li class="dropdown-header">
-                            <strong>{{ explode(' ', auth()->user()->name)[0] }}</strong>
-                            <small class="d-block text-muted">
+
+                    <div x-show="open" 
+                         x-transition:enter="transition ease-out duration-100"
+                         x-transition:enter-start="transform opacity-0 scale-95"
+                         x-transition:enter-end="transform opacity-100 scale-100"
+                         x-transition:leave="transition ease-in duration-75"
+                         x-transition:leave-start="transform opacity-100 scale-100"
+                         x-transition:leave-end="transform opacity-0 scale-95"
+                         class="absolute right-0 mt-2 w-56 rounded-2xl bg-white shadow-2xl border border-slate-200 py-1.5 z-50 text-xs font-semibold text-slate-700" 
+                         style="display: none;">
+                        <div class="px-4 py-2.5 border-b border-slate-100">
+                            <strong class="block text-slate-800 font-extrabold text-sm line-clamp-1">{{ explode(' ', auth()->user()->name)[0] }}</strong>
+                            <span class="text-[11px] text-slate-400 font-medium block mt-0.5">
                                 @switch(auth()->user()->role)
-                                    @case('admin')
-                                        Administrador do Sistema
-                                    @break
-
-                                    @case('secretary')
-                                        Secretaria Escolar
-                                    @break
-
-                                    @case('pedagogy')
-                                        Seção Pedagógica
-                                    @break
-
-                                    @case('teacher')
-                                        Professor(a)
-                                    @break
-
-                                    @case('parent')
-                                        Encarregado de Educação
-                                    @break
-
-                                    @default
-                                        Usuário do Sistema
+                                    @case('admin') Administrador do Sistema @break
+                                    @case('secretary') Secretaria Escolar @break
+                                    @case('pedagogy') Seção Pedagógica @break
+                                    @case('teacher') Professor(a) @break
+                                    @case('parent') Encarregado de Educação @break
+                                    @default Usuário do Sistema
                                 @endswitch
-                            </small>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="{{ route('profile.edit') }}">
-                                <i class="fas fa-user me-3"></i>Meu Perfil
+                            </span>
+                        </div>
+                        
+                        <div class="py-1">
+                            <a href="{{ route('profile.edit') }}" class="no-underline flex items-center gap-2.5 px-4 py-2 hover:bg-slate-50 text-slate-700 transition">
+                                <i class="fas fa-user text-emerald-600"></i> Meu Perfil
                             </a>
-                        </li>
-                        @if (auth()->user()->role === 'parent')
-                            <li>
-                                <a class="dropdown-item" href="{{ route('parent.dashboard') }}">
-                                    <i class="fas fa-child me-3"></i>Portal dos Pais
+                            @if (auth()->user()->role === 'parent')
+                                <a href="{{ route('parent.dashboard') }}" class="no-underline flex items-center gap-2.5 px-4 py-2 hover:bg-slate-50 text-slate-700 transition">
+                                    <i class="fas fa-child text-emerald-600"></i> Portal dos Pais
                                 </a>
-                            </li>
-                        @endif
-                        @if (auth()->user()->role === 'teacher')
-                            <li>
-                                <a class="dropdown-item" href="{{ route('teacher.dashboard') }}">
-                                    <i class="fas fa-chalkboard-teacher me-3"></i>Portal do Professor
+                            @endif
+                            @if (auth()->user()->role === 'teacher')
+                                <a href="{{ route('teacher.dashboard') }}" class="no-underline flex items-center gap-2.5 px-4 py-2 hover:bg-slate-50 text-slate-700 transition">
+                                    <i class="fas fa-chalkboard-teacher text-emerald-600"></i> Portal do Professor
                                 </a>
-                            </li>
-                        @endif
-                        <li>
-                            <a class="dropdown-item" href="#" onclick="toggleTheme()">
-                                <i class="fas fa-moon me-3" id="theme-icon-dropdown"></i>
+                            @endif
+                            <button type="button" onclick="toggleTheme()" class="w-full text-left flex items-center gap-2.5 px-4 py-2 hover:bg-slate-50 text-slate-700 transition">
+                                <i class="fas fa-moon text-emerald-600" id="theme-icon-dropdown"></i>
                                 <span id="theme-text">Modo Escuro</span>
-                            </a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        <li>
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button type="submit" class="dropdown-item">
-                                    <i class="fas fa-sign-out-alt me-3"></i>Sair do Sistema
-                                </button>
-                            </form>
-                        </li>
-                    </ul>
+                            </button>
+                        </div>
+
+                        <div class="border-t border-slate-100 my-1"></div>
+
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="w-full text-left flex items-center gap-2.5 px-4 py-2 hover:bg-rose-50 text-rose-600 font-bold transition">
+                                <i class="fas fa-sign-out-alt"></i> Sair do Sistema
+                            </button>
+                        </form>
+                    </div>
                 </div>
                 @else
                 <a href="{{ route('login') }}" class="header-btn" title="Entrar">
@@ -2466,8 +2601,7 @@
         </footer>
     </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
     <script>
@@ -2631,56 +2765,53 @@
 
             container.insertAdjacentHTML('beforeend', toastHtml);
 
+            container.insertAdjacentHTML('beforeend', toastHtml);
             const toastElement = document.getElementById(toastId);
-            const toast = new bootstrap.Toast(toastElement);
-            toast.show();
-
-            toastElement.addEventListener('hidden.bs.toast', () => {
-                toastElement.remove();
-            });
+            setTimeout(() => {
+                toastElement?.remove();
+            }, 5000);
         }
 
         // ===== MODAL DE AJUDA =====
         function showHelpModal() {
             const modalHtml = `
-                <div class="modal fade" id="helpModal" tabindex="-1">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header" style="background: var(--primary); color: white;">
-                                <h5 class="modal-title">
-                                    <i class="fas fa-question-circle me-2"></i>
-                                    Manual do Sistema {{ setting('school_short_name', 'ZamEdu') }}
-                                </h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <div id="helpModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+                    <div class="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
+                        <div class="bg-emerald-700 p-4 text-white flex items-center justify-between">
+                            <h3 class="text-base font-extrabold flex items-center gap-2">
+                                <i class="fas fa-question-circle"></i>
+                                Manual do Sistema {{ setting('school_short_name', 'ZamEdu') }}
+                            </h3>
+                            <button type="button" class="text-emerald-100 hover:text-white p-1" onclick="document.getElementById('helpModal').remove()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="p-6 space-y-4 text-xs text-slate-700">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                                    <h4 class="font-bold text-slate-800 text-sm mb-2 flex items-center gap-1.5"><i class="fas fa-user-graduate text-emerald-600"></i> Para Encarregados</h4>
+                                    <ul class="space-y-1.5 text-slate-600">
+                                        <li>• Acompanhar notas dos filhos</li>
+                                        <li>• Visualizar presenças</li>
+                                        <li>• Efetuar pagamentos</li>
+                                        <li>• Receber comunicados</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                                    <h4 class="font-bold text-slate-800 text-sm mb-2 flex items-center gap-1.5"><i class="fas fa-chalkboard-teacher text-emerald-600"></i> Para Professores</h4>
+                                    <ul class="space-y-1.5 text-slate-600">
+                                        <li>• Marcar presenças</li>
+                                        <li>• Lançar avaliações</li>
+                                        <li>• Comunicar com pais</li>
+                                        <li>• Solicitar licenças</li>
+                                    </ul>
+                                </div>
                             </div>
-                            <div class="modal-body">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h6><i class="fas fa-user-graduate text-primary me-2"></i>Para Encarregados</h6>
-                                        <ul class="list-unstyled">
-                                            <li>• Acompanhar notas dos filhos</li>
-                                            <li>• Visualizar presenças</li>
-                                            <li>• Efetuar pagamentos</li>
-                                            <li>• Receber comunicados</li>
-                                        </ul>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <h6><i class="fas fa-chalkboard-teacher text-primary me-2"></i>Para Professores</h6>
-                                        <ul class="list-unstyled">
-                                            <li>• Marcar presenças</li>
-                                            <li>• Lançar avaliações</li>
-                                            <li>• Comunicar com pais</li>
-                                            <li>• Solicitar licenças</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <hr>
-                                <div class="text-center">
-                                    <p class="text-muted">
-                                        Para mais informações, entre em contato com o suporte técnico:
-                                        <br><strong>suporte@visionarios.co.mz</strong>
-                                    </p>
-                                </div>
+                            <div class="text-center pt-2 border-t border-slate-100">
+                                <p class="text-slate-500">
+                                    Para mais informações, entre em contato com o suporte técnico:
+                                    <br><strong class="text-emerald-700">suporte@visionarios.co.mz</strong>
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -2691,8 +2822,6 @@
             if (existingModal) existingModal.remove();
 
             document.body.insertAdjacentHTML('beforeend', modalHtml);
-            const modal = new bootstrap.Modal(document.getElementById('helpModal'));
-            modal.show();
         }
 
         // ===== PESQUISA GLOBAL =====
@@ -2751,13 +2880,13 @@
             // Auto-hide validation alerts after 12 seconds
             setTimeout(() => {
                 document.querySelectorAll('.alert-school').forEach(alert => {
-                    const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
-                    bsAlert?.close();
+                    alert.style.transition = 'opacity 0.5s ease';
+                    alert.style.opacity = '0';
+                    setTimeout(() => alert.remove(), 500);
                 });
             }, 12000);
 
             // ===== DELEGATED CONFIRM SYSTEM =====
-            // Intercepts forms with data-confirm attribute and shows styled modal
             document.addEventListener('submit', function(e) {
                 const form = e.target;
                 const msg = form.getAttribute('data-confirm');
@@ -2769,11 +2898,10 @@
                     form.submit();
                 });
             });
-            // Intercepts buttons/links with data-confirm attribute
             document.addEventListener('click', function(e) {
                 const el = e.target.closest('[data-confirm]');
                 if (!el || el.tagName === 'FORM') return;
-                if (el.closest('form[data-confirm]')) return; // form-level confirm handles it
+                if (el.closest('form[data-confirm]')) return;
                 if (el._confirmed) { el._confirmed = false; return; }
                 e.preventDefault();
                 confirmAction(el.getAttribute('data-confirm'), function() {
@@ -2793,19 +2921,13 @@
             document.getElementById('confirmModalMessage').textContent = message;
             document.getElementById('confirmModalTitle').textContent = options.title || 'Confirmar Ação';
             const btn = document.getElementById('confirmModalBtn');
-            btn.innerHTML = '<i class="fas fa-check me-1"></i> ' + (options.confirmText || 'Confirmar');
-            if (options.danger === false) {
-                btn.style.background = 'var(--primary)';
-            } else {
-                btn.style.background = 'var(--danger)';
-            }
+            btn.innerHTML = '<i class="fas fa-check mr-1"></i> ' + (options.confirmText || 'Confirmar');
             _confirmCallback = callback;
-            const bsModal = new bootstrap.Modal(modal);
-            bsModal.show();
+            modal.style.display = 'flex';
         }
         document.getElementById('confirmModalBtn')?.addEventListener('click', function() {
-            const modal = bootstrap.Modal.getInstance(document.getElementById('confirmModal'));
-            modal?.hide();
+            const modal = document.getElementById('confirmModal');
+            if (modal) modal.style.display = 'none';
             if (_confirmCallback) { _confirmCallback(); _confirmCallback = null; }
         });
 
@@ -2817,14 +2939,10 @@
             }
         });
 
-        let cpModalInstance = null;
         function openCommandPalette() {
             const el = document.getElementById('commandPaletteModal');
             if (!el) return;
-            if (!cpModalInstance) {
-                cpModalInstance = new bootstrap.Modal(el);
-            }
-            cpModalInstance.show();
+            el.style.display = 'flex';
             setTimeout(() => {
                 const input = document.getElementById('commandPaletteInput');
                 if (input) {
@@ -2937,7 +3055,97 @@
                 </div>
             </div>
         </div>
-    </div>
+    <!-- ===== UNIVERSAL BOOTSTRAP MODAL & TAB JS POLYFILL ===== -->
+    <script>
+    (function() {
+        class ModalPolyfill {
+            constructor(element) {
+                this.el = typeof element === 'string' ? document.querySelector(element) : element;
+            }
+            show() {
+                if (!this.el) return;
+                this.el.style.display = 'flex';
+                this.el.classList.add('show');
+                document.body.classList.add('modal-open');
+            }
+            hide() {
+                if (!this.el) return;
+                this.el.style.display = 'none';
+                this.el.classList.remove('show');
+                document.body.classList.remove('modal-open');
+            }
+            toggle() {
+                if (!this.el) return;
+                if (this.el.classList.contains('show') || this.el.style.display === 'flex') {
+                    this.hide();
+                } else {
+                    this.show();
+                }
+            }
+            static getInstance(element) {
+                return new ModalPolyfill(element);
+            }
+            static getOrCreateInstance(element) {
+                return new ModalPolyfill(element);
+            }
+        }
+
+        window.bootstrap = window.bootstrap || {};
+        window.bootstrap.Modal = ModalPolyfill;
+
+        document.addEventListener('click', function(e) {
+            const toggleBtn = e.target.closest('[data-bs-toggle="modal"]');
+            if (toggleBtn) {
+                e.preventDefault();
+                const targetId = toggleBtn.getAttribute('data-bs-target') || toggleBtn.getAttribute('href');
+                if (targetId && targetId.startsWith('#')) {
+                    const modalEl = document.querySelector(targetId);
+                    if (modalEl) {
+                        new ModalPolyfill(modalEl).show();
+                    }
+                }
+                return;
+            }
+
+            const dismissBtn = e.target.closest('[data-bs-dismiss="modal"]');
+            if (dismissBtn) {
+                e.preventDefault();
+                const modalEl = dismissBtn.closest('.modal');
+                if (modalEl) {
+                    new ModalPolyfill(modalEl).hide();
+                }
+                return;
+            }
+
+            if (e.target.classList.contains('modal')) {
+                new ModalPolyfill(e.target).hide();
+            }
+
+            const tabBtn = e.target.closest('[data-bs-toggle="tab"], [data-bs-toggle="pill"]');
+            if (tabBtn) {
+                e.preventDefault();
+                const targetId = tabBtn.getAttribute('data-bs-target') || tabBtn.getAttribute('href');
+                const nav = tabBtn.closest('.nav, ul, div');
+                if (nav) {
+                    nav.querySelectorAll('[data-bs-toggle="tab"], [data-bs-toggle="pill"]').forEach(b => b.classList.remove('active'));
+                }
+                tabBtn.classList.add('active');
+
+                if (targetId && targetId.startsWith('#')) {
+                    const targetPane = document.querySelector(targetId);
+                    if (targetPane && targetPane.parentElement) {
+                        targetPane.parentElement.querySelectorAll('.tab-pane').forEach(p => {
+                            p.classList.remove('show', 'active');
+                            p.style.display = 'none';
+                        });
+                        targetPane.classList.add('show', 'active');
+                        targetPane.style.display = 'block';
+                    }
+                }
+            }
+        });
+    })();
+    </script>
 
     @stack('scripts')
 
@@ -2949,6 +3157,9 @@
 
     {{-- Widget AI flutuante --}}
     @include('partials.ai-widget')
+
+    {{-- Banner de Consentimento de Cookies & Privacidade --}}
+    @include('partials.cookie_consent')
 </body>
 
 </html>

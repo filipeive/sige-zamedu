@@ -398,6 +398,10 @@ class TerritorialDashboardController extends Controller
      */
     protected static function getSchoolCoordinates(School $school): array
     {
+        if (!is_null($school->latitude) && !is_null($school->longitude) && (float)$school->latitude != 0.0 && (float)$school->longitude != 0.0) {
+            return ['lat' => (float)$school->latitude, 'lng' => (float)$school->longitude];
+        }
+
         $prov = strtolower($school->province->name ?? '');
         $dist = strtolower($school->district->name ?? '');
         $name = strtolower($school->name);
@@ -464,18 +468,41 @@ class TerritorialDashboardController extends Controller
         $approvalRateHM = $evaluatedHM > 0 ? round(($positiveHM / $evaluatedHM) * 100, 1) : 0.0;
         $approvalRateM = $evaluatedM > 0 ? round(($positiveM / $evaluatedM) * 100, 1) : 0.0;
 
+        $coordinates = $this->getSchoolCoordinates($school);
+
+        $classes = ClassRoom::withoutGlobalScopes()
+            ->where('school_id', $school->id)
+            ->with('teacher')
+            ->withCount('students')
+            ->orderBy('grade_level')
+            ->get();
+
+        $teachers = Teacher::withoutGlobalScopes()
+            ->where('school_id', $school->id)
+            ->get();
+
+        $femaleStudentRatio = $studentsHM > 0 ? round(($studentsM / $studentsHM) * 100, 1) : 0.0;
+        $studentTeacherRatio = $teachersCount > 0 ? round($studentsHM / $teachersCount, 1) : 0;
+        $studentClassRatio = $classesCount > 0 ? round($studentsHM / $classesCount, 1) : 0;
+
         return view('territorial.school_show', compact(
             'school',
+            'coordinates',
             'studentsHM',
             'studentsM',
+            'femaleStudentRatio',
             'teachersCount',
             'classesCount',
+            'studentTeacherRatio',
+            'studentClassRatio',
             'evaluatedHM',
             'evaluatedM',
             'positiveHM',
             'positiveM',
             'approvalRateHM',
-            'approvalRateM'
+            'approvalRateM',
+            'classes',
+            'teachers'
         ));
     }
 }
