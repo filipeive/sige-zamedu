@@ -20,7 +20,17 @@
             <p class="text-xs text-slate-500 mt-0.5">Controlo diário de presenças e faltas por turma.</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
-            <form action="{{ route('attendances.index') }}" method="GET" class="flex items-center gap-1.5">
+            <form action="{{ route('attendances.index') }}" method="GET" class="flex items-center gap-2">
+                @hasanyrole('super_admin|province_admin|province_inspector|district_admin|district_inspector|zip_coordinator|zip_admin')
+                <select name="school_id" class="rounded-lg border-slate-200 text-xs font-semibold text-slate-700 py-1.5 px-2.5 focus:ring-emerald-500" onchange="this.form.submit()">
+                    <option value="">Todas as Escolas</option>
+                    @foreach($schools as $sch)
+                        <option value="{{ $sch->id }}" {{ request('school_id') == $sch->id ? 'selected' : '' }}>
+                            {{ $sch->name }}
+                        </option>
+                    @endforeach
+                </select>
+                @endhasanyrole
                 <input type="date" name="date" class="rounded-lg border-slate-200 text-xs font-semibold text-slate-700 py-1.5 px-2.5 focus:ring-emerald-500"
                        value="{{ $selectedDate }}" max="{{ date('Y-m-d') }}" onchange="this.form.submit()">
             </form>
@@ -29,6 +39,8 @@
             </a>
         </div>
     </div>
+
+    @include('partials.super-admin-banner')
 
     <!-- 2. Stat Cards (Pílula de Cor na Esquerda) -->
     <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">

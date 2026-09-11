@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Attendance;
 use App\Models\Student;
 use App\Models\ClassRoom;
+use App\Models\School;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -21,14 +22,20 @@ class AttendanceController extends Controller
         $selectedDate = $request->get('date', today()->format('Y-m-d'));
         $date = Carbon::parse($selectedDate);
 
-        $classes = ClassRoom::active()
+        $classesQuery = ClassRoom::active()
             ->where('school_year', current_school_year())
             ->withCount(['students as total_students'])
             ->with(['attendances' => function ($q) use ($date) {
                 $q->whereDate('attendance_date', $date);
             }])
-            ->orderBy('name')
-            ->get()
+            ->orderBy('name');
+
+        // Filtro por escola (super admin / territorial)
+        if ($request->filled('school_id')) {
+            $classesQuery->where('school_id', $request->school_id);
+        }
+
+        $classes = $classesQuery->get()
             ->map(function ($class) use ($date) {
                 $totalStudents = $class->total_students;
                 $attendances = $class->attendances;
@@ -64,7 +71,9 @@ class AttendanceController extends Controller
             'total_unmarked' => $classes->sum('unmarked'),
         ];
 
-        return view('attendances.index', compact('classes', 'globalStats', 'selectedDate'));
+        $schools = School::orderBy('name')->get();
+
+        return view('attendances.index', compact('classes', 'globalStats', 'selectedDate', 'schools'));
     }
 
     /**

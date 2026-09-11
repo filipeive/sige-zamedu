@@ -2,79 +2,75 @@
 
 @section('title', 'Relatório de Frequências - ' . $class->name)
 @section('page-title', 'Relatório de Frequências')
-@section('page-title-icon', 'fas fa-chart-bar')
-
-@section('breadcrumbs')
-    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Início</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('attendances.index') }}">Frequências</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('attendances.class-attendances', $class) }}">{{ $class->name }}</a></li>
-    <li class="breadcrumb-item active">Relatório</li>
-@endsection
-
-@php
-    $titleIcon = 'fas fa-chart-bar';
-@endphp
 
 @section('content')
-<div class="row">
-    <!-- Informações da Turma -->
-    <div class="col-md-4 mb-4">
-        <div class="school-card">
-            <div class="school-card-header">
-                <i class="fas fa-info-circle"></i>
-                Informações da Turma
-            </div>
-            <div class="school-card-body">
-                <div class="mb-3">
-                    <strong>Nome:</strong> {{ $class->name }}
-                </div>
-                <div class="mb-3">
-                    <strong>Nível:</strong> 
-                    <span class="badge bg-primary">{{ $class->grade_level_name }}</span>
-                </div>
-                <div class="mb-3">
-                    <strong>Turno:</strong> 
-                    @php
-                        $shiftBadge = match($class->shift) {
-                            'afternoon' => 'bg-warning text-dark',
-                            'night' => 'bg-info',
-                            default => 'bg-primary',
-                        };
-                    @endphp
-                    <span class="badge {{ $shiftBadge }}">{{ $class->shift_label }}</span>
-                </div>
-                <div class="mb-3">
-                    <strong>Total Alunos:</strong> {{ $students->count() }}
-                </div>
-                <div class="mb-3">
-                    <strong>Professor:</strong>
-                    @if($class->teacher)
-                        {{ $class->teacher->first_name }} {{ $class->teacher->last_name }}
-                    @else
-                        <span class="text-muted">Não atribuído</span>
-                    @endif
+<div class="w-full max-w-7xl mx-auto px-4 py-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Sidebar Info & Resumo Mensal -->
+        <div class="lg:col-span-4 space-y-6">
+            <!-- Informações da Turma -->
+            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
+                <div class="flex items-center justify-between pb-4 border-b border-slate-200 mb-4">
+                    <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-info text-emerald-600"></i> Informações da Turma
+                    </h3>
+                    <a href="{{ route('attendances.class-attendances', $class) }}" class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-sm transition inline-flex items-center gap-1.5">
+                        <i class="fa-solid fa-arrow-left"></i> Voltar
+                    </a>
                 </div>
 
-                <div class="d-grid gap-2 mt-4">
-                    <a href="{{ route('attendances.class-attendances', $class) }}" class="btn btn-primary">
-                        <i class="fas fa-list"></i> Ver Frequências
+                <div class="space-y-3 text-xs">
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-500 font-medium">Nome:</span>
+                        <strong class="text-slate-900 font-bold">{{ $class->name }}</strong>
+                    </div>
+                    <div class="flex justify-between items-center border-t border-slate-100 pt-2">
+                        <span class="text-slate-500 font-medium">Nível:</span>
+                        <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">{{ $class->grade_level_name }}</span>
+                    </div>
+                    <div class="flex justify-between items-center border-t border-slate-100 pt-2">
+                        <span class="text-slate-500 font-medium">Turno:</span>
+                        @php
+                            $shiftBadge = match($class->shift) {
+                                'afternoon' => 'bg-amber-100 text-amber-800',
+                                'night' => 'bg-sky-100 text-sky-800',
+                                default => 'bg-emerald-100 text-emerald-800',
+                            };
+                        @endphp
+                        <span class="px-2.5 py-0.5 rounded-full font-bold {{ $shiftBadge }}">{{ $class->shift_label }}</span>
+                    </div>
+                    <div class="flex justify-between items-center border-t border-slate-100 pt-2">
+                        <span class="text-slate-500 font-medium">Total Alunos:</span>
+                        <strong class="text-slate-900 font-bold text-sm">{{ $students->count() }}</strong>
+                    </div>
+                    <div class="flex justify-between items-center border-t border-slate-100 pt-2">
+                        <span class="text-slate-500 font-medium">Professor:</span>
+                        @if($class->teacher)
+                            <strong class="text-slate-900 font-bold">{{ $class->teacher->first_name }} {{ $class->teacher->last_name }}</strong>
+                        @else
+                            <span class="text-slate-400">Não atribuído</span>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="space-y-2 mt-6">
+                    <a href="{{ route('attendances.class-attendances', $class) }}" class="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs shadow-sm transition inline-flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-list"></i> Ver Frequências
                     </a>
                     @can('mark_attendances')
-                        <a href="{{ route('attendances.mark-by-class', $class) }}" class="btn btn-success">
-                            <i class="fas fa-edit"></i> Marcar Frequências
+                        <a href="{{ route('attendances.mark-by-class', $class) }}" class="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition inline-flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-pen-to-square"></i> Marcar Frequências
                         </a>
                     @endcan
                 </div>
             </div>
-        </div>
 
-        <!-- Resumo Mensal -->
-        <div class="school-card mt-3">
-            <div class="school-card-header">
-                <i class="fas fa-chart-pie"></i>
-                Resumo Mensal
-            </div>
-            <div class="school-card-body">
+            <!-- Resumo Mensal -->
+            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
+                <h3 class="text-base font-bold text-slate-900 flex items-center gap-2 mb-4">
+                    <i class="fa-solid fa-chart-pie text-emerald-600"></i> Resumo Mensal
+                </h3>
+
                 @php
                     $totalDays = $students->sum('total_days');
                     $totalPresent = $students->sum('present');
@@ -83,108 +79,92 @@
                     $totalExcused = $students->sum('excused');
                     $avgRate = $students->count() > 0 ? round($students->avg('attendance_rate'), 1) : 0;
                 @endphp
-                
-                <div class="text-center mb-3">
-                    <h3 class="text-{{ $avgRate >= 90 ? 'success' : ($avgRate >= 75 ? 'warning' : 'danger') }}">
+
+                <div class="text-center mb-6">
+                    <div class="text-4xl font-extrabold tracking-tight {{ $avgRate >= 90 ? 'text-emerald-600' : ($avgRate >= 75 ? 'text-amber-600' : 'text-rose-600') }}">
                         {{ $avgRate }}%
-                    </h3>
-                    <small class="text-muted">Média de Presença</small>
+                    </div>
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider mt-1 block">Média de Presença</span>
                 </div>
 
-                <div class="row g-2">
-                    <div class="col-6">
-                        <div class="d-flex justify-content-between">
-                            <small>Total Dias:</small>
-                            <strong>{{ $totalDays }}</strong>
-                        </div>
+                <div class="grid grid-cols-2 gap-3 text-xs">
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex justify-between items-center">
+                        <span class="text-slate-500 font-medium">Total Dias:</span>
+                        <strong class="text-slate-800 font-bold text-sm">{{ $totalDays }}</strong>
                     </div>
-                    <div class="col-6">
-                        <div class="d-flex justify-content-between">
-                            <small>Presentes:</small>
-                            <strong class="text-success">{{ $totalPresent }}</strong>
-                        </div>
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex justify-between items-center">
+                        <span class="text-slate-500 font-medium">Presentes:</span>
+                        <strong class="text-emerald-700 font-bold text-sm">{{ $totalPresent }}</strong>
                     </div>
-                    <div class="col-6">
-                        <div class="d-flex justify-content-between">
-                            <small>Ausentes:</small>
-                            <strong class="text-danger">{{ $totalAbsent }}</strong>
-                        </div>
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex justify-between items-center">
+                        <span class="text-slate-500 font-medium">Ausentes:</span>
+                        <strong class="text-rose-700 font-bold text-sm">{{ $totalAbsent }}</strong>
                     </div>
-                    <div class="col-6">
-                        <div class="d-flex justify-content-between">
-                            <small>Atrasados:</small>
-                            <strong class="text-warning">{{ $totalLate }}</strong>
-                        </div>
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex justify-between items-center">
+                        <span class="text-slate-500 font-medium">Atrasados:</span>
+                        <strong class="text-amber-600 font-bold text-sm">{{ $totalLate }}</strong>
                     </div>
-                    <div class="col-6">
-                        <div class="d-flex justify-content-between">
-                            <small>Justificados:</small>
-                            <strong class="text-info">{{ $totalExcused }}</strong>
-                        </div>
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex justify-between items-center col-span-2">
+                        <span class="text-slate-500 font-medium">Justificados:</span>
+                        <strong class="text-sky-700 font-bold text-sm">{{ $totalExcused }}</strong>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Relatório por Aluno -->
-    <div class="col-md-8">
-        <div class="school-card">
-            <div class="school-card-header">
-                <i class="fas fa-users"></i>
-                Relatório Individual
-            </div>
-            <div class="school-card-body">
+        <!-- Relatório por Aluno -->
+        <div class="lg:col-span-8">
+            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-4 md:p-6 bg-slate-50/50 border-b border-slate-200">
+                    <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-users text-emerald-600"></i> Relatório Individual
+                    </h3>
+                </div>
+
                 @if($students->count() > 0)
-                    <div class="table-responsive">
-                        <table class="table table-school table-hover">
-                            <thead>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs text-left text-slate-600 divide-y divide-slate-200">
+                            <thead class="bg-slate-50 uppercase font-semibold text-slate-500">
                                 <tr>
-                                    <th>Aluno</th>
-                                    <th>Nº</th>
-                                    <th>Dias</th>
-                                    <th>Presentes</th>
-                                    <th>Ausentes</th>
-                                    <th>Atrasados</th>
-                                    <th>Justificados</th>
-                                    <th>Taxa</th>
+                                    <th class="px-4 py-3">Aluno</th>
+                                    <th class="px-4 py-3">Nº</th>
+                                    <th class="px-4 py-3">Dias</th>
+                                    <th class="px-4 py-3">Presentes</th>
+                                    <th class="px-4 py-3">Ausentes</th>
+                                    <th class="px-4 py-3">Atrasados</th>
+                                    <th class="px-4 py-3">Justificados</th>
+                                    <th class="px-4 py-3">Taxa</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody class="divide-y divide-slate-200 font-medium">
                                 @foreach($students as $item)
                                     @php
                                         $student = $item['student'];
-                                        $statusColors = [
-                                            'present' => 'success',
-                                            'absent' => 'danger',
-                                            'late' => 'warning',
-                                            'excused' => 'info'
-                                        ];
+                                        $rate = $item['attendance_rate'];
+                                        $rateColor = $rate >= 90 ? 'bg-emerald-100 text-emerald-800' : ($rate >= 75 ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800');
                                     @endphp
-                                    <tr>
-                                        <td>
-                                            <strong>{{ $student->full_name }}</strong>
+                                    <tr class="hover:bg-slate-50 transition">
+                                        <td class="px-4 py-3 font-bold text-slate-900">
+                                            {{ $student->full_name }}
                                         </td>
-                                        <td>{{ $student->student_number }}</td>
-                                        <td>{{ $item['total_days'] }}</td>
-                                        <td>
-                                            <span class="badge bg-success">{{ $item['present'] }}</span>
+                                        <td class="px-4 py-3 font-mono text-slate-500">{{ $student->student_number }}</td>
+                                        <td class="px-4 py-3 font-bold text-slate-700">{{ $item['total_days'] }}</td>
+                                        <td class="px-4 py-3">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-extrabold text-[10px]">{{ $item['present'] }}</span>
                                         </td>
-                                        <td>
-                                            <span class="badge bg-danger">{{ $item['absent'] }}</span>
+                                        <td class="px-4 py-3">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 font-extrabold text-[10px]">{{ $item['absent'] }}</span>
                                         </td>
-                                        <td>
-                                            <span class="badge bg-warning">{{ $item['late'] }}</span>
+                                        <td class="px-4 py-3">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-extrabold text-[10px]">{{ $item['late'] }}</span>
                                         </td>
-                                        <td>
-                                            <span class="badge bg-info">{{ $item['excused'] }}</span>
+                                        <td class="px-4 py-3">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 font-extrabold text-[10px]">{{ $item['excused'] }}</span>
                                         </td>
-                                        <td>
-                                            @php
-                                                $rate = $item['attendance_rate'];
-                                                $rateColor = $rate >= 90 ? 'success' : ($rate >= 75 ? 'warning' : 'danger');
-                                            @endphp
-                                            <span class="badge bg-{{ $rateColor }}">{{ $rate }}%</span>
+                                        <td class="px-4 py-3">
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-full font-black text-xs {{ $rateColor }}">
+                                                {{ $rate }}%
+                                            </span>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -192,9 +172,9 @@
                         </table>
                     </div>
                 @else
-                    <div class="text-center py-5">
-                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
-                        <p class="text-muted">Nenhum aluno matriculado nesta turma.</p>
+                    <div class="p-12 text-center text-slate-400">
+                        <i class="fa-solid fa-users text-4xl mb-3 text-slate-300 block"></i>
+                        <p class="text-xs text-slate-500 font-medium">Nenhum aluno matriculado nesta turma.</p>
                     </div>
                 @endif
             </div>
@@ -202,3 +182,4 @@
     </div>
 </div>
 @endsection
+

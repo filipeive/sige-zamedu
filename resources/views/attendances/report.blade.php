@@ -3,29 +3,19 @@
 @section('title', 'Relatório de Presenças')
 @section('page-title', 'Relatório de Presenças')
 
-@php
-    $titleIcon = 'fas fa-chart-bar';
-@endphp
-
-@section('breadcrumbs')
-    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Início</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('attendances.index') }}">Presenças</a></li>
-    <li class="breadcrumb-item active">Relatório</li>
-@endsection
-
 @section('content')
-<!-- Filtros de Relatório -->
-<div class="school-card mb-4">
-    <div class="school-card-header">
-        <i class="fas fa-filter"></i>
-        Parâmetros do Relatório
-    </div>
-    <div class="school-card-body">
+<div class="w-full mx-auto px-4 py-6 space-y-6">
+
+    <!-- Filtros de Relatório -->
+    <div class="w-full mx-auto bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
+        <h3 class="text-base font-bold text-slate-900 flex items-center gap-2 mb-4">
+            <i class="fa-solid fa-filter text-emerald-600"></i> Parâmetros do Relatório
+        </h3>
         <form method="GET">
-            <div class="row g-3">
-                <div class="col-md-3">
-                    <label class="form-label">Turma</label>
-                    <select name="class_id" class="form-select">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-3 items-end">
+                <div class="md:col-span-5">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Turma</label>
+                    <select name="class_id" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500 bg-white">
                         <option value="">Todas as turmas</option>
                         @foreach($classes as $class)
                             <option value="{{ $class->id }}" {{ request('class_id') == $class->id ? 'selected' : '' }}>
@@ -34,48 +24,45 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label">Período</label>
-                    <select name="period" class="form-select">
+                <div class="md:col-span-4">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Período</label>
+                    <select name="period" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500 bg-white">
                         <option value="today" {{ request('period') == 'today' ? 'selected' : '' }}>Hoje</option>
                         <option value="week" {{ request('period') == 'week' ? 'selected' : '' }}>Esta Semana</option>
                         <option value="month" {{ request('period', 'month') == 'month' ? 'selected' : '' }}>Este Mês</option>
                         <option value="custom" {{ request('period') == 'custom' ? 'selected' : '' }}>Personalizado</option>
                     </select>
                 </div>
-                <div class="col-md-2">
-                    <label class="form-label">&nbsp;</label>
-                    <button type="submit" class="btn-school btn-primary-school w-100">
-                        <i class="fas fa-search"></i> Gerar
+                <div class="md:col-span-3">
+                    <button type="submit" class="w-full px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition inline-flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-magnifying-glass"></i> Gerar Relatório
                     </button>
                 </div>
             </div>
         </form>
     </div>
-</div>
 
-<!-- Gráfico de Presenças -->
-<div class="row">
-    <div class="col-lg-8">
-        <div class="school-card">
-            <div class="school-card-header">
-                <i class="fas fa-chart-line"></i>
-                Frequência por Dia
-            </div>
-            <div class="school-card-body">
-                <canvas id="attendanceChart" height="80"></canvas>
+    <!-- Gráficos de Presenças -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-8">
+            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
+                <h3 class="text-base font-bold text-slate-900 flex items-center gap-2 mb-4">
+                    <i class="fa-solid fa-chart-line text-emerald-600"></i> Frequência por Dia
+                </h3>
+                <div class="relative w-full" style="height: 280px;">
+                    <canvas id="attendanceChart"></canvas>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="col-lg-4">
-        <div class="school-card">
-            <div class="school-card-header">
-                <i class="fas fa-chart-pie"></i>
-                Distribuição Geral
-            </div>
-            <div class="school-card-body">
-                <canvas id="pieChart" height="100"></canvas>
+        <div class="lg:col-span-4">
+            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
+                <h3 class="text-base font-bold text-slate-900 flex items-center gap-2 mb-4">
+                    <i class="fa-solid fa-chart-pie text-emerald-600"></i> Distribuição Geral
+                </h3>
+                <div class="relative w-full flex items-center justify-center" style="height: 280px;">
+                    <canvas id="pieChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -84,43 +71,49 @@
 
 @push('scripts')
 <script>
-// Gráfico de linha
-const ctx = document.getElementById('attendanceChart').getContext('2d');
-new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'],
-        datasets: [{
-            label: 'Presentes',
-            data: [95, 92, 96, 90, 88],
-            borderColor: '#4CAF50',
-            backgroundColor: 'rgba(76, 175, 80, 0.1)',
-            tension: 0.4
-        }, {
-            label: 'Ausentes',
-            data: [5, 8, 4, 10, 12],
-            borderColor: '#F44336',
-            backgroundColor: 'rgba(244, 67, 54, 0.1)',
-            tension: 0.4
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false
-    }
-});
+document.addEventListener('DOMContentLoaded', function() {
+    // Gráfico de linha
+    const ctx = document.getElementById('attendanceChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'],
+            datasets: [{
+                label: 'Presentes',
+                data: [95, 92, 96, 90, 88],
+                borderColor: '#059669',
+                backgroundColor: 'rgba(5, 150, 105, 0.1)',
+                tension: 0.4
+            }, {
+                label: 'Ausentes',
+                data: [5, 8, 4, 10, 12],
+                borderColor: '#e11d48',
+                backgroundColor: 'rgba(225, 29, 72, 0.1)',
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
 
-// Gráfico de pizza
-const pieCtx = document.getElementById('pieChart').getContext('2d');
-new Chart(pieCtx, {
-    type: 'doughnut',
-    data: {
-        labels: ['Presentes', 'Ausentes', 'Atrasados', 'Justificados'],
-        datasets: [{
-            data: [461, 39, 25, 10],
-            backgroundColor: ['#4CAF50', '#F44336', '#FF9800', '#2196F3']
-        }]
-    }
+    // Gráfico de Pizza
+    const pieCtx = document.getElementById('pieChart').getContext('2d');
+    new Chart(pieCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Presentes', 'Ausentes', 'Atrasados'],
+            datasets: [{
+                data: [85, 10, 5],
+                backgroundColor: ['#059669', '#e11d48', '#d97706']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
 });
 </script>
 @endpush
