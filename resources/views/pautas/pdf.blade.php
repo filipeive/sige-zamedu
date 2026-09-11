@@ -128,11 +128,19 @@
         </tbody>
     </table>
 
-    <table class="signatures">
+    <table class="signatures" style="margin-top: 30px;">
         <tr>
-            <td><div class="line">O Director de Turma</div></td>
-            <td><div class="line">O Director Adjunto Pedagógico</div></td>
-            <td><div class="line">O Director da Escola</div></td>
+            <td style="width: 50%; text-align: center; vertical-align: top;">
+                <div style="font-weight: bold; text-transform: uppercase; font-size: 8px; margin-bottom: 25px;">O Diretor Adjunto Pedagógico (DAP)</div>
+                <div class="line" style="width: 75%;"></div>
+                <div style="font-size: 7px; color: #64748b; margin-top: 2px;">(Assinatura e Carimbo Oficial)</div>
+            </td>
+            <td style="width: 50%; text-align: center; vertical-align: top;">
+                <div style="font-weight: bold; text-transform: uppercase; font-size: 8px; margin-bottom: 2px;">O Diretor da Escola (DAE)</div>
+                <div style="font-weight: 900; font-size: 8px; text-transform: uppercase; margin-bottom: 15px;">{{ strtoupper(\App\Models\Setting::where('key', 'director_name')->first()?->value ?? 'PROF. MARIA NHABINDE') }}</div>
+                <div class="line" style="width: 75%;"></div>
+                <div style="font-size: 7px; color: #64748b; margin-top: 2px;">(Assinatura e Carimbo Oficial)</div>
+            </td>
         </tr>
     </table>
 </body>

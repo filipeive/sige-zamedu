@@ -4,20 +4,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\EducationLevel;
 use App\Http\Requests\StoreGradeRequest;
 use App\Models\ClassRoom;
 use App\Models\Grade;
 use App\Models\Student;
 use App\Models\Subject;
+use App\Models\School;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class GradeController extends Controller
 {
-    /**
-     * Display a listing of the grades.
-     */
     /**
      * Display class grade matrix and editable Pauta.
      */
@@ -31,29 +30,26 @@ class GradeController extends Controller
 
         $selectedClassId = $request->get('class_id');
 
-        if ($selectedClassId) {
-            $selectedClass = ClassRoom::with('subjects')->find($selectedClassId);
-            if ($selectedClass) {
-                $currentYear = (int) $request->get('year', $selectedClass->school_year);
-            }
+        $classesQuery = ClassRoom::active();
+        if ($level !== 'all') {
+            $classesQuery->byEducationLevel($level);
         }
 
-        $classesQuery = ClassRoom::active();
-        if ($level === 'preschool') {
-            $classesQuery->whereIn('grade_level', [0, 1]);
-        } elseif ($level === 'primary') {
-            $classesQuery->whereIn('grade_level', [2, 3, 4, 5, 6, 7]);
-        } elseif ($level === 'secondary') {
-            $classesQuery->whereIn('grade_level', [8, 9, 10, 11, 12, 13]);
+        // Filtro por escola (super admin / territorial)
+        if ($request->filled('school_id')) {
+            $classesQuery->where('school_id', $request->school_id);
         }
 
         $classes = $classesQuery->orderBy('grade_level')->orderBy('name')->get();
 
-        if (isset($selectedClass) && ! $classes->contains('id', $selectedClass->id)) {
-            $selectedClass = null;
+        if (isset($selectedClassId)) {
+            $selectedClass = ClassRoom::with('subjects')->find($selectedClassId);
+            if ($selectedClass && !$classes->contains('id', $selectedClass->id)) {
+                $selectedClass = null;
+            }
         }
 
-        if (! isset($selectedClass)) {
+        if (!isset($selectedClass)) {
             $selectedClass = $classes->first() ? ClassRoom::with('subjects')->find($classes->first()->id) : null;
         }
 
@@ -114,6 +110,8 @@ class GradeController extends Controller
             'ACF' => 'ACF / Exame Final',
         ];
 
+        $schools = School::orderBy('name')->get();
+
         return view('grades.index', compact(
             'classes',
             'selectedClass',
@@ -124,7 +122,8 @@ class GradeController extends Controller
             'term',
             'currentYear',
             'level',
-            'assessmentTypes'
+            'assessmentTypes',
+            'schools'
         ));
     }
 
@@ -152,10 +151,14 @@ class GradeController extends Controller
         $passingRate = $totalGrades > 0 ? round(($passingCount / $totalGrades) * 100, 1) : 0;
 
         $levelStats = [
-            'all' => ClassRoom::active()->count(),
+            'all'       => ClassRoom::active()->count(),
             'preschool' => ClassRoom::active()->byEducationLevel('preschool')->count(),
-            'primary' => ClassRoom::active()->byEducationLevel('primary')->count(),
+            'primary'   => ClassRoom::active()->byEducationLevel('primary')->count(),
             'secondary' => ClassRoom::active()->byEducationLevel('secondary')->count(),
+            'ep1'       => ClassRoom::active()->byEducationLevel('ep1')->count(),
+            'ep2'       => ClassRoom::active()->byEducationLevel('ep2')->count(),
+            'esg1'      => ClassRoom::active()->byEducationLevel('esg1')->count(),
+            'esg2'      => ClassRoom::active()->byEducationLevel('esg2')->count(),
         ];
 
         return view('grades.dashboard', compact(

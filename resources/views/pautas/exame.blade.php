@@ -3,208 +3,189 @@
 @section('title', 'Pauta de Exames com Júris - ' . $class->name)
 
 @section('content')
-<div class="container-fluid py-4">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+<div class="space-y-5">
+    {{-- 1. Header com Taxonomia MINEDH Completa --}}
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-slate-200">
         <div>
-            <div class="d-flex align-items-center gap-2 mb-1">
-                <span class="badge bg-success-subtle text-success border border-success fw-bold">
-                    {{ $class->education_level_name }}
+            <div class="flex items-center gap-2 flex-wrap mb-1.5">
+                <span class="px-2.5 py-0.5 rounded-full text-3xs font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200 uppercase tracking-wider">
+                    <i class="fas fa-layer-group me-1"></i> Nível: {{ $class->education_level_name }}
                 </span>
-                <span class="badge bg-secondary-subtle text-secondary fw-bold">
+                <span class="px-2.5 py-0.5 rounded-full text-3xs font-extrabold bg-slate-100 text-slate-700 border border-slate-200">
+                    <i class="fas fa-route me-1"></i> {{ $class->cycle_name }}
+                </span>
+                <span class="px-2.5 py-0.5 rounded-full text-3xs font-extrabold bg-slate-100 text-slate-700 border border-slate-200">
                     {{ $class->grade_level_name }}
                 </span>
-                <span class="badge bg-primary-subtle text-primary fw-bold">
-                    Ano Lectivo {{ $year }}
+                <span class="px-2.5 py-0.5 rounded-full text-3xs font-extrabold bg-blue-100 text-blue-800 border border-blue-200">
+                    <i class="fas fa-calendar-alt me-1"></i> Ano Lectivo {{ $year }}
                 </span>
-                <span class="badge bg-danger text-white fw-bold">
-                    <i class="fas fa-balance-scale me-1"></i> Exame Nacional & Júri (Lei 18/2018)
+                <span class="px-2.5 py-0.5 rounded-full text-3xs font-extrabold bg-rose-100 text-rose-800 border border-rose-200">
+                    <i class="fas fa-file-signature text-rose-600 me-1"></i> Exame Nacional &amp; Júri (Lei 18/2018)
                 </span>
             </div>
-            <h1 class="h3 font-weight-bold text-dark mb-0">Pauta de Exames com Júris: {{ $class->name }}</h1>
-            <p class="text-muted small mb-0">Apuramento oficial de Exame ($NE$), Recorrência ($ACF$), $NE\text{ Eficaz}$ e Nota Final da Disciplina ($NFD$) com Júri de Exame MINEDH.</p>
+
+            <h1 class="text-xl font-black text-slate-800 tracking-tight flex items-center gap-2">
+                <i class="fas fa-file-signature text-rose-600"></i> Pauta de Exames com Júris: {{ $class->name }}
+            </h1>
+            <p class="text-xs text-slate-500 mt-0.5">Apuramento oficial de NE, Recorrência (ACF), NE Eficaz e Nota Final da Disciplina (NFD) com Júri de Exame MINEDH.</p>
         </div>
 
-        <div class="d-flex align-items-center gap-2 flex-wrap">
-            <button type="button" class="btn btn-outline-danger btn-sm font-weight-bold shadow-sm px-3" data-bs-toggle="modal" data-bs-target="#juryConfigModal">
-                <i class="fas fa-user-tie me-1"></i> Atribuir / Editar Júri
+        <div class="flex items-center gap-2 flex-wrap">
+            <button type="button" class="no-underline inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200/80 text-xs font-bold transition cursor-pointer" data-bs-toggle="modal" data-bs-target="#juryConfigModal">
+                <i class="fas fa-user-tie text-rose-600"></i> Atribuir / Editar Júri
             </button>
 
-            <div class="btn-group btn-group-sm" role="group">
-                <a href="{{ route('pautas.trimestral', $class->id) }}" class="btn btn-outline-primary fw-bold">
+            <div class="inline-flex rounded-lg bg-slate-100 p-1 border border-slate-200">
+                <a href="{{ route('pautas.trimestral', $class->id) }}" class="no-underline px-3 py-1 rounded-md text-xs font-bold text-slate-700 hover:text-emerald-700">
                     <i class="fas fa-list-alt me-1"></i> Trimestral
                 </a>
-                <a href="{{ route('pautas.anual', $class->id) }}" class="btn btn-outline-primary fw-bold">
+                <a href="{{ route('pautas.anual', $class->id) }}" class="no-underline px-3 py-1 rounded-md text-xs font-bold text-slate-700 hover:text-emerald-700">
                     <i class="fas fa-calendar-alt me-1"></i> Anual
                 </a>
-                <a href="{{ route('pautas.final', $class->id) }}" class="btn btn-outline-warning text-dark fw-bold">
+                <a href="{{ route('pautas.final', $class->id) }}" class="no-underline px-3 py-1 rounded-md text-xs font-bold text-slate-700 hover:text-emerald-700">
                     <i class="fas fa-graduation-cap me-1"></i> Final
                 </a>
-                <a href="{{ route('pautas.exame', $class->id) }}" class="btn btn-danger active fw-bold">
-                    <i class="fas fa-file-signature me-1"></i> Exames & Júri
+                <a href="{{ route('pautas.exame', $class->id) }}" class="no-underline px-3 py-1 rounded-md text-xs font-extrabold bg-rose-700 text-white shadow-2xs">
+                    <i class="fas fa-file-signature me-1"></i> Exames &amp; Júri
                 </a>
             </div>
 
-            <a href="{{ route('pautas.pdf', ['class' => $class->id, 'type' => 'final', 'year' => $year]) }}" class="btn btn-danger btn-sm shadow-sm font-bold">
-                <i class="fas fa-file-pdf me-1"></i> Exportar PDF
+            <a href="{{ route('pautas.pdf', ['class' => $class->id, 'type' => 'final', 'year' => $year]) }}" class="no-underline inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-rose-700 hover:bg-rose-800 text-xs font-bold text-white shadow-2xs transition">
+                <i class="fas fa-file-pdf"></i> Exportar PDF
             </a>
-            <a href="{{ route('classes.show', $class->id) }}" class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-arrow-left me-1"></i> Voltar
+            <a href="{{ route('classes.show', $class->id) }}" class="no-underline inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 shadow-2xs transition">
+                <i class="fas fa-arrow-left"></i> Voltar
             </a>
         </div>
     </div>
 
-    <!-- Bloco de Informação do Júri -->
-    <div class="card shadow-sm border-0 mb-4 bg-gradient text-dark rounded-3" style="background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%);">
-        <div class="card-body p-3">
-            <div class="row align-items-center text-center text-md-start">
-                <div class="col-md-3 border-end">
-                    <span class="text-uppercase text-xs font-weight-bold text-muted d-block mb-1">Júri de Exame</span>
-                    <h5 class="fw-bold text-danger mb-0">{{ $juryCode ?: "Júri Nº {$class->name}" }}</h5>
-                </div>
-                <div class="col-md-3 border-end">
-                    <span class="text-uppercase text-xs font-weight-bold text-muted d-block mb-1">Presidente do Júri</span>
-                    <strong class="text-dark">{{ $juryPresident ?: 'Não atribuído' }}</strong>
-                </div>
-                <div class="col-md-3 border-end">
-                    <span class="text-uppercase text-xs font-weight-bold text-muted d-block mb-1">1º Vogal / Examinador</span>
-                    <strong class="text-dark">{{ $juryExaminer1 ?: 'Não atribuído' }}</strong>
-                </div>
-                <div class="col-md-3">
-                    <span class="text-uppercase text-xs font-weight-bold text-muted d-block mb-1">2º Vogal / Co-Examinador</span>
-                    <strong class="text-dark">{{ $juryExaminer2 ?: 'Não atribuído' }}</strong>
-                </div>
+    {{-- 2. Bloco de Informação do Júri --}}
+    <div class="bg-gradient-to-r from-slate-50 to-slate-100 rounded-2xl border border-slate-200 p-4 shadow-2xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-center md:text-left divide-y md:divide-y-0 md:divide-x divide-slate-200">
+            <div class="pt-2 md:pt-0 pr-2">
+                <span class="text-3xs uppercase font-extrabold tracking-wider text-slate-400 block mb-1">Júri de Exame</span>
+                <h4 class="font-black text-sm text-rose-700 mb-0">{{ $juryCode ?: "Júri Nº {$class->name}" }}</h4>
+            </div>
+            <div class="pt-2 md:pt-0 md:pl-4 pr-2">
+                <span class="text-3xs uppercase font-extrabold tracking-wider text-slate-400 block mb-1">Presidente do Júri</span>
+                <strong class="text-xs font-black text-slate-800 block">{{ $juryPresident ?: 'Não atribuído' }}</strong>
+            </div>
+            <div class="pt-2 md:pt-0 md:pl-4 pr-2">
+                <span class="text-3xs uppercase font-extrabold tracking-wider text-slate-400 block mb-1">1º Vogal / Examinador</span>
+                <strong class="text-xs font-black text-slate-800 block">{{ $juryExaminer1 ?: 'Não atribuído' }}</strong>
+            </div>
+            <div class="pt-2 md:pt-0 md:pl-4">
+                <span class="text-3xs uppercase font-extrabold tracking-wider text-slate-400 block mb-1">2º Vogal / Co-Examinador</span>
+                <strong class="text-xs font-black text-slate-800 block">{{ $juryExaminer2 ?: 'Não atribuído' }}</strong>
             </div>
         </div>
     </div>
 
-    <!-- Filtros de Pesquisa -->
-    <div class="card shadow-sm border-0 mb-4 bg-white rounded-3">
-        <div class="card-body p-3">
-            <form method="GET" action="{{ route('pautas.exame', $class->id) }}">
-                <div class="row g-3 align-items-end">
-                    <div class="col-md-4 col-sm-6">
-                        <label class="form-label text-xs font-weight-bold text-muted mb-1">
-                            <i class="fas fa-users text-danger me-1"></i> Turma
-                        </label>
-                        <select name="class_id" class="form-select form-select-sm border-secondary-subtle" onchange="this.form.submit()">
-                            @foreach($availableClasses as $c)
-                                <option value="{{ $c->id }}" @selected($c->id === $class->id)>
-                                    {{ $c->name }} ({{ $c->grade_level_name }})
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
+    {{-- 3. Filtros de Pesquisa --}}
+    <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-2xs">
+        <form method="GET" action="{{ route('pautas.exame', $class->id) }}" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+                <label class="block text-2xs font-bold text-slate-500 uppercase mb-1">
+                    <i class="fas fa-users text-rose-600 me-1"></i> Turma
+                </label>
+                <select name="class_id" class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-rose-500 focus:ring-rose-500" onchange="this.form.submit()">
+                    @foreach($availableClasses as $c)
+                        <option value="{{ $c->id }}" @selected($c->id === $class->id)>
+                            {{ $c->name }} ({{ $c->grade_level_name }})
+                        </option>
+                    @endforeach
+                </select>
+            </div>
 
-                    <div class="col-md-4 col-sm-6">
-                        <label class="form-label text-xs font-weight-bold text-muted mb-1">
-                            <i class="fas fa-book text-danger me-1"></i> Disciplina
-                        </label>
-                        <select name="subject_id" class="form-select form-select-sm border-secondary-subtle" onchange="this.form.submit()">
-                            <option value="">{{ $isTeacher ? 'Todas (que lecciono)' : 'Todas as Disciplinas' }}</option>
-                            @foreach($availableSubjects as $s)
-                                <option value="{{ $s->id }}" @selected($selectedSubjectId === $s->id)>{{ $s->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+            <div>
+                <label class="block text-2xs font-bold text-slate-500 uppercase mb-1">
+                    <i class="fas fa-book text-rose-600 me-1"></i> Disciplina
+                </label>
+                <select name="subject_id" class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-rose-500 focus:ring-rose-500" onchange="this.form.submit()">
+                    <option value="">{{ $isTeacher ? 'Todas (que lecciono)' : 'Todas as Disciplinas' }}</option>
+                    @foreach($availableSubjects as $s)
+                        <option value="{{ $s->id }}" @selected($selectedSubjectId === $s->id)>{{ $s->name }}</option>
+                    @endforeach
+                </select>
+            </div>
 
-                    <div class="col-md-4 col-sm-6">
-                        <label class="form-label text-xs font-weight-bold text-muted mb-1">
-                            <i class="fas fa-calendar text-danger me-1"></i> Ano Lectivo
-                        </label>
-                        <select name="year" class="form-select form-select-sm border-secondary-subtle" onchange="this.form.submit()">
-                            <option value="2026" {{ $year == 2026 ? 'selected' : '' }}>2026 (Ano Letivo Atual)</option>
-                            <option value="2025" {{ $year == 2025 ? 'selected' : '' }}>2025 (Histórico)</option>
-                        </select>
-                    </div>
-                </div>
-            </form>
-        </div>
+            <div>
+                <label class="block text-2xs font-bold text-slate-500 uppercase mb-1">
+                    <i class="fas fa-calendar text-rose-600 me-1"></i> Ano Lectivo
+                </label>
+                <select name="year" class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-rose-500 focus:ring-rose-500" onchange="this.form.submit()">
+                    <option value="2026" {{ $year == 2026 ? 'selected' : '' }}>2026 (Ano Letivo Atual)</option>
+                    <option value="2025" {{ $year == 2025 ? 'selected' : '' }}>2025 (Histórico)</option>
+                </select>
+            </div>
+        </form>
     </div>
 
-    <!-- Tabela Matriz de Exame com Júri -->
-    <div class="card shadow-sm border-0 mb-4 bg-white">
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover align-middle mb-0 text-center" style="font-size: 0.86rem;">
-                <thead class="table-dark text-uppercase tracking-wider">
+    {{-- 4. Tabela Matriz de Exame com Júri --}}
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-xs text-center border-collapse">
+                <thead class="bg-slate-800 text-white font-black uppercase tracking-wider">
                     <tr>
-                        <th rowspan="2" style="width: 45px;" class="align-middle">Nº</th>
-                        <th rowspan="2" class="align-middle text-start" style="min-width: 200px;">Nome Completo do Aluno</th>
-                        <th rowspan="2" style="width: 50px;" class="align-middle">Sexo</th>
+                        <th rowspan="2" class="py-3 px-3 text-center border-r border-slate-700 w-12 bg-slate-900">Nº</th>
+                        <th rowspan="2" class="py-3 px-4 text-left border-r border-slate-700 bg-slate-900 min-w-[200px]">Nome Completo do Aluno</th>
+                        <th rowspan="2" class="py-3 px-2 text-center border-r border-slate-700 w-12 bg-slate-900">Sexo</th>
                         @foreach($subjects as $subject)
-                            <th colspan="5" class="border-start border-end bg-dark text-white py-2" style="min-width: 250px;">
+                            <th colspan="5" class="py-2 px-2 text-center border-r border-slate-700 bg-slate-900 border-b border-slate-700 text-rose-300 font-black min-w-[250px]">
                                 {{ $subject->name }}
                             </th>
                         @endforeach
-                        <th rowspan="2" class="align-middle bg-secondary text-white" style="min-width: 140px;">Resultado do Júri</th>
+                        <th rowspan="2" class="py-3 px-3 text-center bg-rose-900 text-white border-r border-rose-950 min-w-[140px]">Resultado do Júri</th>
                     </tr>
-                    <tr class="bg-secondary text-white text-xs">
+                    <tr class="bg-slate-700 text-slate-200 text-3xs uppercase tracking-wider">
                         @foreach($subjects as $subject)
-                            <th style="width: 45px;" title="Média Anual de Frequência">MAF</th>
-                            <th style="width: 45px;" title="Nota de Exame Época Normal">NE</th>
-                            <th style="width: 45px;" title="Nota Recorrência / Média Júri">ACF</th>
-                            <th style="width: 45px;" title="NE Eficaz = max(NE, ACF)">NE_E</th>
-                            <th style="width: 55px;" class="bg-primary text-white font-weight-bold" title="Nota Final da Disciplina = round((MAF + NE_Eficaz) / 2)">NFD</th>
+                            <th class="py-1.5 px-2 bg-slate-700 font-semibold border-r border-slate-600" title="Média Anual de Frequência">MAF</th>
+                            <th class="py-1.5 px-2 bg-slate-700 font-semibold border-r border-slate-600" title="Nota de Exame Época Normal">NE</th>
+                            <th class="py-1.5 px-2 bg-slate-700 font-semibold border-r border-slate-600" title="Nota Recorrência / Média Júri">ACF</th>
+                            <th class="py-1.5 px-2 bg-rose-950 text-rose-200 font-bold border-r border-slate-600" title="NE Eficaz = max(NE, ACF)">NE_E</th>
+                            <th class="py-1.5 px-2 bg-emerald-900 text-emerald-200 font-black border-r border-slate-600" title="Nota Final da Disciplina = round((MAF + NE_Eficaz) / 2)">NFD</th>
                         @endforeach
                     </tr>
                 </thead>
-                <tbody>
-                    @forelse($matrix as $index => $row)
-                        @php
-                            $student = $row['student'];
-                            $gender = strtoupper(substr($student->gender ?? 'M', 0, 1));
-                        @endphp
-                        <tr>
-                            <td class="fw-bold text-muted">{{ $index + 1 }}</td>
-                            <td class="text-start fw-bold text-dark">
-                                <a href="{{ route('students.show', $student->id) }}" class="text-dark text-decoration-none hover-primary">
-                                    {{ $student->full_name }}
-                                </a>
+                <tbody class="divide-y divide-slate-100 font-semibold text-slate-700">
+                    @forelse($matrix as $row)
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3 px-3 text-center font-mono text-slate-500 border-r border-slate-100">{{ $loop->iteration }}</td>
+                            <td class="py-3 px-4 text-left font-black text-slate-900 border-r border-slate-100">
+                                {{ $row['student']->first_name }} {{ $row['student']->last_name }}
+                                <div class="text-slate-400 text-2xs font-mono font-normal">N.º {{ $row['student']->student_number ?? 'N/A' }}</div>
                             </td>
-                            <td>
-                                <span class="badge {{ $gender === 'F' ? 'bg-danger-subtle text-danger' : 'bg-primary-subtle text-primary' }}">
-                                    {{ $gender }}
-                                </span>
-                            </td>
-
+                            <td class="py-3 px-2 text-center uppercase font-bold text-slate-600 border-r border-slate-100">{{ substr($row['student']->gender ?? 'M', 0, 1) }}</td>
                             @foreach($subjects as $subject)
-                                @php
-                                    $subData = $row['subjects'][$subject->id] ?? null;
-                                    $maf = $subData['maf'] ?? '-';
-                                    $ne = $subData['ne'] ?? '-';
-                                    $acf = $subData['acf'] ?? '-';
-                                    $neEficaz = $subData['ne_eficaz'] ?? '-';
-                                    $nfd = $subData['nfd'] ?? '-';
-
-                                    $isNfdNumeric = is_numeric($nfd);
-                                    $nfdVal = $isNfdNumeric ? (float)$nfd : 0;
-                                    $isPositive = $nfdVal >= 9.5;
+                                @php 
+                                    $subData = $row['subjects'][$subject->id] ?? []; 
+                                    $nfd = $subData['mfd'] ?? '-';
+                                    $nfdVal = is_numeric($nfd) ? (float) $nfd : null;
                                 @endphp
-                                <td>{{ $maf }}</td>
-                                <td>{{ $ne }}</td>
-                                <td>{{ $acf }}</td>
-                                <td class="fw-bold">{{ $neEficaz }}</td>
-                                <td class="fw-bold border-start border-end {{ $isNfdNumeric ? ($isPositive ? 'table-success text-success' : 'table-danger text-danger') : '' }}">
+                                <td class="py-3 px-2 text-slate-500 border-r border-slate-100">{{ $subData['mf'] ?? '-' }}</td>
+                                <td class="py-3 px-2 text-slate-500 border-r border-slate-100">{{ $subData['exam'] ?? '-' }}</td>
+                                <td class="py-3 px-2 text-slate-500 border-r border-slate-100">{{ $subData['acf'] ?? '-' }}</td>
+                                <td class="py-3 px-2 font-bold text-rose-700 bg-rose-50/50 border-r border-slate-100">{{ $subData['ne_effective'] ?? '-' }}</td>
+                                <td class="py-3 px-2 font-black border-r border-slate-100 {{ $nfdVal !== null ? ($nfdVal >= 9.5 ? 'text-emerald-700 bg-emerald-50/80' : 'text-rose-700 bg-rose-50/80') : '' }}">
                                     {{ $nfd }}
                                 </td>
                             @endforeach
-
-                            <td class="fw-bold">
+                            <td class="py-3 px-3 text-center">
                                 @if($row['final_status'] === 'Aprovado')
-                                    <span class="badge bg-success px-2 py-1"><i class="fas fa-check-circle me-1"></i> Aprovado</span>
-                                @elseif($row['final_status'] === 'Exame')
-                                    <span class="badge bg-warning text-dark px-2 py-1"><i class="fas fa-clock me-1"></i> Recorrência</span>
+                                    <span class="px-2.5 py-0.5 rounded-full text-3xs font-black bg-emerald-100 text-emerald-800 border border-emerald-200">Aprovado</span>
                                 @elseif($row['final_status'] === 'Reprovado')
-                                    <span class="badge bg-danger px-2 py-1"><i class="fas fa-times-circle me-1"></i> Reprovado</span>
+                                    <span class="px-2.5 py-0.5 rounded-full text-3xs font-black bg-rose-100 text-rose-800 border border-rose-200">Reprovado</span>
                                 @else
-                                    <span class="badge bg-secondary px-2 py-1">{{ $row['final_status'] }}</span>
+                                    <span class="px-2.5 py-0.5 rounded-full text-3xs font-black bg-amber-100 text-amber-800 border border-amber-200">{{ $row['final_status'] }}</span>
                                 @endif
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ 4 + (count($subjects) * 5) }}" class="py-4 text-center text-muted">
-                                Nenhuma avaliação ou nota de exame registada para esta turma.
+                            <td colspan="{{ 4 + (count($subjects) * 5) }}" class="py-10 text-center text-slate-400">
+                                <i class="fas fa-folder-open text-3xl mb-2 text-slate-300 block"></i>
+                                <span>Nenhuma avaliação ou nota de exame registada para esta turma.</span>
                             </td>
                         </tr>
                     @endforelse
@@ -213,69 +194,70 @@
         </div>
     </div>
 
-    <!-- Bloco de Assinaturas Oficiais do Júri para Impressão -->
-    <div class="card shadow-sm border-0 mb-4 bg-white">
-        <div class="card-body p-4">
-            <h6 class="fw-bold text-dark text-uppercase border-bottom pb-2 mb-4">
-                <i class="fas fa-signature text-danger me-2"></i> Termo de Homologação e Assinaturas do Júri de Exame
-            </h6>
-            <div class="row text-center mt-3 g-4">
-                <div class="col-md-4">
-                    <div class="border-top border-dark pt-2 mx-auto" style="max-width: 250px;">
-                        <p class="fw-bold mb-0 text-dark">{{ $juryPresident ?: '________________________' }}</p>
-                        <small class="text-muted d-block">Presidente do Júri</small>
-                    </div>
+    {{-- 5. Termo de Homologação e Assinaturas do Júri + DAP e DAE --}}
+    <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs space-y-4">
+        <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider border-b border-slate-100 pb-2 mb-3 flex items-center gap-2">
+            <i class="fas fa-signature text-rose-600"></i> Termo de Homologação e Assinaturas do Júri de Exame
+        </h4>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center pt-2">
+            <div class="space-y-2">
+                <div class="border-b-2 border-slate-900 pb-1 w-4/5 mx-auto">
+                    <p class="font-black text-slate-900 text-xs mb-0">{{ $juryPresident ?: '________________________' }}</p>
                 </div>
-                <div class="col-md-4">
-                    <div class="border-top border-dark pt-2 mx-auto" style="max-width: 250px;">
-                        <p class="fw-bold mb-0 text-dark">{{ $juryExaminer1 ?: '________________________' }}</p>
-                        <small class="text-muted d-block">1º Vogal (Examinador)</small>
-                    </div>
+                <span class="text-2xs font-extrabold uppercase text-slate-500 block">Presidente do Júri</span>
+            </div>
+            <div class="space-y-2">
+                <div class="border-b-2 border-slate-900 pb-1 w-4/5 mx-auto">
+                    <p class="font-black text-slate-900 text-xs mb-0">{{ $juryExaminer1 ?: '________________________' }}</p>
                 </div>
-                <div class="col-md-4">
-                    <div class="border-top border-dark pt-2 mx-auto" style="max-width: 250px;">
-                        <p class="fw-bold mb-0 text-dark">{{ $juryExaminer2 ?: '________________________' }}</p>
-                        <small class="text-muted d-block">2º Vogal (Co-Examinador)</small>
-                    </div>
+                <span class="text-2xs font-extrabold uppercase text-slate-500 block">1º Vogal (Examinador)</span>
+            </div>
+            <div class="space-y-2">
+                <div class="border-b-2 border-slate-900 pb-1 w-4/5 mx-auto">
+                    <p class="font-black text-slate-900 text-xs mb-0">{{ $juryExaminer2 ?: '________________________' }}</p>
                 </div>
+                <span class="text-2xs font-extrabold uppercase text-slate-500 block">2º Vogal (Co-Examinador)</span>
             </div>
         </div>
     </div>
+
+    {{-- Assinaturas Oficiais MINEDH (DAP & DAE) --}}
+    <x-official-signatures :year="$year" />
 </div>
 
 <!-- Modal de Atribuição do Júri -->
-<div class="modal fade" id="juryConfigModal" tabindex="-1" aria-labelledby="juryConfigModalLabel" aria-hidden="true" style="z-index: 1055;">
+<div class="modal fade" id="juryConfigModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg rounded-3">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title font-weight-bold" id="juryConfigModalLabel">
-                    <i class="fas fa-user-tie me-2"></i> Atribuir / Editar Júri de Exame
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content border-0 shadow-2xl rounded-2xl overflow-hidden">
+            <div class="px-5 py-4 bg-rose-700 text-white flex items-center justify-between">
+                <h3 class="text-sm font-black text-white tracking-tight flex items-center gap-2 mb-0">
+                    <i class="fas fa-user-tie"></i> Atribuir / Editar Júri de Exame
+                </h3>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form method="POST" action="{{ route('pautas.exame.jury', $class->id) }}">
                 @csrf
-                <div class="modal-body p-4">
-                    <div class="mb-3">
-                        <label class="form-label font-weight-bold text-dark">Código / Identificação do Júri</label>
-                        <input type="text" name="jury_code" class="form-control" value="{{ $juryCode }}" placeholder="Ex: Júri Nº 12 - 12ª Classe A">
+                <div class="p-5 space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Código / Identificação do Júri</label>
+                        <input type="text" name="jury_code" class="w-full rounded-lg border-slate-200 text-xs font-semibold py-2 focus:border-rose-500 focus:ring-rose-500" value="{{ $juryCode }}" placeholder="Ex: Júri Nº 12 - 12ª Classe A">
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label font-weight-bold text-dark">Presidente do Júri</label>
-                        <input type="text" name="jury_president" class="form-control" value="{{ $juryPresident }}" placeholder="Nome do Presidente do Júri">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Presidente do Júri</label>
+                        <input type="text" name="jury_president" class="w-full rounded-lg border-slate-200 text-xs font-semibold py-2 focus:border-rose-500 focus:ring-rose-500" value="{{ $juryPresident }}" placeholder="Nome do Presidente do Júri">
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label font-weight-bold text-dark">1º Vogal (Examinador)</label>
-                        <input type="text" name="jury_examiner1" class="form-control" value="{{ $juryExaminer1 }}" placeholder="Nome do 1º Vogal">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">1º Vogal (Examinador)</label>
+                        <input type="text" name="jury_examiner1" class="w-full rounded-lg border-slate-200 text-xs font-semibold py-2 focus:border-rose-500 focus:ring-rose-500" value="{{ $juryExaminer1 }}" placeholder="Nome do 1º Vogal">
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label font-weight-bold text-dark">2º Vogal (Co-Examinador)</label>
-                        <input type="text" name="jury_examiner2" class="form-control" value="{{ $juryExaminer2 }}" placeholder="Nome do 2º Vogal">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">2º Vogal (Co-Examinador)</label>
+                        <input type="text" name="jury_examiner2" class="w-full rounded-lg border-slate-200 text-xs font-semibold py-2 focus:border-rose-500 focus:ring-rose-500" value="{{ $juryExaminer2 }}" placeholder="Nome do 2º Vogal">
                     </div>
                 </div>
-                <div class="modal-footer bg-light">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-danger font-weight-bold">
+                <div class="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-2">
+                    <button type="button" class="px-3 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="px-4 py-1.5 rounded-lg bg-rose-700 hover:bg-rose-800 text-white text-xs font-bold shadow-2xs">
                         <i class="fas fa-save me-1"></i> Guardar Atribuição
                     </button>
                 </div>
