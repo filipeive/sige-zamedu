@@ -18,6 +18,27 @@ Formato de cada entrada:
 **Próximo passo recomendado:** ...
 ```
 
+## [2026-10-06] — Alinhamento Visual de Login com Produção, Emblema Nacional, Atalhos Rápidos & Merge na Main — Antigravity AI Agent
+
+**Feito:**
+- **Alinhamento Completo da Página de Login (`resources/views/auth/login.blade.php`) com Produção (http://146.235.224.99/zamedu/login)**:
+  - **Centralização Vertical e Horizontal Perfeita**: Reestruturado o container direito `.form-side` com `justify-content: space-between` e `.form-container` com `margin: auto auto; max-width: 410px`, garantindo que o formulário fica centrado no viewport vertical sem sobreposição.
+  - **Inclusão do Emblema da República de Moçambique**: Inserido o selo oficial (`auth-emblem`) acima do título "Portal de Acesso" com fallback seguro para SVG/PNG.
+  - **Atalhos de Acesso Rápido Funcionais & Flexíveis**: Mantida a grade de botões em pílula para 1-clique (Super Admin, Insp. Provincial, Dir. Distrital, Coord. ZIP, Dir. Escola, Pedagógico, Professor, Secretária, Encarregado e Aluno), perfeitamente integrados logo abaixo do botão de submissão sem desalinhar o formulário.
+  - **Design Fiel a Produção**: Painel lateral esquerdo com gradiente esmeralda, imagem de fundo institucional, badge de plataforma SaaS, headline e destaques de conformidade com o SNE.
+- **Resolução de Autoload Multi-Tenant**:
+  - `app/Helpers/SchoolHelper.php` e `app/Helpers/settings.php` consolidados com resolução dinâmica da identidade da escola e compatibilidade com o test runner.
+- **Git Commit & Merge na Branch `main`**:
+  - Commit efetuado em `feature/school-onboarding`: `83b428f` (`feat(ui & tenancy): alinhamento do login com producao, emblema e atalhos, resolucao de escola e kpi minedh`).
+  - Efetuado checkout na branch `main` e merge do branch `feature/school-onboarding`, deixando o branch `main` limpo e pronto para deploy no servidor de produção (`deployment/deploy-zamedu.sh`).
+
+**Testado:**
+- **Inspeção Visual no Navegador Real (Chrome DevTools MCP)**: Capturadas capturas de tela comparativas contra a URL de produção http://146.235.224.99/zamedu/login e verificado o preenchimento automático das credenciais por clique e login com sucesso.
+- **PHPUnit Automatizado**: 11 testes, 74 asserções executadas com 100% de sucesso na branch `main`.
+
+**Próximo passo recomendado:**
+- Executar o deploy no servidor de produção via `deployment/deploy-zamedu.sh` ou `git push origin main`.
+
 ## [2026-10-06] — Resolução Dinâmica Multi-Tenant do Nome da Escola, Confirmação de Permissões de Ficheiros & Certificado A4 — Antigravity AI Agent
 
 **Feito:**
