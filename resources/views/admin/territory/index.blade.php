@@ -1,6 +1,13 @@
 @extends('layouts.app')
 
 @section('title', 'Gestão Territorial & Escolas')
+@section('page-title', 'Gestão Territorial & Escolas')
+@section('page-title-icon', 'fas fa-map-location-dot')
+
+@section('breadcrumbs')
+    <li class="breadcrumb-item">Territory</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Gestão Territorial & Escolas</li>
+@endsection
 
 @section('content')
 <div class="w-full px-4 py-6">

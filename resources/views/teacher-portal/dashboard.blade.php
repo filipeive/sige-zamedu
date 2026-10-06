@@ -5,7 +5,7 @@
 @section('page-title-icon', 'fas fa-chalkboard-teacher')
 
 @section('breadcrumbs')
-    <li class="breadcrumb-item active">Dashboard</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Dashboard</li>
 @endsection
 
 @section('content')

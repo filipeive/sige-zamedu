@@ -32,7 +32,7 @@
 
             @can('manage_enrollments')
                 <a href="{{ route('admin.enrollments.renewals') }}" class="no-underline inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 shadow-2xs transition">
-                    <i class="fas fa-sync-alt text-amber-500"></i> Renovações
+                    <i class="fas fa-sync-alt text-amber-500"></i> Renovações de Matrículas
                 </a>
             @endcan
             @can('create_enrollments')

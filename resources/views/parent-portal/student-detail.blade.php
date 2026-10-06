@@ -1,8 +1,15 @@
 @extends('layouts.app')
 
-@section('title', 'Caderneta do Aluno - ' . $student->full_name)
+@section('title', 'Caderneta Escolar Digital')
 @section('page-title', 'Caderneta Escolar Digital')
+@section('page-title-icon', 'fas fa-user-graduate')
 
+@section('breadcrumbs')
+    <li class="breadcrumb-item">Parent-portal</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Caderneta Escolar Digital</li>
+@endsection
+
+@section('title', 'Caderneta do Aluno - ' . $student->full_name)
 @section('content')
 <div class="space-y-6">
 

@@ -2,6 +2,12 @@
 
 @section('title', 'Detalhes da Presença')
 @section('page-title', 'Detalhes da Presença')
+@section('page-title-icon', 'fas fa-calendar-check')
+
+@section('breadcrumbs')
+    <li class="breadcrumb-item">Presenças</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Detalhes da Presença</li>
+@endsection
 
 @section('content')
 <div class="w-full space-y-6">

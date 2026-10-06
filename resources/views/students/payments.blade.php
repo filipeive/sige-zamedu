@@ -1,15 +1,17 @@
 @extends('layouts.app')
 
-@section('title', (is_public_school() ? 'Taxas & Recibos — ' : 'Pagamentos — ') . $student->full_name)
-@section('page-title', is_public_school() ? 'Gestão de Taxas & Recibos' : 'Histórico Financeiro do Aluno')
+@section('title', 'Students - Payments')
+@section('page-title', 'Students - Payments')
 @section('page-title-icon', 'fas fa-file-invoice-dollar')
 
 @section('breadcrumbs')
     <li class="breadcrumb-item"><a href="{{ route('students.index') }}" class="no-underline">Alunos</a></li>
     <li class="breadcrumb-item"><a href="{{ route('students.show', $student) }}" class="no-underline">{{ $student->first_name }}</a></li>
-    <li class="breadcrumb-item active">{{ is_public_school() ? 'Taxas & Recibos' : 'Pagamentos' }}</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">{{ is_public_school() ? 'Taxas & Recibos' : 'Pagamentos' }}</li>
 @endsection
 
+@section('title', (is_public_school() ? 'Taxas & Recibos — ' : 'Pagamentos — ') . $student->full_name)
+@section('page-title', is_public_school() ? 'Gestão de Taxas & Recibos' : 'Histórico Financeiro do Aluno')
 @section('content')
 <div class="space-y-6 bg-[#F8FAFC] -m-4 p-6 rounded-3xl min-h-screen">
 

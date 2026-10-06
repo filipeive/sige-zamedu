@@ -2,6 +2,12 @@
 
 @section('title', 'Comunicados & Notificações')
 @section('page-title', 'Central de Comunicados')
+@section('page-title-icon', 'fas fa-comments')
+
+@section('breadcrumbs')
+    <li class="breadcrumb-item">Parent-portal</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Central de Comunicados</li>
+@endsection
 
 @section('content')
 <div class="space-y-6">

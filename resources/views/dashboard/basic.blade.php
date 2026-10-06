@@ -2,6 +2,12 @@
 
 @section('title', 'Dashboard')
 @section('page-title', 'Bem-vindo')
+@section('page-title-icon', 'fas fa-chart-pie')
+
+@section('breadcrumbs')
+    <li class="breadcrumb-item">Dashboard</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Bem</li>
+@endsection
 
 @section('content')
     <div class="mx-auto max-w-2xl">

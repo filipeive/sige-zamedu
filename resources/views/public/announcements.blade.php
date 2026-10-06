@@ -1,6 +1,13 @@
 @extends('layouts.app')
 
 @section('title', 'Comunicados Oficiais')
+@section('page-title', 'Comunicados Oficiais')
+@section('page-title-icon', 'fas fa-folder-open')
+
+@section('breadcrumbs')
+    <li class="breadcrumb-item">Public</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Comunicados Oficiais</li>
+@endsection
 
 @section('content')
     <div class="container py-5">

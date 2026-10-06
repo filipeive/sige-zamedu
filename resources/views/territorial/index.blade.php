@@ -1,6 +1,13 @@
 @extends('layouts.app')
 
 @section('title', 'Painel Territorial de Inspeção & Analytics MINEDH')
+@section('page-title', 'Painel Territorial de Inspeção & Analytics MINEDH')
+@section('page-title-icon', 'fas fa-map-location-dot')
+
+@section('breadcrumbs')
+    <li class="breadcrumb-item">Territorial</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Painel Territorial de Inspeção & Analytics MINEDH</li>
+@endsection
 
 @section('content')
 <!-- Leaflet CSS & JS for Interactive Mozambique Map -->

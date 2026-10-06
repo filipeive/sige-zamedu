@@ -1,14 +1,16 @@
 @extends('layouts.app')
 
-@section('title', 'Perfil do Encarregado - ' . $parent->full_name)
-@section('page-title', $parent->full_name)
+@section('title', 'Parents - Show')
+@section('page-title', 'Parents - Show')
 @section('page-title-icon', 'fas fa-user-shield')
 
 @section('breadcrumbs')
     <li class="breadcrumb-item"><a href="{{ route('parents.index') }}">Encarregados</a></li>
-    <li class="breadcrumb-item active">Perfil</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Perfil</li>
 @endsection
 
+@section('title', 'Perfil do Encarregado - ' . $parent->full_name)
+@section('page-title', $parent->full_name)
 @section('content')
 <div class="space-y-4">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-slate-200">

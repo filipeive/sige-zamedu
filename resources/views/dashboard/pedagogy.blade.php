@@ -1,9 +1,15 @@
 @extends('layouts.app')
 
 @section('title', 'Dashboard Pedagógico')
+@section('page-title', 'Dashboard Pedagógico')
+@section('page-title-icon', 'fas fa-chart-pie')
+
+@section('breadcrumbs')
+    <li class="breadcrumb-item active text-slate-600 font-medium">Dashboard Pedagógico</li>
+@endsection
 
 @section('content')
-<div class="w-full max-w-7xl mx-auto px-4 py-6 space-y-6">
+<div class="w-full mx-auto px-4 py-6 space-y-6">
 
     <!-- Header Contextual -->
     <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">

@@ -2,11 +2,13 @@
 
 @section('title', 'Gestão de Usuários')
 @section('page-title', 'Gestão de Usuários')
-@section('title-icon', 'fas fa-users-cog')
+@section('page-title-icon', 'fas fa-users-cog')
 
 @section('breadcrumbs')
-    <li class="breadcrumb-item active">Usuários do Sistema</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Usuários do Sistema</li>
 @endsection
+
+@section('title-icon', 'fas fa-users-cog')
 
 @section('content')
 <div class="space-y-4" x-data="{ deleteModal: false, deleteUserId: null, deleteUserName: '' }">

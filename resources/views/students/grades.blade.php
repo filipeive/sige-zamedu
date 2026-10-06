@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Pautas & Notas — ' . $student->full_name)
+@section('title', 'Boletim & Aproveitamento')
 @section('page-title', 'Boletim & Aproveitamento')
 @section('page-title-icon', 'fas fa-graduation-cap')
 
@@ -10,6 +10,7 @@
     <li class="breadcrumb-item active text-slate-600 font-medium">Notas</li>
 @endsection
 
+@section('title', 'Pautas & Notas — ' . $student->full_name)
 @section('content')
 <div class="max-w-full mx-auto space-y-4" x-data="{ shareMailOpen: false }">
 

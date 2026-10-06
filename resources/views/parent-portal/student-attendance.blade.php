@@ -1,8 +1,15 @@
 @extends('layouts.app')
 
-@section('title', 'Registo de Presenças - ' . $student->full_name)
+@section('title', 'Registo de Presenças')
 @section('page-title', 'Registo de Presenças')
+@section('page-title-icon', 'fas fa-user-graduate')
 
+@section('breadcrumbs')
+    <li class="breadcrumb-item">Parent-portal</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Registo de Presenças</li>
+@endsection
+
+@section('title', 'Registo de Presenças - ' . $student->full_name)
 @section('content')
 <div class="space-y-6">
 

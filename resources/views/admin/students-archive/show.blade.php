@@ -1,5 +1,14 @@
 @extends('layouts.app')
 
+@section('title', 'Students-archive - Show')
+@section('page-title', 'Students-archive - Show')
+@section('page-title-icon', 'fas fa-user-graduate')
+
+@section('breadcrumbs')
+    <li class="breadcrumb-item">Students-archive</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Students</li>
+@endsection
+
 @section('title', 'Arquivo - ' . $student->full_name)
 @section('page-title', 'Arquivo: ' . $student->full_name)
 

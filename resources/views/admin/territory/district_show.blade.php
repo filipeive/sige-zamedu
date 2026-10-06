@@ -1,5 +1,13 @@
 @extends('layouts.app')
 
+@section('title', 'Territory - District_show')
+@section('page-title', 'Territory - District_show')
+@section('page-title-icon', 'fas fa-map-location-dot')
+
+@section('breadcrumbs')
+    <li class="breadcrumb-item active text-slate-600 font-medium">Territory</li>
+@endsection
+
 @section('title', 'Inspeção Distrito — ' . $district->name)
 
 @section('content')
@@ -193,6 +201,7 @@
                         <th class="py-3 px-4">Director</th>
                         <th class="py-3 px-4">Contacto</th>
                         <th class="py-3 px-6 text-center">Estado</th>
+                        <th class="py-3 px-6 text-center">Ações</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 text-slate-700">
@@ -226,10 +235,15 @@
                                     <span class="px-2.5 py-1 rounded-full bg-rose-100 text-rose-700 font-semibold text-xs">Inativa</span>
                                 @endif
                             </td>
+                            <td class="py-3 px-6 text-center">
+                                <a href="{{ route('territorial.school', $school->id) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-xs font-bold transition">
+                                    <i class="fa-solid fa-arrow-up-right-from-square"></i> Ver Detalhes
+                                </a>
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center py-6 text-slate-400 font-medium">
+                            <td colspan="8" class="text-center py-6 text-slate-400 font-medium">
                                 Nenhuma escola registada neste distrito.
                             </td>
                         </tr>

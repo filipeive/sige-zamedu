@@ -1,15 +1,16 @@
 @extends('layouts.app')
 
-@section('title', 'Editar Disciplina - ' . $subject->name)
+@section('title', 'Editar Disciplina')
 @section('page-title', 'Editar Disciplina')
 @section('page-title-icon', 'fas fa-edit')
 
 @section('breadcrumbs')
     <li class="breadcrumb-item"><a href="{{ route('subjects.index') }}" class="no-underline">Disciplinas</a></li>
     <li class="breadcrumb-item"><a href="{{ route('subjects.show', $subject) }}" class="no-underline">{{ $subject->name }}</a></li>
-    <li class="breadcrumb-item active">Editar</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Editar</li>
 @endsection
 
+@section('title', 'Editar Disciplina - ' . $subject->name)
 @section('content')
 <div class="space-y-4">
     <!-- Header -->

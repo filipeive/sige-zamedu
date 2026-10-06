@@ -1,15 +1,16 @@
 @extends('layouts.app')
 
-@section('title', 'Alunos - ' . $class->name)
+@section('title', 'Gestão de Alunos da Turma')
 @section('page-title', 'Gestão de Alunos da Turma')
 @section('page-title-icon', 'fas fa-users')
 
 @section('breadcrumbs')
     <li class="breadcrumb-item"><a href="{{ route('classes.index') }}">Turmas</a></li>
     <li class="breadcrumb-item"><a href="{{ route('classes.show', $class->id) }}">{{ $class->name }}</a></li>
-    <li class="breadcrumb-item active">Alunos</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Alunos</li>
 @endsection
 
+@section('title', 'Alunos - ' . $class->name)
 @section('content')
 <div class="space-y-4">
     <!-- Header -->

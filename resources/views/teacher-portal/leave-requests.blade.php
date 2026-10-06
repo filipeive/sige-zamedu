@@ -5,7 +5,7 @@
 @section('page-title-icon', 'fas fa-calendar-times')
 
 @section('breadcrumbs')
-    <li class="breadcrumb-item active">Licenças</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Licenças</li>
 @endsection
 
 @section('content')

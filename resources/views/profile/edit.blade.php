@@ -3,15 +3,15 @@
 
 @section('title', 'Meu Perfil')
 @section('page-title', 'Meu Perfil')
+@section('page-title-icon', 'fas fa-user-circle')
+
+@section('breadcrumbs')
+    <li class="breadcrumb-item active text-slate-600 font-medium">Meu Perfil</li>
+@endsection
 
 @php
     $titleIcon = 'fas fa-user-circle';
 @endphp
-
-@section('breadcrumbs')
-    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-    <li class="breadcrumb-item active">Meu Perfil</li>
-@endsection
 
 @section('content')
 <div class="row">

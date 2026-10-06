@@ -4,6 +4,11 @@
 @section('page-title', 'Completar Perfil de Professor')
 @section('page-title-icon', 'fas fa-user-plus')
 
+@section('breadcrumbs')
+    <li class="breadcrumb-item">Teacher-portal</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Completar Perfil de Professor</li>
+@endsection
+
 @section('content')
     <div class="content-wrapper">
         <div class="row justify-content-center">

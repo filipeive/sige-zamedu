@@ -1,15 +1,15 @@
 @extends('layouts.app')
 
-@section('title', 'Cartão de Estudante — ' . $student->full_name)
+@section('title', 'Cartão de Identificação Escolar')
 @section('page-title', 'Cartão de Identificação Escolar')
 @section('page-title-icon', 'fas fa-id-card')
 
 @section('breadcrumbs')
-    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="no-underline">Início</a></li>
     <li class="breadcrumb-item"><a href="{{ route('gatekeeper.index') }}" class="no-underline">Portaria Digital</a></li>
     <li class="breadcrumb-item active text-slate-600 font-medium">Cartão — {{ $student->first_name }}</li>
 @endsection
 
+@section('title', 'Cartão de Estudante — ' . $student->full_name)
 @push('styles')
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap');

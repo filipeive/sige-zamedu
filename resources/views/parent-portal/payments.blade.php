@@ -2,6 +2,12 @@
 
 @section('title', 'Propinas e Recibos')
 @section('page-title', 'Extrato de Pagamentos & Propinas')
+@section('page-title-icon', 'fas fa-file-invoice-dollar')
+
+@section('breadcrumbs')
+    <li class="breadcrumb-item">Parent-portal</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Extrato de Pagamentos & Propinas</li>
+@endsection
 
 @section('content')
 <div x-data="parentPayments()" class="space-y-6">

@@ -2,10 +2,11 @@
 
 @section('title', 'Relatorios Financeiros')
 @section('page-title', 'Relatorios Financeiros')
+@section('page-title-icon', 'fas fa-file-invoice-dollar')
 
 @section('breadcrumbs')
     <li class="breadcrumb-item"><a href="{{ route('payments.index') }}" class="no-underline"><i class="fas fa-wallet me-1"></i>Pagamentos</a></li>
-    <li class="breadcrumb-item active">Relatorios</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Relatorios</li>
 @endsection
 
 @section('content')

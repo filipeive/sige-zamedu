@@ -1,6 +1,12 @@
 @extends('layouts.app')
 
 @section('title', 'Mapa Oficial de Aproveitamento Pedagógico Território — MINEDH')
+@section('page-title', 'Mapa Oficial de Aproveitamento Pedagógico Território — MINEDH')
+@section('page-title-icon', 'fas fa-map-location-dot')
+
+@section('breadcrumbs')
+    <li class="breadcrumb-item active text-slate-600 font-medium">Mapa Oficial de Aproveitamento Pedagógico Território</li>
+@endsection
 
 @section('content')
 <div class="w-full px-4 py-6">
@@ -83,6 +89,10 @@
     <!-- Official MINEDH Table Sheet Card -->
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
         <div class="p-6 bg-slate-50/50 border-b border-slate-200 text-center">
+            <!-- Emblema -->
+            <div class="flex justify-center mb-3">
+                <img src="{{ asset('images/emblem.png') }}" alt="Emblema" class="h-16 w-auto">
+            </div>
             <h5 class="text-base font-extrabold text-slate-900 tracking-wide uppercase">REPÚBLICA DE MOÇAMBIQUE</h5>
             <h6 class="text-xs font-bold text-slate-600 mt-1 uppercase">MINISTÉRIO DA EDUCAÇÃO E DESENVOLVIMENTO HUMANO</h6>
             <p class="text-xs font-extrabold text-emerald-700 mt-1">MAPA DE APROVEITAMENTO PEDAGÓGICO — ENSINO SECUNDÁRIO GERAL (ESG)</p>

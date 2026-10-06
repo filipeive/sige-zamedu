@@ -1,5 +1,13 @@
 @extends('layouts.app')
 
+@section('title', 'Pautas - Exame')
+@section('page-title', 'Pautas - Exame')
+@section('page-title-icon', 'fas fa-table')
+
+@section('breadcrumbs')
+    <li class="breadcrumb-item active text-slate-600 font-medium">Pautas</li>
+@endsection
+
 @section('title', 'Pauta de Exames com Júris - ' . $class->name)
 
 @section('content')

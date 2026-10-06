@@ -7,7 +7,7 @@
 @section('breadcrumbs')
     <li class="breadcrumb-item"><a href="{{ route('reports.index') }}">Relatórios</a></li>
     <li class="breadcrumb-item"><a href="{{ route('reports.academic') }}">Académico</a></li>
-    <li class="breadcrumb-item active">Frequência</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Frequência</li>
 @endsection
 
 @section('page-actions')

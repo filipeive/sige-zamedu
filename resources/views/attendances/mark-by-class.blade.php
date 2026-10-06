@@ -1,16 +1,16 @@
 @extends('layouts.app')
 
-@section('title', 'Marcar Frequências - ' . $class->name)
+@section('title', 'Marcar Frequências')
 @section('page-title', 'Marcar Frequências')
 @section('page-title-icon', 'fas fa-calendar-plus')
 
 @section('breadcrumbs')
-    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Início</a></li>
     <li class="breadcrumb-item"><a href="{{ route('attendances.index') }}">Frequências</a></li>
     <li class="breadcrumb-item"><a href="{{ route('attendances.class-attendances', $class) }}?date={{ $date }}">{{ $class->name }}</a></li>
-    <li class="breadcrumb-item active">Marcar</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Marcar</li>
 @endsection
 
+@section('title', 'Marcar Frequências - ' . $class->name)
 @section('content')
 <form action="{{ route('attendances.store-mark-by-class', $class) }}" method="POST" id="attendance-form" class="space-y-4">
     @csrf

@@ -1,5 +1,13 @@
 @extends('layouts.app')
 
+@section('title', 'Users - Show')
+@section('page-title', 'Users - Show')
+@section('page-title-icon', 'fas fa-users-cog')
+
+@section('breadcrumbs')
+    <li class="breadcrumb-item active text-slate-600 font-medium">Users</li>
+@endsection
+
 @section('title', 'Detalhes do Utilizador — ' . $user->name)
 
 @section('content')

@@ -1,8 +1,15 @@
 @extends('layouts.app')
 
-@section('title', 'Boletim de Notas - ' . $student->full_name)
+@section('title', 'Boletim de Notas')
 @section('page-title', 'Boletim de Notas')
+@section('page-title-icon', 'fas fa-user-graduate')
 
+@section('breadcrumbs')
+    <li class="breadcrumb-item">Parent-portal</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Boletim de Notas</li>
+@endsection
+
+@section('title', 'Boletim de Notas - ' . $student->full_name)
 @section('content')
 <div class="space-y-6">
 

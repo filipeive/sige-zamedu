@@ -7,7 +7,7 @@
 @section('breadcrumbs')
     <li class="breadcrumb-item"><a href="{{ route('enrollments.index') }}">Matrículas</a></li>
     <li class="breadcrumb-item"><a href="{{ route('enrollments.show', $enrollment->id) }}">Detalhes</a></li>
-    <li class="breadcrumb-item active">Editar</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Editar</li>
 @endsection
 
 @section('content')

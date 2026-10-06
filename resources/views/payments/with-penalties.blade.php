@@ -2,10 +2,11 @@
 
 @section('title', 'Pagamentos com Multa')
 @section('page-title', 'Pagamentos com Multa Aplicada')
+@section('page-title-icon', 'fas fa-file-invoice-dollar')
 
 @section('breadcrumbs')
     <li class="breadcrumb-item"><a href="{{ route('payments.index') }}" class="no-underline"><i class="fas fa-wallet me-1"></i>Pagamentos</a></li>
-    <li class="breadcrumb-item active">Com Multa</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Com Multa</li>
 @endsection
 
 @section('content')

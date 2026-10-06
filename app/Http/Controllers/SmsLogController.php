@@ -57,10 +57,15 @@ class SmsLogController extends Controller
         $fromNumber = config('services.sms.httpsms.from');
         $isSimulated = (bool) config('services.sms.simulate', false);
         $unreadInbox = \App\Models\SmsInbox::where('is_read', false)->count();
+        $inboxMessages = \App\Models\SmsInbox::query()
+            ->latest('received_at')
+            ->paginate(20, ['*'], 'inbox_page')
+            ->withQueryString();
 
         return view('sms.index', [
             'logs' => $logs,
             'students' => $students,
+            'inboxMessages' => $inboxMessages,
             'stats' => [
                 'total' => $totalLogs,
                 'sent_this_month' => $sentThisMonth,

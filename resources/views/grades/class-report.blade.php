@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Relatório de Aproveitamento — ' . $class->name)
+@section('title', 'Relatório de Aproveitamento')
 @section('page-title', 'Relatório de Aproveitamento')
 @section('page-title-icon', 'fas fa-chart-line')
 
@@ -10,6 +10,7 @@
     <li class="breadcrumb-item active text-slate-600 font-medium">Relatório de Aproveitamento</li>
 @endsection
 
+@section('title', 'Relatório de Aproveitamento — ' . $class->name)
 @section('content')
 <div class="space-y-4">
     <!-- Header -->

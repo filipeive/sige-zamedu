@@ -2,6 +2,12 @@
 
 @section('title', 'Gestão de Licença - ZamEdu')
 @section('page-title', 'Gestão de Licença')
+@section('page-title-icon', 'fas fa-key')
+
+@section('breadcrumbs')
+    <li class="breadcrumb-item">License</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Licença</li>
+@endsection
 
 @section('content')
 <div class="w-full max-w-4xl mx-auto px-4 py-6">

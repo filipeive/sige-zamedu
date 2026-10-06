@@ -58,7 +58,7 @@ class StudentController extends Controller
         $totalStudents = Student::count();
         $activeStudents = Student::active()->count();
 
-        return view('students.index', compact('students', 'classes', 'schools', 'totalStudents', 'activeStudents'));
+        return view('students.index', compact('students','classes', 'schools', 'totalStudents', 'activeStudents'));
     }
 
     /**

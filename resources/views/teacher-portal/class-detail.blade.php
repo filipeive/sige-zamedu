@@ -7,7 +7,7 @@
 @section('breadcrumbs')
     <li class="breadcrumb-item"><a href="{{ route('teacher.dashboard') }}">Portal</a></li>
     <li class="breadcrumb-item"><a href="{{ route('teacher.classes.index') }}">Minhas Turmas</a></li>
-    <li class="breadcrumb-item active">{{ $class->name }}</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">{{ $class->name }}</li>
 @endsection
 
 @section('content')

@@ -527,6 +527,12 @@
             </div>
 
             <div class="top-actions">
+                <a href="{{ route('public.allocations') }}" class="btn-pre-enrollment">
+                    <i class="fas fa-map-location-dot"></i> Afetações 2027
+                </a>
+                <a href="{{ route('public.vacancies') }}" class="btn-pre-enrollment">
+                    <i class="fas fa-chart-pie"></i> Vagas 2027
+                </a>
                 <a href="{{ route('public.pre-enrollment') }}" class="btn-pre-enrollment">
                     <i class="fas fa-user-plus"></i> Pré-Inscrição por Região
                 </a>
@@ -555,12 +561,24 @@
                         Plataforma oficial ZAMEDU - SIGE para modernizar a gestão académica de Escolas Públicas e Privadas de Moçambique. Emissão de Pautas, Boletins e Certificados em total conformidade com o Sistema Nacional de Educação (SNE - Lei 18/2018).
                     </p>
                     <div class="hero-buttons">
-                        <a href="{{ route('public.pre-enrollment') }}" class="btn-hero-primary">
+                        <a href="{{ route('public.allocations') }}" class="btn-hero-primary">
+                            <i class="fas fa-map-location-dot"></i> Afetações 2027
+                        </a>
+                        <a href="{{ route('public.vacancies') }}" class="btn-hero-secondary">
+                            <i class="fas fa-chart-pie"></i> Vagas 2027
+                        </a>
+                        <a href="{{ route('public.pre-enrollment') }}" class="btn-hero-secondary">
                             <i class="fas fa-user-plus"></i> Pré-Inscrição por Região
                         </a>
-                        <a href="{{ route('public.trial-register') }}" class="btn-hero-secondary">
-                            <i class="fas fa-school"></i> Registar Escola
-                        </a>
+                    </div>
+
+                    <!-- Níveis SNE -->
+                    <div class="mt-6 pt-4 border-t border-white/20 flex flex-wrap items-center gap-2">
+                        <span class="text-xs font-bold text-yellow-400 uppercase tracking-wider">Níveis SNE:</span>
+                        <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-white/15 text-white border border-white/25">Escola Local</span>
+                        <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-white/15 text-white border border-white/25">ZIP (Micro-Rede)</span>
+                        <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-white/15 text-white border border-white/25">Distrito (SDEJT)</span>
+                        <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-white/15 text-white border border-white/25">Província (DPEDH)</span>
                     </div>
                 </div>
 

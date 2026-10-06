@@ -1544,7 +1544,7 @@
                 <!-- 1. DASHBOARD & GESTÃO TERRITORIAL SUPER ADMIN -->
                 <div class="nav-section">
                     @hasanyrole('super_admin|province_admin|province_inspector|district_admin|district_inspector|zip_coordinator|zip_admin')
-                        <div class="nav-section-title">Administração Global & Territorial</div>
+                        <div class="nav-section-title">Administração Global &amp; Territorial</div>
                     @endhasanyrole
                     <ul class="nav-list">
                         <li class="nav-item">
@@ -1573,6 +1573,24 @@
                                     <i class="fas fa-sitemap text-emerald-500"></i>
                                 </span>
                                 <span class="nav-text">Gestão Territorial & Escolas</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('public.allocations') }}"
+                                class="nav-link {{ request()->routeIs('public.allocations') ? 'active' : '' }}">
+                                <span class="nav-icon">
+                                    <i class="fas fa-search-location text-emerald-500"></i>
+                                </span>
+                                <span class="nav-text">Afetações SNE 2027</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('public.vacancies') }}"
+                                class="nav-link {{ request()->routeIs('public.vacancies') ? 'active' : '' }}">
+                                <span class="nav-icon">
+                                    <i class="fas fa-chair text-emerald-500"></i>
+                                </span>
+                                <span class="nav-text">Quadro de Vagas 2027</span>
                             </a>
                         </li>
                         <li class="nav-item">
@@ -1775,6 +1793,7 @@
             @endif
 
             <!-- 2. GESTÃO DE ESTUDANTES & MATRÍCULAS -->
+            @if (!auth()->user()->hasRole('super_admin') || session('support_mode'))
             @canany(['manage_students', 'view_students'])
                 @if (auth()->user()->role !== 'teacher')
                     <div class="nav-section">
@@ -1805,15 +1824,7 @@
                                     </a>
                                 </li>
                                 @endif
-                                @if(is_menu_visible('menu_renewals'))
-                                <li class="nav-item">
-                                    <a href="{{ route('admin.enrollments.renewals') }}"
-                                        class="nav-link {{ request()->routeIs('admin.enrollments.renewals') ? 'active' : '' }}">
-                                        <span class="nav-icon"><i class="fas fa-sync-alt"></i></span>
-                                        <span class="nav-text">Renovação de Matrículas</span>
-                                    </a>
-                                </li>
-                                @endif
+                                
                                 @if(is_menu_visible('menu_promotions'))
                                 <li class="nav-item">
                                     <a href="{{ route('admin.promotion.index') }}"
@@ -1855,6 +1866,7 @@
                     </div>
                 @endif
             @endcanany
+            @endif
 
             <!-- 3. ORGANIZAÇÃO ACADÉMICA & DOCENTES -->
             @canany(['manage_classes', 'view_classes', 'manage_subjects', 'manage_teachers', 'view_teachers'])
@@ -2555,7 +2567,7 @@
                         </div>
                         <div>
                             <div class="font-extrabold text-sm uppercase tracking-wide flex items-center gap-2">
-                                <span class="px-2 py-0.5 rounded bg-slate-950 text-amber-400 text-[10px] font-black me-1">MODO SUPORTE ATIVO</span>
+                                <span class="px-2 py-0.5 rounded bg-slate-950 text-amber-400 text-[10px] font-black me-1">Modo Suporte Ativo</span>
                                 <span>A Operar na Escola: <strong>{{ session('support_mode_school_name', 'Escola Selecionada') }}</strong> (#{{ session('support_mode_school_id') }})</span>
                             </div>
                             <div class="text-xs font-semibold text-slate-900 mt-0.5">
@@ -2910,7 +2922,7 @@
                 });
             });
 
-            console.log('✅ ZamEdu Sistema Escolar iniciado com sucesso!');
+            console.log('[ZamEdu] Sistema Escolar iniciado com sucesso!');
         });
 
         // ===== MODAL DE CONFIRMAÇÃO =====
@@ -3055,6 +3067,8 @@
                 </div>
             </div>
         </div>
+    </div>
+
     <!-- ===== UNIVERSAL BOOTSTRAP MODAL & TAB JS POLYFILL ===== -->
     <script>
     (function() {

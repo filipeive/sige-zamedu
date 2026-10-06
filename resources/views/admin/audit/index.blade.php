@@ -1,6 +1,13 @@
 @extends('layouts.app')
 
 @section('title', 'Auditoria do Sistema — Logs de Atividade')
+@section('page-title', 'Auditoria do Sistema — Logs de Atividade')
+@section('page-title-icon', 'fas fa-shield-alt')
+
+@section('breadcrumbs')
+    <li class="breadcrumb-item">Audit</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Auditoria do Sistema</li>
+@endsection
 
 @section('content')
 <div class="space-y-8 p-4 sm:p-6 lg:p-8">

@@ -1,14 +1,17 @@
 @extends('layouts.app')
 
-@section('title', 'Acompanhamento - ' . $student->full_name)
+@section('title', 'Acompanhamento do Aluno')
 @section('page-title', 'Acompanhamento do Aluno')
-@section('title-icon', 'fas fa-notes-medical')
+@section('page-title-icon', 'fas fa-user-graduate')
 
 @section('breadcrumbs')
     <li class="breadcrumb-item"><a href="{{ route('students.index') }}">Alunos</a></li>
     <li class="breadcrumb-item"><a href="{{ route('students.show', $student) }}">{{ $student->full_name }}</a></li>
-    <li class="breadcrumb-item active">Acompanhamento</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Acompanhamento</li>
 @endsection
+
+@section('title', 'Acompanhamento - ' . $student->full_name)
+@section('title-icon', 'fas fa-notes-medical')
 
 @section('content')
 <div class="space-y-4">
@@ -284,92 +287,108 @@
 @can('manage_student_records')
     @if (!in_array($student->status, ['transferred', 'graduated', 'inactive']))
         <div class="modal fade" id="markExitModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content border-0 shadow-lg" style="border-radius:1rem;">
+            <div class="modal-dialog modal-dialog-centered modal-md">
+                <div class="modal-content border-0 shadow-xl" style="border-radius:1rem; overflow:hidden;">
                     <form method="POST" action="{{ route('students.support.mark-exit', $student) }}">
                         @csrf
-                        <div class="modal-header bg-rose-600 text-white" style="border-radius:1rem 1rem 0 0;">
-                            <h5 class="modal-title font-bold">
-                                <i class="fas fa-door-open me-2"></i> Marcar Saída do Aluno
+                        <div class="modal-header bg-gradient-rose text-white p-4" style="background: linear-gradient(135deg, #e11d48 0%, #be123c 100%); border-radius:1rem 1rem 0 0;">
+                            <h5 class="modal-title font-bold d-flex align-items-center gap-2 mb-0">
+                                <i class="fas fa-door-open fs-5"></i> Marcar Saída do Aluno
                             </h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
                         </div>
                         <div class="modal-body p-4 text-start">
-                            <div class="alert alert-warning border-0 rounded-xl mb-3 d-flex align-items-start gap-2">
-                                <i class="fas fa-exclamation-triangle mt-1"></i>
-                                <div class="text-xs">
-                                    Esta acção é <strong>irreversível</strong>. O aluno será movido para <strong>Alunos Arquivados</strong> e o motivo será registado no histórico de ocorrências.
+                            <div class="alert alert-warning border-0 rounded-xl mb-4 d-flex align-items-start gap-3" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);">
+                                <i class="fas fa-exclamation-triangle mt-1 text-amber-600 fs-4"></i>
+                                <div class="text-sm">
+                                    <strong class="d-block mb-1">Ação Irreversível</strong>
+                                    Esta ação é <strong>permanente</strong>. O aluno será movido para <strong>Alunos Arquivados</strong> e o motivo será registado no histórico de ocorrências.
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label text-xs font-bold text-slate-700 uppercase tracking-wider">Aluno</label>
-                                <input type="text" class="form-control rounded-xl bg-slate-50" value="{{ $student->full_name }}" disabled>
+                                <label class="form-label text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Aluno</label>
+                                <input type="text" class="form-control rounded-xl bg-slate-50 border-slate-200 text-sm" value="{{ $student->full_name }}" disabled>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label text-xs font-bold text-slate-700 uppercase tracking-wider">Tipo de Saída *</label>
-                                <select name="exit_status" class="form-select rounded-xl" required>
-                                    <option value="">Selecionar...</option>
-                                    <option value="transferred">Transferido (mudou de escola)</option>
-                                    <option value="graduated">Formado (concluiu o ciclo)</option>
-                                    <option value="inactive">Desistente (abandono / desistência)</option>
+                                <label class="form-label text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Tipo de Saída <span class="text-rose-600">*</span></label>
+                                <select name="exit_status" class="form-select rounded-xl border-slate-200 shadow-sm focus:border-rose-400 focus:ring-rose-400" required>
+                                    <option value="">Selecionar tipo de saída...</option>
+                                    <option value="inactive">
+                                        <i class="fas fa-user-slash me-2 text-rose-600"></i> Desistente (abandono / desistência)
+                                    </option>
+                                    <option value="transferred">
+                                        <i class="fas fa-exchange-alt me-2 text-blue-600"></i> Transferido (mudou de escola)
+                                    </option>
+                                    <option value="graduated">
+                                        <i class="fas fa-graduation-cap me-2 text-emerald-600"></i> Formado (concluiu o ciclo)
+                                    </option>
                                 </select>
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label text-xs font-bold text-slate-700 uppercase tracking-wider">Data da Saída *</label>
-                                <input type="date" name="exit_date" class="form-control rounded-xl"
-                                    value="{{ now()->toDateString() }}" required>
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Data da Saída <span class="text-rose-600">*</span></label>
+                                    <input type="date" name="exit_date" class="form-control rounded-xl border-slate-200 shadow-sm focus:border-rose-400 focus:ring-rose-400"
+                                        value="{{ now()->toDateString() }}" required max="{{ now()->toDateString() }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Ano Letivo <span class="text-rose-600">*</span></label>
+                                    <input type="text" class="form-control rounded-xl bg-slate-50 border-slate-200 text-sm" value="{{ date('Y', strtotime(now()->toDateString())) }}" disabled>
+                                </div>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label text-xs font-bold text-slate-700 uppercase tracking-wider">Motivo / Observações *</label>
-                                <textarea name="exit_reason" class="form-control rounded-xl" rows="3"
-                                    placeholder="Descreva o motivo da saída (será arquivado no histórico)..." required></textarea>
+                                <label class="form-label text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Motivo / Observações <span class="text-rose-600">*</span></label>
+                                <textarea name="exit_reason" class="form-control rounded-xl border-slate-200 shadow-sm focus:border-rose-400 focus:ring-rose-400" rows="4"
+                                    placeholder="Descreva detalhadamente o motivo da saída (será arquivado no histórico do aluno)..." required></textarea>
+                                <div class="form-text text-slate-500">Mínimo 10 caracteres. Esta informação ficará registada permanentemente.</div>
                             </div>
                         </div>
-<div class="modal-footer bg-light py-2 px-4" style="border-radius:0 0 1rem 1rem;">
-                    <button type="button" class="btn btn-outline-secondary btn-sm rounded-xl" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-rose btn-sm rounded-xl font-semibold text-white" style="background-color:#e11d48;">
-                        <i class="fas fa-check me-1"></i> Confirmar Saída
-                    </button>
+                        <div class="modal-footer bg-slate-50 py-3 px-4" style="border-radius:0 0 1rem 1rem;">
+                            <button type="button" class="btn btn-outline-secondary btn-sm rounded-xl px-4" data-bs-dismiss="modal">
+                                <i class="fas fa-times me-1"></i> Cancelar
+                            </button>
+                            <button type="submit" class="btn btn-rose btn-sm rounded-xl font-semibold text-white px-4" style="background-color:#e11d48;">
+                                <i class="fas fa-check me-1"></i> Confirmar Saída
+                            </button>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
-    </div>
-</div>
     @endif
 @endcan
 
 {{-- SMS ao Encarregado --}}
 @if ($student->parent && $student->parent->phone)
 <div class="modal fade" id="smsModalSupport" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="border-radius:1rem;">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content border-0 shadow-xl" style="border-radius:1rem; overflow:hidden;">
             <form action="{{ route('students.sms.send', $student) }}" method="POST">
                 @csrf
-                <div class="modal-header bg-sky-600 text-white" style="border-radius:1rem 1rem 0 0;">
-                    <h5 class="modal-title font-bold">
-                        <i class="fas fa-comment-dots me-2"></i> Enviar SMS ao Encarregado
+                <div class="modal-header bg-gradient-sky text-white p-4" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); border-radius:1rem 1rem 0 0;">
+                    <h5 class="modal-title font-bold d-flex align-items-center gap-2 mb-0">
+                        <i class="fas fa-comment-dots fs-5"></i> Enviar SMS ao Encarregado
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
                 <div class="modal-body p-4 text-start">
-                    <div class="alert alert-info border-0 rounded-xl mb-3 d-flex align-items-center gap-2 text-xs">
-                        <i class="fas fa-user"></i>
+                    <div class="alert alert-info border-0 rounded-xl mb-4 d-flex align-items-center gap-3" style="background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);">
+                        <i class="fas fa-user text-sky-600 fs-4"></i>
                         <div>
-                            <strong>{{ $student->parent->first_name }} {{ $student->parent->last_name }}</strong><br>
-                            <span class="font-mono">{{ $student->parent->phone }}</span>
+                            <strong class="d-block mb-1">{{ $student->parent->first_name }} {{ $student->parent->last_name }}</strong>
+                            <span class="font-mono text-sm text-sky-700">{{ $student->parent->phone }}</span>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label text-xs font-bold text-slate-700 uppercase tracking-wider">Mensagem *</label>
-                        <textarea id="smsMsgSupport" name="message" rows="5" required maxlength="480" class="form-control rounded-xl"
+                        <label class="form-label text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Mensagem <span class="text-sky-600">*</span></label>
+                        <textarea id="smsMsgSupport" name="message" rows="5" required maxlength="480" class="form-control rounded-xl border-slate-200 shadow-sm focus:border-sky-400 focus:ring-sky-400"
                             placeholder="Use {aluno} para o nome do aluno, {escola} para o nome da escola..."></textarea>
                         <small class="text-slate-500 text-[11px]">Máx. 480 caracteres. Enviado via httpSMS.</small>
                     </div>
-                    <div class="d-flex flex-wrap gap-1">
+                    <div class="d-flex flex-wrap gap-2">
                         @php
                             $templates = [
                                 "Bom dia. Gostaríamos de informar que {aluno} faltou hoje às aulas. Pedimos contacto com a secretaria.",
@@ -380,16 +399,18 @@
                             ];
                         @endphp
                         @foreach ($templates as $tpl)
-                            <button type="button" class="badge bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer hover:bg-slate-200"
+                            <button type="button" class="badge bg-slate-100 text-slate-700 border border-slate-200 px-3 py-2 cursor-pointer hover:bg-slate-200 hover:border-slate-300 transition text-[11px]"
                                 onclick="document.getElementById('smsMsgSupport').value = @js($tpl);">
-                                {{ mb_substr($tpl, 0, 35) }}…
+                                {{ mb_substr($tpl, 0, 40) }}…
                             </button>
                         @endforeach
                     </div>
                 </div>
-                <div class="modal-footer bg-light py-2 px-4" style="border-radius:0 0 1rem 1rem;">
-                    <button type="button" class="btn btn-outline-secondary btn-sm rounded-xl" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-sky-600 btn-sm rounded-xl font-semibold text-white" style="background-color:#0284c7;">
+                <div class="modal-footer bg-slate-50 py-3 px-4" style="border-radius:0 0 1rem 1rem;">
+                    <button type="button" class="btn btn-outline-secondary btn-sm rounded-xl px-4" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-sky-600 btn-sm rounded-xl font-semibold text-white px-4" style="background-color:#0284c7;">
                         <i class="fas fa-paper-plane me-1"></i> Enviar SMS
                     </button>
                 </div>

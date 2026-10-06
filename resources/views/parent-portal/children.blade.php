@@ -2,6 +2,12 @@
 
 @section('title', 'Meus Educandos')
 @section('page-title', 'Meus Educandos')
+@section('page-title-icon', 'fas fa-users')
+
+@section('breadcrumbs')
+    <li class="breadcrumb-item">Parent-portal</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Meus Educandos</li>
+@endsection
 
 @section('content')
 <div class="space-y-6">

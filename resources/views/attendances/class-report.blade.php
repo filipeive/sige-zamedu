@@ -1,8 +1,15 @@
 @extends('layouts.app')
 
-@section('title', 'Relatório de Frequências - ' . $class->name)
+@section('title', 'Relatório de Frequências')
 @section('page-title', 'Relatório de Frequências')
+@section('page-title-icon', 'fas fa-chalkboard-user')
 
+@section('breadcrumbs')
+    <li class="breadcrumb-item">Presenças</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Relatório de Frequências</li>
+@endsection
+
+@section('title', 'Relatório de Frequências - ' . $class->name)
 @section('content')
 <div class="w-full max-w-7xl mx-auto px-4 py-6">
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">

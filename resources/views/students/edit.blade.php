@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Editar ' . $student->full_name)
+@section('title', 'Editar Aluno')
 @section('page-title', 'Editar Aluno')
 @section('page-title-icon', 'fas fa-user-edit')
 
@@ -10,6 +10,7 @@
     <li class="breadcrumb-item active text-slate-600 font-medium">Editar</li>
 @endsection
 
+@section('title', 'Editar ' . $student->full_name)
 @section('content')
 <div class="max-w-full mx-auto space-y-4" x-data="{
     specialNeeds: {{ old('has_special_needs', $student->has_special_needs) ? 'true' : 'false' }},

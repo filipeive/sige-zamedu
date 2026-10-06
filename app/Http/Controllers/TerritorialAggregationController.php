@@ -34,10 +34,10 @@ class TerritorialAggregationController extends Controller
         $gradeLevels = [
             '7'  => '7ª Classe — ESG1 (1.º Ciclo)',
             '8'  => '8ª Classe — ESG1 (1.º Ciclo)',
-            '9'  => '9ª Classe — ESG1 ⭐ Exame Nacional',
-            '10' => '10ª Classe — ESG2 (2.º Ciclo) ⭐ Exame Nacional',
+            '9'  => '9ª Classe — ESG1 - Exame Nacional',
+            '10' => '10ª Classe — ESG2 (2.º Ciclo)  -  Exame Nacional',
             '11' => '11ª Classe — ESG2 (2.º Ciclo)',
-            '12' => '12ª Classe — ESG2 ⭐ Exame Nacional',
+            '12' => '12ª Classe — ESG2 - Exame Nacional',
         ];
 
         $passingThreshold = (float) setting('passing_grade', 9.5);
@@ -219,6 +219,8 @@ class TerritorialAggregationController extends Controller
         if ($selectedZipId) $schoolsQuery->where('zip_id', $selectedZipId);
 
         $targetSchoolIds = $schoolsQuery->pluck('id')->toArray();
+
+        $schoolNames = School::whereIn('id', $targetSchoolIds)->pluck('name', 'id');
 
         $mapData = $this->buildPedagogicalMapData($targetSchoolIds, $year, $term);
 

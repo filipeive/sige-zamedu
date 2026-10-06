@@ -27,7 +27,6 @@ class AiController extends Controller
         if ($conversations->isNotEmpty()) {
             $messages = $conversations->first()->messages()->orderBy('created_at')->get()->toArray();
         }
-
         return view('ai.index', [
             'conversations' => $conversations,
             'activeConversation' => $conversations->first(),
@@ -172,22 +171,27 @@ class AiController extends Controller
                 if (!isset($h['role'], $h['content'])) {
                     continue;
                 }
-                // Ignora a saudação inicial artificial do front-end
                 if (($h['role'] ?? '') === 'assistant' && ($h['meta'] ?? null) === 'greeting') {
                     continue;
                 }
-                $history[] = ['role' => $h['role'], 'content' => $h['content']];
+                $history[] = ['role' => $h['role'], 'content' => $this->stripImages($h['content'])];
             }
         }
-        // Garante que o prompt actual entra no histórico
-        $history[] = ['role' => 'user', 'content' => $prompt];
+
+        $history[] = ['role' => 'user', 'content' => $this->stripImages($prompt)];
 
         $response = $this->ai->ask($history, ['temperature' => 0.6, 'max_tokens' => 800]);
 
         if (!($response['success'] ?? false)) {
+            $err = $response['error'] ?? 'Erro ao consultar IA';
+            $userMessage = match (true) {
+                str_contains(strtolower($err), 'image') => 'Este assistente não suporta imagens. Envie apenas texto.',
+                default => $err,
+            };
+
             return response()->json([
                 'success' => false,
-                'message' => $response['error'] ?? 'Erro ao consultar IA',
+                'message' => $userMessage,
             ], 500);
         }
 
@@ -230,7 +234,7 @@ Estás a interagir com: {$userName} (Função: {$userRole}).
   * Para turmas com Exame Nacional: NE_Eficaz = max(NE, ACF) [onde NE é Nota de Exame e ACF é Avaliação Contínua Final], e NFD = round((MAF + NE_Eficaz) / 2).
 - Relatórios Pedagógicos e Inspeção: Exigem obrigatoriamente desagregação por género: **HM** (Total Homens e Mulheres) e **M** (Mulheres/Feminino).
 
-### 2. ARQUITETURA E ESTRUTURA TERRITORIAL MULTI-TENANT:
+### 2. ARQUITECTURA E ESTRUTURA TERRITORIAL MULTI-TENANT:
 - Estrutura de Tenancy Hierárquica em Moçambique: Província -> Distrito -> ZIP (Zona de Influência Pedagógica) -> Escola.
 - Escopo de Atuação:
   * Nível Escola: CRUD completo de alunos, turmas, notas, matrículas, pagamentos, presenças e certidões.
@@ -247,5 +251,10 @@ Estás a interagir com: {$userName} (Função: {$userRole}).
 - Responde em Português de Moçambique, de forma extremamente profissional, clara, estruturada e cortês.
 - Usa formatação Markdown com negritos, tópicos organizados e emojis explicativos quando útil.
 - Quando solicitado a gerar uma mensagem SMS para encarregados de educação, mantém o texto direto, cortês e com menos de 300 caracteres.";
+    }
+
+    private function stripImages(string $text): string
+    {
+        return preg_replace('/(?:!\[[^\]]*\]\([^)]*\)|<img[^>]*>)/i', '[Imagem não suportada pelo assistente]', $text) ?? $text;
     }
 }

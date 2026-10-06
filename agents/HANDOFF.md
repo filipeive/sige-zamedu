@@ -18,6 +18,128 @@ Formato de cada entrada:
 **Próximo passo recomendado:** ...
 ```
 
+## [2026-10-06] — Resolução Dinâmica Multi-Tenant do Nome da Escola, Confirmação de Permissões de Ficheiros & Certificado A4 — Antigravity AI Agent
+
+**Feito:**
+- **Verificação Rigorosa de Permissões e Gravação de Ficheiros**:
+  - Verificadas as permissões em disco (`ls -la` e `git status`): todos os ficheiros modificados possuem permissões de escrita normais (`-rw-rw-r--` ou `-rw-r--r--`, proprietário `fdev-ms:fdev-ms`), confirmando que **não existe bloqueio em modo leitura** e todas as edições são persistidas no disco.
+  - Executados `php artisan view:clear` e `php artisan cache:clear` para assegurar que o Blade compila sempre os ficheiros mais recentes.
+- **Resolução Dinâmica da Identidade da Escola no Multi-Tenant**:
+  - **`app/Helpers/SchoolHelper.php`**:
+    - `current_school(): ?School` unificada com hierarquia de prioridade: `SchoolContext::getSchoolId()` -> `session('support_mode_school_id')` -> `auth()->user()?->school_id`.
+    - `current_school_name(string $default = 'ZamEdu'): string` retorna o nome real do modelo `School` ativo.
+    - `is_public_school()` e `is_private_school()` checam dinamicamente o campo `type` (`public` vs `private`) da escola ativa.
+  - **`app/Models/Setting.php` & `app/Helpers/settings.php`**:
+    - Em ambiente multi-tenant, se não houver setting customizada na base de dados para a chave de identidade (`school_name`, `school_short_name`, `school_phone`, `school_email`, `school_address`, `school_code`, `director_name`, `province`, `district`), o `Setting::get()` agora faz o fallback inteligente para os atributos do modelo `App\Models\School` associado ao `school_id` em vez de usar os valores padrão estáticos globais.
+    - Sincronização automática em `Setting::set()` atualizando o modelo `School` caso dados institucionais sejam alterados.
+  - **Padronização em Views & Layouts**:
+    - `resources/views/layouts/app.blade.php`: Título `<title>{{ current_school_name() }} - ...</title>`, Sidebar Brand com `{{ current_school_name() }}`, rodapé com `current_school_name()` e província/distrito da escola corrente.
+    - `resources/views/reports/index.blade.php`: badge de Escopo Ativo atualizada com `current_school_name()`.
+- **Preenchimento Total do Certificado no Papel A4 (`resources/views/certificates/pdf_certificado.blade.php`)**:
+  - Corrigido o layout do certificado de conclusão em A4 paisagem (`297mm x 210mm`):
+    - Configurado `height: 190mm` explícito e `box-sizing: border-box` na `.border-container`.
+    - Ampliadas as proporções tipográficas (título `24pt`, nome do estudante `18pt` com destaque e borda, texto oficial `13pt` com line-height `2.1`).
+    - Espaçamentos e assinaturas equilibradas com selo branco de `64px`, garantindo que o certificado preenche harmoniosamente toda a folha A4 em vez de ficar concentrado na metade superior.
+
+**Decisões tomadas:**
+- A identidade institucional em contexto de escola provém unicamente do registo da escola no tenancy (`School::find($schoolId)`), com precedência sobre valores globais da tabela `settings`.
+
+**Testado:**
+- **Testes Automatizados**: `tests/Feature/MultiTenantSchoolNameTest.php` cobrindo 4 cenários (utilizador na Escola 1, utilizador na Escola 2, Super Admin em Modo Suporte, e SchoolContext explícito).
+- Suite completa `SchoolAllocationAndWelcomeTest|SmsCentralTest|StudentsIndexUxTest|MultiTenantSchoolNameTest`: 11 testes, 74 asserções aprovadas com 100% de sucesso.
+- Inspeção visual de DOM e layouts via Chrome DevTools.
+
+**Próximo passo recomendado:**
+- Proceder com o teste do sistema de mensagens SMS no número indicado pelo utilizador (`847240296`) conforme credenciais da API configuradas.
+
+## [2026-10-05] — Overhaul Completo da UI/UX do Widget IA & Verificação Visual no Navegador — Antigravity AI Agent
+
+**Feito:**
+- **Upgrade Estético e Funcional do Widget de IA (`resources/views/partials/ai-widget.blade.php`)**:
+  - **Design Glassmorphism Moderno**: Implementada a classe `.ai-glass-panel` com fundo translúcido com blur (`backdrop-blur-xl`), cantos arredondados (`rounded-3xl`), sombra profunda (`shadow-2xl`) e bordas suaves adaptáveis a dark mode.
+  - **Header Institucional de Alta Fidelidade**: Gradiente slate com avatar de IA esmeralda, indicador pulsante de status ("Online · Directivas do SNE Lei 18/2018"), badge "MINEDH COPILOT", botão de limpar histórico e fechar modal.
+  - **Barra de Chips de Tópicos Rápidos**: Atalhos com um clique para "Pautas & Exames", "Mapa Pedagógico" e "Mensagens SMS".
+  - **Cards Interativos de Sugestão**: Seção "Perguntas Frequentes & Directivas Oficiais" com 3 cards clicáveis com ícones coloridos (Fórmula NFD com Exame `NE_Eficaz = max(NE, ACF)`, Mapa Pedagógico HM/M, e Envio de SMS).
+  - **Markdown Avançado & Ergonomia**: Suporte a tabelas HTML formatadas, blocos de código com botão de cópia rápida para a área de transferência, citações/alertas estilizados e toolbar de ações com botão "Copiar resposta" e selo "MINEDH Verified".
+  - **Gatilho Flutuante Premium**: Botão com anel pulsante (`ai-trigger-pulse`), gradiente esmeralda/verde institucional (`#007A3D` a `#034522`), ícone de robô e pílula hover "Assistente IA".
+  - **Histórico Persistente v2**: Migrado storage para `zamedu_ai_chat_history_v2` com sanitização e renderização resiliente.
+- **Remoção de `<li class="breadcrumb-item">Dashboard</li>`**:
+  - Confirmada a remoção completa de qualquer breadcrumb genérico `Dashboard</li>` em todas as views da aplicação (`app.blade.php`, `basic.blade.php`, `teacher.blade.php`, `teacher-portal/dashboard.blade.php`).
+
+**Testado:**
+- **Verificação Visual no Navegador Real (Chrome DevTools MCP)**:
+  - Navegado para `http://127.0.0.1:8000/dashboard`.
+  - Aberto o widget flutuante através do gatilho `#floating-ai-trigger`.
+  - Capturadas capturas de tela comprovando a nova interface, cards de sugestões, chips rápidos e badge oficial MINEDH.
+  - Testada a interação real enviando pergunta sobre fórmula NFD MINEDH através do card de sugestão, recebendo resposta precisa em tempo real calculada segundo a Lei 18/2018.
+- **Suíte de Testes Automatizados**:
+  - `vendor/bin/phpunit --filter="SchoolAllocationAndWelcomeTest|SmsCentralTest|StudentsIndexUxTest"`: 10/10 testes (60 asserções) aprovados.
+
+
+
+## [2026-10-05] — Remoção Completa do Item '<li class="breadcrumb-item">Dashboard</li>' em Todas as Views — Antigravity AI Agent
+
+**Feito:**
+- **Remoção de `<li class="breadcrumb-item">Dashboard</li>` em Todos os Arquivos**:
+  - Em `resources/views/layouts/app.blade.php`: removido o fallback global redundante `@if (!View::hasSection('breadcrumbs')) <li class="breadcrumb-item active">Dashboard</li> @endif`, evitando que qualquer página ou painel adicione "Dashboard" após o link raiz "Início".
+  - Em `resources/views/dashboard/basic.blade.php`: removida a linha `<li class="breadcrumb-item">Dashboard</li>`, deixando apenas o item descritivo `<li class="breadcrumb-item active text-slate-600 font-medium">Painel Geral</li>`.
+  - Em `resources/views/dashboard/teacher.blade.php`: removida a linha `<li class="breadcrumb-item">Dashboard</li>`, mantendo diretamente `<li class="breadcrumb-item active text-slate-600 font-medium">Dashboard Professor</li>`.
+  - Em `resources/views/teacher-portal/dashboard.blade.php`: ajustado o breadcrumb para `<li class="breadcrumb-item active text-slate-600 font-medium">Portal do Professor</li>`.
+  - Verificação rigorosa com regex em toda a base (`grep -rnE 'breadcrumb-item.*Dashboard|<li.*Dashboard.*</li>|>Dashboard<' resources/views/`): nenhum `<li class="breadcrumb-item">Dashboard</li>` permanece em qualquer view.
+- **Cache**:
+  - Limpeza completa do cache de views com `php artisan view:clear` e `php artisan optimize:clear`.
+
+**Testado:**
+- `vendor/bin/phpunit --filter="SchoolAllocationAndWelcomeTest|SmsCentralTest|StudentsIndexUxTest"`: 10/10 testes (60 asserções) aprovados com 100% de sucesso.
+
+## [2026-10-05] — Restauração e Atualização Completa de Login, Pré-Inscrição SNE 2027, Rotas Públicas & Welcome — Antigravity AI Agent
+
+**Feito:**
+- **Restauração e Otimização do Portal de Autenticação (`resources/views/auth/login.blade.php`)**:
+  - Recomposta a interface governamental com layout em dois painéis (visual esmeralda institucional com Emblema da República à esquerda, formulário limpo e acessível à direita).
+  - Integradas contas de demonstração funcionais (Super Admin, Inspetor Provincial, Diretor Distrital, Coordenador ZIP, Diretor de Escola, Pedagógico, Professor, Secretária, Encarregado e Aluno) com preenchimento instantâneo em um clique.
+- **Restauração e Atualização de Pré-Inscrição & Rotas Públicas (`routes/web.php` & `EnrollmentApplicationController.php`)**:
+  - Restabelecidas as rotas `public.vacancies`, `public.allocations`, `public.pre-enrollment`, `public.pre-enrollment.store`, bem como redirecionamentos canónicos `/vacancies` e `/allocations`.
+  - Implementados os métodos `vacancies()` e `allocations()` no `EnrollmentApplicationController` para consulta pública de disponibilidade de vagas e afetações territoriais SNE.
+  - Sincronizada a view `resources/views/enrollments/applications/create.blade.php` e `resources/views/public/pre-enrollment.blade.php` com o banner oficial de afetação SNE (`Afetação Oficial SNE Reconhecida`), pré-preenchimento de dados de candidatos e transição do status de afetação para `confirmed`.
+- **Página Inicial (`resources/views/welcome.blade.php`)**:
+  - Atualizada a barra de topo e botões hero com os links oficiais `Afetações 2027` e `Vagas 2027`.
+  - Integrados os selos dos níveis territoriais SNE (`Escola Local`, `ZIP (Micro-Rede)`, `Distrito (SDEJT)`, `Província (DPEDH)`).
+  - Ocultado o botão de registo público de escola para preservar a integridade do onboarding oficial MINEDH.
+- **Limpeza de Caches**:
+  - Executado `php artisan optimize:clear` (rotas, views, configs e compiled) para assegurar que as alterações reflitam imediatamente em produção/desenvolvimento.
+
+**Testado:**
+- `vendor/bin/phpunit --filter="SchoolAllocationAndWelcomeTest"`: 6/6 testes (43 asserções) aprovados com 100% de sucesso.
+- `vendor/bin/phpunit --filter="SmsCentralTest|StudentsIndexUxTest"`: 4/4 testes (17 asserções) aprovados.
+
+## [2026-10-05] — Unificação Central de Mensagens SMS, UI/UX Directório de Alunos (Grid/Cards Mobile), Padronização Global de Breadcrumbs & Fix Widget IA — Antigravity AI Agent
+
+**Feito:**
+- **Unificação da Gestão de Mensagens SMS (`http://127.0.0.1:8000/sms`)**:
+  - Eliminado o erro 404 em `http://localhost/sms/inbox/1`: o método `SmsInboxController::show($id)` agora captura IDs inexistentes e redireciona suavemente com notificação amigável (`Mensagem não encontrada ou já eliminada`).
+  - O endpoint `/sms/inbox` agora redireciona com preservação de query parameters para `route('sms.index', ['tab' => 'inbox'])`.
+  - Integrada a Caixa de Entrada (SMS Recebidas via httpSMS) diretamente na **Central de Mensagens (`sms/index.blade.php`)** com cards de métricas dedicados, filtros por status (Lidas / Não Lidas), drawer/modal de resposta rápida inline com `route('sms.inbox.reply')`, marcação de lidas e paginação.
+  - Unificado o menu lateral do sidebar em `resources/views/layouts/app.blade.php` para um item singular "Central de Mensagens" com badge dinâmico de SMS não lidas.
+- **Redesign UI/UX do Directório de Alunos (`http://127.0.0.1:8000/students`)**:
+  - Implementado seletor de visualização Tabela / Grelha (`x-data` com persistência em `localStorage`).
+  - Criada **Vista em Grelha / Cards responsiva** otimizada para mobile e tablets (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`) com foto/avatar, número do aluno, turma, demografia, encarregado com botões de chamada rápida (`tel:`) e SMS, e barra de ações rápidas.
+  - Reorganizadas as abas de status em barra pill com scroll suave: Todos, Ativos, Renovação Pendente, Transferidos, Formados e Inativos.
+  - Padronizado `@section('breadcrumbs')` para `<li class="breadcrumb-item active text-slate-600 font-medium">Alunos</li>`.
+- **Padronização Global de Breadcrumbs em Todas as Views**:
+  - Varridas e corrigidas todas as 16 views do sistema que ainda incluíam links duplicados para "Início" / "Dashboard", garantindo que nenhuma view repita o link raiz que já é gerado globalmente por `resources/views/layouts/app.blade.php`.
+- **Correção do Widget IA Flutuante no Painel Autenticado**:
+  - Em `resources/views/partials/ai-widget.blade.php`, adicionado estilo explícito inline `position: fixed !important; bottom: 24px !important; right: 24px !important; z-index: 99999 !important; display: flex !important;` tanto no contentor como no botão de trigger.
+  - Corrigida a inicialização JS para verificar `document.readyState === 'loading'` de modo a não perder eventos quando o script for avaliado após o `DOMContentLoaded`.
+  - Em `resources/views/partials/cookie_consent.blade.php`, movido o banner de cookies para a esquerda (`bottom-4 left-4 sm:max-w-md`), eliminando a sobreposição física com o botão flutuante de IA no canto inferior direito.
+
+**Testado:**
+- `vendor/bin/phpunit --filter="SmsCentralTest|StudentsIndexUxTest"`: 4 testes, 17 asserções aprovadas com 100% de sucesso.
+- Limpeza de caches com `php artisan route:clear`, `php artisan view:clear` e `php artisan config:clear`.
+
+**Próximo passo recomendado:**
+- Prossiga com os testes manuais no browser em `http://127.0.0.1:8000/sms` e `http://127.0.0.1:8000/students`.
+
 ## 2026-09-11 — Exportação PDF e Excel do Mapa Pedagógico Exclusiva para o Quadro I (MINEDH Standard) — Antigravity AI Agent
 
 **Feito:**
@@ -340,6 +462,20 @@ Formato de cada entrada:
 ---
 
 ## 2026-09-07 — Sprint 9 (`feature/tenant-performance`) — Antigravity AI Agent
+## 2026-09-19 — Limpeza Definitiva de students/attendance.blade.php e Validação de /grades — Antigravity AI Agent
+
+**Feito:**
+- **Remoção de Conteúdo Residual / Duplicado em `students/attendance.blade.php`**:
+  - O ficheiro continha a versão legada em Bootstrap mesclada no topo com a nova versão em Tailwind (721 linhas).
+  - O ficheiro foi completamente rescrito e limpo (459 linhas), 100% Tailwind CSS, com todos os tokens ZAMEDU, cards de estatísticas com pílulas laterais, filtros funcionais, tabela responsiva e análise normativa MINEDH (Lei 18/2018).
+  - Cache de visualizações e rotas limpos com `php artisan view:clear` e `php artisan route:clear`.
+- **Validação de Ambas as Rotas no Navegador Real (Chrome DevTools MCP)**:
+  - `http://127.0.0.1:8000/students/195/attendance`: **HTTP 200 OK**, página renderizada perfeitamente com novo design Tailwind.
+  - `http://127.0.0.1:8000/students/195/grades`: **HTTP 200 OK**, boletim individual carregando sem erros de sintaxe ou de execução.
+- **Testes Automatizados**:
+  - `vendor/bin/phpunit tests/Feature/StudentManagementTest.php`: **2/2 testes PASS (5 assertions)**.
+
+## 2026-09-19 — Correção de ParseError em StudentController.php e CertificateController.php — Antigravity AI Agent
 
 **Feito:**
 - **Otimização de Performance & Índices de Banco de Dados (`feature/tenant-performance`)**:

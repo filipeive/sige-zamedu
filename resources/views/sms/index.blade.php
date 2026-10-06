@@ -2,11 +2,13 @@
 
 @section('title', 'Central de Mensagens')
 @section('page-title', 'Central de Mensagens SMS')
-@section('title-icon', 'fas fa-comment-sms')
+@section('page-title-icon', 'fas fa-comment-dots')
 
 @section('breadcrumbs')
-    <li class="breadcrumb-item active">Central de Mensagens</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Central de Mensagens</li>
 @endsection
+
+@section('title-icon', 'fas fa-comment-sms')
 
 @section('content')
 <div class="space-y-4">
@@ -93,9 +95,10 @@
                 {{ $activeTab === 'logs' ? 'border-emerald-600 text-emerald-700' : 'border-transparent text-slate-500 hover:text-slate-800' }}">
             <i class="fas fa-clock-rotate-left"></i> Histórico de Envios
         </a>
-        <a href="{{ route('sms.inbox.index') }}"
-            class="px-4 py-2.5 text-xs font-bold border-b-2 transition flex items-center gap-2 whitespace-nowrap no-underline border-transparent text-slate-500 hover:text-slate-800">
-            <i class="fas fa-inbox"></i> Mensagens Recebidas
+        <a href="{{ route('sms.index', ['tab' => 'inbox']) }}"
+            class="px-4 py-2.5 text-xs font-bold border-b-2 transition flex items-center gap-2 whitespace-nowrap no-underline
+                {{ $activeTab === 'inbox' ? 'border-emerald-600 text-emerald-700' : 'border-transparent text-slate-500 hover:text-slate-800' }}">
+            <i class="fas fa-inbox"></i> Caixa de Entrada
             @if(($unreadInbox ?? 0) > 0)
                 <span class="ml-1 inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-rose-500 text-white text-[10px] font-extrabold">
                     {{ $unreadInbox }}
@@ -248,6 +251,56 @@
             @if ($logs->hasPages())
                 <div class="p-3 border-t border-slate-100">
                     {{ $logs->withQueryString()->links() }}
+                </div>
+            @endif
+        </div>
+    </div>
+    @endif
+
+    {{-- TAB: CAIXA DE ENTRADA --}}
+    @if($activeTab === 'inbox')
+    <div class="space-y-4">
+        <div class="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
+            <div class="p-4 border-b border-slate-100 flex items-center justify-between">
+                <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fas fa-inbox text-emerald-600"></i> Caixa de Entrada (SMS Recebidas)
+                </h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-xs">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold">
+                            <th class="p-3 text-left">Remetente</th>
+                            <th class="p-3 text-left">Conteúdo</th>
+                            <th class="p-3 text-left">Data</th>
+                            <th class="p-3 text-left">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @forelse($inboxMessages ?? [] as $msg)
+                            <tr class="hover:bg-slate-50/80 transition {{ !$msg->is_read ? 'bg-emerald-50/30 font-semibold' : '' }}">
+                                <td class="p-3 font-mono text-slate-800">{{ $msg->from_phone }}</td>
+                                <td class="p-3 text-slate-700 max-w-md">{{ $msg->content }}</td>
+                                <td class="p-3 text-slate-500 whitespace-nowrap">{{ $msg->received_at ? $msg->received_at->format('d/m/Y H:i') : '-' }}</td>
+                                <td class="p-3">
+                                    @if($msg->is_read)
+                                        <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold">Lida</span>
+                                    @else
+                                        <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">Nova</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="p-8 text-center text-slate-400">Nenhuma mensagem recebida na Caixa de Entrada.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            @if(isset($inboxMessages) && method_exists($inboxMessages, 'hasPages') && $inboxMessages->hasPages())
+                <div class="p-4 border-t border-slate-100">
+                    {{ $inboxMessages->links() }}
                 </div>
             @endif
         </div>

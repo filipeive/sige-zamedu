@@ -1,14 +1,16 @@
 @extends('layouts.app')
 
-@section('title', $subject->name)
-@section('page-title', $subject->name)
+@section('title', 'Subjects - Show')
+@section('page-title', 'Subjects - Show')
 @section('page-title-icon', 'fas fa-book')
 
 @section('breadcrumbs')
     <li class="breadcrumb-item"><a href="{{ route('subjects.index') }}">Disciplinas</a></li>
-    <li class="breadcrumb-item active">{{ $subject->name }}</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">{{ $subject->name }}</li>
 @endsection
 
+@section('title', $subject->name)
+@section('page-title', $subject->name)
 @section('content')
 <div class="space-y-4">
     <!-- Header -->

@@ -1,15 +1,22 @@
 @extends('layouts.app')
 
 @section('title', 'Painel da Secretaria')
+@section('page-title', 'Painel da Secretaria')
+@section('page-title-icon', 'fas fa-chart-pie')
+
+@section('breadcrumbs')
+    <li class="breadcrumb-item active text-slate-600 font-medium">Painel da Secretaria</li>
+@endsection
 
 @section('content')
-<div class="w-full max-w-7xl mx-auto px-4 py-6 space-y-6">
+<div class="w-full mx-auto px-4 py-6 space-y-6">
 
     <!-- Header Contextual -->
     <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
             <p class="text-xs font-bold uppercase tracking-wider text-emerald-700 mb-1">{{ $greetingData['school_name'] }} · Ano Lectivo {{ $greetingData['school_year'] }}</p>
-            <h1 class="text-2xl font-bold text-slate-900 tracking-tight">{{ $greetingData['greeting'] }}</h1>
+            <!-- Informação da escola e ano lectivo -->
+            <p class="text-sm text-slate-500 mt-1">Bem-vindo ao painel da secretaria. Aqui você pode gerir alunos, matrículas, pagamentos e muito mais.</p>
         </div>
         <div class="text-right">
             <p class="text-xs font-semibold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-xl inline-block">{{ $greetingData['current_date'] }}</p>

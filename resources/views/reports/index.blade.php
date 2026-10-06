@@ -5,7 +5,7 @@
 @section('page-title-icon', 'fas fa-chart-pie')
 
 @section('breadcrumbs')
-    <li class="breadcrumb-item active">Relatórios</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Relatórios</li>
 @endsection
 
 @section('content')

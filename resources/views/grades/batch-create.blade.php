@@ -6,7 +6,7 @@
 
 @section('breadcrumbs')
     <li class="breadcrumb-item"><a href="{{ route('grades.dashboard') }}">Gestão de Notas</a></li>
-    <li class="breadcrumb-item active">Notas em Lote</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Notas em Lote</li>
 @endsection
 
 @section('content')

@@ -1,15 +1,16 @@
 @extends('layouts.app')
 
-@section('title', 'Presenças - ' . $student->first_name)
+@section('title', 'Registro de Presenças')
 @section('page-title', 'Registro de Presenças')
 @section('page-title-icon', 'fas fa-calendar-check')
 
 @section('breadcrumbs')
     <li class="breadcrumb-item"><a href="{{ route('students.index') }}">Alunos</a></li>
     <li class="breadcrumb-item"><a href="{{ route('students.show', $student) }}">{{ $student->first_name }}</a></li>
-    <li class="breadcrumb-item active">Presenças</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Presenças</li>
 @endsection
 
+@section('title', 'Presenças - ' . $student->first_name)
 @section('content')
 <div class="row">
     <div class="col-12">

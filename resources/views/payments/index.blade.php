@@ -1,13 +1,15 @@
 @extends('layouts.app')
 
-@section('title', is_public_school() ? 'Gestão de Taxas Escolares' : 'Gestão de Pagamentos')
-@section('page-title', is_public_school() ? 'Taxas de Matrícula & Exames' : 'Pagamentos & Propinas')
+@section('title', 'Payments - Index')
+@section('page-title', 'Payments - Index')
 @section('page-title-icon', 'fas fa-money-bill-wave')
 
 @section('breadcrumbs')
     <li class="breadcrumb-item active text-slate-600 font-medium">Pagamentos</li>
 @endsection
 
+@section('title', is_public_school() ? 'Gestão de Taxas Escolares' : 'Gestão de Pagamentos')
+@section('page-title', is_public_school() ? 'Taxas de Matrícula & Exames' : 'Pagamentos & Propinas')
 @section('content')
 <div class="space-y-4">
 

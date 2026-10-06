@@ -72,6 +72,16 @@ class School extends Model
         return $this->hasMany(Student::class);
     }
 
+    public function classRooms(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ClassRoom::class);
+    }
+
+    public function classes(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ClassRoom::class);
+    }
+
     public function teachers(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Teacher::class);

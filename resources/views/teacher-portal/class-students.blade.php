@@ -1,17 +1,17 @@
 @extends('layouts.app')
 
 @section('title', 'Alunos da Turma')
-@section('page-title', 'Alunos — ' . ($class->name ?? 'Turma'))
+@section('page-title', 'Alunos — ' . ($class->name ?? 'Turma')
 @section('page-title-icon', 'fas fa-users')
 
 @section('breadcrumbs')
     <li class="breadcrumb-item"><a href="{{ route('teacher.dashboard') }}">Portal</a></li>
     <li class="breadcrumb-item"><a href="{{ route('teacher.classes.index') }}">Minhas Turmas</a></li>
-    <li class="breadcrumb-item active">Alunos</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Alunos</li>
 @endsection
 
+)
 @section('content')
-
 
     <!-- Lista de Alunos -->
     <div class="school-card">

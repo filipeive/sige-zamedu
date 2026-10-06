@@ -1,15 +1,15 @@
 @extends('layouts.app')
 
-@section('title', 'Despesa #' . $expense->id)
+@section('title', 'Detalhe da Despesa')
 @section('page-title', 'Detalhe da Despesa')
 @section('page-title-icon', 'fas fa-receipt')
 
 @section('breadcrumbs')
-    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Início</a></li>
     <li class="breadcrumb-item"><a href="{{ route('expenses.index') }}">Despesas</a></li>
-    <li class="breadcrumb-item active">#{{ $expense->id }}</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">#{{ $expense->id }}</li>
 @endsection
 
+@section('title', 'Despesa #' . $expense->id)
 @section('content')
 <div class="space-y-4">
     <!-- Header -->

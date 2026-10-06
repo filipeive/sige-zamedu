@@ -77,7 +77,17 @@ class Setting extends Model
      */
     public static function get(string $key, mixed $default = null): mixed
     {
-        $schoolId = SchoolContext::getSchoolId() ?? auth()->user()?->school_id;
+        $schoolId = SchoolContext::getSchoolId()
+            ?? session('support_mode_school_id')
+            ?? auth()->user()?->school_id;
+
+        // Multi-tenant: dados de identidade da escola vêm sempre do registo School (fonte soberana)
+        if ($schoolId) {
+            $identity = static::resolveSchoolIdentity((int) $schoolId, $key);
+            if ($identity !== null && $identity !== '') {
+                return $identity;
+            }
+        }
 
         $setting = static::where('key', $key)->first();
         
@@ -99,5 +109,36 @@ class Setting extends Model
         }
 
         return $setting ? $setting->value : $default;
+    }
+
+    /**
+     * Mapeia chaves de identidade para atributos do modelo School do tenant activo.
+     */
+    protected static function resolveSchoolIdentity(int $schoolId, string $key): ?string
+    {
+        static $schools = [];
+
+        if (!array_key_exists($schoolId, $schools)) {
+            $schools[$schoolId] = \App\Models\School::withoutGlobalScopes()
+                ->with(['province', 'district'])
+                ->find($schoolId);
+        }
+
+        $school = $schools[$schoolId];
+        if (!$school) {
+            return null;
+        }
+
+        return match ($key) {
+            'school_name', 'school_short_name', 'app_name' => $school->name,
+            'school_phone' => $school->phone,
+            'school_email' => $school->email,
+            'school_address' => $school->address,
+            'school_code' => $school->code,
+            'director_name' => $school->principal_name,
+            'school_province', 'province' => $school->province?->name,
+            'school_district', 'district' => $school->district?->name,
+            default => null,
+        };
     }
 }

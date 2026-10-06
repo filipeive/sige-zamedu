@@ -57,7 +57,10 @@ Route::get('/license/suspended', [LicenseController::class, 'suspended'])->name(
 Route::get('/sobre', fn () => view('public.about'))->name('sobre');
 Route::get('/contacto', fn () => view('public.contact'))->name('contacto');
 Route::get('/registar-escola', [App\Http\Controllers\TrialRegisterController::class, 'create'])->name('public.trial-register');
-Route::get('/pre-inscricao-online', [App\Http\Controllers\TrialRegisterController::class, 'create'])->name('trial.register');
+Route::get('/pre-inscricao-online', fn () => redirect()->route('public.pre-enrollment'))->name('trial.register');
+Route::get('/pre-enrollment', fn () => redirect()->route('public.pre-enrollment'));
+Route::get('/vacancies', fn () => redirect()->route('public.vacancies'))->name('vacancies');
+Route::get('/allocations', fn () => redirect()->route('public.allocations'))->name('allocations');
 Route::post('/registar-escola', [App\Http\Controllers\TrialRegisterController::class, 'store'])->name('public.trial-register.store');
 
 // Informações públicas da escola
@@ -66,6 +69,10 @@ Route::prefix('public')->name('public.')->group(function () {
     Route::get('/contact', fn () => view('public.contact'))->name('contact');
     Route::get('/material-lists', [App\Http\Controllers\PublicInfoController::class, 'materialLists'])->name('material-lists');
     Route::get('/announcements', [App\Http\Controllers\PublicInfoController::class, 'announcements'])->name('announcements');
+
+    // Vagas & Afetações Oficiais SNE
+    Route::get('/vacancies', [App\Http\Controllers\EnrollmentApplicationController::class, 'vacancies'])->name('vacancies');
+    Route::get('/allocations', [App\Http\Controllers\EnrollmentApplicationController::class, 'allocations'])->name('allocations');
 
     // Pré-matrícula online
     Route::get('/pre-enrollment', [App\Http\Controllers\EnrollmentApplicationController::class, 'create'])->name('pre-enrollment');
@@ -629,6 +636,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/pedagogical-map', [\App\Http\Controllers\PedagogicalMapController::class, 'index'])->name('pedagogical-map');
             Route::get('/pedagogical-map/export-pdf', [\App\Http\Controllers\PedagogicalMapController::class, 'exportPdf'])->name('pedagogical-map.export-pdf');
             Route::get('/pedagogical-map/export', [\App\Http\Controllers\PedagogicalMapController::class, 'exportCsv'])->name('pedagogical-map.export');
+            Route::post('/pedagogical-map/submit-zip', [\App\Http\Controllers\PedagogicalMapController::class, 'submitToZip'])->name('pedagogical-map.submit-zip');
+            Route::post('/pedagogical-map/approve-zip', [\App\Http\Controllers\PedagogicalMapController::class, 'approveZip'])->name('pedagogical-map.approve-zip');
+            Route::post('/pedagogical-map/reject-zip', [\App\Http\Controllers\PedagogicalMapController::class, 'rejectZip'])->name('pedagogical-map.reject-zip');
 
             // Relatórios Financeiros
             Route::middleware('permission:view_financial_reports')->group(function () {

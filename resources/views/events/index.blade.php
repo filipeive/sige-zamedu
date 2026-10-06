@@ -2,11 +2,13 @@
 
 @section('title', 'Gestão de Eventos & Calendário')
 @section('page-title', 'Gestão de Eventos')
-@section('title-icon', 'fas fa-calendar-alt')
+@section('page-title-icon', 'fas fa-calendar-alt')
 
 @section('breadcrumbs')
-    <li class="breadcrumb-item active">Eventos</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Eventos</li>
 @endsection
+
+@section('title-icon', 'fas fa-calendar-alt')
 
 @section('content')
 @php

@@ -5,8 +5,7 @@
 @section('page-title-icon', 'fas fa-users-cog')
 
 @section('breadcrumbs')
-    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Início</a></li>
-    <li class="breadcrumb-item active">Encarregados</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Encarregados</li>
 @endsection
 
 @section('content')

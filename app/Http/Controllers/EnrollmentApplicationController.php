@@ -10,6 +10,10 @@ use App\Models\ClassRoom;
 use App\Models\User;
 use App\Models\ParentModel;
 use App\Models\Payment;
+use App\Models\SchoolAllocation;
+use App\Models\Province;
+use App\Models\District;
+use App\Models\School;
 use App\Services\AcademicYearService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -20,17 +24,118 @@ use Illuminate\Support\Str;
 class EnrollmentApplicationController extends Controller
 {
     /**
+     * Quadro oficial de vagas escolares abertas no SNE.
+     */
+    public function vacancies(Request $request)
+    {
+        $academicYear = next_school_year();
+        $provinces = Province::where('is_active', true)->with(['districts.zips.schools'])->get();
+
+        $provinceId = $request->query('province_id');
+        $districtId = $request->query('district_id');
+        $level = $request->query('level', 'all');
+        $type = $request->query('type', 'all');
+
+        $districts = $provinceId
+            ? District::where('province_id', $provinceId)->where('is_active', true)->get()
+            : District::where('is_active', true)->get();
+
+        $schoolsQuery = School::with(['province', 'district', 'zip', 'classRooms'])
+            ->where('is_active', true);
+
+        if ($provinceId) {
+            $schoolsQuery->where('province_id', $provinceId);
+        }
+
+        if ($districtId) {
+            $schoolsQuery->where('district_id', $districtId);
+        }
+
+        if ($type && $type !== 'all') {
+            $schoolsQuery->where('type', $type);
+        }
+
+        $schools = $schoolsQuery->paginate(12)->withQueryString();
+
+        return view('public.vacancies', compact(
+            'academicYear',
+            'provinces',
+            'districts',
+            'provinceId',
+            'districtId',
+            'level',
+            'type',
+            'schools'
+        ));
+    }
+
+    /**
+     * Consulta pública de afetação oficial de concluintes do primário (6ª -> 7ª classe).
+     */
+    public function allocations(Request $request)
+    {
+        $academicYear = next_school_year();
+        $search = $request->query('search');
+        $provinceId = $request->query('province_id');
+        $districtId = $request->query('district_id');
+
+        $provinces = Province::where('is_active', true)->get();
+        $districts = $provinceId
+            ? District::where('province_id', $provinceId)->where('is_active', true)->get()
+            : District::where('is_active', true)->get();
+
+        $query = SchoolAllocation::with(['destinationSchool.province', 'destinationSchool.district', 'originSchool'])
+            ->where('academic_year', $academicYear);
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('student_code', 'like', "%{$search}%")
+                  ->orWhere('student_name', 'like', "%{$search}%");
+            });
+        }
+
+        if ($provinceId) {
+            $query->where('province_id', $provinceId);
+        }
+
+        if ($districtId) {
+            $query->where('district_id', $districtId);
+        }
+
+        $allocations = $query->latest()->paginate(9)->withQueryString();
+
+        return view('public.allocation_check', compact(
+            'academicYear',
+            'search',
+            'provinceId',
+            'districtId',
+            'provinces',
+            'districts',
+            'allocations'
+        ));
+    }
+
+    /**
      * Show the public pre-enrollment form.
      */
-    public function create()
+    public function create(Request $request)
     {
         $classes = ClassRoom::all();
         $academicYear = next_school_year(); // Default for next year
         $fees = FeeType::where('academic_year', $academicYear)->get();
-        $provinces = \App\Models\Province::where('is_active', true)->with(['districts.zips.schools'])->get();
-        $schools = \App\Models\School::with(['province', 'district', 'zip'])->get();
+        $provinces = Province::where('is_active', true)->with(['districts.zips.schools'])->get();
+        $schools = School::with(['province', 'district', 'zip'])->get();
+        $selectedSchoolId = $request->query('school_id');
 
-        return view('enrollments.applications.create', compact('classes', 'academicYear', 'fees', 'provinces', 'schools'));
+        $allocation = null;
+        if ($request->filled('allocation_id')) {
+            $allocation = SchoolAllocation::with(['destinationSchool.province', 'destinationSchool.district', 'originSchool'])->find($request->query('allocation_id'));
+            if ($allocation && $allocation->destination_school_id) {
+                $selectedSchoolId = $allocation->destination_school_id;
+            }
+        }
+
+        return view('enrollments.applications.create', compact('classes', 'academicYear', 'fees', 'provinces', 'schools', 'selectedSchoolId', 'allocation'));
     }
 
     /**
@@ -40,11 +145,13 @@ class EnrollmentApplicationController extends Controller
     {
         $request->validate([
             'school_id' => 'required|exists:schools,id',
+            'allocation_id' => 'nullable|exists:school_allocations,id',
             'student.first_name' => 'required|string|max:255',
             'student.last_name' => 'required|string|max:255',
             'student.birth_date' => 'required|date',
             'student.gender' => 'required|in:male,female',
             'student.grade_level' => 'required|string',
+            'student.shift' => 'nullable|string|max:50',
             'student.address' => 'required|string|max:500',
             'student.emergency_contact' => 'required|string|max:255',
             'student.emergency_phone' => 'required|string|max:20',
@@ -52,6 +159,7 @@ class EnrollmentApplicationController extends Controller
             'parent.first_name' => 'required|string|max:255',
             'parent.last_name' => 'required|string|max:255',
             'parent.phone' => 'required|string|max:20',
+            'parent.relationship' => 'nullable|string|max:50',
             'parent.email' => 'nullable|email|max:255',
             'documents.*' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
@@ -97,6 +205,15 @@ class EnrollmentApplicationController extends Controller
                         'document_type' => $type,
                         'file_path' => $path,
                     ]);
+                }
+            }
+
+            // If an allocation was confirmed with this pre-enrollment
+            if ($request->filled('allocation_id')) {
+                $allocation = SchoolAllocation::find($request->input('allocation_id'));
+                if ($allocation) {
+                    $allocation->status = 'confirmed';
+                    $allocation->save();
                 }
             }
 

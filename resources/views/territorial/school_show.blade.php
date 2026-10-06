@@ -1,5 +1,13 @@
 @extends('layouts.app')
 
+@section('title', 'Territorial - ' . $school->name)
+@section('page-title', 'Territorial -' . $school->name)
+@section('page-title-icon', 'fas fa-map-location-dot')
+
+@section('breadcrumbs')
+    <li class="breadcrumb-item active text-slate-600 font-medium">Territorial</li>
+@endsection
+
 @section('title', 'Inspeção Escolar — ' . $school->name)
 
 @section('content')

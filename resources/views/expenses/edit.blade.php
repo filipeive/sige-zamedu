@@ -5,9 +5,8 @@
 @section('page-title-icon', 'fas fa-edit')
 
 @section('breadcrumbs')
-    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Início</a></li>
     <li class="breadcrumb-item"><a href="{{ route('expenses.index') }}">Despesas</a></li>
-    <li class="breadcrumb-item active">Editar</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Editar</li>
 @endsection
 
 @section('content')

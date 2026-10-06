@@ -19,9 +19,17 @@
         try { localStorage.setItem(STORAGE_KEY, JSON.stringify(messages)); } catch (e) {}
     }
 
+    function stripImageRefs(text) {
+        if (!text) return text;
+        return text
+            .replace(/!\[.*?\]\(.*?\)/g, '[Imagem não suportada pelo assistente]')
+            .replace(/<img[^>]*>/g, '[Imagem não suportada pelo assistente]');
+    }
+
     function formatMessage(text) {
         if (!text) return '';
-        return text
+        const safe = stripImageRefs(text);
+        return safe
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;')
@@ -31,16 +39,25 @@
             .replace(/\n/g, '<br>');
     }
 
+    function getChatBody() {
+        const chatBox = document.getElementById('floating-chat-box');
+        return chatBox ? chatBox.querySelector('.flex-1') : null;
+    }
+
     function scrollToBottom() {
-        const cb = document.getElementById('floating-chat-box');
-        if (cb) cb.scrollTop = cb.scrollHeight;
+        const body = getChatBody();
+        if (body) body.scrollTop = body.scrollHeight;
     }
 
     function sendQuickPrompt(text) {
+        const panel = document.getElementById('floating-chat-box');
+        if (panel && panel.classList.contains('hidden')) {
+            window.floatingAiWidget.toggle();
+        }
         const input = document.getElementById('floating-ai-input');
         if (input) {
             input.value = text;
-            sendMessage(input, document.getElementById('floating-chat-box'));
+            sendMessage(input);
         }
     }
 
@@ -89,7 +106,7 @@
         if (loader) loader.remove();
     }
 
-    async function sendMessage(input, container) {
+    async function sendMessage(input) {
         const txt = input.value.trim();
         if (!txt) return;
         
@@ -98,10 +115,13 @@
             quickPrompts.style.display = 'none';
         }
         
+        const chatBody = getChatBody();
+        if (!chatBody) return;
+
         input.value = '';
-        appendMessage(container, 'user', txt);
+        appendMessage(chatBody, 'user', txt);
         scrollToBottom();
-        showLoading(container);
+        showLoading(chatBody);
         
         const history = getSavedMessages().filter(m => m.meta !== 'greeting').slice(-8);
         
@@ -121,13 +141,17 @@
             removeLoading();
             
             if (data.success) {
-                appendMessage(container, 'assistant', data.response);
+                appendMessage(chatBody, 'assistant', data.response);
             } else {
-                appendMessage(container, 'assistant', '⚠️ ' + (data.message || 'Erro ao consultar IA'));
+                const errMsg = (data.message || 'Erro ao consultar IA');
+                appendMessage(chatBody, 'assistant', '<i class="fas fa-exclamation-triangle text-amber-500 me-1"></i> ' + errMsg);
+                if (errMsg.toLowerCase().includes('image') || errMsg.toLowerCase().includes('imagem')) {
+                    appendMessage(chatBody, 'assistant', '<i class="fas fa-circle-info text-sky-500 me-1"></i> <strong>Nota:</strong> Este assistente não suporta envio de imagens. Envie apenas texto para receber apoio pedagógico e administrativo.');
+                }
             }
         } catch (e) {
             removeLoading();
-            appendMessage(container, 'assistant', '❌ Erro de ligação com o servidor de IA.');
+            appendMessage(chatBody, 'assistant', '<i class="fas fa-times-circle text-rose-500 me-1"></i> Erro de ligação com o servidor de IA.');
         }
         
         const messages = getSavedMessages();
@@ -144,6 +168,7 @@
             this.clearBtn = document.getElementById('floating-ai-clear');
             this.triggerBtn = document.getElementById('floating-ai-trigger');
             this.panel = document.getElementById('floating-ai-panel');
+            this.chatBody = getChatBody();
             
             if (this.triggerBtn) {
                 this.triggerBtn.addEventListener('click', (e) => {
@@ -153,14 +178,14 @@
             }
             
             if (this.sendBtn && this.input) {
-                this.sendBtn.addEventListener('click', () => sendMessage(this.input, this.chatBox));
+                this.sendBtn.addEventListener('click', () => sendMessage(this.input));
             }
             
             if (this.input) {
                 this.input.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
-                        sendMessage(this.input, this.chatBox);
+                        sendMessage(this.input);
                     }
                 });
             }
@@ -168,13 +193,15 @@
             if (this.clearBtn) {
                 this.clearBtn.addEventListener('click', () => {
                     saveMessages([]);
-                    this.chatBox.innerHTML = '';
-                    appendMessage(this.chatBox, 'assistant', '✨ Conversa limpa. Como posso ajudar agora?');
+                    if (this.chatBody) this.chatBody.innerHTML = '';
+                    const quickPrompts = document.getElementById('quick-prompts');
+                    if (quickPrompts) quickPrompts.style.display = '';
+                    appendMessage(getChatBody(), 'assistant', 'Conversa limpa. Como posso ajudar agora?');
                 });
             }
             
             document.addEventListener('click', (e) => {
-                if (this.panel && !this.panel.contains(e.target) && e.target !== this.triggerBtn) {
+                if (this.panel && !this.panel.contains(e.target) && this.triggerBtn && e.target !== this.triggerBtn) {
                     this.close();
                 }
             });
@@ -189,9 +216,9 @@
             if (saved.length > 0) {
                 const quickPrompts = document.getElementById('quick-prompts');
                 if (quickPrompts) quickPrompts.style.display = 'none';
-                saved.forEach(m => appendMessage(this.chatBox, m.role, m.content));
+                saved.forEach(m => appendMessage(getChatBody(), m.role, m.content));
             } else {
-                appendMessage(this.chatBox, 'assistant', defaultGreeting.content);
+                appendMessage(getChatBody(), 'assistant', defaultGreeting.content);
             }
             scrollToBottom();
         },
@@ -200,6 +227,7 @@
             if (!panel) return;
             panel.classList.toggle('hidden');
             if (!panel.classList.contains('hidden')) {
+                this.chatBody = getChatBody();
                 setTimeout(() => scrollToBottom(), 200);
             }
         },
@@ -250,17 +278,17 @@
                 <div class="flex flex-col gap-1.5">
                     <button type="button" onclick="sendQuickPrompt('Como gerar mensagens para encarregados sobre faltas?')"
                             class="text-left p-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-emerald-50 dark:hover:bg-slate-700/60 border border-slate-200/80 dark:border-slate-700/80 text-slate-700 dark:text-slate-200 transition text-xs flex items-center justify-between group">
-                        <span>💬 Mensagem para Encarregados</span>
+                        <span><i class="fas fa-comment-dots text-sky-500 me-1"></i> Mensagem para Encarregados</span>
                         <i class="fas fa-chevron-right text-[10px] text-slate-400 group-hover:translate-x-0.5 transition"></i>
                     </button>
                     <button type="button" onclick="sendQuickPrompt('Qual a fórmula oficial do MINEDH para cálculo de NFD em turmas com exame?')"
                             class="text-left p-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-emerald-50 dark:hover:bg-slate-700/60 border border-slate-200/80 dark:border-slate-700/80 text-slate-700 dark:text-slate-200 transition text-xs flex items-center justify-between group">
-                        <span>📐 Regras de Cálculo MINEDH (Lei 18/2018)</span>
+                        <span><i class="fas fa-calculator text-emerald-500 me-1"></i> Regras de Cálculo MINEDH (Lei 18/2018)</span>
                         <i class="fas fa-chevron-right text-[10px] text-slate-400 group-hover:translate-x-0.5 transition"></i>
                     </button>
                     <button type="button" onclick="sendQuickPrompt('Como registrar novas matrículas e atribuir turmas aos alunos?')"
                             class="text-left p-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-emerald-50 dark:hover:bg-slate-700/60 border border-slate-200/80 dark:border-slate-700/80 text-slate-700 dark:text-slate-200 transition text-xs flex items-center justify-between group">
-                        <span>🎓 Guia de Matrículas & Turmas</span>
+                        <span><i class="fas fa-user-graduate text-amber-500 me-1"></i> Guia de Matrículas & Turmas</span>
                         <i class="fas fa-chevron-right text-[10px] text-slate-400 group-hover:translate-x-0.5 transition"></i>
                     </button>
                 </div>

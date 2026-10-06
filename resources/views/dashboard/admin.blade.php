@@ -5,8 +5,7 @@
 @section('page-title-icon', 'fas fa-chart-pie')
 
 @section('breadcrumbs')
-    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="no-underline">Início</a></li>
-    <li class="breadcrumb-item active">Dashboard Executivo</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Dashboard Executivo</li>
 @endsection
 
 @section('page-actions')

@@ -10,6 +10,7 @@ use App\Models\Student;
 use App\Models\Enrollment;
 use App\Models\ClassSubject;
 use App\Models\School;
+use App\Services\SchoolContext;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -108,8 +109,15 @@ class ClassRoomController extends Controller
 
     public function store(Request $request)
     {
+        $schoolId = auth()->user()->school_id ?? SchoolContext::getSchoolId();
+
         $request->validate([
-            'name' => 'required|string|max:255|unique:classes,name',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                $this->classNameUniqueRule($request, $schoolId, null),
+            ],
             'grade_level' => 'required|integer|min:0|max:12',
             'shift' => 'required|in:morning,afternoon,night',
             'teaching_mode' => 'nullable|in:single_teacher,subject_based',
@@ -120,6 +128,8 @@ class ClassRoomController extends Controller
             'school_year' => 'required|integer|min:2020|max:2030',
             'subjects' => 'nullable|array',
             'subjects.*' => 'exists:subjects,id',
+        ], [
+            'name.unique' => 'Já existe uma turma com este nome neste nível de ensino e ano lectivo. Escolha outro nome.',
         ]);
 
         try {
@@ -222,7 +232,7 @@ class ClassRoomController extends Controller
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('classes', 'name')->ignore($class->id),
+                $this->classNameUniqueRule($request, $class->school_id, $class->id),
             ],
             'grade_level' => 'required|integer|min:0|max:12',
             'shift' => 'required|in:morning,afternoon,night',
@@ -234,6 +244,8 @@ class ClassRoomController extends Controller
             'school_year' => 'required|integer|min:2020|max:2030',
             'subjects' => 'nullable|array',
             'subjects.*' => 'exists:subjects,id',
+        ], [
+            'name.unique' => 'Já existe uma turma com este nome neste nível de ensino e ano lectivo. Escolha outro nome.',
         ]);
 
         try {
@@ -505,6 +517,27 @@ class ClassRoomController extends Controller
         $class->update(['assistant_teacher_id' => $data['assistant_teacher_id'] ?? null]);
 
         return back()->with('success', 'Professor assistente actualizado com sucesso.');
+    }
+
+    /**
+     * Regra de unicidade do nome da turma.
+     *
+     * O nome só precisa ser único dentro da mesma escola, no mesmo nível de
+     * ensino e no mesmo ano lectivo — nomes como "10ª A" reaparecem
+     * legitimamente em anos lectivos e níveis diferentes.
+     *
+     * @param  int|null  $ignoreId  ID da turma a ignorar (edição)
+     */
+    private function classNameUniqueRule(Request $request, ?int $schoolId, ?int $ignoreId = null): \Illuminate\Validation\Rules\Unique
+    {
+        $rule = Rule::unique('classes', 'name')
+            ->where(fn ($query) => $query
+                ->where('school_id', $schoolId)
+                ->where('school_year', $request->input('school_year'))
+                ->where('grade_level', $request->input('grade_level'))
+            );
+
+        return $ignoreId ? $rule->ignore($ignoreId) : $rule;
     }
 
     private function isSecondaryGrade(int $gradeLevel): bool

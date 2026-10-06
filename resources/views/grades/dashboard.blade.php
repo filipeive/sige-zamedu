@@ -4,6 +4,11 @@
 @section('page-title', 'Gestão de Notas & Pautas')
 @section('page-title-icon', 'fas fa-medal')
 
+@section('breadcrumbs')
+    <li class="breadcrumb-item">Grades</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Notas & Pautas</li>
+@endsection
+
 @section('content')
 <div class="space-y-5">
 

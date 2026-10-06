@@ -1,15 +1,16 @@
 @extends('layouts.app')
 
-@section('title', 'Editar Turma - ' . $class->name)
+@section('title', 'Editar Turma')
 @section('page-title', 'Editar Turma')
 @section('page-title-icon', 'fas fa-edit')
 
 @section('breadcrumbs')
     <li class="breadcrumb-item"><a href="{{ route('classes.index') }}">Turmas</a></li>
     <li class="breadcrumb-item"><a href="{{ route('classes.show', $class->id) }}">{{ $class->name }}</a></li>
-    <li class="breadcrumb-item active">Editar</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Editar</li>
 @endsection
 
+@section('title', 'Editar Turma - ' . $class->name)
 @section('content')
 <div class="space-y-4">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-slate-200">
@@ -38,37 +39,62 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">Nível de Ensino * <span class="text-emerald-600">(SNE — Lei 18/2018)</span></label>
-                    <select name="grade_level" id="grade_level" required
-                            class="w-full rounded-lg border border-slate-200 bg-white text-slate-800 py-2 px-3 text-xs font-semibold focus:border-amber-500 focus:ring-amber-500 @error('grade_level') border-rose-500 @enderror">
-                        <option value="">Selecione o nível...</option>
-                        @php use App\Helpers\EducationLevel; @endphp
-                        @if(auth()->user()?->school?->type !== 'public')
-                        <optgroup label="🏫 Pré-Escolar (Privado / Comunitário)">
-                            <option value="0" {{ old('grade_level', $class->grade_level) == '0' ? 'selected' : '' }}>Pré-Escolar / Pré-Infantil</option>
-                        </optgroup>
-                        @endif
-                        <optgroup label="📘 Ensino Primário — 1.º Ciclo (1ª – 3ª Classe)">
-                            <option value="1" {{ old('grade_level', $class->grade_level) == '1' ? 'selected' : '' }}>1ª Classe</option>
-                            <option value="2" {{ old('grade_level', $class->grade_level) == '2' ? 'selected' : '' }}>2ª Classe</option>
-                            <option value="3" {{ old('grade_level', $class->grade_level) == '3' ? 'selected' : '' }}>3ª Classe</option>
-                        </optgroup>
-                        <optgroup label="📗 Ensino Primário — 2.º Ciclo (4ª – 6ª Classe)">
-                            <option value="4" {{ old('grade_level', $class->grade_level) == '4' ? 'selected' : '' }}>4ª Classe</option>
-                            <option value="5" {{ old('grade_level', $class->grade_level) == '5' ? 'selected' : '' }}>5ª Classe</option>
-                            <option value="6" {{ old('grade_level', $class->grade_level) == '6' ? 'selected' : '' }}>6ª Classe</option>
-                        </optgroup>
-                        <optgroup label="📙 Ensino Secundário — ESG1, 1.º Ciclo (7ª – 9ª)">
-                            <option value="7" {{ old('grade_level', $class->grade_level) == '7' ? 'selected' : '' }}>7ª Classe</option>
-                            <option value="8" {{ old('grade_level', $class->grade_level) == '8' ? 'selected' : '' }}>8ª Classe</option>
-                            <option value="9" {{ old('grade_level', $class->grade_level) == '9' ? 'selected' : '' }}>9ª Classe ⭐ Exame Nacional</option>
-                        </optgroup>
-                        <optgroup label="📕 Ensino Secundário — ESG2, 2.º Ciclo (10ª – 12ª)">
-                            <option value="10" {{ old('grade_level', $class->grade_level) == '10' ? 'selected' : '' }}>10ª Classe ⭐ Exame Nacional</option>
-                            <option value="11" {{ old('grade_level', $class->grade_level) == '11' ? 'selected' : '' }}>11ª Classe</option>
-                            <option value="12" {{ old('grade_level', $class->grade_level) == '12' ? 'selected' : '' }}>12ª Classe ⭐ Exame Nacional</option>
-                        </optgroup>
-                    </select>
-                    @error('grade_level')<p class="mt-1 text-[10px] text-rose-600 font-semibold">{{ $message }}</p>@enderror
+                    <x-icon-select
+                        name="grade_level"
+                        :value="old('grade_level', $class->grade_level)"
+                        placeholder="Selecione o nível..."
+                        :required="true"
+                        icon-class="w-full rounded-lg border border-slate-200 bg-white text-slate-800 py-2 px-3 text-xs font-semibold focus:border-amber-500 focus:ring-amber-500"
+                        :groups="array_filter([
+                            auth()->user()?->school?->type !== 'public' ? [
+                                'label' => 'Pré-Escolar (Privado / Comunitário)',
+                                'icon' => 'fa-solid fa-baby-carriage',
+                                'options' => [
+                                    ['value' => '0', 'label' => 'Pré-Escolar / Pré-Infantil', 'icon' => 'fa-solid fa-baby-carriage'],
+                                ],
+                            ] : null,
+                            [
+                                'label' => 'Ensino Primário — 1.º Ciclo (1ª – 3ª)',
+                                'icon' => 'fa-solid fa-book-open',
+                                'options' => [
+                                    ['value' => '1', 'label' => '1ª Classe', 'icon' => 'fa-solid fa-1'],
+                                    ['value' => '2', 'label' => '2ª Classe', 'icon' => 'fa-solid fa-2'],
+                                    ['value' => '3', 'label' => '3ª Classe', 'icon' => 'fa-solid fa-3'],
+                                ],
+                            ],
+                            [
+                                'label' => 'Ensino Primário — 2.º Ciclo (4ª – 6ª)',
+                                'icon' => 'fa-solid fa-book-open',
+                                'options' => [
+                                    ['value' => '4', 'label' => '4ª Classe', 'icon' => 'fa-solid fa-4'],
+                                    ['value' => '5', 'label' => '5ª Classe', 'icon' => 'fa-solid fa-5'],
+                                    ['value' => '6', 'label' => '6ª Classe', 'icon' => 'fa-solid fa-6'],
+                                ],
+                            ],
+                            [
+                                'label' => 'Ensino Secundário — ESG1 (7ª – 9ª)',
+                                'icon' => 'fa-solid fa-graduation-cap',
+                                'options' => [
+                                    ['value' => '7', 'label' => '7ª Classe', 'icon' => 'fa-solid fa-7'],
+                                    ['value' => '8', 'label' => '8ª Classe', 'icon' => 'fa-solid fa-8'],
+                                    ['value' => '9', 'label' => '9ª Classe — Exame Nacional', 'icon' => 'fa-solid fa-9'],
+                                ],
+                            ],
+                            [
+                                'label' => 'Ensino Secundário — ESG2 (10ª – 12ª)',
+                                'icon' => 'fa-solid fa-graduation-cap',
+                                'options' => [
+                                    ['value' => '10', 'label' => '10ª Classe — Exame Nacional', 'icon' => 'fa-solid fa-file-signature'],
+                                    ['value' => '11', 'label' => '11ª Classe', 'icon' => 'fa-solid fa-flag'],
+                                    ['value' => '12', 'label' => '12ª Classe — Exame Nacional', 'icon' => 'fa-solid fa-file-signature'],
+                                ],
+                            ],
+                        ])"
+                    />
+                    <p class="mt-1 text-[10px] text-slate-500 flex items-center gap-1">
+                        <i class="fa-solid fa-circle-info text-slate-400"></i>
+                        Pré-Escolar disponível apenas para escolas privadas e comunitárias.
+                    </p>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">Turno *</label>

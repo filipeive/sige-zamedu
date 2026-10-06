@@ -1,12 +1,15 @@
 @extends('layouts.app')
 
 @section('title', 'Detalhes do Pagamento')
-@section('page-title', 'Pagamento #' . $payment->reference_number)
+@section('page-title', 'Detalhes do Pagamento')
+@section('page-title-icon', 'fas fa-file-invoice-dollar')
 
 @section('breadcrumbs')
     <li class="breadcrumb-item"><a href="{{ route('payments.index') }}" class="no-underline"><i class="fas fa-wallet me-1"></i>Pagamentos</a></li>
-    <li class="breadcrumb-item active">{{ $payment->reference_number }}</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">{{ $payment->reference_number }}</li>
 @endsection
+
+@section('page-title', 'Pagamento #' . $payment->reference_number)
 
 @section('content')
     <div class="payments-show grid gap-6 xl:grid-cols-12" x-data="{ processOpen:false, cancelOpen:false }">

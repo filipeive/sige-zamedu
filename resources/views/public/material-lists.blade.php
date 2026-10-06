@@ -1,6 +1,13 @@
 @extends('layouts.app')
 
 @section('title', 'Lista de Materiais Escolares')
+@section('page-title', 'Lista de Materiais Escolares')
+@section('page-title-icon', 'fas fa-folder-open')
+
+@section('breadcrumbs')
+    <li class="breadcrumb-item">Public</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Lista de Materiais Escolares</li>
+@endsection
 
 @section('content')
     <div class="container py-5">

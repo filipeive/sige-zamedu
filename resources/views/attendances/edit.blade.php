@@ -2,17 +2,17 @@
 
 @section('title', 'Editar Presença')
 @section('page-title', 'Editar Presença')
-
-@php
-    $titleIcon = 'fas fa-edit';
-@endphp
+@section('page-title-icon', 'fas fa-calendar-check')
 
 @section('breadcrumbs')
-    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="hover:text-emerald-600 transition">Início</a></li>
     <li class="breadcrumb-item"><a href="{{ route('attendances.index') }}" class="hover:text-emerald-600 transition">Presenças</a></li>
     <li class="breadcrumb-item"><a href="{{ route('attendances.show', $attendance) }}" class="hover:text-emerald-600 transition">Detalhes</a></li>
     <li class="breadcrumb-item active text-slate-600 font-medium">Editar</li>
 @endsection
+
+@php
+    $titleIcon = 'fas fa-edit';
+@endphp
 
 @section('content')
 <div class="w-full space-y-4">

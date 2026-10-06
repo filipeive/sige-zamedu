@@ -6,7 +6,7 @@
 
 @section('breadcrumbs')
     <li class="breadcrumb-item"><a href="{{ route('admin.users.index') }}">Usuários</a></li>
-    <li class="breadcrumb-item active">Novo Usuário</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Novo Usuário</li>
 @endsection
 
 @section('content')

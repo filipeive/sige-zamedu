@@ -2,6 +2,12 @@
 
 @section('title', 'Passagem de Classe')
 @section('page-title', 'Passagem de Classe (Promoção)')
+@section('page-title-icon', 'fas fa-chalkboard-user')
+
+@section('breadcrumbs')
+    <li class="breadcrumb-item">Promotion</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Passagem de Classe (Promoção)</li>
+@endsection
 
 @section('content')
 <div class="w-full  px-4 py-6">

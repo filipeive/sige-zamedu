@@ -2,6 +2,12 @@
 
 @section('title', 'Análise de Pedido de Matrícula')
 @section('page-title', 'Análise de Pedido')
+@section('page-title-icon', 'fas fa-user-plus')
+
+@section('breadcrumbs')
+    <li class="breadcrumb-item">Applications</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Análise de Pedido</li>
+@endsection
 
 @section('content')
     <div class="row">

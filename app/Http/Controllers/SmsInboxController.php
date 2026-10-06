@@ -13,45 +13,18 @@ class SmsInboxController extends Controller
 
     public function index(Request $request)
     {
-        $search = trim((string) $request->input('search'));
-        $status = $request->input('status'); // all | unread | read
-
-        $query = SmsInbox::with(['student', 'parent', 'reader'])
-            ->latest('received_at');
-
-        if ($status === 'unread') {
-            $query->where('is_read', false);
-        } elseif ($status === 'read') {
-            $query->where('is_read', true);
-        }
-
-        if ($search !== '') {
-            $query->where(function ($q) use ($search) {
-                $q->where('from_phone', 'like', "%{$search}%")
-                  ->orWhere('from_name', 'like', "%{$search}%")
-                  ->orWhere('content', 'like', "%{$search}%");
-            });
-        }
-
-        $messages = $query->paginate(20)->withQueryString();
-
-        $stats = [
-            'total' => SmsInbox::count(),
-            'unread' => SmsInbox::where('is_read', false)->count(),
-            'matched' => SmsInbox::whereNotNull('student_id')->count(),
-            'orphan' => SmsInbox::whereNull('student_id')->whereNull('parent_id')->count(),
-        ];
-
-        return view('sms.inbox', [
-            'messages' => $messages,
-            'stats' => $stats,
-            'unreadCount' => SmsInbox::where('is_read', false)->count(),
-        ]);
+        return redirect()->route('sms.index', array_merge(['tab' => 'inbox'], $request->query()));
     }
 
-    public function show(SmsInbox $message)
+    public function show($id)
     {
         $this->authorize('view_students');
+
+        $message = SmsInbox::find($id);
+        if (! $message) {
+            return redirect()->route('sms.index', ['tab' => 'inbox'])
+                ->with('warning', 'Mensagem não encontrada ou já eliminada.');
+        }
 
         // Marcar como lida
         if (! $message->is_read) {

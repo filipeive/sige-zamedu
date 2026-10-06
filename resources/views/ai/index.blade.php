@@ -2,11 +2,13 @@
 
 @section('title', 'Assistente IA')
 @section('page-title', 'Assistente IA')
-@section('title-icon', 'fas fa-robot')
+@section('page-title-icon', 'fas fa-folder-open')
 
 @section('breadcrumbs')
-    <li class="breadcrumb-item active">Assistente IA</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Assistente IA</li>
 @endsection
+
+@section('title-icon', 'fas fa-robot')
 
 @section('content')
 <div class="space-y-4">

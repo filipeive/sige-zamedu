@@ -43,41 +43,62 @@
 
                 <div>
                     <label for="grade_level" class="block text-xs font-bold text-slate-700 mb-1">Nível de Ensino * <span class="text-emerald-600">(SNE — Lei 18/2018)</span></label>
-                    <select id="grade_level" name="grade_level" required
-                            class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500"
-                            onchange="updateTeachingMode(this.value)">
-                        <option value="">Selecione o nível...</option>
-                        @php use App\Helpers\EducationLevel; @endphp
-                        {{-- Pré-Escolar: visível apenas para escolas privadas/comunitárias --}}
-                        @if(auth()->user()?->school?->type !== 'public')
-                        <optgroup label="🏫 Pré-Escolar (Privado / Comunitário)">
-                            <option value="0" {{ old('grade_level') == '0' ? 'selected' : '' }}>Pré-Escolar / Pré-Infantil</option>
-                        </optgroup>
-                        @endif
-                        <optgroup label="📘 Ensino Primário — 1.º Ciclo (1ª – 3ª Classe)">
-                            <option value="1" {{ old('grade_level') == '1' ? 'selected' : '' }}>1ª Classe</option>
-                            <option value="2" {{ old('grade_level') == '2' ? 'selected' : '' }}>2ª Classe</option>
-                            <option value="3" {{ old('grade_level') == '3' ? 'selected' : '' }}>3ª Classe</option>
-                        </optgroup>
-                        <optgroup label="📗 Ensino Primário — 2.º Ciclo (4ª – 6ª Classe)">
-                            <option value="4" {{ old('grade_level') == '4' ? 'selected' : '' }}>4ª Classe</option>
-                            <option value="5" {{ old('grade_level') == '5' ? 'selected' : '' }}>5ª Classe</option>
-                            <option value="6" {{ old('grade_level') == '6' ? 'selected' : '' }}>6ª Classe</option>
-                        </optgroup>
-                        <optgroup label="📙 Ensino Secundário — ESG1, 1.º Ciclo (7ª – 9ª Classe)">
-                            <option value="7" {{ old('grade_level') == '7' ? 'selected' : '' }}>7ª Classe</option>
-                            <option value="8" {{ old('grade_level') == '8' ? 'selected' : '' }}>8ª Classe</option>
-                            <option value="9" {{ old('grade_level') == '9' ? 'selected' : '' }}>9ª Classe ⭐ Exame Nacional</option>
-                        </optgroup>
-                        <optgroup label="📕 Ensino Secundário — ESG2, 2.º Ciclo (10ª – 12ª Classe)">
-                            <option value="10" {{ old('grade_level') == '10' ? 'selected' : '' }}>10ª Classe ⭐ Exame Nacional</option>
-                            <option value="11" {{ old('grade_level') == '11' ? 'selected' : '' }}>11ª Classe</option>
-                            <option value="12" {{ old('grade_level') == '12' ? 'selected' : '' }}>12ª Classe ⭐ Exame Nacional</option>
-                        </optgroup>
-                    </select>
-                    @error('grade_level')
-                        <span class="text-[10px] text-rose-600 font-semibold">{{ $message }}</span>
-                    @enderror
+                    <x-icon-select
+                        name="grade_level"
+                        :value="old('grade_level', '')"
+                        placeholder="Selecione o nível..."
+                        :required="true"
+                        icon-class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500"
+                        :groups="array_filter([
+                            auth()->user()?->school?->type !== 'public' ? [
+                                'label' => 'Pré-Escolar (Privado / Comunitário)',
+                                'icon' => 'fa-solid fa-baby-carriage',
+                                'options' => [
+                                    ['value' => '0', 'label' => 'Pré-Escolar / Pré-Infantil', 'icon' => 'fa-solid fa-baby-carriage'],
+                                ],
+                            ] : null,
+                            [
+                                'label' => 'Ensino Primário — 1.º Ciclo (1ª – 3ª)',
+                                'icon' => 'fa-solid fa-book-open',
+                                'options' => [
+                                    ['value' => '1', 'label' => '1ª Classe', 'icon' => 'fa-solid fa-1'],
+                                    ['value' => '2', 'label' => '2ª Classe', 'icon' => 'fa-solid fa-2'],
+                                    ['value' => '3', 'label' => '3ª Classe', 'icon' => 'fa-solid fa-3'],
+                                ],
+                            ],
+                            [
+                                'label' => 'Ensino Primário — 2.º Ciclo (4ª – 6ª)',
+                                'icon' => 'fa-solid fa-book-open',
+                                'options' => [
+                                    ['value' => '4', 'label' => '4ª Classe', 'icon' => 'fa-solid fa-4'],
+                                    ['value' => '5', 'label' => '5ª Classe', 'icon' => 'fa-solid fa-5'],
+                                    ['value' => '6', 'label' => '6ª Classe', 'icon' => 'fa-solid fa-6'],
+                                ],
+                            ],
+                            [
+                                'label' => 'Ensino Secundário — ESG1 (7ª – 9ª)',
+                                'icon' => 'fa-solid fa-graduation-cap',
+                                'options' => [
+                                    ['value' => '7', 'label' => '7ª Classe', 'icon' => 'fa-solid fa-7'],
+                                    ['value' => '8', 'label' => '8ª Classe', 'icon' => 'fa-solid fa-8'],
+                                    ['value' => '9', 'label' => '9ª Classe — Exame Nacional', 'icon' => 'fa-solid fa-9'],
+                                ],
+                            ],
+                            [
+                                'label' => 'Ensino Secundário — ESG2 (10ª – 12ª)',
+                                'icon' => 'fa-solid fa-graduation-cap',
+                                'options' => [
+                                    ['value' => '10', 'label' => '10ª Classe — Exame Nacional', 'icon' => 'fa-solid fa-file-signature'],
+                                    ['value' => '11', 'label' => '11ª Classe', 'icon' => 'fa-solid fa-flag'],
+                                    ['value' => '12', 'label' => '12ª Classe — Exame Nacional', 'icon' => 'fa-solid fa-file-signature'],
+                                ],
+                            ],
+                        ])"
+                    />
+                    <p class="mt-1 text-[10px] text-slate-500 flex items-center gap-1">
+                        <i class="fa-solid fa-circle-info text-slate-400"></i>
+                        Pré-Escolar disponível apenas para escolas privadas e comunitárias.
+                    </p>
                 </div>
 
                 <div>

@@ -351,8 +351,8 @@ class PedagogicalMapController extends Controller
                 $totalHM = $students->count();
                 $totalM = $students->filter($isFemaleStudent)->count();
 
-                $desistHM = $students->filter(fn($s) => in_array($s->status ?? '', ['dropped', 'desistente']))->count();
-                $desistM = $students->filter(fn($s) => in_array($s->status ?? '', ['dropped', 'desistente']) && $isFemaleStudent($s))->count();
+                $desistHM = $students->filter(fn($s) => in_array($s->status ?? '', ['inactive', 'dropped', 'desistente']))->count();
+                $desistM = $students->filter(fn($s) => in_array($s->status ?? '', ['inactive', 'dropped', 'desistente']) && $isFemaleStudent($s))->count();
 
                 $transfHM = $students->filter(fn($s) => in_array($s->status ?? '', ['transferred', 'transferido']))->count();
                 $transfM = $students->filter(fn($s) => in_array($s->status ?? '', ['transferred', 'transferido']) && $isFemaleStudent($s))->count();

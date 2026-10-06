@@ -6,7 +6,7 @@
 
 @section('breadcrumbs')
     <li class="breadcrumb-item"><a href="{{ route('teacher.dashboard') }}">Portal</a></li>
-    <li class="breadcrumb-item active">Avaliações Pendentes</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Avaliações Pendentes</li>
 @endsection
 
 @section('content')

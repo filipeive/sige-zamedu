@@ -2,6 +2,12 @@
 
 @section('title', 'Portal do Encarregado')
 @section('page-title', 'Painel do Encarregado de Educação')
+@section('page-title-icon', 'fas fa-chart-pie')
+
+@section('breadcrumbs')
+    <li class="breadcrumb-item">Parent-portal</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Painel do Encarregado de Educação</li>
+@endsection
 
 @section('content')
 <div class="space-y-6">

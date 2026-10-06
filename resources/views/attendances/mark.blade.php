@@ -4,6 +4,12 @@
 
 @section('title', 'Marcar Presenças')
 @section('page-title', 'Marcar Presenças')
+@section('page-title-icon', 'fas fa-calendar-check')
+
+@section('breadcrumbs')
+    <li class="breadcrumb-item">Presenças</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Marcar Presenças</li>
+@endsection
 
 @section('content')
 <form action="{{ route('attendances.store-mark') }}" method="POST" id="attendance-form" class="w-full max-w-7xl mx-auto px-4 py-6">

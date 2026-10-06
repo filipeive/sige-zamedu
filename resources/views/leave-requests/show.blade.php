@@ -2,12 +2,14 @@
 
 @section('title', 'Detalhe da Licença')
 @section('page-title', 'Detalhe da Licença')
-@section('title-icon', 'fas fa-calendar-check')
+@section('page-title-icon', 'fas fa-calendar-minus')
 
 @section('breadcrumbs')
     <li class="breadcrumb-item"><a href="{{ route('staff-leave-requests.index') }}">Licenças</a></li>
-    <li class="breadcrumb-item active">Detalhe</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Detalhe</li>
 @endsection
+
+@section('title-icon', 'fas fa-calendar-check')
 
 @section('content')
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">

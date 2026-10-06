@@ -2,13 +2,15 @@
 
 @section('title', 'Caixa de Entrada')
 @section('page-title', 'Caixa de Entrada SMS')
-@section('title-icon', 'fas fa-comment-sms')
+@section('page-title-icon', 'fas fa-comment-dots')
 
 @section('breadcrumbs')
     <li class="breadcrumb-item"><a href="{{ route('sms.index') }}" class="no-underline">Central de Mensagens</a></li>
     <li class="breadcrumb-item"><a href="{{ route('sms.inbox.index') }}" class="no-underline">Caixa de Entrada</a></li>
-    <li class="breadcrumb-item active">{{ $message->from_name ?? $message->student?->full_name ?? 'Remetente Desconhecido' }}</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">{{ $message->from_name ?? $message->student?->full_name ?? 'Remetente Desconhecido' }}</li>
 @endsection
+
+@section('title-icon', 'fas fa-comment-sms')
 
 @section('content')
 <div class="max-w-full mx-auto space-y-5">

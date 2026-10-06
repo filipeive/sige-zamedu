@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', is_public_school() ? 'Registrar Taxa Escolar' : 'Novo Pagamento')
-@section('page-title', is_public_school() ? 'Registrar Taxa Escolar' : 'Novo Pagamento')
+@section('title', 'Payments - Create')
+@section('page-title', 'Payments - Create')
 @section('page-title-icon', 'fas fa-plus-circle')
 
 @section('breadcrumbs')
@@ -9,6 +9,8 @@
     <li class="breadcrumb-item active text-slate-600 font-medium">Novo</li>
 @endsection
 
+@section('title', is_public_school() ? 'Registrar Taxa Escolar' : 'Novo Pagamento')
+@section('page-title', is_public_school() ? 'Registrar Taxa Escolar' : 'Novo Pagamento')
 @section('content')
 <div class="max-w-full mx-auto space-y-4">
 

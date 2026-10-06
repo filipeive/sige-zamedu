@@ -6,7 +6,7 @@
 
 @section('breadcrumbs')
     <li class="breadcrumb-item"><a href="{{ route('admin.users.index') }}">Usuários</a></li>
-    <li class="breadcrumb-item active">Editar {{ $user->name }}</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Editar {{ $user->name }}</li>
 @endsection
 
 @section('content')

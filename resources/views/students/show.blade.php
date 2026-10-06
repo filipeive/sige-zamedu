@@ -1,14 +1,15 @@
 @extends('layouts.app')
 
-@section('title', 'Ficha 360º - ' . $student->full_name)
+@section('title', 'Perfil 360º do Aluno')
 @section('page-title', 'Perfil 360º do Aluno')
 @section('page-title-icon', 'fas fa-user-graduate')
 
 @section('breadcrumbs')
     <li class="breadcrumb-item"><a href="{{ route('students.index') }}">Alunos</a></li>
-    <li class="breadcrumb-item active">{{ $student->full_name }}</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">{{ $student->full_name }}</li>
 @endsection
 
+@section('title', 'Ficha 360º - ' . $student->full_name)
 @section('content')
 <div class="space-y-6" x-data="{ activeTab: 'resumo' }">
 

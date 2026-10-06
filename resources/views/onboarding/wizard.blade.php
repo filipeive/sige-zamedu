@@ -1,6 +1,13 @@
 @extends('layouts.app')
 
 @section('title', 'Onboarding Multi-Escola — Registo de Nova Instituição')
+@section('page-title', 'Onboarding Multi-Escola — Registo de Nova Instituição')
+@section('page-title-icon', 'fas fa-folder-open')
+
+@section('breadcrumbs')
+    <li class="breadcrumb-item">Onboarding</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Onboarding Multi</li>
+@endsection
 
 @section('content')
 <div class="w-full space-y-6">

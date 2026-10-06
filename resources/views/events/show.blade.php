@@ -2,12 +2,14 @@
 
 @section('title', 'Detalhes do Evento')
 @section('page-title', 'Detalhes do Evento')
-@section('title-icon', 'fas fa-calendar-day')
+@section('page-title-icon', 'fas fa-calendar-alt')
 
 @section('breadcrumbs')
     <li class="breadcrumb-item"><a href="{{ route('events.index') }}">Eventos</a></li>
-    <li class="breadcrumb-item active">Detalhes</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Detalhes</li>
 @endsection
+
+@section('title-icon', 'fas fa-calendar-day')
 
 @section('content')
     @php

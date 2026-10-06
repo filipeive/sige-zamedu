@@ -6,7 +6,7 @@
 
 @section('breadcrumbs')
     <li class="breadcrumb-item"><a href="{{ route('grades.index') }}">Notas</a></li>
-    <li class="breadcrumb-item active">Nova Nota</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Nova Nota</li>
 @endsection
 
 @section('content')

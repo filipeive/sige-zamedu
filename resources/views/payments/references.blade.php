@@ -2,10 +2,11 @@
 
 @section('title', 'Referencias de Pagamento')
 @section('page-title', 'Gerar Referencias')
+@section('page-title-icon', 'fas fa-file-invoice-dollar')
 
 @section('breadcrumbs')
     <li class="breadcrumb-item"><a href="{{ route('payments.index') }}" class="no-underline"><i class="fas fa-wallet me-1"></i>Pagamentos</a></li>
-    <li class="breadcrumb-item active">Referencias</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Referencias</li>
 @endsection
 
 @section('content')

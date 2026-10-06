@@ -1,6 +1,14 @@
 @extends('layouts.app')
 
 @section('title', 'Referencias de Pagamento')
+@section('page-title', 'Referencias de Pagamento')
+@section('page-title-icon', 'fas fa-file-invoice-dollar')
+
+@section('breadcrumbs')
+    <li class="breadcrumb-item">Parent-portal</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Referencias de Pagamento</li>
+@endsection
+
 @section('page-title')
     Referencias: {{ $student->first_name }}
 @endsection

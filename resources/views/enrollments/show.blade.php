@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Ficha de Matrícula - ' . $enrollment->student->full_name)
+@section('title', 'Detalhes da Matrícula')
 @section('page-title', 'Detalhes da Matrícula')
 @section('page-title-icon', 'fas fa-file-signature')
 
@@ -9,6 +9,7 @@
     <li class="breadcrumb-item active text-slate-600 font-medium">Detalhes</li>
 @endsection
 
+@section('title', 'Ficha de Matrícula - ' . $enrollment->student->full_name)
 @section('content')
 <div class="max-w-full mx-auto space-y-4" x-data="{ transferOpen: false }">
 

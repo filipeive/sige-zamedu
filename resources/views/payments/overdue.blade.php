@@ -6,7 +6,7 @@
 
 @section('breadcrumbs')
     <li class="breadcrumb-item"><a href="{{ route('payments.index') }}" class="no-underline"><i class="fas fa-wallet me-1"></i>Pagamentos</a></li>
-    <li class="breadcrumb-item active">Em Atraso</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Em Atraso</li>
 @endsection
 
 @section('content')

@@ -1,5 +1,13 @@
 @extends('layouts.app')
 
+@section('title', 'Pautas - Anual')
+@section('page-title', 'Pautas - Anual')
+@section('page-title-icon', 'fas fa-table')
+
+@section('breadcrumbs')
+    <li class="breadcrumb-item active text-slate-600 font-medium">Pautas</li>
+@endsection
+
 @section('title', 'Pauta Anual - ' . $class->name)
 
 @section('content')

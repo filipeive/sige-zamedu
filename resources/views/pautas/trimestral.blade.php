@@ -1,7 +1,14 @@
 @extends('layouts.app')
 
-@section('title', 'Pauta Trimestral - ' . $class->name)
+@section('title', 'Pauta Trimestral')
+@section('page-title', 'Pauta Trimestral')
+@section('page-title-icon', 'fas fa-table')
 
+@section('breadcrumbs')
+    <li class="breadcrumb-item active text-slate-600 font-medium">Pauta Trimestral -  {{$class->name}}</li>
+@endsection
+
+@section('title', 'Pauta Trimestral - ' . $class->name)
 @section('content')
 <div class="space-y-5">
 @php

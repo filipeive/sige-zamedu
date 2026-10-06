@@ -3,6 +3,8 @@
 use App\Models\Setting;
 use Illuminate\Support\Facades\Cache;
 
+require_once __DIR__ . '/SchoolHelper.php';
+
 if (!function_exists('setting')) {
     /**
      * Obter ou definir valor de configuração.
@@ -18,19 +20,10 @@ if (!function_exists('setting')) {
         }
 
         try {
-            $value = Cache::remember("setting_{$key}", 3600, function () use ($key) {
-                $setting = Setting::where('key', $key)->first();
-                return $setting ? $setting->value : null;
-            });
-
-            if ($value !== null && $value !== '') {
-                return $value;
-            }
+            return Setting::get($key, $default);
         } catch (\Throwable $e) {
-            // Em caso de falha de BD ou tabelas não criadas
+            return $default;
         }
-
-        return $default;
     }
 }
 
@@ -68,24 +61,21 @@ if (!function_exists('is_menu_visible')) {
             if ($isAdmin && in_array($menuKey, ['menu_settings', 'menu_users'])) {
                 return true;
             }
-        } elseif (is_string($user)) {
-            $role = $user;
+
+            // Menu Licenças e Ausências visível para professores e admins
+            if ($menuKey === 'menu_leave_requests') {
+                if ($isAdmin || $role === 'teacher' || (method_exists($user, 'hasRole') && $user->hasRole('teacher'))) {
+                    return true;
+                }
+            }
         }
 
-        $role = $role ?? 'guest';
-        
-        $savedVisibility = setting('menu_visibility_' . $role);
-
-        if ($savedVisibility === null || $savedVisibility === '') {
-            return true;
+        // Se uma configuração explícita existir na BD, respeitá-la
+        $settingValue = setting($menuKey, null);
+        if ($settingValue !== null) {
+            return (bool) $settingValue;
         }
 
-        $allowedMenus = is_array($savedVisibility) ? $savedVisibility : json_decode($savedVisibility, true);
-        if (!is_array($allowedMenus)) {
-            return true;
-        }
-
-        return in_array($menuKey, $allowedMenus);
+        return true;
     }
 }
-

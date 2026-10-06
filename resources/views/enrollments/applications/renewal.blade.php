@@ -1,6 +1,13 @@
 @extends('layouts.app')
 
 @section('title', 'Renovação de Matrícula')
+@section('page-title', 'Renovação de Matrícula')
+@section('page-title-icon', 'fas fa-user-plus')
+
+@section('breadcrumbs')
+    <li class="breadcrumb-item">Applications</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Renovação de Matrícula</li>
+@endsection
 
 @section('content')
     <div class="container py-5">

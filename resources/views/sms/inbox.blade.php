@@ -2,12 +2,14 @@
 
 @section('title', 'Caixa de Entrada')
 @section('page-title', 'Caixa de Entrada SMS')
-@section('title-icon', 'fas fa-inbox')
+@section('page-title-icon', 'fas fa-comment-dots')
 
 @section('breadcrumbs')
     <li class="breadcrumb-item"><a href="{{ route('sms.index') }}" class="no-underline">Central de Mensagens</a></li>
-    <li class="breadcrumb-item active">Caixa de Entrada</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Caixa de Entrada</li>
 @endsection
+
+@section('title-icon', 'fas fa-inbox')
 
 @section('content')
 <div class="space-y-5">

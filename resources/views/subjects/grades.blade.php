@@ -1,15 +1,16 @@
 @extends('layouts.app')
 
-@section('title', 'Notas - ' . $subject->name)
+@section('title', 'Notas da Disciplina')
 @section('page-title', 'Notas da Disciplina')
 @section('page-title-icon', 'fas fa-medal')
 
 @section('breadcrumbs')
     <li class="breadcrumb-item"><a href="{{ route('subjects.index') }}">Disciplinas</a></li>
     <li class="breadcrumb-item"><a href="{{ route('subjects.show', $subject->id) }}">{{ $subject->name }}</a></li>
-    <li class="breadcrumb-item active">Notas</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Notas</li>
 @endsection
 
+@section('title', 'Notas - ' . $subject->name)
 @section('content')
 <div class="space-y-4">
     <!-- Header -->

@@ -1,6 +1,13 @@
 @extends('layouts.app')
 
 @section('title', 'Mapa de Aproveitamento Pedagógico MINEDH')
+@section('page-title', 'Mapa de Aproveitamento Pedagógico MINEDH')
+@section('page-title-icon', 'fas fa-chart-line')
+
+@section('breadcrumbs')
+    <li class="breadcrumb-item">Relatórios</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Mapa de Aproveitamento Pedagógico MINEDH</li>
+@endsection
 
 @section('content')
 <style>
@@ -9,6 +16,7 @@
         body { background: white !important; font-size: 9pt; color: black; }
         .print-document { border: none !important; shadow: none !important; padding: 0 !important; margin: 0 !important; }
         .table-minedh th, .table-minedh td { border: 1px solid #000 !important; padding: 3px 4px !important; }
+        .tab-pane { display: block !important; }
     }
 
     .table-minedh {
@@ -35,6 +43,11 @@
     .bg-pos { background-color: #f0fdf4; color: #15803d; }
     .bg-neg { background-color: #fef2f2; color: #b91c1c; }
     .bg-ciclo { background-color: #e2e8f0; font-weight: bold; }
+
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+    .nav-tabs .nav-link { border-radius: 0.5rem 0.5rem 0 0; }
+    .nav-tabs .nav-link.active { background-color: #0f172a; color: #fff; }
 </style>
 
 <div class="container-fluid py-4 space-y-4">
@@ -176,8 +189,27 @@
         </form>
     </div>
 
-    <!-- MAIN OFFICIAL MINEDH PAPER DOCUMENT -->
-    <div class="card border border-slate-200 rounded-4 shadow-sm bg-white p-4 p-md-5 print-document">
+    <!-- Tab Navigation for Quadro 1 and Quadro 2 -->
+    <ul class="nav nav-tabs mb-4 no-print" id="pedagogicalMapTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="tab-rendimento-tab" data-bs-toggle="tab" data-bs-target="#tab-rendimento" type="button" role="tab" aria-controls="tab-rendimento" aria-selected="true">
+                <i class="fas fa-chart-bar me-1"></i> I. Quadro de Rendimento Escolar
+            </button>
+        </li>
+        @if($selectedClass)
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-disciplinas-tab" data-bs-toggle="tab" data-bs-target="#tab-disciplinas" type="button" role="tab" aria-controls="tab-disciplinas" aria-selected="false">
+                <i class="fas fa-book-open me-1"></i> II. Aproveitamento por Disciplina
+            </button>
+        </li>
+        @endif
+    </ul>
+
+    <div class="tab-content" id="pedagogicalMapTabContent">
+        <!-- TAB 1: Quadro 1 - Rendimento Escolar -->
+        <div class="tab-pane fade show active" id="tab-rendimento" role="tabpanel" aria-labelledby="tab-rendimento-tab">
+            <!-- MAIN OFFICIAL MINEDH PAPER DOCUMENT -->
+            <div class="card border border-slate-200 rounded-4 shadow-sm bg-white p-4 p-md-5 print-document">
         
         <!-- MINEDH OFFICIAL HEADER WITH CENTERED EMBLEM LOGO -->
         <div class="text-center mb-4">
@@ -416,68 +448,78 @@
             </div>
         </div>
 
-        <!-- QUADRO 2: DESEMPENHO DISCIPLINAR DA TURMA SELECIONADA -->
-        @if($selectedClass)
-        <div class="mb-4">
-            <div class="d-flex align-items-center justify-content-between mb-2">
-                <h6 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-                    <i class="fa-solid fa-book-open text-emerald" style="color: #059669;"></i> II. Aproveitamento por Disciplina — Turma {{ $selectedClass->name }} ({{ $selectedClass->grade_level_name }})
-                </h6>
-                <span class="badge bg-emerald-subtle text-emerald px-3 py-1" style="background-color: #d1fae5; color: #047857;">{{ count($mapData) }} Disciplinas Avaliadas</span>
-            </div>
-
-            <div class="table-responsive">
-                <table class="table-minedh text-center align-middle">
-                    <thead>
-                        <tr>
-                            <th rowspan="2" class="text-start ps-3" style="width: 25%;">Disciplina</th>
-                            <th colspan="2">Avaliados</th>
-                            <th colspan="2">Positivas (>= 9.5 val)</th>
-                            <th colspan="2">Negativas (< 9.5 val)</th>
-                            <th colspan="2" style="background-color: #047857;">% Aproveitamento</th>
-                        </tr>
-                        <tr style="font-size: 0.7rem; background-color: #1e293b;">
-                            <th>HM (Total)</th><th>M (Mulheres)</th>
-                            <th>HM (Total)</th><th>M (Mulheres)</th>
-                            <th>HM (Total)</th><th>M (Mulheres)</th>
-                            <th style="background-color: #065f46;">HM %</th><th style="background-color: #065f46;">M %</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-xs">
-                        @forelse($mapData as $item)
-                            <tr>
-                                <td class="text-start ps-3 fw-bold text-dark">
-                                    {{ $item['subject']->name }}
-                                    <span class="text-muted font-mono text-xs">({{ $item['subject']->code ?? '—' }})</span>
-                                </td>
-                                <td class="fw-semibold bg-hm">{{ $item['hm_evaluated'] }}</td>
-                                <td class="fw-semibold bg-m">{{ $item['m_evaluated'] }}</td>
-
-                                <td class="fw-bold text-success bg-pos">{{ $item['hm_positives'] }}</td>
-                                <td class="fw-bold text-success bg-pos">{{ $item['m_positives'] }}</td>
-
-                                <td class="fw-bold text-danger bg-neg">{{ $item['hm_negatives'] }}</td>
-                                <td class="fw-bold text-danger bg-neg">{{ $item['m_negatives'] }}</td>
-
-                                <td class="fw-extrabold text-success" style="background-color: #ecfdf5;">{{ $item['hm_perc'] }}%</td>
-                                <td class="fw-extrabold text-purple" style="background-color: #faf5ff;">{{ $item['m_perc'] }}%</td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="9" class="text-center py-3 text-muted">Nenhuma avaliação registada para esta turma.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        @endif
-
         <!-- OFFICIAL SIGNATURE BLOCKS (DAP & DAE MINEDH Standard) -->
         <x-official-signatures :school="$selectedSchool" :year="$year" />
 
     </div>
+</div>
 
+        <!-- TAB 2: Quadro 2 - Aproveitamento por Disciplina -->
+        @if($selectedClass)
+        <div class="tab-pane fade" id="tab-disciplinas" role="tabpanel" aria-labelledby="tab-disciplinas-tab">
+            <div class="card border border-slate-200 rounded-4 shadow-sm bg-white p-4 p-md-5 print-document">
+                <div class="mb-4">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h6 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-book-open text-emerald" style="color: #059669;"></i> II. Aproveitamento por Disciplina — Turma {{ $selectedClass->name }} ({{ $selectedClass->grade_level_name }})
+                        </h6>
+                        <span class="badge bg-emerald-subtle text-emerald px-3 py-1" style="background-color: #d1fae5; color: #047857;">{{ count($mapData) }} Disciplinas Avaliadas</span>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table-minedh text-center align-middle">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2" class="text-start ps-3" style="width: 25%;">Disciplina</th>
+                                    <th colspan="2">Avaliados</th>
+                                    <th colspan="2">Positivas (>= 9.5 val)</th>
+                                    <th colspan="2">Negativas (< 9.5 val)</th>
+                                    <th colspan="2" style="background-color: #047857;">% Aproveitamento</th>
+                                </tr>
+                                <tr style="font-size: 0.7rem; background-color: #1e293b;">
+                                    <th>HM (Total)</th><th>M (Mulheres)</th>
+                                    <th>HM (Total)</th><th>M (Mulheres)</th>
+                                    <th>HM (Total)</th><th>M (Mulheres)</th>
+                                    <th style="background-color: #065f46;">HM %</th><th style="background-color: #065f46;">M %</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-xs">
+                                @forelse($mapData as $item)
+                                    <tr>
+                                        <td class="text-start ps-3 fw-bold text-dark">
+                                            {{ $item['subject']->name }}
+                                            <span class="text-muted font-mono text-xs">({{ $item['subject']->code ?? '—' }})</span>
+                                        </td>
+                                        <td class="fw-semibold bg-hm">{{ $item['hm_evaluated'] }}</td>
+                                        <td class="fw-semibold bg-m">{{ $item['m_evaluated'] }}</td>
+
+                                        <td class="fw-bold text-success bg-pos">{{ $item['hm_positives'] }}</td>
+                                        <td class="fw-bold text-success bg-pos">{{ $item['m_positives'] }}</td>
+
+                                        <td class="fw-bold text-danger bg-neg">{{ $item['hm_negatives'] }}</td>
+                                        <td class="fw-bold text-danger bg-neg">{{ $item['m_negatives'] }}</td>
+
+                                        <td class="fw-extrabold text-success" style="background-color: #ecfdf5;">{{ $item['hm_perc'] }}%</td>
+                                        <td class="fw-extrabold text-purple" style="background-color: #faf5ff;">{{ $item['m_perc'] }}%</td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="9" class="text-center py-3 text-muted">Nenhuma avaliação registada para esta turma.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- OFFICIAL SIGNATURE BLOCKS (DAP & DAE MINEDH Standard) -->
+                <x-official-signatures :school="$selectedSchool" :year="$year" />
+
+            </div>
+        </div>
+        @endif
+
+    </div>
 </div>
 
 <!-- Filter Cascade Submit Script -->
@@ -517,5 +559,25 @@ function onLevelChange(select) {
     form.querySelector('[name="class_id"]').value = '';
     form.submit();
 }
+
+// Tab persistence
+document.addEventListener('DOMContentLoaded', function() {
+    var triggerTabList = [].slice.call(document.querySelectorAll('#pedagogicalMapTabs button'));
+    triggerTabList.forEach(function (triggerEl) {
+        var tabTrigger = new bootstrap.Tab(triggerEl);
+        triggerEl.addEventListener('click', function () {
+            sessionStorage.setItem('activePedagogicalTab', this.getAttribute('data-bs-target'));
+        });
+    });
+
+    // Restore active tab on page load
+    var activeTab = sessionStorage.getItem('activePedagogicalTab');
+    if (activeTab) {
+        var tabEl = document.querySelector('#pedagogicalMapTabs button[data-bs-target="' + activeTab + '"]');
+        if (tabEl) {
+            new bootstrap.Tab(tabEl).show();
+        }
+    }
+});
 </script>
 @endsection

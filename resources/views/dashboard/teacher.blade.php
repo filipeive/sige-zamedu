@@ -2,6 +2,12 @@
 
 @section('title', 'Dashboard Professor')
 @section('page-title', 'Dashboard Professor')
+@section('page-title-icon', 'fas fa-chalkboard-teacher')
+
+@section('breadcrumbs')
+    <li class="breadcrumb-item">Dashboard</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Dashboard Professor</li>
+@endsection
 
 @section('content')
     <div class="mx-auto max-w-3xl" x-data="{ seconds: 3 }" x-init="setInterval(() => { if (seconds > 0) seconds--; }, 1000); setTimeout(() => window.location.href = '{{ route('teacher.dashboard') }}', 3000)">

@@ -2,6 +2,12 @@
 
 @section('title', 'Estudantes Arquivados')
 @section('page-title', 'Alunos Arquivados')
+@section('page-title-icon', 'fas fa-user-graduate')
+
+@section('breadcrumbs')
+    <li class="breadcrumb-item">Students-archive</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Alunos Arquivados</li>
+@endsection
 
 @section('content')
 <div class="w-full px-4 py-6" x-data="{ activeModal: null }">

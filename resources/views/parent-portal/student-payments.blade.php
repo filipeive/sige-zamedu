@@ -1,5 +1,14 @@
 @extends('layouts.app')
 
+@section('title', 'Parent-portal - Student-payments')
+@section('page-title', 'Parent-portal - Student-payments')
+@section('page-title-icon', 'fas fa-user-graduate')
+
+@section('breadcrumbs')
+    <li class="breadcrumb-item">Parent-portal</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Parent</li>
+@endsection
+
 @section('title', 'Pagamentos: ' . $student->first_name)
 @section('page-title', 'Pagamentos: ' . $student->first_name)
 
@@ -23,8 +32,6 @@
                 <h3 class="text-sm font-semibold text-slate-900">Historico de Pagamentos</h3>
             </header>
             <div class="p-5">
-
-
 
                 <div class="overflow-x-auto">
                     <table class="min-w-full text-sm">

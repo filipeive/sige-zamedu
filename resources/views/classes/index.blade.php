@@ -181,8 +181,8 @@
             <div>
                 <select name="teaching_mode" class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500" onchange="this.form.submit()">
                     <option value="">Todos os Modos</option>
-                    <option value="single_teacher" {{ request('teaching_mode') === 'single_teacher' ? 'selected' : '' }}>👤 Professor Regente</option>
-                    <option value="subject_based" {{ request('teaching_mode') === 'subject_based' ? 'selected' : '' }}>📚 Por Disciplina</option>
+                    <option value="single_teacher" {{ request('teaching_mode') === 'single_teacher' ? 'selected' : '' }}><i class="fas fa-user me-1"></i> Professor Regente</option>
+                    <option value="subject_based" {{ request('teaching_mode') === 'subject_based' ? 'selected' : '' }}><i class="fas fa-book me-1"></i> Por Disciplina</option>
                 </select>
             </div>
 

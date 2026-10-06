@@ -8,7 +8,7 @@
     <li class="breadcrumb-item"><a href="{{ route('teacher.dashboard') }}">Portal</a></li>
     <li class="breadcrumb-item"><a href="{{ route('teacher.classes.index') }}">Minhas Turmas</a></li>
     <li class="breadcrumb-item"><a href="{{ route('teacher.classes.detail', $class->id) }}">{{ $class->name }}</a></li>
-    <li class="breadcrumb-item active">Presenças</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Presenças</li>
 @endsection
 
 @section('content')

@@ -5,8 +5,7 @@
 @section('page-title-icon', 'fas fa-calendar-days')
 
 @section('breadcrumbs')
-    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="no-underline">Início</a></li>
-    <li class="breadcrumb-item active">Gestão de Ano Lectivo</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Gestão de Ano Lectivo</li>
 @endsection
 
 @section('content')

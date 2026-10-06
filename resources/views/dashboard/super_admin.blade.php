@@ -1,6 +1,13 @@
 @extends('layouts.app')
 
 @section('title', 'Painel de Governação Central — Super Admin')
+@section('page-title', 'Painel de Governação Central — Super Admin')
+@section('page-title-icon', 'fas fa-chart-pie')
+
+@section('breadcrumbs')
+    
+    <li class="breadcrumb-item active text-slate-600 font-medium">Painel de Governação Central</li>
+@endsection
 
 @section('content')
 <div class="space-y-8 p-4 sm:p-6 lg:p-8">

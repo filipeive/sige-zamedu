@@ -148,8 +148,8 @@
                 <h2>REPÚBLICA DE MOÇAMBIQUE</h2>
                 <h3>MINISTÉRIO DA EDUCAÇÃO E DESENVOLVIMENTO HUMANO</h3>
                 <h3>GOVERNO DA PROVÍNCIA DE {{ strtoupper($province) }}</h3>
-                <div class="school-name">{{ $schoolName }}</div>
                 <small style="color: #64748b; text-transform: uppercase;">Distrito de {{ $district }}</small>
+                <div class="school-name">{{ $schoolName }}</div>
             </div>
 
             <div class="doc-title">
