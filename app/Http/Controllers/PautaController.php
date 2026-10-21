@@ -16,7 +16,7 @@ class PautaController extends Controller
     {
         $user = auth()->user();
         if ($user && $user->hasRole('teacher')) {
-            $teacher = \App\Models\Teacher::where('user_id', $user->id)->first();
+            $teacher = \App\Models\Teacher::findByUser($user->id);
             if (! $teacher || ! $teacher->canAccessClass($class->id)) {
                 abort(403, 'Acesso não autorizado: Você só pode visualizar a pauta das turmas que lecciona.');
             }
@@ -29,7 +29,7 @@ class PautaController extends Controller
         $isTeacher = $user && $user->hasRole('teacher');
 
         if ($isTeacher) {
-            $teacher = \App\Models\Teacher::where('user_id', $user->id)->first();
+            $teacher = \App\Models\Teacher::findByUser($user->id);
             if (! $teacher) {
                 abort(403, 'Perfil de professor não encontrado.');
             }
@@ -56,7 +56,7 @@ class PautaController extends Controller
             return $class->subjects->isEmpty() ? Subject::active()->get() : $class->subjects;
         }
 
-        $teacher = \App\Models\Teacher::where('user_id', $user->id)->first();
+        $teacher = \App\Models\Teacher::findByUser($user->id);
         if (! $teacher) {
             abort(403, 'Perfil de professor não encontrado.');
         }
@@ -90,7 +90,7 @@ class PautaController extends Controller
 
         $user = auth()->user();
         if ($user && $user->hasRole('teacher')) {
-            $teacher = \App\Models\Teacher::where('user_id', $user->id)->first();
+            $teacher = \App\Models\Teacher::findByUser($user->id);
             $firstClass = $teacher ? ClassRoom::whereIn('id', $teacher->allTeachingClassIds())->active()->orderBy('grade_level')->orderBy('name')->first() : null;
             if ($firstClass) {
                 return redirect()->route('pautas.trimestral', array_merge(['class' => $firstClass->id], $request->query()));

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use App\Traits\BelongsToSchool;
+use App\Scopes\SchoolScope;
 
 class Teacher extends Model
 {
@@ -135,6 +136,36 @@ class Teacher extends Model
     {
         return $this->hasMany(ClassSchedule::class);
     }
+    /**
+     * Encontra o registro do professor pelo utilizador, ignorando o scope global de escola.
+     * O user_id é único do utilizador autenticado (já limitado à sua escola pelo middleware),
+     * por isso o filtro de escola não deve esconder o próprio perfil do professor.
+     */
+    public static function findByUser(?int $userId): ?Teacher
+    {
+        if (is_null($userId)) {
+            return null;
+        }
+
+        return static::withoutGlobalScope(SchoolScope::class)
+            ->where('user_id', $userId)
+            ->first();
+    }
+
+    /**
+     * Como findByUser, mas lança ModelNotFoundException (HTTP 404) quando não existe.
+     */
+    public static function findByUserOrFail(?int $userId): Teacher
+    {
+        $teacher = static::findByUser($userId);
+
+        if (is_null($teacher)) {
+            throw (new \Illuminate\Database\Eloquent\ModelNotFoundException)->setModel(static::class);
+        }
+
+        return $teacher;
+    }
+
     // Scopes
     public function scopeActive($query)
     {

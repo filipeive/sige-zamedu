@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Teacher;
+use App\Scopes\SchoolScope;
 use App\Models\ClassRoom;
 use App\Models\Attendance;
 use App\Models\Grade;
@@ -21,7 +22,7 @@ class TeacherPortalController extends Controller
 {
     public function dashboard()
     {
-        $teacher = Teacher::where('user_id', Auth::id())->firstOrFail();
+        $teacher = Teacher::findByUserOrFail(Auth::id());
 
         // Estatísticas
         $stats = [
@@ -82,7 +83,7 @@ class TeacherPortalController extends Controller
 
     public function myClasses()
     {
-        $teacher = Teacher::where('user_id', Auth::id())->firstOrFail();
+        $teacher = Teacher::findByUserOrFail(Auth::id());
         $classes = $teacher->classes()
             ->withCount(['students', 'subjects'])
             ->active()
@@ -94,7 +95,7 @@ class TeacherPortalController extends Controller
 
     public function classStudents($classId)
     {
-        $teacher = Teacher::where('user_id', Auth::id())->firstOrFail();
+        $teacher = Teacher::findByUserOrFail(Auth::id());
 
         $class = ClassRoom::with([
             'students' => function ($q) {
@@ -117,7 +118,7 @@ class TeacherPortalController extends Controller
     //classes
     public function classes()
     {
-        $teacher = Teacher::where('user_id', Auth::id())->firstOrFail();
+        $teacher = Teacher::findByUserOrFail(Auth::id());
         $classes = $teacher->classes()
             ->withCount(['students', 'subjects'])
             ->active()
@@ -128,7 +129,7 @@ class TeacherPortalController extends Controller
     }
     public function classDetails($classId)
     {
-        $teacher = Teacher::where('user_id', Auth::id())->firstOrFail();
+        $teacher = Teacher::findByUserOrFail(Auth::id());
         $class = ClassRoom::with(['students', 'subjects'])->findOrFail($classId);
 
         // Verificar se o professor tem acesso a esta turma
@@ -146,7 +147,7 @@ class TeacherPortalController extends Controller
 
     public function todayAttendance($classId)
     {
-        $teacher = Teacher::where('user_id', Auth::id())->firstOrFail();
+        $teacher = Teacher::findByUserOrFail(Auth::id());
 
         $class = ClassRoom::with(['students'])->findOrFail($classId);
 
@@ -167,7 +168,7 @@ class TeacherPortalController extends Controller
 
     public function Classattendance($classId)
     {
-        $teacher = Teacher::where('user_id', Auth::id())->firstOrFail();
+        $teacher = Teacher::findByUserOrFail(Auth::id());
         $class = ClassRoom::with(['students'])->findOrFail($classId);
 
         if (!$teacher->classes()->where('classes.id', $classId)->exists()) {
@@ -190,7 +191,7 @@ class TeacherPortalController extends Controller
 
     public function storeAttendance(Request $request, $classId)
     {
-        $teacher = Teacher::where('user_id', Auth::id())->firstOrFail();
+        $teacher = Teacher::findByUserOrFail(Auth::id());
 
         if (!$teacher->classes()->where('classes.id', $classId)->exists()) {
             abort(403, 'Acesso não autorizado.');
@@ -231,7 +232,8 @@ class TeacherPortalController extends Controller
     // No TeacherPortalController
     public function pendingGrades()
     {
-        $teacher = Teacher::where('user_id', Auth::id())
+        $teacher = Teacher::withoutGlobalScope(SchoolScope::class)
+            ->where('user_id', Auth::id())
             ->with([
                 'classes' => function ($query) {
                     $query->active()->currentYear()->withCount('students');
@@ -259,7 +261,7 @@ class TeacherPortalController extends Controller
 
     public function communications()
     {
-        $teacher = Teacher::where('user_id', Auth::id())->firstOrFail();
+        $teacher = Teacher::findByUserOrFail(Auth::id());
 
         // Buscar comunicados reais do banco
         $communications = Communication::forTeachers()
@@ -275,7 +277,7 @@ class TeacherPortalController extends Controller
 
     public function gradebook($class)
     {
-        $teacher = Teacher::where('user_id', Auth::id())->firstOrFail();
+        $teacher = Teacher::findByUserOrFail(Auth::id());
         $class = ClassRoom::with(['students', 'subjects'])->findOrFail($class);
 
         // Verificar acesso (regente OU professor de uma disciplina)
@@ -329,7 +331,7 @@ class TeacherPortalController extends Controller
     }
     public function storeGrade(Request $request)
     {
-        $teacher = Teacher::where('user_id', Auth::id())->firstOrFail();
+        $teacher = Teacher::findByUserOrFail(Auth::id());
 
         $request->validate([
             'student_id' => 'required|exists:students,id',
@@ -373,7 +375,7 @@ class TeacherPortalController extends Controller
 
     public function profile()
     {
-        $teacher = Teacher::where('user_id', Auth::id())->firstOrFail();
+        $teacher = Teacher::findByUserOrFail(Auth::id());
         return view('teacher-portal.profile', compact('teacher'));
     }
 
@@ -381,7 +383,7 @@ class TeacherPortalController extends Controller
     {
         $user = Auth::user();
         // Check if teacher already exists
-        if (Teacher::where('user_id', $user->id)->exists()) {
+        if (Teacher::findByUser($user->id)) {
             return redirect()->route('teacher.dashboard');
         }
         return view('teacher-portal.create-profile', compact('user'));
@@ -432,7 +434,7 @@ class TeacherPortalController extends Controller
 
     public function updateProfile(Request $request)
     {
-        $teacher = Teacher::where('user_id', Auth::id())->firstOrFail();
+        $teacher = Teacher::findByUserOrFail(Auth::id());
 
         $request->validate([
             'phone' => 'required|string|max:20',
@@ -489,7 +491,7 @@ class TeacherPortalController extends Controller
      */
     public function markAttendance(Request $request, $classId)
     {
-        $teacher = Teacher::where('user_id', Auth::id())->firstOrFail();
+        $teacher = Teacher::findByUserOrFail(Auth::id());
 
         // Verificar acesso
         if (!$teacher->classes()->where('classes.id', $classId)->exists()) {
@@ -535,7 +537,7 @@ class TeacherPortalController extends Controller
      */
     public function batchUpdateGrades(Request $request)
     {
-        $teacher = Teacher::where('user_id', Auth::id())->firstOrFail();
+        $teacher = Teacher::findByUserOrFail(Auth::id());
 
         $request->validate([
             'grades' => 'required|array',
@@ -597,7 +599,7 @@ class TeacherPortalController extends Controller
      */
     public function createCommunication()
     {
-        $teacher = Teacher::where('user_id', Auth::id())->firstOrFail();
+        $teacher = Teacher::findByUserOrFail(Auth::id());
 
         $classes = $teacher->classes()
             ->active()
@@ -613,7 +615,7 @@ class TeacherPortalController extends Controller
      */
     public function sendCommunication(Request $request)
     {
-        $teacher = Teacher::where('user_id', Auth::id())->firstOrFail();
+        $teacher = Teacher::findByUserOrFail(Auth::id());
 
         $request->validate([
             'title' => 'required|string|max:255',
@@ -655,7 +657,7 @@ class TeacherPortalController extends Controller
      */
     public function leaveRequests()
     {
-        $teacher = Teacher::where('user_id', Auth::id())->firstOrFail();
+        $teacher = Teacher::findByUserOrFail(Auth::id());
 
         $leaveRequests = $teacher->leaveRequests()
             ->orderBy('created_at', 'desc')
@@ -680,7 +682,7 @@ class TeacherPortalController extends Controller
      */
     public function createLeaveRequest()
     {
-        $teacher = Teacher::where('user_id', Auth::id())->firstOrFail();
+        $teacher = Teacher::findByUserOrFail(Auth::id());
 
         return view('teacher-portal.create-leave-request', compact('teacher'));
     }
@@ -690,7 +692,7 @@ class TeacherPortalController extends Controller
      */
     public function storeLeaveRequest(Request $request)
     {
-        $teacher = Teacher::where('user_id', Auth::id())->firstOrFail();
+        $teacher = Teacher::findByUserOrFail(Auth::id());
 
         $request->validate([
             'leave_type' => 'required|in:sick,personal,vacation,maternity,other',

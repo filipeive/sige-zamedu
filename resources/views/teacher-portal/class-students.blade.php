@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Alunos da Turma')
-@section('page-title', 'Alunos — ' . ($class->name ?? 'Turma')
+@section('page-title', 'Alunos — ' . ($class->name ?? 'Turma'))
 @section('page-title-icon', 'fas fa-users')
 
 @section('breadcrumbs')

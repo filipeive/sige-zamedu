@@ -32,15 +32,21 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: var(--gray-50);
+            background: var(--white);
             color: var(--gray-900);
             min-height: 100vh;
         }
 
+        body.bg-slate-950 {
+            background-color: var(--white);
+        }
+
         .split-layout {
             display: flex;
+            width: min(100%, 960px);
             min-height: 100vh;
-            width: 100%;
+            margin: 0 auto;
+            overflow: hidden;
         }
 
         /* ===== LEFT VISUAL BANNER ===== */
@@ -169,7 +175,8 @@
 
         /* ===== RIGHT FORM SIDE ===== */
         .form-side {
-            width: 530px;
+            width: 46%;
+            max-width: 530px;
             background: var(--white);
             display: flex;
             flex-direction: column;
@@ -416,11 +423,9 @@
             border-top: 1px dashed #E2E8F0;
         }
 
-        .demo-shortcuts-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 8px;
+        .demo-shortcuts-box summary {
+            cursor: pointer;
+            list-style-position: inside;
         }
 
         .demo-shortcuts-title {
@@ -434,22 +439,34 @@
             gap: 6px;
         }
 
-        .demo-shortcuts-sub {
-            font-size: 10px;
-            color: #94A3B8;
+        .demo-shortcuts-box[open] .demo-shortcuts-title {
+            margin-bottom: 14px;
         }
 
         .demo-badges-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .demo-role-group + .demo-role-group {
+            margin-top: 14px;
+        }
+
+        .demo-role-heading {
+            margin-bottom: 8px;
+            color: var(--gray-700);
+            font-size: 12px;
+            font-weight: 700;
         }
 
         .demo-pill-btn {
+            min-height: 38px;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
-            padding: 4px 8px;
+            justify-content: center;
+            gap: 7px;
+            padding: 7px 9px;
             border-radius: 6px;
             background: #F8FAFC;
             border: 1px solid #E2E8F0;
@@ -477,6 +494,11 @@
 
         /* ===== RESPONSIVE ===== */
         @media (max-width: 992px) {
+            .split-layout {
+                width: 100%;
+                min-height: 100vh;
+                margin: 0;
+            }
             .banner-side {
                 display: none;
             }
@@ -510,29 +532,29 @@
             <div class="banner-center-content">
                 <div class="banner-badge">
                     <i class="fas fa-star"></i>
-                    <span>Plataforma Multitenant SaaS</span>
+                    <span>Gestão e monitoria educacional</span>
                 </div>
 
                 <h2 class="banner-headline">
-                    Transformando a gestão escolar com <span class="highlight">tecnologia e inovação</span>
+                    Gestão escolar e <span class="highlight">monitoria territorial.</span>
                 </h2>
 
                 <p class="banner-description">
-                    Aceda ao portal administrativo para gerir turmas, notas, pautas de avaliação, pagamentos de propinas e comunicação direta com a comunidade escolar.
+                    Da operação diária em cada escola aos indicadores agregados por ZIP, distrito e província.
                 </p>
 
                 <div class="banner-features">
                     <div class="banner-feature-item">
                         <i class="fas fa-check"></i>
-                        <span>Gestão Académica 100% Digital</span>
+                        <span>Gestão académica, administrativa e financeira</span>
                     </div>
                     <div class="banner-feature-item">
                         <i class="fas fa-check"></i>
-                        <span>Integração de Pagamentos MPesa e eMola</span>
+                        <span>Monitoria de escolas por ZIP, distrito e província</span>
                     </div>
                     <div class="banner-feature-item">
                         <i class="fas fa-check"></i>
-                        <span>Portal de Alunos e Encarregados de Educação</span>
+                        <span>Indicadores consolidados com análise por nível</span>
                     </div>
                 </div>
             </div>
@@ -567,8 +589,8 @@
                     <div>
                         <img src="{{ asset('images/emblema-mocambique.png') }}" onerror="this.onerror=null; this.src='{{ asset('images/emblem.png') }}';" alt="Emblema da República de Moçambique" class="auth-emblem">
                     </div>
-                    <h2>Portal de Acesso</h2>
-                    <p>Introduza as suas credenciais para continuar</p>
+                    <h2>Aceder ao sistema</h2>
+                    <p>O seu perfil determina a área de gestão disponível.</p>
                 </div>
 
                 <!-- Session Status -->
@@ -662,31 +684,36 @@
                 </form>
 
                 <!-- Atalhos de Acessos Rápidos (Flexibilidade de Demonstração e Testes) -->
-                <div class="demo-shortcuts-box">
-                    <div class="demo-shortcuts-header">
-                        <span class="demo-shortcuts-title">
-                            <i class="fas fa-bolt text-amber-500"></i> Atalhos de Acesso Rápido
-                        </span>
-                        <span class="demo-shortcuts-sub">1-Clique para preencher</span>
+                <details class="demo-shortcuts-box">
+                    <summary class="demo-shortcuts-title">
+                        <i class="fas fa-users text-amber-500"></i> Perfis de demonstração
+                    </summary>
+                    <div class="demo-role-group">
+                        <h3 class="demo-role-heading ce">Administração territorial</h3>
+                        <div class="demo-badges-grid">
+                            <button type="button" class="demo-pill-btn" onclick="fillDemo('superadmin@visionarios.co.mz', 'superadmin123')"><i class="fas fa-crown text-amber-500"></i> Super Admin</button>
+                            <button type="button" class="demo-pill-btn" onclick="fillDemo('inspector.zambezia@minedh.gov.mz', 'provincia123')"><i class="fas fa-building-columns text-sky-600"></i> Insp. Provincial</button>
+                            <button type="button" class="demo-pill-btn" onclick="fillDemo('director.namacurra@minedh.gov.mz', 'distrito123')"><i class="fas fa-map-location-dot text-indigo-600"></i> Dir. Distrital</button>
+                            <button type="button" class="demo-pill-btn" onclick="fillDemo('zip.namacurra@minedh.gov.mz', 'zip123')"><i class="fas fa-sitemap text-teal-600"></i> Coord. ZIP</button>
+                        </div>
                     </div>
-                    <div class="demo-badges-grid">
-                        <button type="button" class="demo-pill-btn" onclick="fillDemo('superadmin@visionarios.co.mz', 'superadmin123')"><i class="fas fa-crown text-amber-500"></i> Super Admin</button>
-                        <button type="button" class="demo-pill-btn" onclick="fillDemo('inspector.zambezia@minedh.gov.mz', 'provincia123')"><i class="fas fa-building-columns text-sky-600"></i> Insp. Prov.</button>
-                        <button type="button" class="demo-pill-btn" onclick="fillDemo('director.namacurra@minedh.gov.mz', 'distrito123')"><i class="fas fa-map-location-dot text-indigo-600"></i> Dir. Distrital</button>
-                        <button type="button" class="demo-pill-btn" onclick="fillDemo('zip.namacurra@minedh.gov.mz', 'zip123')"><i class="fas fa-sitemap text-teal-600"></i> Coord. ZIP</button>
-                        <button type="button" class="demo-pill-btn" onclick="fillDemo('admin@visionarios.co.mz', 'admin123')"><i class="fas fa-school text-emerald-700"></i> Dir. Escola</button>
-                        <button type="button" class="demo-pill-btn" onclick="fillDemo('pedagogia@visionarios.co.mz', 'pedagogia123')"><i class="fas fa-book-open-reader text-emerald-600"></i> Pedagógico</button>
-                        <button type="button" class="demo-pill-btn" onclick="fillDemo('professor@visionarios.co.mz', 'professor123')"><i class="fas fa-chalkboard-user text-blue-600"></i> Professor</button>
-                        <button type="button" class="demo-pill-btn" onclick="fillDemo('secretaria@visionarios.co.mz', 'secretaria123')"><i class="fas fa-id-card text-purple-600"></i> Secretária</button>
-                        <button type="button" class="demo-pill-btn" onclick="fillDemo('pai@visionarios.co.mz', 'pai123')"><i class="fas fa-users text-teal-600"></i> Encarregado</button>
-                        <button type="button" class="demo-pill-btn" onclick="fillDemo('aluno@visionarios.co.mz', 'aluno123')"><i class="fas fa-user-graduate text-cyan-600"></i> Aluno</button>
+                    <div class="demo-role-group">
+                        <h3 class="demo-role-heading">Escola e comunidade</h3>
+                        <div class="demo-badges-grid">
+                            <button type="button" class="demo-pill-btn" onclick="fillDemo('admin@visionarios.co.mz', 'admin123')"><i class="fas fa-school text-emerald-700"></i> Dir. Escola</button>
+                            <button type="button" class="demo-pill-btn" onclick="fillDemo('pedagogia@visionarios.co.mz', 'pedagogia123')"><i class="fas fa-book-open-reader text-emerald-600"></i> Pedagógico</button>
+                            <button type="button" class="demo-pill-btn" onclick="fillDemo('professor@visionarios.co.mz', 'professor123')"><i class="fas fa-chalkboard-user text-blue-600"></i> Professor</button>
+                            <button type="button" class="demo-pill-btn" onclick="fillDemo('secretaria@visionarios.co.mz', 'secretaria123')"><i class="fas fa-id-card text-purple-600"></i> Secretaria</button>
+                            <button type="button" class="demo-pill-btn" onclick="fillDemo('pai@visionarios.co.mz', 'pai123')"><i class="fas fa-users text-teal-600"></i> Encarregado</button>
+                            <button type="button" class="demo-pill-btn" onclick="fillDemo('aluno@visionarios.co.mz', 'aluno123')"><i class="fas fa-user-graduate text-cyan-600"></i> Aluno</button>
+                        </div>
                     </div>
-                </div>
+                </details>
 
             </div>
 
             <div class="form-footer">
-                &copy; {{ date('Y') }} ZamEdu — Maputo, Moçambique
+                &copy; {{ date('Y') }} ZamEdu — Zambézia, Moçambique
             </div>
 
         </div>
