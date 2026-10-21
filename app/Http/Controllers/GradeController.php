@@ -14,6 +14,7 @@ use App\Models\School;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class GradeController extends Controller
 {
@@ -258,20 +259,29 @@ class GradeController extends Controller
         $year = $request->get('year', current_school_year());
         $assessmentType = $request->get('assessment_type', 'test');
 
-        $classes = ClassRoom::active()->get();
-        $subjects = Subject::active()->get();
+        $classes = ClassRoom::active()->orderBy('grade_level')->orderBy('name')->get();
+        $selectedClass = $classId ? ClassRoom::active()->with('subjects')->find($classId) : null;
+        $subjects = $selectedClass
+            ? $selectedClass->subjects()->active()->orderBy('name')->get()
+            : collect();
+        $selectedSubject = $selectedClass && $subjectId
+            ? $subjects->firstWhere('id', (int) $subjectId)
+            : null;
+
+        if ($subjectId && ! $selectedSubject) {
+            $subjectId = null;
+        }
 
         $students = collect();
         $existingGrades = collect();
 
-        if ($classId && $subjectId) {
-            $selectedClassObj = ClassRoom::find($classId);
+        if ($selectedClass && $selectedSubject) {
             $students = Student::whereHas('enrollments', function ($q) use ($classId) {
-                $q->where('class_id', $classId);
+                $q->where('class_id', $classId)->where('status', 'active');
             })->orderBy('first_name')->orderBy('last_name')->get();
 
-            if ($students->isEmpty() && $selectedClassObj) {
-                $students = $selectedClassObj->students;
+            if ($students->isEmpty()) {
+                $students = $selectedClass->students;
             }
 
             // Buscar notas existentes para esta combinação (garantindo separação estrita entre ACS1, ACS2 e ACS3)
@@ -289,6 +299,7 @@ class GradeController extends Controller
             }
 
             $existingGrades = Grade::whereIn('student_id', $students->pluck('id'))
+                ->where('class_id', $classId)
                 ->where('subject_id', $subjectId)
                 ->where('term', $term)
                 ->where('year', $year)
@@ -319,7 +330,11 @@ class GradeController extends Controller
 
         $request->validate([
             'class_id' => 'required|exists:classes,id',
-            'subject_id' => 'required|exists:subjects,id',
+            'subject_id' => [
+                'required',
+                'exists:subjects,id',
+                Rule::exists('class_subjects', 'subject_id')->where('class_id', $request->input('class_id')),
+            ],
             'term' => 'required|in:1,2,3',
             'year' => 'required|integer|min:2020|max:2030',
             'assessment_type' => 'required|in:test,assignment,exam,project,participation,ACS1,ACS2,ACS3,ACP,ACF,behavioral',

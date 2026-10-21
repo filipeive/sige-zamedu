@@ -460,7 +460,7 @@ class DashboardController extends Controller
 
     private function teacherDashboard()
     {
-        $teacher = Teacher::where('user_id', auth()->id())->first();
+        $teacher = Teacher::findByUser(auth()->id());
 
         if (!$teacher) {
             return redirect()->route('teacher.create-profile')
@@ -878,7 +878,7 @@ class DashboardController extends Controller
                 break;
 
             case 'teacher':
-                $teacher = Teacher::where('user_id', $user->id)->first();
+                $teacher = Teacher::findByUser($user->id);
                 if ($teacher) {
                     $data = [
                         'notifications' => $user->unreadNotifications->count(),

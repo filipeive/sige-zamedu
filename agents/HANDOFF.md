@@ -18,6 +18,24 @@ Formato de cada entrada:
 **Próximo passo recomendado:** ...
 ```
 
+## [2026-10-21] — fix/teacher-dashboard-batch-grades — GitHub Copilot
+
+**Feito:**
+- Login: layout centrado em fundo branco, mensagem de gestão escolar + monitoria territorial, perfis demo agrupados num `<details>` (territorial / escola).
+- Lançamento de notas em lote (`GradeController@batchCreate/batchStore`): disciplinas filtradas pela turma (`class_subjects`), tabela abre ao escolher disciplina, estados vazios claros; POST rejeita disciplina fora da turma.
+- Portal do professor: dashboard redesenhado (KPIs, cartões de turma com Presenças/Notas/Lote/Detalhes).
+- `PermissionSeeder`: persiste Teacher demo e atribui turmas 25/27/32/41/43 — só se a escola existir (BD vazia não falha).
+
+**Testado:**
+- Novos: `GradeBatchCreateTest`, `TeacherPortalDashboardTest` (verdes).
+- Suite completa: 17 falhas, idênticas às da `main` antes desta sessão (rotas/métodos em falta: `student.dashboard`, `certificates.request`, `User::getProfileCompletion`, `Student::isFemaleGender`, `licenses.school_id` NOT NULL no seeder, etc.). Nenhuma regressão.
+
+**Não feito / bloqueado:**
+- Deploy: `deployment/deploy-zamedu.sh` clona `filipeive/visionarios-school-system`, mas o `origin` local é `filipeive/sige-zamedu` — confirmar repo correto. O script também corre `db:seed --force` e `git reset --hard` a cada deploy.
+
+**Próximo passo recomendado:**
+- Tag `v1.0-provincial-2026` como versão MINEDH congelada; cliente privado Visionários (Quelimane + Molocue) em instância separada a partir do mesmo código.
+
 ## [2026-10-06] — Alinhamento Visual de Login com Produção, Emblema Nacional, Atalhos Rápidos & Merge na Main — Antigravity AI Agent
 
 **Feito:**

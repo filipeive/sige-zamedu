@@ -297,7 +297,50 @@ class PermissionSeeder extends Seeder
         $createUser(['name' => 'Administrador do Sistema', 'email' => 'admin@visionarios.co.mz', 'password' => 'admin123'], 'admin');
         $createUser(['name' => 'Secretaria Escolar', 'email' => 'secretaria@visionarios.co.mz', 'password' => 'secretaria123'], 'secretary');
         $createUser(['name' => 'Coordenador Pedagógico', 'email' => 'pedagogia@visionarios.co.mz', 'password' => 'pedagogia123'], 'pedagogy');
-        $createUser(['name' => 'Professor Exemplo', 'email' => 'professor@visionarios.co.mz', 'password' => 'professor123'], 'teacher');
+        $demoTeacherUser = $createUser(['name' => 'Professor Exemplo', 'email' => 'professor@visionarios.co.mz', 'password' => 'professor123'], 'teacher');
+        
+        // Escolas só existem depois do seed demo; em BD vazia (testes/1º deploy) não cria o Teacher.
+        $demoSchoolId = $demoTeacherUser->school_id ?: 1;
+        $demoTeacher = \App\Models\School::whereKey($demoSchoolId)->exists()
+            ? \App\Models\Teacher::firstOrCreate(
+                ['user_id' => $demoTeacherUser->id],
+                [
+                    'first_name' => 'Professor',
+                    'last_name' => 'Exemplo',
+                    'email' => 'professor@visionarios.co.mz',
+                    'phone' => '+258 84 999 1234',
+                    'hire_date' => now()->subYears(3),
+                    'qualification' => 'Licenciatura em Ensino',
+                    'specialization' => 'Matemática e Ciências',
+                    'status' => 'active',
+                    'school_id' => $demoSchoolId,
+                ]
+            )
+            : null;
+
+        if ($demoTeacher) {
+            $demoClassIds = [25, 27, 32, 41, 43];
+            foreach ($demoClassIds as $cId) {
+                $c = \App\Models\ClassRoom::find($cId);
+                if ($c) {
+                    $c->update(['teacher_id' => $demoTeacher->id, 'school_year' => 2026, 'is_active' => true]);
+                    $subQuery = \App\Models\Subject::where('school_id', $demoTeacher->school_id)
+                        ->where(function($q) use ($c) {
+                            $q->where('grade_level', $c->grade_level)->orWhere('grade_level', $c->grade_level - 1);
+                        })->take(5)->get();
+                    if ($subQuery->isEmpty()) {
+                        $subQuery = \App\Models\Subject::where('school_id', $demoTeacher->school_id)->take(4)->get();
+                    }
+                    foreach ($subQuery as $sub) {
+                        \App\Models\ClassSubject::updateOrCreate(
+                            ['class_id' => $c->id, 'subject_id' => $sub->id],
+                            ['teacher_id' => $demoTeacher->id, 'school_id' => $demoTeacher->school_id]
+                        );
+                    }
+                }
+            }
+        }
+
         $createUser(['name' => 'Encarregado de Educação', 'email' => 'pai@visionarios.co.mz', 'password' => 'pai123'], 'parent');
         $createUser(['name' => 'Segurança / Portaria', 'email' => 'seguranca@visionarios.co.mz', 'password' => 'seguranca123'], 'security');
 

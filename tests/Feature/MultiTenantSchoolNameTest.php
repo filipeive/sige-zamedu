@@ -49,11 +49,11 @@ class MultiTenantSchoolNameTest extends TestCase
         ]);
         $this->actingAs($user1);
 
-        $this->assertEquals('Escola Secundária Samora Machel', \current_school_name());
+        $this->assertEquals('Escola Secundária Samora Machel', current_school_name());
         $this->assertEquals('Escola Secundária Samora Machel', setting('school_name'));
         $this->assertEquals('Escola Secundária Samora Machel', setting('school_short_name'));
-        $this->assertTrue(\is_public_school());
-        $this->assertFalse(\is_private_school());
+        $this->assertTrue(is_public_school());
+        $this->assertFalse(is_private_school());
 
         // Cenário 2: Utilizador autenticado na Escola 2
         $user2 = User::factory()->create([
@@ -62,11 +62,11 @@ class MultiTenantSchoolNameTest extends TestCase
         ]);
         $this->actingAs($user2);
 
-        $this->assertEquals('Colégio Privado Estrela do Norte', \current_school_name());
+        $this->assertEquals('Colégio Privado Estrela do Norte', current_school_name());
         $this->assertEquals('Colégio Privado Estrela do Norte', setting('school_name'));
         $this->assertEquals('Colégio Privado Estrela do Norte', setting('school_short_name'));
-        $this->assertFalse(\is_public_school());
-        $this->assertTrue(\is_private_school());
+        $this->assertFalse(is_public_school());
+        $this->assertTrue(is_private_school());
 
         // Cenário 3: Modo Suporte do Super Administrador
         $superAdmin = User::factory()->create([
@@ -76,14 +76,14 @@ class MultiTenantSchoolNameTest extends TestCase
         $this->actingAs($superAdmin);
         session(['support_mode_school_id' => $school1->id]);
 
-        $this->assertEquals('Escola Secundária Samora Machel', \current_school_name());
+        $this->assertEquals('Escola Secundária Samora Machel', current_school_name());
         $this->assertEquals('Escola Secundária Samora Machel', setting('school_name'));
 
         // Cenário 4: SchoolContext explícito
         session()->forget('support_mode_school_id');
         SchoolContext::setSchoolId($school2->id);
 
-        $this->assertEquals('Colégio Privado Estrela do Norte', \current_school_name());
+        $this->assertEquals('Colégio Privado Estrela do Norte', current_school_name());
         $this->assertEquals('Colégio Privado Estrela do Norte', setting('school_name'));
         SchoolContext::clear();
     }

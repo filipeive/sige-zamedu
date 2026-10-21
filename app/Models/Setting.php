@@ -130,7 +130,7 @@ class Setting extends Model
         }
 
         return match ($key) {
-            'school_name', 'school_short_name', 'app_name' => $school->name,
+            'school_name', 'app_name' => $school->name,
             'school_phone' => $school->phone,
             'school_email' => $school->email,
             'school_address' => $school->address,

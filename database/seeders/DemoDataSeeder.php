@@ -109,6 +109,12 @@ class DemoDataSeeder extends Seeder
 
             $teachers->push($teacher);
 
+            // Manter o perfil do professor alinhado com a escola do utilizador
+            // (o scope global de escola esconde registos com school_id diferente)
+            if ($teacher->school_id !== $user->school_id) {
+                $teacher->update(['school_id' => $user->school_id]);
+            }
+
             // Atribuir professor a turmas existentes
             $classes = ClassRoom::whereNull('teacher_id')->orWhere('teacher_id', $teacher->id)->take(2)->get();
             foreach ($classes as $class) {

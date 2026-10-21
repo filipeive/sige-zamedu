@@ -34,7 +34,7 @@
         <form action="{{ route('grades.batch-create') }}" method="GET" id="batchFilterForm" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
             <div class="sm:col-span-3">
                 <label class="block text-[10px] font-extrabold uppercase text-slate-500 mb-1">Turma *</label>
-                <select name="class_id" required onchange="this.form.submit()"
+                <select name="class_id" required onchange="this.form.subject_id.value = ''; this.form.submit()"
                         class="w-full rounded-lg border border-slate-200 bg-white text-slate-800 py-1.5 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
                     <option value="">Selecione a Turma...</option>
                     @foreach($classes as $c)
@@ -47,14 +47,18 @@
 
             <div class="sm:col-span-3">
                 <label class="block text-[10px] font-extrabold uppercase text-slate-500 mb-1">Disciplina *</label>
-                <select name="subject_id" required onchange="this.form.submit()"
+                <select id="batchSubjectSelect" name="subject_id" required onchange="this.form.submit()" {{ !$classId ? 'disabled' : '' }}
                         class="w-full rounded-lg border border-slate-200 bg-white text-slate-800 py-1.5 px-3 text-xs font-semibold focus:border-emerald-500 focus:ring-emerald-500">
                     <option value="">Selecione a Disciplina...</option>
-                    @foreach($subjects as $sub)
+                    @forelse($subjects as $sub)
                         <option value="{{ $sub->id }}" {{ $subjectId == $sub->id ? 'selected' : '' }}>
                             {{ $sub->name }}
                         </option>
-                    @endforeach
+                    @empty
+                        @if($classId)
+                            <option value="" disabled>Nenhuma disciplina associada a esta turma</option>
+                        @endif
+                    @endforelse
                 </select>
             </div>
 
@@ -170,11 +174,23 @@
                 </div>
             </div>
         </form>
-    @else
+    @elseif(!$classId)
         <div class="bg-white rounded-xl border border-slate-200 shadow-2xs p-8 text-center text-slate-400">
             <i class="fas fa-layer-group text-3xl text-slate-300 mb-2"></i>
-            <h4 class="text-sm font-bold text-slate-700">Selecione a Turma e a Disciplina</h4>
-            <p class="text-xs text-slate-500 mt-1">Escolha uma turma e disciplina no painel acima para iniciar o lançamento de notas.</p>
+            <h4 class="text-sm font-bold text-slate-700">Selecione uma turma</h4>
+            <p class="text-xs text-slate-500 mt-1">As disciplinas associadas à turma aparecerão depois da seleção.</p>
+        </div>
+    @elseif(!$subjectId)
+        <div class="bg-white rounded-xl border border-slate-200 shadow-2xs p-8 text-center text-slate-400">
+            <i class="fas fa-book-open text-3xl text-slate-300 mb-2"></i>
+            <h4 class="text-sm font-bold text-slate-700">Selecione uma disciplina</h4>
+            <p class="text-xs text-slate-500 mt-1">A lista contém apenas disciplinas associadas à turma selecionada.</p>
+        </div>
+    @elseif(count($students) === 0)
+        <div class="bg-white rounded-xl border border-amber-200 shadow-2xs p-8 text-center text-slate-500">
+            <i class="fas fa-user-group text-3xl text-amber-400 mb-2"></i>
+            <h4 class="text-sm font-bold text-slate-700">Nenhum aluno matriculado nesta turma</h4>
+            <p class="text-xs text-slate-500 mt-1">Verifique as matrículas ativas da turma para lançar as notas.</p>
         </div>
     @endif
 </div>

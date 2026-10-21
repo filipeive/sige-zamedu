@@ -1641,6 +1641,9 @@
             @auth
             <!-- PORTAL DO PROFESSOR (Visão dedicada para docente) -->
             @if (auth()->user()->role === 'teacher')
+                @php
+                    $portalTeacher = \App\Models\Teacher::findByUser(auth()->id());
+                @endphp
                 <div class="nav-section">
                     <div class="nav-section-title">Meu Portal Docente</div>
                     <ul class="nav-list">
@@ -1660,7 +1663,7 @@
                                 <span class="nav-icon"><i class="fas fa-chalkboard"></i></span>
                                 <span class="nav-text">Minhas Turmas</span>
                                 @php
-                                    $classCount = auth()->user()->teacher?->classes()->active()->currentYear()->count() ?? 0;
+                                    $classCount = $portalTeacher?->classes()->active()->currentYear()->count() ?? 0;
                                 @endphp
                                 @if ($classCount > 0)
                                     <span class="nav-badge badge-success">{{ $classCount }}</span>
@@ -1669,7 +1672,7 @@
                         </li>
                         @endif
                         @php
-                            $teacher = auth()->user()->teacher ?? null;
+                            $teacher = $portalTeacher;
                             $classes = $teacher?->classes()->active()->currentYear()->get();
                             $firstClass = $classes?->first();
                         @endphp
@@ -1691,7 +1694,7 @@
                                 <span class="nav-icon"><i class="fas fa-clock"></i></span>
                                 <span class="nav-text">Avaliações Pendentes</span>
                                 @php
-                                    $pendingCount = auth()->user()->teacher?->getPendingAssessmentsCount() ?? 0;
+                                    $pendingCount = $portalTeacher?->getPendingAssessmentsCount() ?? 0;
                                 @endphp
                                 @if ($pendingCount > 0)
                                     <span class="nav-badge badge-warning">{{ $pendingCount }}</span>
@@ -1735,7 +1738,7 @@
                                 <span class="nav-icon"><i class="fas fa-calendar-times"></i></span>
                                 <span class="nav-text">Minhas Licenças</span>
                                 @php
-                                    $teacherPendingLeaves = auth()->user()->teacher?->leaveRequests()->where('status', 'pending')->count() ?? 0;
+                                    $teacherPendingLeaves = $portalTeacher?->leaveRequests()->where('status', 'pending')->count() ?? 0;
                                 @endphp
                                 @if ($teacherPendingLeaves > 0)
                                     <span class="nav-badge badge-warning">{{ $teacherPendingLeaves }}</span>
