@@ -519,20 +519,18 @@
         <div class="banner-side">
             <!-- Brand Top Header -->
             <div class="banner-brand">
-                <div class="banner-brand-icon">
-                    <i class="fas fa-graduation-cap"></i>
-                </div>
+                <img src="{{ asset('images/logo-visionarios.png') }}" alt="Escola dos Visionários" style="height: 60px; width: auto; background: #ffffff; padding: 4px; border-radius: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.18);">
                 <div class="banner-brand-text">
                     <h1>Escola dos Visionários</h1>
-                    <span>Rede de Ensino · Quelimane & Alto Molócuè</span>
+                    <span>Aqui se Prepara a Nova Geração</span>
                 </div>
             </div>
 
             <!-- Center Content -->
             <div class="banner-center-content">
                 <div class="banner-badge">
-                    <i class="fas fa-star"></i>
-                    <span>Ensino Privado de Excelência</span>
+                    <i class="fas fa-sun text-yellow-400"></i>
+                    <span>Inscrições Abertas 2027</span>
                 </div>
 
                 <h2 class="banner-headline">
@@ -561,7 +559,7 @@
 
             <!-- Footer Bottom -->
             <div class="banner-footer">
-                &copy; {{ date('Y') }} <strong>Escola dos Visionários</strong> · ZAMEDU - SIGE.
+                &copy; {{ date('Y') }} <strong>Escola dos Visionários</strong> · Quelimane & Alto Molócuè.
             </div>
         </div>
 
@@ -571,9 +569,7 @@
             <div class="form-top-nav">
                 <!-- Mobile Only Brand -->
                 <a href="{{ route('welcome') }}" class="mobile-brand">
-                    <div class="mobile-brand-icon">
-                        <i class="fas fa-graduation-cap"></i>
-                    </div>
+                    <img src="{{ asset('images/logo-visionarios.png') }}" alt="Escola dos Visionários" style="height: 36px; width: auto; margin-right: 8px;">
                     <span class="mobile-brand-title">Escola dos Visionários</span>
                 </a>
 
@@ -587,12 +583,10 @@
 
                 <div class="form-header">
                     <div class="d-flex align-items-center justify-content-center gap-2 mb-2">
-                        <div style="width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, #047857 0%, #065F46 100%); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 12px rgba(4, 120, 87, 0.25);">
-                            <i class="fas fa-graduation-cap"></i>
-                        </div>
+                        <img src="{{ asset('images/logo-visionarios.png') }}" alt="Escola dos Visionários" style="height: 72px; width: auto; object-fit: contain; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.1));">
                     </div>
-                    <h2>Aceder ao Sistema</h2>
-                    <p><strong>Escola dos Visionários</strong> · Quelimane & Alto Molócuè</p>
+                    <h2>Portal de Acesso</h2>
+                    <p><strong>Escola dos Visionários</strong> · Aqui se Prepara a Nova Geração</p>
                 </div>
 
                 <!-- Session Status -->

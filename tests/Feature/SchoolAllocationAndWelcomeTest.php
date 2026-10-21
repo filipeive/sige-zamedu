@@ -48,15 +48,10 @@ class SchoolAllocationAndWelcomeTest extends TestCase
         $response = $this->get('/');
 
         $response->assertStatus(200);
-        $response->assertSee('ZAMEDU - SIGE');
-        $response->assertSee('REPÚBLICA DE MOÇAMBIQUE · MINEDH');
-        $response->assertSee('Níveis SNE');
-        $response->assertSee('Escola Local');
-        $response->assertSee('ZIP (Micro-Rede)');
-        $response->assertSee('Distrito (SDEJT)');
-        $response->assertSee('Província (DPEDH)');
-        $response->assertSee('Afetações 2027');
-        $response->assertSee('Vagas 2027');
+        $response->assertSee('ESCOLA DOS VISIONÁRIOS');
+        $response->assertSee('Aqui se Prepara a Nova Geração');
+        $response->assertSee('Inscrições Abertas');
+        $response->assertSee('Reservar Vaga / Pré-Inscrição');
         // Assegurar que o botão público de cadastrar escola foi ocultado
         $response->assertDontSee('Registar Escola');
     }

@@ -518,25 +518,20 @@
     <header class="top-bar">
         <div class="container">
             <div class="brand d-flex align-items-center gap-3">
-                <div class="brand-logo-icon" style="background: linear-gradient(135deg, #047857 0%, #065F46 100%);">
-                    <i class="fas fa-graduation-cap"></i>
-                </div>
+                <img src="{{ asset('images/logo-visionarios.png') }}" alt="Escola dos Visionários" style="height: 52px; width: auto; object-fit: contain;" class="brand-logo-img">
                 <div class="brand-text">
-                    <span class="text-xs font-bold uppercase tracking-wider text-emerald-800 d-block" style="font-size: 10px; color: #007A3D; font-weight: 800;">REDE ESCOLAR PRIVADA · REPÚBLICA DE MOÇAMBIQUE · MINEDH · ZAMEDU - SIGE</span>
+                    <span class="text-xs font-bold uppercase tracking-wider text-emerald-800 d-block" style="font-size: 10px; color: #007A3D; font-weight: 800;">ANO LECTIVO 2027 · ESCOLA PRIVADA</span>
                     <h1>ESCOLA DOS VISIONÁRIOS</h1>
-                    <span>Ensino de Excelência · Quelimane & Alto Molócuè</span>
+                    <span>Aqui se Prepara a Nova Geração</span>
                 </div>
             </div>
 
             <div class="top-actions">
-                <a href="{{ route('public.allocations') }}" class="btn-pre-enrollment">
-                    <i class="fas fa-map-location-dot"></i> Afetações 2027
+                <a href="#requisitos" class="btn-pre-enrollment">
+                    <i class="fas fa-clipboard-check"></i> Inscrições Abertas (Requisitos)
                 </a>
-                <a href="{{ route('public.vacancies') }}" class="btn-pre-enrollment">
-                    <i class="fas fa-chart-pie"></i> Vagas 2027
-                </a>
-                <a href="{{ route('public.pre-enrollment') }}" class="btn-pre-enrollment">
-                    <i class="fas fa-user-plus"></i> Inscrições Online
+                <a href="{{ route('public.pre-enrollment') }}" class="btn-pre-enrollment" style="background: #D1FAE5; border-color: #059669; color: #065F46;">
+                    <i class="fas fa-file-signature"></i> Reservar Vaga / Pré-Inscrição
                 </a>
                 <a href="{{ route('login') }}" class="btn-login">
                     <i class="fas fa-right-to-bracket"></i> Aceder ao Portal
@@ -553,156 +548,165 @@
             <div class="hero-grid">
                 <div>
                     <div class="hero-badge">
-                        <i class="fas fa-award text-yellow-400 me-1"></i>
-                        ESCOLA DOS VISIONÁRIOS · QUELIMANE & ALTO MOLÓCUÈ
+                        <i class="fas fa-sun text-yellow-400 me-1"></i>
+                        AQUI SE PREPARA A NOVA GERAÇÃO · ANO LECTIVO 2027
                     </div>
                     <h1 class="hero-title">
-                        Educação de Excelência, <span>Rigor e Futuro</span>
+                        Inscrições Abertas 2027 <span>Pré-Infantil, Pré-Escolar e Primário</span>
                     </h1>
                     <p class="hero-desc">
-                        Plataforma oficial da Escola dos Visionários para modernizar a gestão académica, pedagógica e financeira. Acompanhamento em tempo real para pais, pautas oficiais e controlo automatizado de propinas e multas para as filiais de Quelimane e Alto Molócuè.
+                        De 1ª à 6ª Classe com ensino de excelência e formação integral. Aulas de inglês em todas as classes, educação financeira infantil, princípios ético-cristãos e apoio psicopedagógico permanente nas nossas filiais de Quelimane e Alto Molócuè.
                     </p>
                     <div class="hero-buttons">
-                        <a href="{{ route('login') }}" class="btn-hero-primary">
-                            <i class="fas fa-right-to-bracket"></i> Entrar no Portal
+                        <a href="{{ route('public.pre-enrollment') }}" class="btn-hero-primary">
+                            <i class="fas fa-file-signature"></i> Reservar Vaga / Pré-Inscrição
                         </a>
-                        <a href="{{ route('public.pre-enrollment') }}" class="btn-hero-secondary">
-                            <i class="fas fa-user-plus"></i> Inscrições Online
+                        <a href="#requisitos" class="btn-hero-secondary">
+                            <i class="fas fa-clipboard-list"></i> Ver Requisitos & Taxas
                         </a>
-                        <a href="{{ route('public.allocations') }}" class="btn-hero-secondary">
-                            <i class="fas fa-map-location-dot"></i> Afetações 2027
-                        </a>
-                        <a href="{{ route('public.vacancies') }}" class="btn-hero-secondary">
-                            <i class="fas fa-chart-pie"></i> Vagas 2027
+                        <a href="{{ route('login') }}" class="btn-hero-secondary">
+                            <i class="fas fa-right-to-bracket"></i> Aceder ao Portal
                         </a>
                     </div>
 
                     <!-- Níveis SNE -->
                     <div class="mt-6 pt-4 border-t border-white/20 flex flex-wrap items-center gap-2">
                         <span class="text-xs font-bold text-yellow-400 uppercase tracking-wider">Homologação Oficial (SNE Lei 18/2018):</span>
-                        <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-white/15 text-white border border-white/25">Escola Local</span>
-                        <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-white/15 text-white border border-white/25">ZIP (Micro-Rede)</span>
-                        <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-white/15 text-white border border-white/25">Distrito (SDEJT)</span>
-                        <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-white/15 text-white border border-white/25">Província (DPEDH)</span>
+                        <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-white/15 text-white border border-white/25">Pré-Infantil</span>
+                        <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-white/15 text-white border border-white/25">Pré-Escolar</span>
+                        <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-white/15 text-white border border-white/25">1ª à 6ª Classe</span>
+                        <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-white/15 text-white border border-white/25">Quelimane & Alto Molócuè</span>
                     </div>
                 </div>
 
-                <div class="hero-card">
-                    <div class="hero-card-header d-flex align-items-center gap-3">
-                        <div class="hero-card-header-icon" style="background: linear-gradient(135deg, #059669 0%, #047857 100%);">
-                            <i class="fas fa-school"></i>
-                        </div>
-                        <div>
-                            <h3 class="mb-0">Rede de Filiais Visionários</h3>
-                            <span class="text-xs text-slate-500 font-semibold">Província da Zambézia · Gestão Unificada</span>
-                        </div>
-                    </div>
-
-                    <div class="space-y-3">
-                        <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-emerald-700 text-white flex items-center justify-center font-bold">
-                                <i class="fas fa-city"></i>
-                            </div>
-                            <div>
-                                <h4 class="text-xs font-bold text-slate-800">Filial Quelimane (Sede)</h4>
-                                <p class="text-[11px] text-slate-600">Av. Samora Machel, Bairro Central · Ensino Primário e Secundário.</p>
-                            </div>
-                        </div>
-
-                        <div class="p-3 rounded-xl bg-blue-50 border border-blue-200 flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-blue-700 text-white flex items-center justify-center font-bold">
-                                <i class="fas fa-location-dot"></i>
-                            </div>
-                            <div>
-                                <h4 class="text-xs font-bold text-slate-800">Filial Alto Molócuè</h4>
-                                <p class="text-[11px] text-slate-600">Av. Eduardo Mondlane · Rigor pedagógico e acompanhamento contínuo.</p>
-                            </div>
-                        </div>
-
-                        <div class="p-3 rounded-xl bg-amber-50 border border-amber-200 flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-amber-700 text-white flex items-center justify-center font-bold">
-                                <i class="fas fa-receipt"></i>
-                            </div>
-                            <div>
-                                <h4 class="text-xs font-bold text-slate-800">Tesouraria Digital & Propinas</h4>
-                                <p class="text-[11px] text-slate-600">Emissão de faturas, cálculo automático de multas e M-Pesa/eMola.</p>
-                            </div>
+                <div class="hero-poster-box">
+                    <div style="background: rgba(255,255,255,0.08); padding: 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 20px 45px rgba(0,0,0,0.35); text-align: center;">
+                        <a href="{{ asset('images/cartaz-visionarios.jpg') }}" target="_blank" title="Clique para abrir o cartaz oficial em alta resolução">
+                            <img src="{{ asset('images/cartaz-visionarios.jpg') }}" alt="Cartaz Oficial 2027 - Escola dos Visionários" style="width: 100%; max-height: 480px; object-fit: contain; border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.25);">
+                        </a>
+                        <div class="d-flex align-items-center justify-content-between mt-2 px-2" style="font-size: 12px; color: rgba(255,255,255,0.9);">
+                            <span><i class="fas fa-certificate text-warning me-1"></i> Cartaz Oficial 2027</span>
+                            <a href="{{ asset('images/cartaz-visionarios.jpg') }}" target="_blank" style="color: #FCD116; font-weight: 700; text-decoration: underline;">
+                                <i class="fas fa-expand me-1"></i> Ampliar Cartaz
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
-            </div>
-        </div>
-    </section>
 
-    <!-- ONBOARDING INSTITUCIONAL (PUBLICA VS PRIVADA) -->
-    <section class="py-16">
+    <!-- SECÇÃO REQUISITOS, TAXAS E ACTIVIDADES DO CARTAZ OFICIAL -->
+    <section class="py-16" id="requisitos">
         <div class="container">
             <div class="section-title">
-                <span>ONBOARDING FLEXÍVEL</span>
-                <h2>Concebido para Qualquer Regime Institucional</h2>
+                <span>INSCRIÇÕES ABERTAS 2027</span>
+                <h2>Requisitos, Taxas & Actividades Extracurriculares</h2>
+                <p class="text-slate-600 text-sm mt-2">Informações oficiais para o Ano Lectivo 2027 — Nível Pré-Infantil, Pré-Escolar e Primário (1ª à 6ª Classe)</p>
             </div>
 
-            <div class="onboarding-grid">
-                <!-- Escola Pública -->
-                <div class="onboarding-card">
-                    <span class="onboarding-badge badge-public"><i class="fas fa-landmark me-1"></i> Modo Escola Pública</span>
-                    <h3>Gestão de Vagas & Pautas Oficiais</h3>
-                    <p>Ideal para estabelecimentos do Ensino Primário e Secundário Geral mantidos pelo Estado Moçambicano.</p>
-                    <ul class="feature-list">
-                        <li><i class="fas fa-check-circle"></i> Gestão gratuita de matrículas e turmas</li>
-                        <li><i class="fas fa-check-circle"></i> Emissão de Pautas Frequência & Exames MINEDH</li>
-                        <li><i class="fas fa-check-circle"></i> Certidões de Habilitações de 0 a 20 valores</li>
-                        <li><i class="fas fa-check-circle"></i> Ocultação automática de módulos de cobrança</li>
-                    </ul>
-                </div>
-
-                <!-- Escola Privada -->
-                <div class="onboarding-card">
-                    <span class="onboarding-badge badge-private"><i class="fas fa-coins me-1"></i> Modo Escola Privada</span>
-                    <h3>Gestão Académica & Tesouraria Integrada</h3>
-                    <p>Solução completa com controlo de propinas, recibos oficiais e integração financeira.</p>
-                    <ul class="feature-list">
-                        <li><i class="fas fa-check-circle"></i> Controlo de mensalidades e propinas por aluno</li>
-                        <li><i class="fas fa-check-circle"></i> Emissão automatizada de recibos e relatórios</li>
-                        <li><i class="fas fa-check-circle"></i> Integração de pagamentos MPesa / eMola</li>
-                        <li><i class="fas fa-check-circle"></i> Notificações automáticas por SMS/WhatsApp</li>
-                    </ul>
+            <!-- Banner Alerta Renovação Alunos Internos -->
+            <div style="background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); border-left: 6px solid #D97706; padding: 20px 24px; border-radius: 14px; margin-bottom: 40px; box-shadow: 0 4px 15px rgba(217, 119, 6, 0.12);">
+                <div class="d-flex align-items-center gap-3">
+                    <span style="font-size: 30px;">⚠️</span>
+                    <div>
+                        <strong style="color: #92400E; font-size: 16px; text-transform: uppercase; letter-spacing: 0.5px; display: block;">Renovação de Matrícula para Alunos Internos</strong>
+                        <span style="color: #78350F; font-size: 14px; font-weight: 700;">Período Oficial: <strong>De 1 de Outubro a 15 de Dezembro de 2026</strong></span>
+                    </div>
                 </div>
             </div>
 
-            <!-- MODULO PRE-INSCRICAO MADURO (EVITAR CONGESTIONAMENTO) -->
+            <div class="row g-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-bottom: 60px;">
+                <!-- Requisitos -->
+                <div class="onboarding-card">
+                    <span class="onboarding-badge badge-public"><i class="fas fa-folder-open me-1"></i> Documentos Obrigatórios</span>
+                    <h3>Requisitos de Inscrição</h3>
+                    <p>Documentos necessários para a matrícula de novos alunos:</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check-circle"></i> Documento de Identificação (Cédula pessoal, boletim de nascimento ou BI)</li>
+                        <li><i class="fas fa-check-circle"></i> Atestado Médico oficial actualizado</li>
+                        <li><i class="fas fa-check-circle"></i> Declaração da classe anterior (alunos de outras escolas)</li>
+                        <li><i class="fas fa-check-circle"></i> 3 Fotografias recentes tipo passe</li>
+                        <li><i class="fas fa-check-circle"></i> Ficha de inscrição e processo do aluno (secretaria)</li>
+                    </ul>
+                </div>
+
+                <!-- Taxas e Valores -->
+                <div class="onboarding-card" style="border-color: #059669;">
+                    <span class="onboarding-badge badge-private"><i class="fas fa-receipt me-1"></i> Tabela de Valores 2027</span>
+                    <h3>Taxas de Matrícula</h3>
+                    <p>Valores oficiais da Escola dos Visionários para o ano lectivo:</p>
+                    <div class="space-y-2 mb-4">
+                        <div class="d-flex justify-content-between p-2 rounded bg-slate-50 border border-slate-200 text-sm">
+                            <span class="text-slate-700 font-semibold">Taxa de Renovação / Matrícula:</span>
+                            <strong class="text-slate-900">1.875,00 MT</strong>
+                        </div>
+                        <div class="d-flex justify-content-between p-2 rounded bg-slate-50 border border-slate-200 text-sm">
+                            <span class="text-slate-700 font-semibold">Taxa de Avaliação:</span>
+                            <strong class="text-slate-900">1.000,00 MT</strong>
+                        </div>
+                        <div class="d-flex justify-content-between p-2 rounded bg-slate-50 border border-slate-200 text-sm">
+                            <span class="text-slate-700 font-semibold">Manual de Inglês:</span>
+                            <strong class="text-slate-900">850,00 MT</strong>
+                        </div>
+                        <div class="d-flex justify-content-between p-3 rounded bg-emerald-50 border border-emerald-300 text-base font-bold text-emerald-900">
+                            <span>Total Geral:</span>
+                            <span>3.725,00 MT</span>
+                        </div>
+                    </div>
+                    <a href="{{ route('public.pre-enrollment') }}" class="btn-hero-primary w-100 text-center justify-content-center" style="display: flex;">
+                        <i class="fas fa-file-signature me-1"></i> Reservar Vaga Agora
+                    </a>
+                </div>
+
+                <!-- Actividades e Diferenciais -->
+                <div class="onboarding-card">
+                    <span class="onboarding-badge badge-public" style="background: #FEF3C7; color: #92400E;"><i class="fas fa-star me-1"></i> Diferenciais de Ensino</span>
+                    <h3>Actividades Extracurriculares</h3>
+                    <p>Formação integral para preparar a nova geração:</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check-circle text-emerald-600"></i> Aulas de Inglês em todas as classes</li>
+                        <li><i class="fas fa-check-circle text-emerald-600"></i> Educação Moral e Cívica (baseada em princípios cristãos)</li>
+                        <li><i class="fas fa-check-circle text-emerald-600"></i> Educação Financeira para a infância (6ª Classe)</li>
+                        <li><i class="fas fa-check-circle text-emerald-600"></i> Educação Vocacional e Visitas de Excursão</li>
+                        <li><i class="fas fa-check-circle text-emerald-600"></i> Canto, Dança e Actividades Culturais</li>
+                        <li><i class="fas fa-check-circle text-emerald-600"></i> Psicólogo para apoiar dificuldades de aprendizagem</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- MODULO RESERVAR VAGA / PRE-INSCRICAO MADURO -->
             <div class="pre-enrollment-banner">
                 <div class="pre-enrollment-content">
                     <div class="pre-enrollment-badge">
-                        <i class="fas fa-shield-halved me-1"></i> Eliminação de Filas e Congestionamento
+                        <i class="fas fa-shield-halved me-1"></i> Atendimento Rápido e Sem Filas
                     </div>
-                    <h3>Pré-Inscrição Inteligente de Candidatos</h3>
+                    <h3>Reserve a Vaga do Seu Educando para 2027</h3>
                     <p>
-                        Evite enchentes e filas nas secretarias durante a fase de início do ano lectivo. Pais e encarregados de educação realizam a submissão de dados online e recebem a pré-validação do processo em tempo real.
+                        Garanta a vaga para o seu filho na Escola dos Visionários antes do encerramento das turmas. Preencha os dados online de forma rápida e segura para receber o contacto de confirmação da secretaria.
                     </p>
                     <a href="{{ route('public.pre-enrollment') }}" class="btn-hero-primary" style="display: inline-flex;">
-                        <i class="fas fa-user-plus"></i> Realizar Pré-Inscrição Agora
+                        <i class="fas fa-file-signature"></i> Fazer Pré-Inscrição / Reservar Vaga
                     </a>
                 </div>
 
                 <div class="space-y-3 bg-slate-800/80 p-6 rounded-2xl border border-slate-700">
                     <div class="flex items-center gap-3 text-sm font-bold text-emerald-400">
-                        <i class="fas fa-check text-lg"></i> Submissão remota de documentos de identificação
+                        <i class="fas fa-check text-lg"></i> Preenchimento online simples e validação em tempo real
                     </div>
                     <div class="flex items-center gap-3 text-sm font-bold text-emerald-400">
-                        <i class="fas fa-check text-lg"></i> Alocação prévia de turmas por disponibilidade de vagas
+                        <i class="fas fa-check text-lg"></i> Reserva antecipada nas classes de Pré-Infantil à 6ª Classe
                     </div>
                     <div class="flex items-center gap-3 text-sm font-bold text-emerald-400">
-                        <i class="fas fa-check text-lg"></i> Notificação imediata por SMS para o encarregado
+                        <i class="fas fa-check text-lg"></i> Contacto telefónico e WhatsApp direto da secretaria
                     </div>
                     <div class="flex items-center gap-3 text-sm font-bold text-emerald-400">
-                        <i class="fas fa-check text-lg"></i> Atendimento organizado por agendamento
+                        <i class="fas fa-check text-lg"></i> Atendimento na Sede (Mapiazua) e Filial Alto Molócuè
                     </div>
                 </div>
             </div>
+        </div>
+    </section>
         </div>
     </section>
 
@@ -728,18 +732,18 @@
                 <div>
                     <h4 class="text-white text-xs font-bold uppercase tracking-wider mb-3">Nossas Filiais</h4>
                     <ul class="text-xs space-y-2 text-slate-400">
-                        <li><i class="fas fa-map-marker-alt me-2 text-emerald-500"></i><strong>Quelimane:</strong> Av. Samora Machel, Bairro Central</li>
+                        <li><i class="fas fa-map-marker-alt me-2 text-emerald-500"></i><strong>Quelimane (Sede):</strong> Av. Eduardo Mondlane, Bairro Mapiazua</li>
                         <li><i class="fas fa-map-marker-alt me-2 text-emerald-500"></i><strong>Alto Molócuè:</strong> Av. Eduardo Mondlane</li>
                         <li><i class="fas fa-globe me-2 text-emerald-500"></i>Zambézia, Moçambique</li>
                     </ul>
                 </div>
 
                 <div>
-                    <h4 class="text-white text-xs font-bold uppercase tracking-wider mb-3">Contactos & Atendimento</h4>
+                    <h4 class="text-white text-xs font-bold uppercase tracking-wider mb-3">Secretaria & Inscrições</h4>
                     <ul class="text-xs space-y-2 text-slate-400">
-                        <li><i class="fas fa-envelope me-2 text-emerald-500"></i><a href="mailto:quelimane@visionarios.co.mz" class="hover:text-white">quelimane@visionarios.co.mz</a></li>
-                        <li><i class="fas fa-envelope me-2 text-emerald-500"></i><a href="mailto:molocue@visionarios.co.mz" class="hover:text-white">molocue@visionarios.co.mz</a></li>
-                        <li><i class="fas fa-phone me-2 text-emerald-500"></i>+258 84 300 1000 / +258 84 300 2000</li>
+                        <li><i class="fas fa-phone me-2 text-emerald-500"></i><strong>Quelimane:</strong> +258 85 558 0079 / +258 87 656 6029</li>
+                        <li><i class="fas fa-envelope me-2 text-emerald-500"></i><a href="mailto:inscricoes@visionarios.co.mz" class="hover:text-white">inscricoes@visionarios.co.mz</a></li>
+                        <li><i class="fas fa-envelope me-2 text-emerald-500"></i><a href="mailto:contacto@visionarios.co.mz" class="hover:text-white">contacto@visionarios.co.mz</a></li>
                     </ul>
                 </div>
             </div>

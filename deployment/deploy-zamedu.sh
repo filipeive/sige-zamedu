@@ -36,6 +36,10 @@ echo "🎨 Sincronizando assets de frontend (Vite build) com o servidor..."
 ssh -i "$SSH_KEY" "$SERVER_USER@$SERVER_IP" "sudo mkdir -p /var/www/zamedu/public/build && sudo chown -R ubuntu:www-data /var/www/zamedu/public/build"
 scp -i "$SSH_KEY" -r public/build/* "$SERVER_USER@$SERVER_IP:/var/www/zamedu/public/build/"
 
+echo "🖼️ Sincronizando imagens oficiais (Logo e Cartaz da Escola dos Visionários)..."
+ssh -i "$SSH_KEY" "$SERVER_USER@$SERVER_IP" "sudo mkdir -p /var/www/zamedu/public/images && sudo chown -R ubuntu:www-data /var/www/zamedu/public/images"
+scp -i "$SSH_KEY" -r public/images/* "$SERVER_USER@$SERVER_IP:/var/www/zamedu/public/images/"
+
 echo "📦 Executando rotina de deploy no servidor remoto..."
 ssh -i "$SSH_KEY" "$SERVER_USER@$SERVER_IP" << 'ENDSSH'
 set -e

@@ -18,6 +18,36 @@ Formato de cada entrada:
 **Próximo passo recomendado:** ...
 ```
 
+## [2026-10-21] — Integração do Logo & Cartaz Oficial da Escola dos Visionários (Inscrições 2027) — Antigravity AI Agent
+
+**Feito:**
+- **Ativos Visuais Oficiais Integrados**:
+  - `public/images/logo-visionarios.png` & `public/images/logo.png`: Logotipo oficial da Escola dos Visionários ("Aqui se Prepara a Nova Geração").
+  - `public/images/cartaz-visionarios.jpg`: Cartaz promocional oficial de Inscrições Abertas 2027.
+- **Ajustes no Welcome (`welcome.blade.php`)**:
+  - Removido "Afetações" conforme solicitação explícita do cliente (escola privada não utiliza afetações da rede pública).
+  - "Vagas" transformado em "Inscrições Abertas (Requisitos)".
+  - "Inscrição online" adaptado para "Reservar Vaga / Pré-Inscrição".
+  - Hero com o Cartaz Oficial 2027 em destaque com possibilidade de ampliação em alta resolução.
+  - Nova secção de Requisitos de Matrícula, Tabela de Taxas (Renovação 1.875 MT, Avaliação 1.000 MT, Manual de Inglês 850 MT, Total: 3.725 MT) e Diferenciais Pedagógicos (Inglês, Educação Financeira infantil, princípios ético-cristãos e psicólogo escolar).
+  - Alerta de prazo de renovação para alunos internos: 1 de Outubro a 15 de Dezembro de 2026.
+  - Contactos oficiais atualizados: Av. Eduardo Mondlane - Bairro Mapiazua, Quelimane (+258 85 558 0079 / +258 87 656 6029).
+- **Ajustes no Login (`login.blade.php`) & Layout (`app.blade.php`)**:
+  - Inserido o logo oficial no banner lateral e no cabeçalho do formulário de acesso.
+  - Navbar da aplicação autenticada atualizada com o logotipo da Escola dos Visionários e badge "Ensino Privado".
+- **Deploy Script (`deploy-zamedu.sh`)**:
+  - Incluída sincronização via SCP da pasta `public/images/` para garantir que o logotipo e o cartaz sejam servidos imediatamente em produção.
+
+**Testado:**
+- Testes automatizados executados:
+  - `SchoolAllocationAndWelcomeTest` (6 testes, 38 asserções aprovadas).
+  - `DatabaseSeederTest`, `MultiTenantSchoolNameTest`, `SchoolIdNotNullTest`, `GradeBatchCreateTest`, `TeacherPortalDashboardTest` (12 testes, 114 asserções aprovadas).
+- Assets compilados via `npm run build`.
+
+**Próximo passo recomendado:**
+- Executar commit, push nos dois repositórios remotos e correr o script de deploy em produção.
+
+
 ## [2026-10-21] — Transição de Identidade: Escola dos Visionários (Quelimane & Alto Molócuè) — Antigravity AI Agent
 
 **Feito:**

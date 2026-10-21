@@ -16,17 +16,18 @@ class SettingSeeder extends Seeder
             // Identidade da Instituição
             ['key' => 'school_name', 'value' => 'Escola dos Visionários', 'group' => 'identity'],
             ['key' => 'school_short_name', 'value' => 'Visionários', 'group' => 'identity'],
+            ['key' => 'slogan', 'value' => 'Aqui se Prepara a Nova Geração', 'group' => 'identity'],
             ['key' => 'system_name', 'value' => 'Visionários School System', 'group' => 'identity'],
-            ['key' => 'logo_url', 'value' => '/images/logo.png', 'group' => 'identity'],
+            ['key' => 'logo_url', 'value' => '/images/logo-visionarios.png', 'group' => 'identity'],
             ['key' => 'primary_color', 'value' => '#0F766E', 'group' => 'identity'],
             ['key' => 'secondary_color', 'value' => '#F59E0B', 'group' => 'identity'],
             ['key' => 'institution_type', 'value' => 'escola_privada', 'group' => 'identity'],
             ['key' => 'grading_scale', 'value' => '0_20', 'group' => 'academic'],
             
             // Contactos & Localização
-            ['key' => 'phone', 'value' => '+258 84 300 1000', 'group' => 'contact'],
+            ['key' => 'phone', 'value' => '+258 85 558 0079 / +258 87 656 6029', 'group' => 'contact'],
             ['key' => 'email', 'value' => 'contacto@visionarios.co.mz', 'group' => 'contact'],
-            ['key' => 'address', 'value' => 'Quelimane & Alto Molócuè, Zambézia, Moçambique', 'group' => 'contact'],
+            ['key' => 'address', 'value' => 'Av. Eduardo Mondlane, Bairro Mapiazua, Quelimane', 'group' => 'contact'],
             
             // Académico
             ['key' => 'current_academic_year', 'value' => '2025', 'group' => 'academic'],

@@ -1518,20 +1518,20 @@
         <div class="school-header p-4 border-b border-slate-200/50 flex items-center justify-between">
             <a href="{{ route('dashboard') }}" class="flex items-center gap-3 no-underline group overflow-hidden">
                 <div class="school-emblem-box shrink-0 transition-all duration-300">
-                    <img src="{{ asset('images/emblem.png') }}" alt="Emblema da República de Moçambique" class="school-emblem-img h-9 w-auto object-contain transition-all duration-300">
+                    <img src="{{ asset('images/logo-visionarios.png') }}" alt="{{ setting('school_name', 'Escola dos Visionários') }}" class="school-emblem-img h-9 w-auto object-contain transition-all duration-300">
                 </div>
                 <div class="school-brand min-w-0">
                     <div class="school-name text-sm font-extrabold text-slate-800 truncate tracking-tight font-heading group-hover:text-emerald-700 transition">
-                        {{ setting('school_short_name', config('app.name', 'ZamEdu')) }}
+                        {{ setting('school_short_name', config('app.name', 'Visionários')) }}
                     </div>
                     <div class="school-subtitle text-[10px] text-slate-400 font-medium truncate flex items-center gap-1">
                         @hasanyrole('super_admin|province_admin|province_inspector|district_admin|district_inspector|zip_coordinator|zip_admin')
-                            <span class="inline-block w-1.5 h-1.5 rounded-full bg-purple-500"></span> MINEDH · Super Admin
+                            <span class="inline-block w-1.5 h-1.5 rounded-full bg-purple-500"></span> Dono / Rede Escolar
                         @else
                             @if(is_public_school())
-                                <span class="inline-block w-1.5 h-1.5 rounded-full bg-blue-500"></span> MINEDH · Pública
+                                <span class="inline-block w-1.5 h-1.5 rounded-full bg-blue-500"></span> Pública
                             @else
-                                <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Privada · ZamEdu
+                                <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Ensino Privado
                             @endif
                         @endhasanyrole
                     </div>
