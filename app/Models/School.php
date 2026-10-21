@@ -52,6 +52,16 @@ class School extends Model
         };
     }
 
+    public function isPrivate(): bool
+    {
+        return $this->type === 'private' || str_contains(strtolower($this->name ?? ''), 'visionários');
+    }
+
+    public function isPublic(): bool
+    {
+        return $this->type === 'public';
+    }
+
     public function province(): BelongsTo
     {
         return $this->belongsTo(Province::class);

@@ -701,7 +701,7 @@ class DashboardController extends Controller
                 ];
             });
 
-        return $recentPayments->merge($recentEnrollments)->sortByDesc('created_at')->take(5);
+        return $recentPayments->toBase()->merge($recentEnrollments->toBase())->sortByDesc('created_at')->take(5);
     }
 
     private function calculateAverageAttendance()
