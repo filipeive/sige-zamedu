@@ -26,8 +26,15 @@ if [ ! -f "$SSH_KEY" ]; then
     exit 1
 fi
 
+echo "📦 Compilando assets do Vite localmente..."
+npm run build
+
 echo "🔐 Testando conexão SSH com o servidor..."
 ssh -i "$SSH_KEY" -o ConnectTimeout=10 "$SERVER_USER@$SERVER_IP" "echo '✅ Conexão SSH bem-sucedida!'"
+
+echo "🎨 Sincronizando assets de frontend (Vite build) com o servidor..."
+ssh -i "$SSH_KEY" "$SERVER_USER@$SERVER_IP" "sudo mkdir -p /var/www/zamedu/public/build && sudo chown -R ubuntu:www-data /var/www/zamedu/public/build"
+scp -i "$SSH_KEY" -r public/build/* "$SERVER_USER@$SERVER_IP:/var/www/zamedu/public/build/"
 
 echo "📦 Executando rotina de deploy no servidor remoto..."
 ssh -i "$SSH_KEY" "$SERVER_USER@$SERVER_IP" << 'ENDSSH'
@@ -88,21 +95,12 @@ SESSION_DRIVER=file
 SESSION_LIFETIME=120
 ENVEOF
 
-php artisan key:generate --force
-
 # Executar migrations e seeders de dados iniciais
-echo "🗄️ Executando migrações e dados iniciais da base de dados..."
+echo "🗄️ Executando migrações da base de dados..."
 php artisan migrate --force
-php artisan db:seed --force
 
-# Garantir manifest.json do Vite no servidor de produção
-mkdir -p public/build
-cat > public/build/manifest.json << 'MANIFESTEOF'
-{
-  "resources/css/app.css": { "file": "assets/app.css", "isEntry": true, "src": "resources/css/app.css" },
-  "resources/js/app.js": { "file": "assets/app.js", "isEntry": true, "src": "resources/js/app.js" }
-}
-MANIFESTEOF
+echo "🌱 Executando povoamento inicial da base de dados..."
+php artisan db:seed --force
 
 # Otimizar caches Laravel
 echo "⚡ Otimizando caches..."
@@ -111,10 +109,23 @@ php artisan route:clear
 php artisan view:cache
 php artisan event:cache
 
-# Recarregar Nginx com segurança se necessário
+# Criar symlinks para assets legados se existirem
+cd /var/www/zamedu/public/build/assets
+if [ -f "app-DF3WTqNP.css" ] && [ ! -f "app.css" ]; then
+    ln -sf app-DF3WTqNP.css app.css
+fi
+if [ -f "app-CWmVnECS.js" ] && [ ! -f "app.js" ]; then
+    ln -sf app-CWmVnECS.js app.js
+fi
+cd /var/www/zamedu
+
+# Recarregar Nginx com segurança
 echo "🌐 Recarregando Nginx..."
 sudo nginx -t
 sudo systemctl reload nginx
+
+# Recarregar PHP-FPM se ativo
+sudo systemctl reload php8.3-fpm 2>/dev/null || true
 
 echo "✅ Deploy do ZAMEDU em produção concluído com sucesso!"
 ENDSSH
