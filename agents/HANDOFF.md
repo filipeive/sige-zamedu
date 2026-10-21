@@ -18,6 +18,29 @@ Formato de cada entrada:
 **Próximo passo recomendado:** ...
 ```
 
+## [2026-10-21] — Deploy Produção & Sincronização Multi-Repo — Antigravity AI Agent
+
+**Feito:**
+- **Deploy em Produção (`http://146.235.224.99/zamedu`)**:
+  - Correção na migração `2026_09_07_000011_make_school_id_not_null_on_domain_tables.php` para garantir criação segura de escola padrão condicional apenas quando existem órfãos, prevenindo violação de FK.
+  - Atualização do script `deployment/deploy-zamedu.sh`: compilação local de assets reais via `npm run build`, upload via SCP dos hashes Vite para `public/build/assets/` no servidor, migração, seeds e reload de serviços.
+  - Deploy executado com sucesso e verificado via HTTP 200 OK nos endpoints e assets.
+- **Sincronização dos Repositórios**:
+  - `origin` (`filipeive/sige-zamedu.git`) e `visionarios` (`filipeive/visionarios-school-system.git`) sincronizados na branch `main` e tag `v1.0-provincial-2026`.
+- **Estratégia Cliente Privado (Escola dos Visionários - Quelimane e Alto Molócuè)**:
+  - Análise comparativa entre Fork/Repositório Separado vs Mono-Codebase Multi-Tenant: decidida a mono-codebase com instância/banco dedicado ou filiais isoladas por `school_id`, aproveitando o motor de propinas e multas diárias (`ApplyPaymentPenalties`) já existente.
+
+**Testado:**
+- Verificação HTTP direta: `http://146.235.224.99/zamedu/login` (200 OK) e assets CSS/JS compilados (200 OK).
+- Testes automatizados executados: `DatabaseSeederTest`, `SchoolAllocationAndWelcomeTest`, `MultiTenantSchoolNameTest`, `SchoolIdNotNullTest` (10 testes, 102 asserções aprovadas).
+
+**Não feito / bloqueado:**
+- Criação das 2 filiais da Escola dos Visionários e configuração do perfil Mantenedor/Dono da Rede.
+
+**Próximo passo recomendado:**
+- Criar a branch `feature/private-school-network` para registar as duas filiais dos Visionários, configurar o seletor de filial para o dono e parametrizar as propinas e multas.
+
+
 ## [2026-10-21] — fix/teacher-dashboard-batch-grades — GitHub Copilot
 
 **Feito:**
