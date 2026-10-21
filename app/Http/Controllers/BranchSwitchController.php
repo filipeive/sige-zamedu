@@ -28,6 +28,18 @@ class BranchSwitchController extends Controller
 
         $school = School::where('id', $schoolId)->firstOrFail();
 
+        // Segurança multi-tenant: apenas permitir alternar para filiais da rede Visionários (a menos que seja super_admin)
+        if (!$user->hasRole('super_admin')) {
+            $allowedSchoolIds = School::where('code', 'like', 'VIS-%')
+                ->orWhere('name', 'like', '%Visionários%')
+                ->pluck('id')
+                ->toArray();
+
+            if (!in_array((int) $school->id, $allowedSchoolIds)) {
+                abort(403, 'Acesso não autorizado: Esta instituição não pertence à rede da Escola dos Visionários.');
+            }
+        }
+
         session([
             'active_branch' => (int) $school->id,
             'active_branch_name' => $school->name,
@@ -39,3 +51,4 @@ class BranchSwitchController extends Controller
         return redirect()->back()->with('success', "Filial ativa alterada para: {$school->name}");
     }
 }
+

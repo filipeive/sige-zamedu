@@ -110,5 +110,18 @@ class SchoolOwnerBranchSwitchTest extends TestCase
         // Alternar para Consolidado da Rede
         $switchAllRes = $this->actingAs($owner)->get(route('branch.switch', 'all'));
         $switchAllRes->assertSessionHas('active_branch', 'all');
+
+        // Tentativa não autorizada de mudar para uma escola pública externa
+        $publicSchool = School::create([
+            'province_id' => $this->province->id,
+            'district_id' => $this->district->id,
+            'name' => 'Escola Pública Externa',
+            'code' => 'PUB-EXT-TEST',
+            'type' => 'public',
+            'is_active' => true,
+        ]);
+
+        $unauthorizedRes = $this->actingAs($owner)->get(route('branch.switch', $publicSchool->id));
+        $unauthorizedRes->assertStatus(403);
     }
 }
