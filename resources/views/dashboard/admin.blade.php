@@ -112,13 +112,16 @@
                         <select onchange="window.location.href=this.value" class="bg-slate-900/90 text-white font-bold text-xs rounded-xl px-3 py-2 border border-white/20 focus:ring-2 focus:ring-amber-400 cursor-pointer shadow-inner">
                             @foreach($branches as $b)
                                 <option value="{{ route('branch.switch', $b->id) }}" {{ ($currentBranchId == $b->id && !$isConsolidated) ? 'selected' : '' }}>
-                                    📍 {{ $b->name }}
+                                    {{ $b->name }}
                                 </option>
                             @endforeach
                             <option value="{{ route('branch.switch', 'all') }}" {{ $isConsolidated ? 'selected' : '' }}>
-                                🏢 Toda a Rede (Consolidado Visionários)
+                                Toda a Rede (Consolidado Visionários)
                             </option>
                         </select>
+                        <a href="{{ route('owner.branches.index') }}" class="no-underline inline-flex items-center justify-center h-8 px-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition border border-white/20" title="Gerir Filiais da Rede">
+                            <i class="fas fa-cog"></i>
+                        </a>
                     </div>
                 </div>
                 @endif

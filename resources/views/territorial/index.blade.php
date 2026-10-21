@@ -392,7 +392,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <form method="POST" action="/super-admin/impersonate/${school.id}" style="margin-top: 8px;">
                         <input type="hidden" name="_token" value="${csrfToken}">
                         <button type="submit" style="width: 100%; background: #f59e0b; color: #fff; border: none; padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 11px; cursor: pointer;">
-                            🎧 Entrar no Modo Suporte
+                            <i class="fas fa-headset mr-1"></i> Entrar no Modo Suporte
                         </button>
                     </form>
                 `;

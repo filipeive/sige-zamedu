@@ -1963,7 +1963,7 @@
                                 <a href="{{ route('certificates.index') }}"
                                     class="nav-link {{ request()->routeIs('certificates.*') ? 'active' : '' }}">
                                     <span class="nav-icon"><i class="fas fa-certificate"></i></span>
-                                    <span class="nav-text">Certidões & Certificados (MINEDH)</span>
+                                    <span class="nav-text">Certidões & Certificados</span>
                                 </a>
                             </li>
                             <li class="nav-item">
@@ -2183,6 +2183,15 @@
                             </li>
                             @endif
                         @endcan
+                        @if(auth()->user()->hasAnyRole(['admin', 'director', 'super_admin']))
+                        <li class="nav-item">
+                            <a href="{{ route('owner.branches.index') }}"
+                                class="nav-link {{ request()->routeIs('owner.branches.*') ? 'active' : '' }}">
+                                <span class="nav-icon"><i class="fas fa-sitemap text-emerald-400"></i></span>
+                                <span class="nav-text">Gestão da Rede & Filiais</span>
+                            </a>
+                        </li>
+                        @endif
                         @can('manage_settings')
                             @if(is_menu_visible('menu_settings'))
                             <li class="nav-item">
@@ -2333,11 +2342,11 @@
                             <select onchange="window.location.href=this.value" class="bg-transparent border-0 text-xs font-extrabold text-emerald-950 dark:text-emerald-100 focus:ring-0 p-0 pr-6 cursor-pointer">
                                 @foreach($topNavBranches as $nb)
                                     <option value="{{ route('branch.switch', $nb->id) }}" {{ ($topActiveBranchId == $nb->id && !$topIsConsolidated) ? 'selected' : '' }} class="text-slate-900 bg-white">
-                                        📍 {{ $nb->name }}
+                                        {{ $nb->name }}
                                     </option>
                                 @endforeach
                                 <option value="{{ route('branch.switch', 'all') }}" {{ $topIsConsolidated ? 'selected' : '' }} class="text-slate-900 bg-white">
-                                    🏢 Toda a Rede (Consolidado)
+                                    Toda a Rede (Consolidado)
                                 </option>
                             </select>
                         </div>

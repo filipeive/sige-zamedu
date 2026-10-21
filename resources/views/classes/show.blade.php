@@ -69,12 +69,21 @@
                         <i class="fa-solid fa-table-list"></i> Pauta
                     </a>
                 @endcan
-                @can('edit_classes')
+                @if(auth()->user()->can('edit_classes') || auth()->user()->hasAnyRole(['admin', 'director', 'super_admin']))
                     <a href="{{ route('classes.edit', $class->id) }}"
                        class="no-underline inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-xs font-bold text-slate-900 shadow-md transition">
                         <i class="fa-solid fa-sliders"></i> Configurar
                     </a>
-                @endcan
+                @endif
+                @if(auth()->user()->can('delete_classes') || auth()->user()->hasAnyRole(['admin', 'director', 'super_admin']))
+                    <form action="{{ route('classes.destroy', $class->id) }}" method="POST" class="inline" onsubmit="return confirm('Tem certeza absoluta que deseja eliminar a turma {{ $class->name }}? Esta ação não pode ser desfeita.');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-600/80 hover:bg-rose-600 text-xs font-bold text-white shadow-md transition border-0 cursor-pointer">
+                            <i class="fa-solid fa-trash-alt"></i> Eliminar Turma
+                        </button>
+                    </form>
+                @endif
             </div>
         </div>
     </div>

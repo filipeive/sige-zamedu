@@ -136,13 +136,13 @@
                                 {{ $req->teacher->full_name ?? 'Docente' }}
                             </td>
                             <td class="py-2.5 px-3 font-semibold text-slate-700">
-                                {{ ucfirst($req->leave_type) }}
+                                {{ $req->leave_type_name }}
                             </td>
                             <td class="py-2.5 px-3 text-slate-600">
                                 {{ $req->start_date->format('d/m/Y') }} a {{ $req->end_date->format('d/m/Y') }}
                             </td>
                             <td class="py-2.5 px-3 font-bold text-slate-800">
-                                {{ $req->days_count }} dia(s)
+                                {{ $req->days_requested ?? $req->days_count }} dia(s)
                             </td>
                             <td class="py-2.5 px-3">
                                 @php
@@ -154,7 +154,7 @@
                                     };
                                 @endphp
                                 <span class="px-2 py-0.5 rounded-full text-[10px] font-bold {{ $statusBadge }}">
-                                    {{ ucfirst($req->status) }}
+                                    {{ $req->status_label }}
                                 </span>
                             </td>
                             <td class="py-2.5 px-4 text-end">

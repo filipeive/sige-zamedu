@@ -56,13 +56,14 @@ class CertificateController extends Controller
             } elseif ($request->eligibility === 'without_grades') {
                 $query->doesntHave('grades');
             } elseif ($request->eligibility === 'approved') {
-                $query->where(function ($q) {
+                $passingStudentIds = Grade::select('student_id')
+                    ->groupBy('student_id')
+                    ->havingRaw('AVG(grade) >= 10')
+                    ->pluck('student_id');
+
+                $query->where(function ($q) use ($passingStudentIds) {
                     $q->where('status', 'graduated')
-                      ->orWhereHas('grades', function ($g) {
-                          $g->selectRaw('student_id, AVG(grade) as avg_grade')
-                            ->groupBy('student_id')
-                            ->havingRaw('avg_grade >= 10');
-                      });
+                      ->orWhereIn('id', $passingStudentIds);
                 });
             }
         }
@@ -71,12 +72,15 @@ class CertificateController extends Controller
         $totalStudents = Student::count();
         $studentsWithGrades = Student::has('grades')->count();
         $pendingStudents = Student::doesntHave('grades')->count();
+
+        $passingStudentIds = Grade::select('student_id')
+            ->groupBy('student_id')
+            ->havingRaw('AVG(grade) >= 10')
+            ->pluck('student_id');
+
         $approvedStudents = Student::where('status', 'graduated')
-            ->orWhereHas('grades', function ($g) {
-                $g->selectRaw('student_id, AVG(grade) as avg_grade')
-                  ->groupBy('student_id')
-                  ->havingRaw('avg_grade >= 10');
-            })->count();
+            ->orWhereIn('id', $passingStudentIds)
+            ->count();
 
         $students = $query->orderBy('first_name')->paginate(15);
         $classes = ClassRoom::active()->orderBy('name')->get();

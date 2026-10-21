@@ -17,7 +17,7 @@
             <h1 class="text-xl font-black text-slate-800 tracking-tight flex items-center gap-2">
                 <i class="fas fa-certificate text-emerald-600"></i> Centro de Emissão de Certidões & Certificados
             </h1>
-            <p class="text-xs text-slate-500 mt-0.5">Validação automática de elegibilidade com base no histórico de notas e aprovações do MINEDH.</p>
+            <p class="text-xs text-slate-500 mt-0.5">Validação automática de elegibilidade com base no histórico acadêmico e aprovações curriculares.</p>
         </div>
         <div class="flex items-center gap-2">
             <a href="{{ route('reports.index') }}" class="no-underline inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 shadow-2xs transition">

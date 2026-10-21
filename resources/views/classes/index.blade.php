@@ -23,11 +23,11 @@
             </p>
         </div>
         <div class="flex items-center gap-2">
-            @can('create_classes')
+            @if(auth()->user()->can('create_classes') || auth()->user()->hasAnyRole(['admin', 'director', 'super_admin']))
                 <a href="{{ route('classes.create') }}" class="no-underline inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-xs font-bold text-white shadow-sm transition">
                     <i class="fas fa-plus"></i> Nova Turma
                 </a>
-            @endcan
+            @endif
         </div>
     </div>
 
@@ -308,11 +308,20 @@
                                     <a href="{{ route('classes.show', $class->id) }}" class="no-underline h-7 w-7 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 flex items-center justify-center transition" title="Ver Detalhes">
                                         <i class="fas fa-eye text-xs"></i>
                                     </a>
-                                    @can('edit_classes')
+                                    @if(auth()->user()->can('edit_classes') || auth()->user()->hasAnyRole(['admin', 'director', 'super_admin']))
                                         <a href="{{ route('classes.edit', $class->id) }}" class="no-underline h-7 w-7 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 flex items-center justify-center transition" title="Editar">
                                             <i class="fas fa-edit text-xs"></i>
                                         </a>
-                                    @endcan
+                                    @endif
+                                    @if(auth()->user()->can('delete_classes') || auth()->user()->hasAnyRole(['admin', 'director', 'super_admin']))
+                                        <form action="{{ route('classes.destroy', $class->id) }}" method="POST" class="inline" onsubmit="return confirm('Tem certeza que deseja eliminar a turma {{ $class->name }}? Esta ação não pode ser desfeita.');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="h-7 w-7 rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 flex items-center justify-center transition border-0 cursor-pointer" title="Eliminar Turma">
+                                                <i class="fas fa-trash-alt text-xs"></i>
+                                            </button>
+                                        </form>
+                                    @endif
                                 </div>
                             </td>
                         </tr>

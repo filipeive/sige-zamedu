@@ -1,15 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Payments - Index')
-@section('page-title', 'Payments - Index')
+@section('title', is_public_school() ? 'Gestão de Taxas Escolares' : 'Gestão de Pagamentos & Propinas')
+@section('page-title', is_public_school() ? 'Taxas de Matrícula & Exames' : 'Pagamentos & Propinas')
 @section('page-title-icon', 'fas fa-money-bill-wave')
 
 @section('breadcrumbs')
     <li class="breadcrumb-item active text-slate-600 font-medium">Pagamentos</li>
 @endsection
 
-@section('title', is_public_school() ? 'Gestão de Taxas Escolares' : 'Gestão de Pagamentos')
-@section('page-title', is_public_school() ? 'Taxas de Matrícula & Exames' : 'Pagamentos & Propinas')
 @section('content')
 <div class="space-y-4">
 
@@ -174,9 +172,9 @@
                                 </a>
                             </td>
                             <td class="py-2.5 px-3 font-semibold text-slate-700">
-                                {{ ucfirst($payment->type) }}
+                                {{ $payment->type_label }}
                                 @if($payment->month)
-                                    <span class="text-slate-400 font-normal text-[10px]">({{ $payment->month }}/{{ $payment->year }})</span>
+                                    <span class="text-slate-400 font-normal text-[10px]">({{ $payment->month_name ?: $payment->month }}/{{ $payment->year }})</span>
                                 @endif
                             </td>
                             <td class="py-2.5 px-3 font-extrabold text-emerald-700">
@@ -191,11 +189,12 @@
                                         'paid' => 'bg-emerald-100 text-emerald-800 border border-emerald-200',
                                         'pending' => 'bg-amber-100 text-amber-800 border border-amber-200',
                                         'overdue' => 'bg-rose-100 text-rose-800 border border-rose-200',
+                                        'cancelled' => 'bg-slate-100 text-slate-700 border border-slate-200',
                                         default => 'bg-slate-100 text-slate-600'
                                     };
                                 @endphp
                                 <span class="px-2 py-0.5 rounded-full text-[10px] font-bold {{ $statusBadge }}">
-                                    {{ ucfirst($payment->status) }}
+                                    {{ $payment->status_label }}
                                 </span>
                             </td>
                             <td class="py-2.5 px-4 text-end">

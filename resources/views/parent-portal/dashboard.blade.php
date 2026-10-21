@@ -20,7 +20,7 @@
                     <i class="fas fa-shield-alt"></i> Área Reservada do Encarregado
                 </span>
                 <h1 class="text-2xl font-black tracking-tight text-white sm:text-3xl">
-                    Olá, {{ $parent ? $parent->full_name : Auth::user()->name }}! 👋
+                    Olá, {{ $parent ? $parent->full_name : Auth::user()->name }}!
                 </h1>
                 <p class="mt-1 text-xs sm:text-sm text-emerald-100/90 max-w-xl">
                     Acompanhe em tempo real as notas, assiduidade, boletins e mensalidades dos seus educandos.

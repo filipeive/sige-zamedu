@@ -97,4 +97,14 @@ class StaffLeaveRequest extends Model
 
         return $types[$this->leave_type] ?? 'Não definido';
     }
+
+    public function getStatusLabelAttribute(): string
+    {
+        return match($this->status) {
+            'approved' => 'Aprovada',
+            'rejected' => 'Rejeitada',
+            'pending' => 'Pendente',
+            default => ucfirst((string) $this->status)
+        };
+    }
 }

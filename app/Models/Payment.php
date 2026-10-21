@@ -112,6 +112,33 @@ class Payment extends Model
         return $months[$this->month] ?? '';
     }
 
+    public function getStatusLabelAttribute(): string
+    {
+        return match($this->status) {
+            'paid' => 'Pago',
+            'pending' => 'Pendente',
+            'overdue' => 'Em Atraso',
+            'cancelled' => 'Cancelado',
+            default => ucfirst((string) $this->status)
+        };
+    }
+
+    public function getTypeLabelAttribute(): string
+    {
+        return match($this->type) {
+            'matricula' => 'Matrícula',
+            'mensalidade' => 'Mensalidade',
+            'propina' => 'Propina',
+            'exame' => 'Exame',
+            'certificado' => 'Certificado',
+            'uniforme' => 'Uniforme',
+            'transporte' => 'Transporte',
+            'alimentacao' => 'Alimentação',
+            'outro' => 'Outro',
+            default => ucfirst((string) $this->type)
+        };
+    }
+
     public function getTotalAmountAttribute()
     {
         $amount = (float) $this->amount;

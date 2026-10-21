@@ -132,6 +132,23 @@
 </head>
 <body>
 
+    @php
+        $isPrivateInstitution = ($selectedSchool && ($selectedSchool->isPrivate() || $selectedSchool->type === 'private' || str_contains(strtolower($selectedSchool->name), 'visionários')));
+    @endphp
+
+    @if($isPrivateInstitution)
+    <!-- CABEÇALHO ESCOLA PRIVADA -->
+    <div class="header">
+        @if(file_exists(public_path('images/logo_visionarios.png')))
+            <img src="{{ public_path('images/logo_visionarios.png') }}" alt="{{ $selectedSchool->name }}" style="height: 50px;">
+        @endif
+        <h1 style="font-size: 13pt; color: #047857; margin-top: 4px;">{{ strtoupper($selectedSchool?->name ?? 'ESCOLA DOS VISIONÁRIOS') }}</h1>
+        <h2>UNIDADE: {{ strtoupper($selectedSchool?->city ?? $selectedSchool?->district?->name ?? 'QUELIMANE') }} &bull; ENSINO PRIVADO</h2>
+        <div class="badge-title" style="margin-top: 6px;">
+            MAPA DE APROVEITAMENTO PEDAGÓGICO — {{ $term == 4 ? 'FINAL DO ANO' : $term . 'º TRIMESTRE' }} DE {{ $year }}
+        </div>
+    </div>
+    @else
     <!-- MINEDH OFFICIAL HEADER -->
     <div class="header">
         @if(file_exists(public_path('image.png')))
@@ -152,6 +169,7 @@
             MAPA DE APROVEITAMENTO PEDAGÓGICO — {{ $term == 4 ? 'FINAL DO ANO' : $term . 'º TRIMESTRE' }} DE {{ $year }}
         </div>
     </div>
+    @endif
 
     <!-- QUADRO 1: RENDIMENTO ESCOLAR COMPLETO MINEDH -->
     <table class="table-minedh">

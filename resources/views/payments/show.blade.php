@@ -21,13 +21,14 @@
                         <p class="mt-1 text-xs text-slate-500">Referencia de Pagamento</p>
                     </div>
                     @php
-                        $statusClass = $payment->status === 'paid'
-                            ? 'bg-emerald-100 text-emerald-700'
-                            : ($payment->status === 'overdue'
-                                ? 'bg-rose-100 text-rose-700'
-                                : ($payment->status === 'cancelled' ? 'bg-slate-100 text-slate-700' : 'bg-amber-100 text-amber-700'));
+                        $statusClass = match($payment->status) {
+                            'paid' => 'bg-emerald-100 text-emerald-800 border border-emerald-200',
+                            'overdue' => 'bg-rose-100 text-rose-800 border border-rose-200',
+                            'cancelled' => 'bg-slate-100 text-slate-700 border border-slate-200',
+                            default => 'bg-amber-100 text-amber-800 border border-amber-200'
+                        };
                     @endphp
-                    <span class="rounded-full px-3 py-1 text-xs font-semibold {{ $statusClass }}">{{ strtoupper($payment->status) }}</span>
+                    <span class="rounded-full px-3 py-1 text-xs font-bold {{ $statusClass }}">{{ mb_strtoupper($payment->status_label) }}</span>
                 </div>
             </article>
 
@@ -36,7 +37,7 @@
                 <div class="grid gap-4 p-5 md:grid-cols-2">
                     <div>
                         <p class="text-xs uppercase tracking-wide text-slate-500">Tipo</p>
-                        <p class="mt-1 text-sm font-semibold text-slate-900">{{ ucfirst($payment->type) }}</p>
+                        <p class="mt-1 text-sm font-semibold text-slate-900">{{ $payment->type_label }}</p>
                     </div>
                     <div>
                         <p class="text-xs uppercase tracking-wide text-slate-500">Periodo</p>

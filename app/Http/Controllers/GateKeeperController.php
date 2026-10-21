@@ -174,7 +174,7 @@ class GateKeeperController extends Controller
         $this->syncAttendance($student, $action, 'qr');
 
         return redirect()->route('gatekeeper.index', ['search' => $student->student_number])
-            ->with('success', '📱 QR Scan: ' . ($action === 'entry' ? 'Entrada' : 'Saída') . ' de ' . $student->full_name . ' registada com sucesso!');
+            ->with('success', 'QR Scan: ' . ($action === 'entry' ? 'Entrada' : 'Saída') . ' de ' . $student->full_name . ' registada com sucesso!');
     }
 
     /**

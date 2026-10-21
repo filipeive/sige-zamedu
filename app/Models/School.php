@@ -72,6 +72,11 @@ class School extends Model
         return $this->hasMany(Student::class);
     }
 
+    public function enrollments(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
+    {
+        return $this->hasManyThrough(Enrollment::class, Student::class);
+    }
+
     public function classRooms(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ClassRoom::class);

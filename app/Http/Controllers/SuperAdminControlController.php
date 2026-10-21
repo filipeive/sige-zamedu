@@ -38,7 +38,7 @@ class SuperAdminControlController extends Controller
 
         SchoolContext::setSchoolId((int) $school->id);
 
-        return redirect()->route('dashboard')->with('success', "🎧 MODO SUPORTE ATIVO: A operar na escola '{$school->name}' (#{$school->id}).");
+        return redirect()->route('dashboard')->with('success', "MODO SUPORTE ATIVO: A operar na escola '{$school->name}' (#{$school->id}).");
     }
 
     /**

@@ -18,6 +18,48 @@ Formato de cada entrada:
 **Próximo passo recomendado:** ...
 ```
 
+## [2026-10-21] — Gestão de Filiais, UI/UX de Pagamentos & Licenças, Redesenho de Notas e Eliminação de Emojis/MINEDH — Antigravity AI Agent
+
+**Feito:**
+- **Zero Emojis & Substituição por Ícones FontAwesome**:
+  - Removidos todos os emojis de selects de filial na Navbar e Dashboard (`layouts/app.blade.php`, `dashboard/admin.blade.php`), views de suporte técnico e portais de encarregados.
+  - Substituídos por tipografia limpa e ícones FontAwesome (`fas fa-school`, `fas fa-sitemap`, `fas fa-headset`).
+- **Modernização da UI/UX & Tradução em Pagamentos (`/payments`)**:
+  - Criados accessors `status_label` e `type_label` em `app/Models/Payment.php`.
+  - Eliminados todos os termos em inglês ("paid", "pending", "overdue" -> "Pago", "Pendente", "Em Atraso", "Cancelado").
+  - Traduzidos tipos de pagamentos ("matricula" -> "Matrícula", "mensalidade" -> "Mensalidade", "propina" -> "Propina", "exame" -> "Exame", etc.).
+  - Polimento do design dos cartões estatísticos, filtros e tabela com design tokens esmeralda.
+- **Modernização & Tradução de Licenças de Docentes (`/staff-leave-requests`)**:
+  - Adicionado accessor `status_label` em `app/Models/StaffLeaveRequest.php`.
+  - Traduzidos status ("approved" -> "Aprovada", "pending" -> "Pendente", "rejected" -> "Rejeitada") e tipos de licença na listagem e detalhes.
+- **Contextualização do Mapa Pedagógico (`/reports/pedagogical-map`)**:
+  - Para utilizadores de escolas privadas / rede Visionários, ocultados os filtros de Província, Distrito e ZIP, mantendo o foco exclusivo nas Filiais/Unidades de Ensino.
+  - Cabeçalho do documento adaptado para instituições privadas (exibindo o logotipo da escola, nome da unidade e natureza privada, sem cabeçalhos do governo).
+  - Removidas menções a "MINEDH" nos títulos e quadros.
+- **Resolução do Erro 500 em Certificados (`/certificates`)**:
+  - Refatoradas subqueries agregadas em `CertificateController.php` utilizando `pluck('student_id')` com `whereIn('id', $passingStudentIds)` para compatibilidade total com o modo `ONLY_FULL_GROUP_BY` do MySQL 8 em produção.
+  - Limpos títulos e menus de certificação.
+- **Gestão de Turmas pelo Diretor Geral (`/classes`)**:
+  - Adicionado botão e fluxo de exclusão de turmas (`classes.destroy`) na listagem (`classes/index.blade.php`) e na página da turma (`classes/show.blade.php`) com confirmação de segurança.
+  - Garantido acesso direto para criação e edição de turmas pelo Diretor/Admin.
+- **Redesenho Completo de Notas & Pautas (`/grades/dashboard`)**:
+  - Redesenhada toda a página com Hero Banner executivo em degradê escuro e esmeralda.
+  - Barra de busca instantânea de turmas e seletor rápido de trimestre (1º, 2º e 3º Trimestre).
+  - Cartões de turma modernos com métricas de alunos, disciplinas lecionadas, professor regente e ações rápidas (Lançar Notas em Lote, Pauta Oficial, Aproveitamento, Detalhes).
+  - Removidas menções antiquadas a MINEDH.
+- **Módulo de Gestão da Rede & Filiais para o Dono (`/owner/branches`)**:
+  - Criado `OwnerNetworkController` com operações completas para o proprietário: listar filiais da rede, adicionar nova filial, editar contactos/direção, alternar status ativo/inativo e eliminar com validação de dados vinculados.
+  - Adicionada view moderna `owner/branches/index.blade.php` com modais interativos em Alpine.js.
+  - Integrado botão no dashboard principal e na navegação lateral.
+  - Testes automatizados criados em `tests/Feature/OwnerNetworkTest.php` passando com 100% de sucesso.
+
+**Testado:**
+- `vendor/bin/phpunit tests/Feature/OwnerNetworkTest.php tests/Feature/SchoolOwnerBranchSwitchTest.php tests/Feature/GradePautaCalculationTest.php tests/Feature/TeacherPortalDashboardTest.php` (7 testes, 31 asserções, OK).
+- Build de assets com Vite (`npm run build`) concluído com sucesso.
+
+**Próximo passo recomendado:**
+- Git commit, push para os 2 repositórios remotos (`origin` e `visionarios`) e execução do deploy em produção (`./deployment/deploy-zamedu.sh`).
+
 ## [2026-10-21] — Separação de Perfis SaaS/Escola, Seletor de Filiais e Remoção do Emblema Governamental — Antigravity AI Agent
 
 **Feito:**

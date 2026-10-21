@@ -106,6 +106,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Alternar Filial (Escola dos Visionários: Quelimane / Alto Molócuè / Consolidado)
     Route::get('/branch/switch/{school}', [\App\Http\Controllers\BranchSwitchController::class, 'switch'])->name('branch.switch');
 
+    // Gestão da Rede & Filiais (Dono / Diretor Geral)
+    Route::prefix('owner/branches')->name('owner.branches.')->controller(\App\Http\Controllers\OwnerNetworkController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+        Route::put('/{school}', 'update')->name('update');
+        Route::delete('/{school}', 'destroy')->name('destroy');
+        Route::post('/{school}/toggle-status', 'toggleStatus')->name('toggle-status');
+    });
+
     // Painel Territorial de Inspeção & Analytics MINEDH
     Route::prefix('territorial')->name('territorial.')->group(function () {
         Route::get('/dashboard', [TerritorialDashboardController::class, 'index'])->name('dashboard');

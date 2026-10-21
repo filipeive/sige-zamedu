@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
-@section('title', 'Mapa de Aproveitamento Pedagógico MINEDH')
-@section('page-title', 'Mapa de Aproveitamento Pedagógico MINEDH')
+@section('title', 'Mapa de Aproveitamento Pedagógico')
+@section('page-title', 'Mapa de Aproveitamento Pedagógico')
 @section('page-title-icon', 'fas fa-chart-line')
 
 @section('breadcrumbs')
     <li class="breadcrumb-item">Relatórios</li>
-    <li class="breadcrumb-item active text-slate-600 font-medium">Mapa de Aproveitamento Pedagógico MINEDH</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Mapa de Aproveitamento Pedagógico</li>
 @endsection
 
 @section('content')
@@ -52,15 +52,17 @@
 
 <div class="container-fluid py-4 space-y-4">
 
-    <!-- Top Selection & Territorial Filter Bar (No Print) -->
+    <!-- Top Selection & Filter Bar (No Print) -->
     <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs mb-6 no-print">
         <div class="flex items-center gap-2 mb-3">
             <i class="fas fa-filter text-emerald-600 text-xs"></i>
-            <span class="text-xs font-extrabold uppercase tracking-wider text-slate-500">Filtros Territoriais &amp; Seleção de Mapa Pedagógico</span>
+            <span class="text-xs font-extrabold uppercase tracking-wider text-slate-500">Parâmetros do Mapa Pedagógico</span>
         </div>
         <form id="pedagogicalMapFilterForm" action="{{ route('reports.pedagogical-map') }}" method="GET" class="space-y-3">
             
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                @hasanyrole('super_admin|province_admin|province_inspector|district_admin|district_inspector|zip_coordinator|zip_admin')
+                @if(!is_private_school())
                 <!-- Província -->
                 <div>
                     <label class="block text-2xs font-bold text-slate-500 uppercase mb-1">
@@ -105,16 +107,18 @@
                         @endforeach
                     </select>
                 </div>
+                @endif
+                @endhasanyrole
 
-                <!-- Escola -->
-                <div>
+                <!-- Escola / Filial -->
+                <div class="{{ (!auth()->user()->hasAnyRole(['province_admin', 'province_inspector', 'district_admin', 'district_inspector', 'zip_coordinator', 'zip_admin']) || is_private_school()) ? 'sm:col-span-2 md:col-span-4' : '' }}">
                     <label class="block text-2xs font-bold text-slate-500 uppercase mb-1">
-                        <i class="fa-solid fa-school text-emerald-600 me-1"></i> Escola
+                        <i class="fa-solid fa-school text-emerald-600 me-1"></i> Filial / Unidade de Ensino
                     </label>
                     <select name="school_id" class="w-full rounded-lg border-slate-200 py-1.5 text-xs font-semibold text-slate-700 focus:border-emerald-500 focus:ring-emerald-500" onchange="onSchoolChange(this)">
                         @foreach($schools as $sc)
                             <option value="{{ $sc->id }}" @selected($selectedSchool && $selectedSchool->id === $sc->id)>
-                                {{ $sc->name }} ({{ $sc->province->name ?? '' }})
+                                {{ $sc->name }}
                             </option>
                         @endforeach
                     </select>
@@ -211,7 +215,31 @@
             <!-- MAIN OFFICIAL MINEDH PAPER DOCUMENT -->
             <div class="card border border-slate-200 rounded-4 shadow-sm bg-white p-4 p-md-5 print-document">
         
-        <!-- MINEDH OFFICIAL HEADER WITH CENTERED EMBLEM LOGO -->
+        @php
+            $isPrivateInstitution = ($selectedSchool && ($selectedSchool->isPrivate() || $selectedSchool->type === 'private' || str_contains(strtolower($selectedSchool->name), 'visionários')));
+        @endphp
+
+        @if($isPrivateInstitution)
+        <!-- CABEÇALHO ESCOLA PRIVADA / REDE VISIONÁRIOS -->
+        <div class="text-center mb-4">
+            <div class="d-flex justify-content-center align-items-center mb-2">
+                <img src="{{ asset('images/logo_visionarios.png') }}" alt="{{ $selectedSchool->name }}" style="height: 75px; width: auto;" class="mx-auto d-block">
+            </div>
+            <h4 class="fw-black text-dark mb-1" style="color: #047857; font-size: 1.35rem; letter-spacing: 0.5px;">
+                {{ strtoupper($selectedSchool?->name ?? 'ESCOLA DOS VISIONÁRIOS') }}
+            </h4>
+            <div class="text-xs fw-bold text-muted uppercase mb-2">
+                UNIDADE: <span class="text-dark">{{ strtoupper($selectedSchool?->city ?? $selectedSchool?->district?->name ?? 'Quelimane') }}</span> &bull; NATUREZA: <span class="text-emerald-700 font-extrabold">ENSINO PRIVADO</span>
+            </div>
+
+            <div class="d-inline-block px-4 py-1.5 rounded-pill bg-light border border-slate-300 mt-1">
+                <strong class="text-dark uppercase text-sm" style="letter-spacing: 0.8px;">
+                    MAPA DE APROVEITAMENTO PEDAGÓGICO — {{ $term == 4 ? 'FINAL DO ANO' : $term . 'º TRIMESTRE' }} DE {{ $year }}
+                </strong>
+            </div>
+        </div>
+        @else
+        <!-- CABEÇALHO OFICIAL GOVERNAMENTAL -->
         <div class="text-center mb-4">
             <div class="d-flex justify-content-center align-items-center mb-2">
                 <img src="{{ asset('image.png') }}" alt="Emblema da República de Moçambique" style="height: 85px; width: auto;" class="mx-auto d-block">
@@ -241,12 +269,13 @@
                 </strong>
             </div>
         </div>
+        @endif
 
-        <!-- QUADRO 1: RENDIMENTO ESCOLAR COMPLETO MINEDH (11 COLUNAS HM / M) -->
+        <!-- QUADRO 1: RENDIMENTO ESCOLAR COMPLETO (11 COLUNAS HM / M) -->
         <div class="mb-4">
             <div class="d-flex align-items-center justify-content-between mb-2">
                 <h6 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-                    <i class="fa-solid fa-list-ol text-emerald" style="color: #059669;"></i> I. Quadro Geral de Rendimento Escolar por Classe e Ciclo (MINEDH Standard)
+                    <i class="fa-solid fa-list-ol text-emerald" style="color: #059669;"></i> I. Quadro Geral de Rendimento Escolar por Classe e Ciclo
                 </h6>
                 <span class="text-xs text-muted">Avaliados na escala regulamentar 0.0 - 20.0 (Limiar: {{ $passingThreshold }} val)</span>
             </div>

@@ -135,7 +135,7 @@ class TrialRegisterController extends Controller
 
         $typeLabel = $validated['institution_type'] === 'escola_publica' ? 'Pública' : 'Privada';
         return redirect()->route('dashboard')->with('success',
-            "🎉 Parabéns! O ambiente da escola '{$validated['school_name']}' (Escola {$typeLabel}) foi criado com sucesso! Tem 15 dias de avaliação gratuita."
+            "Parabéns! O ambiente da escola '{$validated['school_name']}' (Escola {$typeLabel}) foi criado com sucesso! Tem 15 dias de avaliação gratuita."
         );
     }
 }
