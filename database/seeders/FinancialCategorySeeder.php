@@ -23,8 +23,10 @@ class FinancialCategorySeeder extends Seeder
             ['name' => 'Outras Receitas', 'type' => 'income', 'color' => '#f43f5e'],
         ];
 
-        foreach ($categories as $category) {
-            FinancialCategory::firstOrCreate($category);
+        foreach (\App\Models\School::pluck('id') as $schoolId) {
+            foreach ($categories as $category) {
+                FinancialCategory::withoutGlobalScopes()->firstOrCreate($category + ['school_id' => $schoolId]);
+            }
         }
     }
 }

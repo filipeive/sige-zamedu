@@ -23,11 +23,17 @@ class DatabaseSeeder extends Seeder
 
         // Dados Demo (Apenas em desenvolvimento/demonstração)
         if (app()->environment('local', 'testing', 'demo')) {
+            $demoSchoolId = \App\Models\School::where('code', 'ESG-NAM')->value('id')
+                ?? \App\Models\School::value('id');
+            \App\Services\SchoolContext::setSchoolId($demoSchoolId);
+
             $this->call([
                 SubjectSeeder::class,
                 ClassRoomSeeder::class,
                 DemoDataSeeder::class,
             ]);
+
+            \App\Services\SchoolContext::clear();
         }
     }
 }

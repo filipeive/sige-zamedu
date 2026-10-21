@@ -133,5 +133,88 @@ class TerritorialSeeder extends Seeder
                 'is_active' => true,
             ]
         );
+
+        $this->seedNationalCoverage();
+    }
+
+    private function seedNationalCoverage(): void
+    {
+        $provinces = [
+            'MPC' => ['Maputo Cidade', 'Maputo'],
+            'GAZ' => ['Gaza', 'Xai-Xai'],
+            'INH' => ['Inhambane', 'Inhambane'],
+            'MAN' => ['Manica', 'Chimoio'],
+            'TET' => ['Tete', 'Tete'],
+            'CDG' => ['Cabo Delgado', 'Pemba'],
+            'NIA' => ['Niassa', 'Lichinga'],
+        ];
+        foreach ($provinces as $code => [$name, $capital]) {
+            Province::updateOrCreate(['code' => $code], ['name' => $name, 'capital' => $capital, 'is_active' => true]);
+        }
+
+        $districts = [
+            'MPC-KMP' => ['MPC', 'KaMpfumo'],
+            'MPC-KMV' => ['MPC', 'KaMavota'],
+            'MPM-MAT' => ['MPM', 'Matola'],
+            'MPM-MAR' => ['MPM', 'Marracuene'],
+            'MPM-BOA' => ['MPM', 'Boane'],
+            'SOF-BEI' => ['SOF', 'Beira'],
+            'SOF-DON' => ['SOF', 'Dondo'],
+            'NAP-NAP' => ['NAP', 'Nampula'],
+            'NAP-NAC' => ['NAP', 'Nacala-Porto'],
+        ];
+        foreach ($districts as $code => [$prov, $name]) {
+            District::updateOrCreate(
+                ['code' => $code],
+                ['province_id' => Province::where('code', $prov)->value('id'), 'name' => $name, 'is_active' => true]
+            );
+        }
+
+        $zips = [
+            'ZIP-01-QUE' => ['ZAM-QUE', 'ZIP Central de Quelimane', 'ESG 25 de Setembro'],
+            'ZIP-01-KMP' => ['MPC-KMP', 'ZIP KaMpfumo Central', 'Escola Secundária Josina Machel'],
+            'ZIP-01-MAT' => ['MPM-MAT', 'ZIP Matola Sede', 'Escola Secundária da Matola'],
+            'ZIP-01-MAR' => ['MPM-MAR', 'ZIP Marracuene Sede', 'Escola Secundária de Marracuene'],
+            'ZIP-01-BEI' => ['SOF-BEI', 'ZIP Beira Urbana', 'Escola Secundária Samora Machel da Beira'],
+            'ZIP-01-NAP' => ['NAP-NAP', 'ZIP Nampula Central', 'Escola Secundária de Nampula'],
+        ];
+        foreach ($zips as $code => [$dist, $name, $hq]) {
+            Zip::updateOrCreate(
+                ['code' => $code],
+                ['district_id' => District::where('code', $dist)->value('id'), 'name' => $name, 'headquarters' => $hq, 'is_active' => true]
+            );
+        }
+
+        $schools = [
+            ['EPC-MAL', 'ZIP-02-NAM', 'Escola Primária Completa de Malei', 'public', 'Posto Administrativo de Malei, Namacurra', 'epc.malei@minedh.gov.mz', 'Prof. Lurdes Manjate'],
+            ['EPC-MAC', 'ZIP-03-NAM', 'Escola Primária Completa de Macuse', 'public', 'Localidade de Macuse, Namacurra', 'epc.macuse@minedh.gov.mz', 'Prof. Samuel Cossa'],
+            ['ESG-QUE', 'ZIP-01-QUE', 'Escola Secundária Geral 25 de Setembro', 'public', 'Av. Samora Machel, Quelimane', 'esg25setembro@minedh.gov.mz', 'Prof. Rogério Bila'],
+            ['COL-ZAM', 'ZIP-01-QUE', 'Colégio Privado Estrela da Zambézia', 'private', 'Bairro Aeroporto, Quelimane', 'estrela.zambezia@colegio.co.mz', 'Dra. Teresa Guimarães'],
+            ['ESG-JOS', 'ZIP-01-KMP', 'Escola Secundária Josina Machel', 'public', 'Av. Julius Nyerere, Polana Cimento, Maputo', 'josina.machel@minedh.gov.mz', 'Dr. Fernando Moiane'],
+            ['ESG-MAN', 'ZIP-01-KMP', 'Escola Secundária Francisco Manyanga', 'public', 'Av. Eduardo Mondlane, Maputo', 'manyanga@minedh.gov.mz', 'Dra. Ângela Macamo'],
+            ['COL-VIS', 'ZIP-01-KMP', 'Colégio Internacional Visionários', 'private', 'Sommerschield II, Maputo', 'colegio@visionarios.co.mz', 'Dr. Filipe dos Santos'],
+            ['ESG-MAT', 'ZIP-01-MAT', 'Escola Secundária da Matola', 'public', 'Av. da União Africana, Matola', 'esg.matola@minedh.gov.mz', 'Prof. Arlindo Banze'],
+            ['ESG-MAR', 'ZIP-01-MAR', 'Escola Secundária de Marracuene', 'public', 'Vila de Marracuene, Maputo Província', 'esg.marracuene@minedh.gov.mz', 'Prof. Zacarias Matusse'],
+            ['ESG-BEI', 'ZIP-01-BEI', 'Escola Secundária Samora Machel da Beira', 'public', 'Chaimite, Cidade da Beira, Sofala', 'samora.beira@minedh.gov.mz', 'Dr. Manuel Couto'],
+            ['ESG-NAP', 'ZIP-01-NAP', 'Escola Secundária de Nampula', 'public', 'Bairro Muatala, Cidade de Nampula', 'esg.nampula@minedh.gov.mz', 'Dra. Amina Issufo'],
+        ];
+        foreach ($schools as $i => [$code, $zipCode, $name, $type, $address, $email, $principal]) {
+            $zip = Zip::where('code', $zipCode)->first();
+            School::updateOrCreate(
+                ['code' => $code],
+                [
+                    'province_id' => $zip->district->province_id,
+                    'district_id' => $zip->district_id,
+                    'zip_id' => $zip->id,
+                    'name' => $name,
+                    'type' => $type,
+                    'address' => $address,
+                    'phone' => sprintf('+258 84 000 %04d', $i + 4),
+                    'email' => $email,
+                    'principal_name' => $principal,
+                    'is_active' => true,
+                ]
+            );
+        }
     }
 }

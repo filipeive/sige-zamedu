@@ -23,7 +23,7 @@ class DemoDataSeeder extends Seeder
 {
     public function run()
     {
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        \Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
         
         // 1. Professores
         $teachers = $this->createTeachers();
@@ -50,7 +50,7 @@ class DemoDataSeeder extends Seeder
         $this->createEvents();
         $this->createLeaveRequests($teachers);
 
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        \Illuminate\Support\Facades\Schema::enableForeignKeyConstraints();
 
         $this->command->info('✅ Povoamento massivo de dados concluído com sucesso!');
     }
