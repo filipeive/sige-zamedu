@@ -10,7 +10,12 @@ use App\Services\SchoolContext;
 if (!function_exists('current_school')) {
     function current_school(): ?School
     {
+        if (session('active_branch') === 'all') {
+            return null;
+        }
+
         $schoolId = SchoolContext::getSchoolId()
+            ?? session('active_school_id')
             ?? session('support_mode_school_id')
             ?? auth()->user()?->school_id;
 

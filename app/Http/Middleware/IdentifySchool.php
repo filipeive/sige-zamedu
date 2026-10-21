@@ -26,11 +26,19 @@ class IdentifySchool
             if ($user->role === 'super_admin' || $user->hasRole('super_admin')) {
                 if (session()->has('support_mode') && session()->has('support_mode_school_id')) {
                     $schoolId = (int) session('support_mode_school_id');
+                } elseif (session()->has('active_school_id')) {
+                    $schoolId = (int) session('active_school_id');
                 } else {
                     $schoolId = null;
                 }
             } else {
-                $schoolId = $user->school_id;
+                if (session('active_branch') === 'all') {
+                    $schoolId = null;
+                } elseif (session()->has('active_school_id')) {
+                    $schoolId = (int) session('active_school_id');
+                } else {
+                    $schoolId = $user->school_id;
+                }
             }
         } else {
             if ($request->hasHeader('X-School-Id')) {

@@ -122,7 +122,7 @@ class TerritorialSeeder extends Seeder
                 'address' => 'Av. Eduardo Mondlane, Bairro Mapiazua, Quelimane',
                 'phone' => '+258 85 558 0079',
                 'email' => 'quelimane@visionarios.co.mz',
-                'principal_name' => 'Director Geral Filipe dos Santos',
+                'principal_name' => 'Director Geral & Proprietário',
                 'is_active' => true,
             ]
         );
@@ -136,7 +136,7 @@ class TerritorialSeeder extends Seeder
                 'name' => 'Escola dos Visionários — Alto Molócuè',
                 'type' => 'private',
                 'address' => 'Av. Eduardo Mondlane, Alto Molócuè',
-                'phone' => '+258 84 300 2000',
+                'phone' => '+258 87 656 6029',
                 'email' => 'molocue@visionarios.co.mz',
                 'principal_name' => 'Director de Filial Manuel Cossa',
                 'is_active' => true,

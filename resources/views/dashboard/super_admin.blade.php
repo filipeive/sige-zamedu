@@ -1,39 +1,41 @@
 @extends('layouts.app')
 
-@section('title', 'Painel de Governação Central — Super Admin')
-@section('page-title', 'Painel de Governação Central — Super Admin')
-@section('page-title-icon', 'fas fa-chart-pie')
+@section('title', 'Painel do Desenvolvedor & Gestão de Licenças — SaaS')
+@section('page-title', 'Consola do Provedor SaaS')
+@section('page-title-icon', 'fas fa-server')
 
 @section('breadcrumbs')
     
-    <li class="breadcrumb-item active text-slate-600 font-medium">Painel de Governação Central</li>
+    <li class="breadcrumb-item active text-slate-600 font-medium">Gestão de Licenças & Provedor SaaS</li>
 @endsection
 
 @section('content')
 <div class="space-y-8 p-4 sm:p-6 lg:p-8">
 
-    <!-- HERO GOVERNANCE HEADER -->
-    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-emerald-950 to-emerald-900 p-6 sm:p-8 text-white shadow-2xl border-b-4 border-amber-400">
+    <!-- HERO SAAS PROVIDER & LICENSE GOVERNANCE -->
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950 p-6 sm:p-8 text-white shadow-2xl border-b-4 border-emerald-500">
         <div class="relative z-10 flex flex-wrap items-center justify-between gap-6">
             <div class="flex items-center gap-5">
-                <div class="w-16 h-16 rounded-2xl bg-white/95 p-2 shadow-xl border-2 border-amber-400 flex items-center justify-center shrink-0">
-                    <img src="{{ asset('images/emblem.png') }}" alt="Emblema da República de Moçambique" class="h-12 w-auto object-contain">
+                <div class="w-16 h-16 rounded-2xl bg-emerald-950/80 p-3 shadow-xl border-2 border-emerald-500/60 flex items-center justify-center shrink-0">
+                    <i class="fas fa-server text-3xl text-emerald-400"></i>
                 </div>
                 <div>
-                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 border border-amber-400/40 text-amber-300 text-[11px] font-black uppercase tracking-wider mb-1 backdrop-blur-sm">
-                        <i class="fas fa-crown text-amber-400"></i> MINEDH · PLATAFORMA CENTRAL DE GOVERNAÇÃO MULTI-ESCOLA
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[11px] font-black uppercase tracking-wider mb-1 backdrop-blur-sm">
+                        <i class="fas fa-code text-emerald-400"></i> ZAMEDU SAAS · PROVEDOR DO PRODUTO & GESTÃO DE LICENÇAS
                     </div>
-                    <h1 class="text-2xl sm:text-3xl font-black font-heading text-white tracking-tight">Painel do Super Administrador</h1>
-                    <p class="text-xs sm:text-sm text-emerald-100/90 font-medium mt-1">Gestão centralizada de escolas, distritos, ZIPs, licenças e utilizadores do Sistema Nacional de Educação.</p>
+                    <h1 class="text-2xl sm:text-3xl font-black font-heading text-white tracking-tight">Painel do Desenvolvedor & Gestor da Plataforma</h1>
+                    <p class="text-xs sm:text-sm text-slate-300 font-medium mt-1">
+                        <strong>Filipe dos Santos</strong> · Monitoramento técnico de clientes parceiros (Escola dos Visionários), emissão de licenças de software e suporte do sistema.
+                    </p>
                 </div>
             </div>
 
             <div class="flex flex-wrap items-center gap-3">
-                <a href="{{ route('onboarding.school') }}" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 text-xs font-extrabold hover:from-amber-300 hover:to-amber-400 transition shadow-lg flex items-center gap-2">
-                    <i class="fas fa-plus-circle"></i> Registar Nova Escola
+                <a href="{{ route('onboarding.school') }}" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-xs font-extrabold hover:from-emerald-400 hover:to-emerald-500 transition shadow-lg flex items-center gap-2">
+                    <i class="fas fa-plus-circle"></i> Registar Nova Escola Parceira
                 </a>
-                <a href="{{ route('admin.license') }}" class="px-4 py-2.5 rounded-xl bg-emerald-800/80 hover:bg-emerald-700/80 text-white text-xs font-bold transition border border-white/20 backdrop-blur-sm flex items-center gap-2">
-                    <i class="fas fa-key text-amber-300"></i> Licenciamento
+                <a href="{{ route('admin.license') }}" class="px-4 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 text-white text-xs font-bold transition border border-white/20 backdrop-blur-sm flex items-center gap-2">
+                    <i class="fas fa-key text-amber-300"></i> Gestão de Licenças
                 </a>
             </div>
         </div>

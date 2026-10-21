@@ -112,11 +112,13 @@ php artisan event:cache
 
 # Criar symlinks para assets legados se existirem
 cd /var/www/zamedu/public/build/assets
-if [ -f "app-DF3WTqNP.css" ] && [ ! -f "app.css" ]; then
-    ln -sf app-DF3WTqNP.css app.css
+LATEST_CSS=$(ls -t app-*.css 2>/dev/null | head -n1)
+if [ -n "$LATEST_CSS" ]; then
+    ln -sf "$LATEST_CSS" app.css
 fi
-if [ -f "app-CWmVnECS.js" ] && [ ! -f "app.js" ]; then
-    ln -sf app-CWmVnECS.js app.js
+LATEST_JS=$(ls -t app-*.js 2>/dev/null | head -n1)
+if [ -n "$LATEST_JS" ]; then
+    ln -sf "$LATEST_JS" app.js
 fi
 cd /var/www/zamedu
 

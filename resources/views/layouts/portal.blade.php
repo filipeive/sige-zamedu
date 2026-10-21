@@ -214,12 +214,11 @@
         <div class="portal-nav-container">
             <!-- Identidade Visual Institucional -->
             <a href="{{ route('welcome') }}" class="portal-brand">
-                <img src="{{ asset('images/emblem.png') }}" alt="República de Moçambique" style="height: 44px; width: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));">
-                <img src="{{ asset('images/logo.png') }}" alt="ZamEdu" style="height: 34px; width: auto;">
+                <img src="{{ asset('images/logo-visionarios.png') }}" alt="Escola dos Visionários" style="height: 44px; width: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));">
                 <div style="display: flex; flex-direction: column;">
-                    <span style="font-size: 9.5px; font-weight: 800; color: #007A3D; text-transform: uppercase; letter-spacing: 0.5px;">REPÚBLICA DE MOÇAMBIQUE · MINEDH</span>
-                    <span style="font-size: 17.5px; font-weight: 900; color: #0F172A; line-height: 1.15; letter-spacing: -0.3px;">ZAMEDU - SIGE</span>
-                    <span style="font-size: 10.5px; font-weight: 600; color: #64748B;">Sistema Integrado de Gestão Escolar</span>
+                    <span style="font-size: 9.5px; font-weight: 800; color: #007A3D; text-transform: uppercase; letter-spacing: 0.5px;">AQUI SE PREPARA A NOVA GERAÇÃO</span>
+                    <span style="font-size: 17.5px; font-weight: 900; color: #0F172A; line-height: 1.15; letter-spacing: -0.3px;">ESCOLA DOS VISIONÁRIOS</span>
+                    <span style="font-size: 10.5px; font-weight: 600; color: #64748B;">Quelimane & Alto Molócuè, Zambézia</span>
                 </div>
             </a>
 
@@ -229,16 +228,12 @@
                     <i class="fas fa-home text-emerald-700"></i> Início
                 </a>
 
-                <a href="{{ route('public.allocations') }}" class="portal-link-item {{ request()->routeIs('public.allocations*') ? 'active' : '' }}">
-                    <i class="fas fa-search-location text-emerald-700"></i> Afetações 2027
-                </a>
-
-                <a href="{{ route('public.vacancies') }}" class="portal-link-item {{ request()->routeIs('public.vacancies*') ? 'active' : '' }}">
-                    <i class="fas fa-chair text-emerald-700"></i> Vagas 2027
+                <a href="{{ route('welcome') }}#requisitos" class="portal-link-item">
+                    <i class="fas fa-file-invoice text-emerald-700"></i> Inscrições & Taxas
                 </a>
 
                 <a href="{{ route('public.pre-enrollment') }}" class="portal-link-item {{ request()->routeIs('public.pre-enrollment*') ? 'active' : '' }}">
-                    <i class="fas fa-file-signature text-emerald-700"></i> Pré-Inscrição 2027
+                    <i class="fas fa-file-signature text-emerald-700"></i> Reservar Vaga 2027
                 </a>
             </nav>
 
@@ -270,19 +265,18 @@
         <div style="max-width: 1480px; margin: 0 auto; padding: 0 32px;">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; padding-bottom: 20px; border-bottom: 1px solid #1E293B;">
                 <div style="display: flex; align-items: center; gap: 12px;">
-                    <img src="{{ asset('images/emblem.png') }}" alt="Emblema Oficial" style="height: 38px; width: auto;">
+                    <img src="{{ asset('images/logo-visionarios.png') }}" alt="Escola dos Visionários" style="height: 40px; width: auto;">
                     <div>
-                        <div style="font-weight: 800; color: white; font-size: 14px;">REPÚBLICA DE MOÇAMBIQUE</div>
-                        <div style="font-size: 12px; color: #94A3B8;">Ministério da Educação e Desenvolvimento Humano (MINEDH) &bull; Lei 18/2018 (SNE)</div>
+                        <div style="font-weight: 800; color: white; font-size: 14px;">ESCOLA DOS VISIONÁRIOS</div>
+                        <div style="font-size: 12px; color: #94A3B8;">Aqui se Prepara a Nova Geração &bull; Quelimane & Alto Molócuè, Zambézia</div>
                     </div>
                 </div>
 
                 <div style="display: flex; gap: 20px; font-size: 12.5px;">
                     <a href="{{ route('welcome') }}" style="color: #94A3B8; text-decoration: none;" class="hover:text-white">Início</a>
-                    <a href="{{ route('public.allocations') }}" style="color: #94A3B8; text-decoration: none;" class="hover:text-white">Afetações 2027</a>
-                    <a href="{{ route('public.vacancies') }}" style="color: #94A3B8; text-decoration: none;" class="hover:text-white">Vagas Escolares 2027</a>
-                    <a href="{{ route('public.pre-enrollment') }}" style="color: #94A3B8; text-decoration: none;" class="hover:text-white">Pré-Inscrições Online</a>
-                    <a href="{{ route('login') }}" style="color: #10B981; font-weight: 700; text-decoration: none;">Portal de Gestão</a>
+                    <a href="{{ route('welcome') }}#requisitos" style="color: #94A3B8; text-decoration: none;" class="hover:text-white">Requisitos & Taxas</a>
+                    <a href="{{ route('public.pre-enrollment') }}" style="color: #94A3B8; text-decoration: none;" class="hover:text-white">Reservar Vaga 2027</a>
+                    <a href="{{ route('login') }}" style="color: #10B981; font-weight: 700; text-decoration: none;">Aceder ao Sistema</a>
                 </div>
             </div>
 

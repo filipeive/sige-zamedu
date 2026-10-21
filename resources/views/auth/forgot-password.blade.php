@@ -26,7 +26,7 @@
                 <!-- Card Header with Emblem Seal -->
                 <div class="text-center mb-6">
                     <div class="inline-flex p-3 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border-2 border-dashed border-[#007A3D] shadow-lg shadow-emerald-900/10 mb-3">
-                        <img src="{{ asset('images/emblem.png') }}" alt="Emblema da República de Moçambique" class="h-14 w-auto object-contain drop-shadow-sm">
+                        <img src="{{ asset('images/logo-visionarios.png') }}" alt="Escola dos Visionários" class="h-14 w-auto object-contain drop-shadow-sm">
                     </div>
 
                     <div class="space-y-1">

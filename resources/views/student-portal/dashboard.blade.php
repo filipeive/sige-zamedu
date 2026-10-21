@@ -286,13 +286,13 @@
             <div class="bg-gradient-to-tr from-emerald-800 to-teal-900 text-white p-5 rounded-2xl shadow-lg border border-emerald-700 text-left relative overflow-hidden">
                 <div class="flex items-center justify-between border-b border-white/20 pb-3 mb-3">
                     <div class="flex items-center gap-2">
-                        <img src="{{ asset('images/logo.png') }}" alt="ZamEdu" class="h-7 w-auto">
+                        <img src="{{ asset('images/logo-visionarios.png') }}" alt="Escola dos Visionários" class="h-8 w-auto">
                         <div>
                             <h5 class="text-xs font-extrabold uppercase tracking-tight">CARTÃO DO ESTUDANTE</h5>
-                            <span class="text-[9px] text-emerald-200 block">REPÚBLICA DE MOÇAMBIQUE · MINEDH</span>
+                            <span class="text-[9px] text-emerald-200 block">ESCOLA DOS VISIONÁRIOS · ENSINO PRIVADO</span>
                         </div>
                     </div>
-                    <img src="{{ asset('images/emblem.png') }}" alt="Emblema da República" class="h-8 w-auto">
+                    <img src="{{ asset('images/logo-visionarios.png') }}" alt="Logo Oficial" class="h-8 w-auto">
                 </div>
 
                 <div class="flex gap-3 items-center">

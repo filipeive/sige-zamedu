@@ -287,30 +287,72 @@ class PermissionSeeder extends Seeder
 
         $visSchoolId = \App\Models\School::where('code', 'VIS-QUE')->value('id')
             ?? \App\Models\School::value('id');
+        $molSchoolId = \App\Models\School::where('code', 'VIS-MOL')->value('id')
+            ?? $visSchoolId;
 
         $createUser = function ($data, $role) use ($visSchoolId) {
-            $user = User::firstOrCreate(
+            $user = User::updateOrCreate(
                 ['email' => $data['email']],
                 [
                     'name' => $data['name'],
                     'password' => Hash::make($data['password']),
                     'status' => 'active',
                     'email_verified_at' => now(),
-                    'school_id' => $data['school_id'] ?? $visSchoolId,
+                    'school_id' => array_key_exists('school_id', $data) ? $data['school_id'] : $visSchoolId,
                     'province_id' => $data['province_id'] ?? null,
                     'district_id' => $data['district_id'] ?? null,
                     'zip_id' => $data['zip_id'] ?? null,
                 ]
             );
-            $user->assignRole($role);
+            $user->syncRoles([$role]);
             return $user;
         };
 
-        $createUser(['name' => 'Super Administrador', 'email' => 'superadmin@visionarios.co.mz', 'password' => 'superadmin123', 'school_id' => null], 'super_admin');
-        $createUser(['name' => 'Director Geral', 'email' => 'admin@visionarios.co.mz', 'password' => 'admin123', 'school_id' => $visSchoolId], 'admin');
+        // 1. Provedor da Plataforma SaaS & Gestor de Licenças (Filipe dos Santos)
+        $createUser([
+            'name' => 'Filipe dos Santos (Desenvolvedor & Provedor SaaS)',
+            'email' => 'dev@visionarios.co.mz',
+            'password' => 'dev123',
+            'school_id' => null
+        ], 'super_admin');
+
+        $createUser([
+            'name' => 'Filipe dos Santos (Super Admin)',
+            'email' => 'superadmin@visionarios.co.mz',
+            'password' => 'superadmin123',
+            'school_id' => null
+        ], 'super_admin');
+
+        // 2. Dono da Escola / Director Geral (Escola dos Visionários)
+        $createUser([
+            'name' => 'Director Geral & Proprietário',
+            'email' => 'dono@visionarios.co.mz',
+            'password' => 'dono123',
+            'school_id' => $visSchoolId
+        ], 'admin');
+
+        $createUser([
+            'name' => 'Director Geral & Proprietário',
+            'email' => 'admin@visionarios.co.mz',
+            'password' => 'admin123',
+            'school_id' => $visSchoolId
+        ], 'admin');
+
+        // 3. Filial Alto Molócuè
+        $createUser([
+            'name' => 'Director de Filial — Alto Molócuè',
+            'email' => 'molocue@visionarios.co.mz',
+            'password' => 'molocue123',
+            'school_id' => $molSchoolId
+        ], 'admin');
+
+        // 4. Operações da Escola
         $createUser(['name' => 'Secretaria & Tesouraria', 'email' => 'secretaria@visionarios.co.mz', 'password' => 'secretaria123', 'school_id' => $visSchoolId], 'secretary');
         $createUser(['name' => 'Director Pedagógico', 'email' => 'pedagogia@visionarios.co.mz', 'password' => 'pedagogia123', 'school_id' => $visSchoolId], 'pedagogy');
         $demoTeacherUser = $createUser(['name' => 'Professor Exemplo', 'email' => 'professor@visionarios.co.mz', 'password' => 'professor123', 'school_id' => $visSchoolId], 'teacher');
+        $createUser(['name' => 'Encarregado de Educação', 'email' => 'encarregado@visionarios.co.mz', 'password' => 'pai123', 'school_id' => $visSchoolId], 'parent');
+        $createUser(['name' => 'Encarregado de Educação (Pai)', 'email' => 'pai@visionarios.co.mz', 'password' => 'pai123', 'school_id' => $visSchoolId], 'parent');
+        $createUser(['name' => 'Estudante Visionário', 'email' => 'aluno@visionarios.co.mz', 'password' => 'aluno123', 'school_id' => $visSchoolId], 'student');
         
         // Escolas só existem depois do seed demo; em BD vazia (testes/1º deploy) não cria o Teacher.
         $demoSchoolId = $demoTeacherUser->school_id ?: ($visSchoolId ?: 1);

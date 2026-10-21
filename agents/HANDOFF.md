@@ -18,6 +18,44 @@ Formato de cada entrada:
 **Próximo passo recomendado:** ...
 ```
 
+## [2026-10-21] — Separação de Perfis SaaS/Escola, Seletor de Filiais e Remoção do Emblema Governamental — Antigravity AI Agent
+
+**Feito:**
+- **Separação Clara de Papéis de Utilizador**:
+  - **Filipe dos Santos (Desenvolvedor & Provedor SaaS)**:
+    - Conta: `dev@visionarios.co.mz` (`dev123`) & alias `superadmin@visionarios.co.mz` (`superadmin123`).
+    - Role: `super_admin` (`school_id = null`).
+    - Painel exclusivo: Consola SaaS de Gestão de Licenças e Infraestrutura da Plataforma (`super_admin.blade.php`), com acesso a registo de escolas parceiras e modo suporte técnico sem emblema governamental.
+  - **Proprietário / Mantenedor & Director Geral da Escola dos Visionários (Cliente)**:
+    - Contas: `dono@visionarios.co.mz` (`dono123`) & `admin@visionarios.co.mz` (`admin123`).
+    - Role: `admin` (vinculado à `Escola dos Visionários — Quelimane`).
+    - Painel exclusivo: Dashboard Executivo da Escola dos Visionários (`admin.blade.php`), com dados restritos às suas filiais, sem visualização de escolas públicas ou emblemas de Moçambique.
+  - **Filial Alto Molócuè**:
+    - Conta: `molocue@visionarios.co.mz` (`molocue123`), role `admin` vinculada à filial `VIS-MOL`.
+- **Seletor Interativo de Filiais (Branch Switcher)**:
+  - Criado `BranchSwitchController` com rota `/branch/switch/{school}` permitindo alternar instantaneamente entre:
+    - 📍 `Escola dos Visionários — Quelimane (Sede)`
+    - 📍 `Escola dos Visionários — Alto Molócuè`
+    - 🏢 `Rede Completa (Consolidado Visionários)`
+  - Integrado seletor interativo tanto no Hero Header do Dashboard como na Navbar superior (`layouts/app.blade.php`) com persistência em sessão e suporte no middleware `IdentifySchool`.
+  - Em `DashboardController::adminDashboard()`, seletor altera o contexto multi-tenant dinamicamente, permitindo análise individual por filial ou consolidação total da rede escolar.
+- **Remoção de Emblemas Governamentais das Telas Internas e Portais**:
+  - `admin.blade.php`, `super_admin.blade.php`, `login.blade.php`, `forgot-password.blade.php`, `reset-password-otp.blade.php`, `layouts/portal.blade.php`, `student-portal/dashboard.blade.php`, `pre-enrollment.blade.php`, `trial-register.blade.php`: todos atualizados para usar exclusivamente o logotipo oficial da Escola dos Visionários (`images/logo-visionarios.png`).
+- **Ocultação de Menus Governamentais**:
+  - Sidebar (`layouts/app.blade.php`) ajustada para que utilizadores da Escola dos Visionários visualizem apenas a gestão interna da sua instituição. Links de Inspeção MINEDH, Afetações e Quadro de Vagas restritos a utilizadores de auditoria territorial pública.
+- **Atalhos de Login Simplificados**:
+  - Reformulados os atalhos de 1-clique em `login.blade.php` para destacar o Dono/Director Geral, Filial Alto Molócuè, Tesouraria/Propinas, Pedagógico, Professor, Encarregado e Aluno, com um botão discreto de Gestão SaaS para o Desenvolvedor (Filipe dos Santos).
+
+**Testado:**
+- `SchoolOwnerBranchSwitchTest` criado e aprovado (3 testes, 8 asserções).
+- Suite de testes existentes validada: `GradeBatchCreateTest`, `TeacherPortalDashboardTest`, `SchoolScopingTest`, `TerritorialRolesTest` (12 testes, 48 asserções aprovadas).
+- `DashboardController::index()` testado via Tinker confirmando redirecionamento para `dashboard.admin` com `dono@visionarios.co.mz` e para `dashboard.super_admin` com `dev@visionarios.co.mz`.
+- Alternância de filiais testada com sucesso para ID 16 e modo consolidado 'all'.
+- Build do Vite executado com sucesso gerando bundles otimizados de produção.
+
+**Próximo passo recomendado:**
+- Commitar alterações, fazer push para os remotos (`origin` e `visionarios`) e executar `./deployment/deploy-zamedu.sh` para atualizar o servidor de produção `146.235.224.99`.
+
 ## [2026-10-21] — Integração do Logo & Cartaz Oficial da Escola dos Visionários (Inscrições 2027) — Antigravity AI Agent
 
 **Feito:**

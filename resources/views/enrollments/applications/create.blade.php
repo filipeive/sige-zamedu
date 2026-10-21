@@ -24,11 +24,11 @@
         <div class="p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div class="flex items-start sm:items-center gap-5">
                 <div class="p-3 bg-white/10 rounded-2xl backdrop-blur-sm border border-white/20 shrink-0">
-                    <img src="{{ asset('images/emblem.png') }}" alt="Emblema Nacional" class="h-16 w-auto drop-shadow-md">
+                    <img src="{{ asset('images/logo-visionarios.png') }}" alt="Escola dos Visionários" class="h-16 w-auto drop-shadow-md">
                 </div>
                 <div>
                     <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-amber-400 text-slate-900 text-[11px] font-extrabold uppercase tracking-wider mb-2">
-                        <i class="fa-solid fa-landmark text-slate-900"></i> REPÚBLICA DE MOÇAMBIQUE &bull; MINEDH &bull; SNE
+                        <i class="fa-solid fa-school text-slate-900"></i> ESCOLA DOS VISIONÁRIOS &bull; ADMISSÃO 2027
                     </div>
                     <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">
                         Pré-Inscrição Escolar Online

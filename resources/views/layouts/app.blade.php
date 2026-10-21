@@ -11,7 +11,7 @@
     <!-- Favicon Icons -->
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-    <link rel="apple-touch-icon" href="{{ asset('images/emblem.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo-visionarios.png') }}">
 
     <!-- PWA & Mobile Optimization -->
     <link rel="manifest" href="/manifest.json">
@@ -1543,9 +1543,9 @@
             @auth
                 <!-- 1. DASHBOARD & GESTÃO TERRITORIAL SUPER ADMIN -->
                 <div class="nav-section">
-                    @hasanyrole('super_admin|province_admin|province_inspector|district_admin|district_inspector|zip_coordinator|zip_admin')
-                        <div class="nav-section-title">Administração Global &amp; Territorial</div>
-                    @endhasanyrole
+                    @hasrole('super_admin')
+                        <div class="nav-section-title">Provedor SaaS &amp; Gestão Central</div>
+                    @endhasrole
                     <ul class="nav-list">
                         <li class="nav-item">
                             <a href="{{ route('dashboard') }}"
@@ -1556,7 +1556,36 @@
                                 <span class="nav-text">Dashboard</span>
                             </a>
                         </li>
-                        @hasanyrole('super_admin|province_admin|province_inspector|district_admin|district_inspector|zip_coordinator|zip_admin')
+                        @hasrole('super_admin')
+                        <li class="nav-item">
+                            <a href="{{ route('admin.territory.index') }}"
+                                class="nav-link {{ request()->routeIs('admin.territory.*') ? 'active' : '' }}">
+                                <span class="nav-icon">
+                                    <i class="fas fa-sitemap text-emerald-500"></i>
+                                </span>
+                                <span class="nav-text">Gestão de Escolas Clientes</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('admin.license') }}"
+                                class="nav-link {{ request()->routeIs('admin.license*') ? 'active' : '' }}">
+                                <span class="nav-icon">
+                                    <i class="fas fa-key text-amber-500"></i>
+                                </span>
+                                <span class="nav-text">Gestão de Licenças</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('onboarding.school') }}"
+                                class="nav-link {{ request()->routeIs('onboarding.*') ? 'active' : '' }}">
+                                <span class="nav-icon">
+                                    <i class="fas fa-plus-circle text-emerald-500"></i>
+                                </span>
+                                <span class="nav-text">Registar Nova Escola</span>
+                            </a>
+                        </li>
+                        @endhasrole
+                        @hasanyrole('province_admin|province_inspector|district_admin|district_inspector|zip_coordinator|zip_admin')
                         <li class="nav-item">
                             <a href="{{ route('territorial.dashboard') }}"
                                 class="nav-link {{ request()->routeIs('territorial.*') ? 'active' : '' }}">
@@ -1564,15 +1593,6 @@
                                     <i class="fas fa-map-location-dot text-emerald-500"></i>
                                 </span>
                                 <span class="nav-text">Inspeção MINEDH</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ route('admin.territory.index') }}"
-                                class="nav-link {{ request()->routeIs('admin.territory.*') ? 'active' : '' }}">
-                                <span class="nav-icon">
-                                    <i class="fas fa-sitemap text-emerald-500"></i>
-                                </span>
-                                <span class="nav-text">Gestão Territorial & Escolas</span>
                             </a>
                         </li>
                         <li class="nav-item">
@@ -1591,15 +1611,6 @@
                                     <i class="fas fa-chair text-emerald-500"></i>
                                 </span>
                                 <span class="nav-text">Quadro de Vagas 2027</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ route('onboarding.school') }}"
-                                class="nav-link {{ request()->routeIs('onboarding.*') ? 'active' : '' }}">
-                                <span class="nav-icon">
-                                    <i class="fas fa-plus-circle text-emerald-500"></i>
-                                </span>
-                                <span class="nav-text">Registar Nova Escola</span>
                             </a>
                         </li>
                         @endhasanyrole
@@ -2307,6 +2318,33 @@
             </div>
 
             <div class="header-right">
+                @auth
+                    @php
+                        $topNavBranches = \App\Models\School::where('code', 'like', 'VIS-%')
+                            ->orWhere('name', 'like', '%Visionários%')
+                            ->get(['id', 'name', 'code']);
+                        $topActiveBranchId = session('active_school_id') ?? auth()->user()?->school_id;
+                        $topIsConsolidated = session('active_branch') === 'all';
+                    @endphp
+                    @if($topNavBranches->count() > 1 && !auth()->user()?->hasRole('super_admin'))
+                    <div class="hidden md:flex items-center me-2">
+                        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-200 dark:border-emerald-800 text-xs shadow-2xs">
+                            <i class="fas fa-school text-emerald-600 dark:text-emerald-400"></i>
+                            <select onchange="window.location.href=this.value" class="bg-transparent border-0 text-xs font-extrabold text-emerald-950 dark:text-emerald-100 focus:ring-0 p-0 pr-6 cursor-pointer">
+                                @foreach($topNavBranches as $nb)
+                                    <option value="{{ route('branch.switch', $nb->id) }}" {{ ($topActiveBranchId == $nb->id && !$topIsConsolidated) ? 'selected' : '' }} class="text-slate-900 bg-white">
+                                        📍 {{ $nb->name }}
+                                    </option>
+                                @endforeach
+                                <option value="{{ route('branch.switch', 'all') }}" {{ $topIsConsolidated ? 'selected' : '' }} class="text-slate-900 bg-white">
+                                    🏢 Toda a Rede (Consolidado)
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    @endif
+                @endauth
+
                 <div class="header-search" onclick="openCommandPalette()" style="cursor: pointer;">
                     <input type="text" class="search-input" readonly style="cursor: pointer;"
                         placeholder="Pesquisar alunos, turmas... (Ctrl + K)">

@@ -688,22 +688,20 @@
                     <div class="demo-role-group">
                         <h3 class="demo-role-heading">Escola dos Visionários (Quelimane & Alto Molócuè)</h3>
                         <div class="demo-badges-grid">
-                            <button type="button" class="demo-pill-btn" onclick="fillDemo('superadmin@visionarios.co.mz', 'superadmin123')"><i class="fas fa-crown text-amber-500"></i> Dono / Mantenedor</button>
-                            <button type="button" class="demo-pill-btn" onclick="fillDemo('admin@visionarios.co.mz', 'admin123')"><i class="fas fa-school text-emerald-700"></i> Director Geral</button>
+                            <button type="button" class="demo-pill-btn" onclick="fillDemo('dono@visionarios.co.mz', 'dono123')"><i class="fas fa-crown text-amber-500"></i> Dono / Director Geral</button>
+                            <button type="button" class="demo-pill-btn" onclick="fillDemo('molocue@visionarios.co.mz', 'molocue123')"><i class="fas fa-school text-emerald-600"></i> Filial Alto Molócuè</button>
                             <button type="button" class="demo-pill-btn" onclick="fillDemo('secretaria@visionarios.co.mz', 'secretaria123')"><i class="fas fa-coins text-amber-600"></i> Tesouraria / Propinas</button>
                             <button type="button" class="demo-pill-btn" onclick="fillDemo('pedagogia@visionarios.co.mz', 'pedagogia123')"><i class="fas fa-book-open-reader text-emerald-600"></i> Pedagógico</button>
                             <button type="button" class="demo-pill-btn" onclick="fillDemo('professor@visionarios.co.mz', 'professor123')"><i class="fas fa-chalkboard-user text-blue-600"></i> Professor</button>
-                            <button type="button" class="demo-pill-btn" onclick="fillDemo('pai@visionarios.co.mz', 'pai123')"><i class="fas fa-users text-teal-600"></i> Encarregado</button>
+                            <button type="button" class="demo-pill-btn" onclick="fillDemo('encarregado@visionarios.co.mz', 'pai123')"><i class="fas fa-users text-teal-600"></i> Encarregado</button>
                             <button type="button" class="demo-pill-btn" onclick="fillDemo('aluno@visionarios.co.mz', 'aluno123')"><i class="fas fa-user-graduate text-cyan-600"></i> Aluno</button>
                         </div>
                     </div>
 
-                    <div class="demo-role-group" style="margin-top: 10px; opacity: 0.85;">
-                        <h3 class="demo-role-heading">Supervisão Territorial (MINEDH)</h3>
+                    <div class="demo-role-group" style="margin-top: 10px; border-top: 1px dashed rgba(255,255,255,0.15); padding-top: 8px;">
+                        <h3 class="demo-role-heading" style="color: #cbd5e1;"><i class="fas fa-laptop-code text-indigo-400"></i> Provedor SaaS &amp; Gestão de Licenças</h3>
                         <div class="demo-badges-grid">
-                            <button type="button" class="demo-pill-btn" onclick="fillDemo('inspector.zambezia@minedh.gov.mz', 'provincia123')"><i class="fas fa-building-columns text-sky-600"></i> Insp. Provincial</button>
-                            <button type="button" class="demo-pill-btn" onclick="fillDemo('director.namacurra@minedh.gov.mz', 'distrito123')"><i class="fas fa-map-location-dot text-indigo-600"></i> Dir. Distrital</button>
-                            <button type="button" class="demo-pill-btn" onclick="fillDemo('zip.namacurra@minedh.gov.mz', 'zip123')"><i class="fas fa-sitemap text-teal-600"></i> Coord. ZIP</button>
+                            <button type="button" class="demo-pill-btn" onclick="fillDemo('dev@visionarios.co.mz', 'dev123')" style="border-color: rgba(99, 102, 241, 0.4);"><i class="fas fa-code text-indigo-400"></i> Filipe dos Santos (Desenvolvedor)</button>
                         </div>
                     </div>
                 </details>

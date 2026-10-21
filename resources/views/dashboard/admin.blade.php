@@ -81,13 +81,13 @@
 @section('content')
 <div class="space-y-6">
 
-    <!-- HERO HEADER CONTEXTUAL (ZAMEDU / MINEDH BRANDING) -->
+    <!-- HERO HEADER CONTEXTUAL (ESCOLA DOS VISIONÁRIOS BRANDING) -->
     <div class="dash-card-hero rounded-3xl p-6 sm:p-8 text-white relative overflow-hidden dash-animate">
         <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-amber-400/10 rounded-full blur-3xl pointer-events-none"></div>
         <div class="relative z-10 flex flex-wrap items-center justify-between gap-6">
             <div class="flex items-center gap-5">
-                <div class="w-16 h-16 rounded-2xl bg-white p-2.5 shadow-xl border-2 border-amber-400 flex items-center justify-center shrink-0">
-                    <img src="{{ asset('images/emblem.png') }}" alt="Emblema de Moçambique" class="h-11 w-auto object-contain">
+                <div class="w-16 h-16 rounded-2xl bg-white p-1.5 shadow-xl border-2 border-amber-400 flex items-center justify-center shrink-0">
+                    <img src="{{ asset('images/logo-visionarios.png') }}" alt="Escola dos Visionários" class="h-13 w-auto object-contain">
                 </div>
                 <div>
                     <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 border border-white/20 text-amber-300 text-[11px] font-black uppercase tracking-wider mb-1.5 backdrop-blur-sm">
@@ -97,16 +97,38 @@
                         {{ $greetingData['greeting'] }}
                     </h1>
                     <p class="text-xs sm:text-sm text-emerald-100/90 font-medium mt-1">
-                        Resumo analítico e estatístico em tempo real para a gestão escolar.
+                        Escola dos Visionários — <em>Aqui se Prepara a Nova Geração</em>
                     </p>
                 </div>
             </div>
 
-            <div class="text-left sm:text-right bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-4 shrink-0">
-                <div class="text-[10px] font-bold text-emerald-200 uppercase tracking-widest">Data de Hoje</div>
-                <div class="text-sm font-extrabold text-white mt-0.5">{{ $greetingData['current_date'] }}</div>
-                <div class="text-[11px] font-bold text-amber-300 mt-1 flex items-center gap-1 sm:justify-end">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Sistema Ativo
+            <div class="flex flex-col sm:items-end gap-3 shrink-0">
+                @if(isset($branches) && $branches->count() > 1)
+                <div class="bg-black/20 backdrop-blur-md border border-white/20 rounded-2xl p-2.5 shadow-lg">
+                    <label class="text-[10px] font-extrabold uppercase text-amber-300 block mb-1">
+                        <i class="fas fa-sitemap me-1"></i> Alternar Filial / Rede:
+                    </label>
+                    <div class="flex items-center gap-1.5">
+                        <select onchange="window.location.href=this.value" class="bg-slate-900/90 text-white font-bold text-xs rounded-xl px-3 py-2 border border-white/20 focus:ring-2 focus:ring-amber-400 cursor-pointer shadow-inner">
+                            @foreach($branches as $b)
+                                <option value="{{ route('branch.switch', $b->id) }}" {{ ($currentBranchId == $b->id && !$isConsolidated) ? 'selected' : '' }}>
+                                    📍 {{ $b->name }}
+                                </option>
+                            @endforeach
+                            <option value="{{ route('branch.switch', 'all') }}" {{ $isConsolidated ? 'selected' : '' }}>
+                                🏢 Toda a Rede (Consolidado Visionários)
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                @endif
+
+                <div class="text-left sm:text-right bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-3 shrink-0">
+                    <div class="text-[10px] font-bold text-emerald-200 uppercase tracking-widest">Data de Hoje</div>
+                    <div class="text-xs font-extrabold text-white mt-0.5">{{ $greetingData['current_date'] }}</div>
+                    <div class="text-[11px] font-bold text-amber-300 mt-0.5 flex items-center gap-1 sm:justify-end">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Sistema Ativo
+                    </div>
                 </div>
             </div>
         </div>
@@ -247,7 +269,7 @@
                 {{ $stats['global_grade_avg'] }} <span class="text-xs text-slate-400 font-normal">/20</span>
             </div>
             <div class="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px] font-bold text-slate-500">
-                <i class="fas fa-graduation-cap text-amber-500 me-1"></i> Escala MINEDH Moçambique
+                <i class="fas fa-graduation-cap text-amber-500 me-1"></i> Escala Oficial (Aprovação: 10.0 valores)
             </div>
         </div>
 
@@ -503,7 +525,7 @@
                     <h3 class="text-xs font-black text-slate-800 dark:text-slate-100 uppercase tracking-wider flex items-center gap-2">
                         <i class="fas fa-trophy text-amber-500"></i> Quadro de Honra da Escola
                     </h3>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400">Melhores alunos por média de notas (MINEDH)</p>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400">Melhores alunos por média curricular (Escala 0 a 20)</p>
                 </div>
             </div>
             <div class="space-y-2.5">

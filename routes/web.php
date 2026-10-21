@@ -103,6 +103,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Dashboard Principal
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+    // Alternar Filial (Escola dos Visionários: Quelimane / Alto Molócuè / Consolidado)
+    Route::get('/branch/switch/{school}', [\App\Http\Controllers\BranchSwitchController::class, 'switch'])->name('branch.switch');
+
     // Painel Territorial de Inspeção & Analytics MINEDH
     Route::prefix('territorial')->name('territorial.')->group(function () {
         Route::get('/dashboard', [TerritorialDashboardController::class, 'index'])->name('dashboard');

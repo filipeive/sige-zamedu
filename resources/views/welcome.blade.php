@@ -10,7 +10,7 @@
     <!-- Favicon Icons -->
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-    <link rel="apple-touch-icon" href="{{ asset('images/emblem.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo-visionarios.png') }}">
     <meta name="theme-color" content="#007A3D">
     @if(file_exists(public_path('build/manifest.json')))
         @vite(['resources/css/app.css', 'resources/js/app.js'])

@@ -79,12 +79,12 @@
     <header class="top-header">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
             <a href="{{ route('welcome') }}" class="flex items-center gap-3 no-underline">
-                <div class="bg-white p-1.5 rounded-xl border-2 border-amber-400 shadow-sm flex items-center justify-center">
-                    <img src="{{ asset('images/emblem.png') }}" alt="Emblema da República de Moçambique" class="h-9 w-auto">
+                <div class="bg-white p-1 rounded-xl border-2 border-amber-400 shadow-sm flex items-center justify-center">
+                    <img src="{{ asset('images/logo-visionarios.png') }}" alt="Escola dos Visionários" class="h-9 w-auto">
                 </div>
                 <div>
-                    <span class="text-[10px] font-extrabold text-emerald-800 uppercase tracking-widest block">REPÚBLICA DE MOÇAMBIQUE · MINEDH</span>
-                    <h1 class="text-lg font-black text-slate-900 leading-none">ZAMEDU - SIGE</h1>
+                    <span class="text-[10px] font-extrabold text-emerald-800 uppercase tracking-widest block">AQUI SE PREPARA A NOVA GERAÇÃO</span>
+                    <h1 class="text-lg font-black text-slate-900 leading-none">ESCOLA DOS VISIONÁRIOS</h1>
                 </div>
             </a>
             <a href="{{ route('login') }}" class="px-4 py-2 rounded-xl bg-emerald-800 text-white text-xs font-bold hover:bg-emerald-900 transition shadow-sm flex items-center gap-2">
@@ -99,8 +99,8 @@
     <section style="background: linear-gradient(135deg, #034522 0%, #007A3D 100%); color: #ffffff;" class="py-10 relative overflow-hidden shadow-inner border-b-4 border-amber-400">
         <div class="max-w-3xl mx-auto px-4 text-center relative z-10">
             <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-900/80 border border-amber-400/50 text-amber-300 text-xs font-extrabold uppercase tracking-wider mb-3 backdrop-blur-sm">
-                <img src="{{ asset('images/emblem.png') }}" alt="Emblema Oficial da República de Moçambique" class="h-4 w-auto me-1">
-                MINEDH · ATIVAÇÃO INSTANTÂNEA MULTI-ESCOLA
+                <img src="{{ asset('images/logo-visionarios.png') }}" alt="Escola dos Visionários" class="h-4 w-auto me-1">
+                ATIVAÇÃO E REGISTO DE INSTITUIÇÃO
             </div>
             <h1 class="text-2xl sm:text-4xl font-black tracking-tight mb-2 font-heading drop-shadow-sm" style="color: #ffffff !important;">Registe a Sua Escola no SIGE</h1>
             <p class="text-emerald-100 text-sm max-w-xl mx-auto font-medium" style="color: #e2e8f0 !important;">Crie o seu ambiente de gestão escolar em conformidade integral com o Sistema Nacional de Educação (SNE - Lei 18/2018).</p>

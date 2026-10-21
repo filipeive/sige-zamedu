@@ -69,6 +69,15 @@ class DashboardController extends Controller
         $monthName = $monthsPt[now()->format('F')] ?? now()->format('F');
         $formattedDate = $dayName . ', ' . now()->format('d') . ' de ' . $monthName . ' de ' . now()->format('Y');
 
+        $activeSchoolName = 'Escola dos Visionários';
+        if (session('active_branch') === 'all') {
+            $activeSchoolName = 'Rede Escola dos Visionários (Consolidado)';
+        } elseif ($curSchool = current_school()) {
+            $activeSchoolName = $curSchool->name;
+        } else {
+            $activeSchoolName = setting('school_name', 'Escola dos Visionários');
+        }
+
         return [
             'greeting' => $greeting . ', ' . auth()->user()->name,
             'greeting_period' => match (true) {
@@ -77,7 +86,7 @@ class DashboardController extends Controller
                 default => 'evening',
             },
             'current_date' => $formattedDate,
-            'school_name' => setting('school_name', 'ZamEdu'),
+            'school_name' => $activeSchoolName,
             'school_year' => current_school_year(),
         ];
     }
@@ -195,54 +204,101 @@ class DashboardController extends Controller
 
     private function adminDashboard()
     {
-        $cacheKey = 'admin_dashboard_analytics_v1_' . current_school_year();
+        $user = auth()->user();
+        $isConsolidated = session('active_branch') === 'all';
 
-        $data = \Illuminate\Support\Facades\Cache::remember($cacheKey, 600, function () {
+        // Filiais da Rede dos Visionários para o Dono/Director
+        $visionariosSchools = \App\Models\School::where('code', 'like', 'VIS-%')
+            ->orWhere('name', 'like', '%Visionários%')
+            ->get(['id', 'code', 'name', 'phone', 'address', 'type', 'principal_name']);
+
+        if ($visionariosSchools->isEmpty()) {
+            $visionariosSchools = \App\Models\School::where('type', 'private')
+                ->get(['id', 'code', 'name', 'phone', 'address', 'type', 'principal_name']);
+        }
+
+        $branches = $visionariosSchools;
+        $currentBranchId = session('active_branch') ?? ($user->school_id ?: ($branches->first()?->id ?? 1));
+
+        if (!$isConsolidated && $currentBranchId) {
+            \App\Services\SchoolContext::setSchoolId((int) $currentBranchId);
+        }
+
+        $cacheKey = 'admin_dashboard_analytics_v4_' . ($isConsolidated ? 'all' : $currentBranchId) . '_' . current_school_year();
+
+        $data = \Illuminate\Support\Facades\Cache::remember($cacheKey, 300, function () use ($isConsolidated, $branches) {
             $year = current_school_year();
+            $networkSchoolIds = $branches->pluck('id')->toArray();
+
+            if ($isConsolidated && !empty($networkSchoolIds)) {
+                $studentsQuery = Student::withoutSchoolScope()->whereIn('school_id', $networkSchoolIds)->active();
+                $teachersQuery = Teacher::withoutSchoolScope()->whereIn('school_id', $networkSchoolIds)->active();
+                $classesQuery = ClassRoom::withoutSchoolScope()->whereIn('school_id', $networkSchoolIds)->active()->where('school_year', $year);
+                $paymentsPaidMonth = Payment::withoutSchoolScope()->whereIn('school_id', $networkSchoolIds)->paid()
+                    ->whereMonth('payment_date', now()->month)
+                    ->whereYear('payment_date', now()->year);
+                $paymentsPaidLastMonth = Payment::withoutSchoolScope()->whereIn('school_id', $networkSchoolIds)->paid()
+                    ->whereMonth('payment_date', now()->subMonth()->month)
+                    ->whereYear('payment_date', now()->subMonth()->year);
+                $pendingPayments = Payment::withoutSchoolScope()->whereIn('school_id', $networkSchoolIds)->pending()->count();
+                $overduePayments = Payment::withoutSchoolScope()->whereIn('school_id', $networkSchoolIds)->overdue()->count();
+                $overdueAmount = Payment::withoutSchoolScope()->whereIn('school_id', $networkSchoolIds)->overdue()->sum('amount');
+                $totalExpenses = \App\Models\Expense::withoutSchoolScope()->whereIn('school_id', $networkSchoolIds)->sum('amount');
+                $thisMonthExpenses = \App\Models\Expense::withoutSchoolScope()->whereIn('school_id', $networkSchoolIds)
+                    ->whereMonth('expense_date', now()->month)
+                    ->whereYear('expense_date', now()->year)
+                    ->sum('amount');
+                $attendancesCount = Attendance::withoutSchoolScope()->whereIn('school_id', $networkSchoolIds)->count();
+                $presentCount = Attendance::withoutSchoolScope()->whereIn('school_id', $networkSchoolIds)->whereIn('status', ['present', 'late'])->count();
+            } else {
+                $studentsQuery = Student::active();
+                $teachersQuery = Teacher::active();
+                $classesQuery = ClassRoom::active()->where('school_year', $year);
+                $paymentsPaidMonth = Payment::paid()
+                    ->whereMonth('payment_date', now()->month)
+                    ->whereYear('payment_date', now()->year);
+                $paymentsPaidLastMonth = Payment::paid()
+                    ->whereMonth('payment_date', now()->subMonth()->month)
+                    ->whereYear('payment_date', now()->subMonth()->year);
+                $pendingPayments = Payment::pending()->count();
+                $overduePayments = Payment::overdue()->count();
+                $overdueAmount = Payment::overdue()->sum('amount');
+                $totalExpenses = \App\Models\Expense::sum('amount');
+                $thisMonthExpenses = \App\Models\Expense::whereMonth('expense_date', now()->month)
+                    ->whereYear('expense_date', now()->year)
+                    ->sum('amount');
+                $attendancesCount = Attendance::count();
+                $presentCount = Attendance::whereIn('status', ['present', 'late'])->count();
+            }
 
             // 1. Estatísticas Fundamentais & KPIs
-            $totalStudents = Student::active()->count();
-            $femaleStudents = Student::active()->where('gender', 'F')->count();
-            $maleStudents = Student::active()->where('gender', 'M')->count();
-            $totalTeachers = Teacher::active()->count();
-            $totalClasses = ClassRoom::active()->where('school_year', $year)->count();
+            $totalStudents = (clone $studentsQuery)->count();
+            $femaleStudents = (clone $studentsQuery)->where('gender', 'F')->count();
+            $maleStudents = (clone $studentsQuery)->where('gender', 'M')->count();
+            $totalTeachers = $teachersQuery->count();
+            $totalClasses = $classesQuery->count();
 
-            $currentMonthRevenue = Payment::paid()
-                ->whereMonth('payment_date', now()->month)
-                ->whereYear('payment_date', now()->year)
-                ->sum('amount');
-
-            $lastMonthRevenue = Payment::paid()
-                ->whereMonth('payment_date', now()->subMonth()->month)
-                ->whereYear('payment_date', now()->subMonth()->year)
-                ->sum('amount');
+            $currentMonthRevenue = $paymentsPaidMonth->sum('amount');
+            $lastMonthRevenue = $paymentsPaidLastMonth->sum('amount');
 
             $revenueChange = $lastMonthRevenue > 0 
                 ? round((($currentMonthRevenue - $lastMonthRevenue) / $lastMonthRevenue) * 100, 1)
                 : 0;
 
-            $pendingPayments = Payment::pending()->count();
-            $overduePayments = Payment::overdue()->count();
-            $overdueAmount = Payment::overdue()->sum('amount');
-
-            $totalExpenses = \App\Models\Expense::sum('amount');
-            $thisMonthExpenses = \App\Models\Expense::whereMonth('expense_date', now()->month)
-                ->whereYear('expense_date', now()->year)
-                ->sum('amount');
-
             // 2. Taxa de Assiduidade Global
-            $totalAttendances = Attendance::count();
-            $presentAttendances = Attendance::whereIn('status', ['present', 'late'])->count();
-            $overallAttendanceRate = $totalAttendances > 0 
-                ? round(($presentAttendances / $totalAttendances) * 100, 1) 
+            $overallAttendanceRate = $attendancesCount > 0 
+                ? round(($presentCount / $attendancesCount) * 100, 1) 
                 : 95.0;
 
             // 3. Média Académica Global
             $globalGradeAvg = round(Grade::currentYear()->avg('grade') ?? 14.5, 1);
 
-            // 4. Quadro de Honra - Top 5 Alunos
-            $topStudents = Student::active()
-                ->withCount('grades')
+            // 4. Top Alunos
+            $topStudentsQuery = $isConsolidated && !empty($networkSchoolIds)
+                ? Student::withoutSchoolScope()->whereIn('school_id', $networkSchoolIds)->active()
+                : Student::active();
+
+            $topStudents = $topStudentsQuery->withCount('grades')
                 ->get()
                 ->map(function ($student) use ($year) {
                     $avg = Grade::where('student_id', $student->id)->where('year', $year)->avg('grade');
@@ -254,10 +310,12 @@ class DashboardController extends Controller
                 ->take(5)
                 ->values();
 
-            // 5. Ranking de Turmas por Desempenho
-            $topClasses = ClassRoom::active()
-                ->where('school_year', $year)
-                ->get()
+            // 5. Ranking de Turmas
+            $topClassesQuery = $isConsolidated && !empty($networkSchoolIds)
+                ? ClassRoom::withoutSchoolScope()->whereIn('school_id', $networkSchoolIds)->active()->where('school_year', $year)
+                : ClassRoom::active()->where('school_year', $year);
+
+            $topClasses = $topClassesQuery->get()
                 ->map(function ($class) use ($year) {
                     $avg = Grade::where('class_id', $class->id)->where('year', $year)->avg('grade');
                     $class->average_grade = round($avg ?? 0, 1);
@@ -271,7 +329,11 @@ class DashboardController extends Controller
             $monthlyRevenueChart = [];
             for ($i = 11; $i >= 0; $i--) {
                 $date = now()->subMonths($i);
-                $paidSum = Payment::paid()
+                $paidSumQuery = $isConsolidated && !empty($networkSchoolIds)
+                    ? Payment::withoutSchoolScope()->whereIn('school_id', $networkSchoolIds)->paid()
+                    : Payment::paid();
+
+                $paidSum = $paidSumQuery
                     ->whereMonth('payment_date', $date->month)
                     ->whereYear('payment_date', $date->year)
                     ->sum('amount');
@@ -282,7 +344,7 @@ class DashboardController extends Controller
                 ];
             }
 
-            // 7. Alertas & Análises Inteligentes (IA/Executive Insights)
+            // 7. Alertas & Análises Inteligentes
             $smartInsights = [];
             if ($overallAttendanceRate >= 90) {
                 $smartInsights[] = [
@@ -292,7 +354,7 @@ class DashboardController extends Controller
                     'message' => "A taxa global de presença situa-se nos {$overallAttendanceRate}%, demonstrando elevado empenho dos alunos."
                 ];
             }
-            if (is_private_school() && $revenueChange > 0) {
+            if ($revenueChange > 0) {
                 $smartInsights[] = [
                     'type' => 'info',
                     'icon' => 'fa-chart-line',
@@ -300,12 +362,12 @@ class DashboardController extends Controller
                     'message' => "A receita do mês atual registou um aumento de +{$revenueChange}% em relação ao mês anterior."
                 ];
             }
-            if (is_private_school() && $overdueAmount > 0) {
+            if ($overdueAmount > 0) {
                 $smartInsights[] = [
                     'type' => 'warning',
                     'icon' => 'fa-triangle-exclamation',
                     'title' => 'Atenção às Propinas Pendentes',
-                    'message' => "Existem {$overduePayments} propinas em atraso no valor total de " . number_format($overdueAmount, 2) . " MT. Recomenda-se o envio de lembretes."
+                    'message' => "Existem {$overduePayments} propinas em atraso no valor total de " . number_format($overdueAmount, 2) . " MT. Recomenda-se o envio de lembretes e aplicação de multas regulamentares."
                 ];
             }
 
@@ -328,7 +390,7 @@ class DashboardController extends Controller
                 'total_enrollments' => Enrollment::active()->where('school_year', $year)->count(),
                 'pending_enrollments' => Enrollment::where('status', 'pending')->count(),
                 'pending_leave_requests' => StaffLeaveRequest::where('status', 'pending')->count(),
-                'pending_actions' => (is_private_school() ? $overduePayments : 0) + Enrollment::where('status', 'pending')->count() + StaffLeaveRequest::where('status', 'pending')->count()
+                'pending_actions' => $overduePayments + Enrollment::where('status', 'pending')->count() + StaffLeaveRequest::where('status', 'pending')->count()
             ];
 
             return [
@@ -362,7 +424,7 @@ class DashboardController extends Controller
 
         return view('dashboard.admin', array_merge(
             $data,
-            compact('greetingData', 'birthdaysThisWeek', 'todayActivities', 'recentActivities', 'upcomingEvents', 'revenueData', 'studentsDistribution', 'calendarMonth', 'calendarYear', 'monthEvents', 'monthBirthdays')
+            compact('greetingData', 'birthdaysThisWeek', 'todayActivities', 'recentActivities', 'upcomingEvents', 'revenueData', 'studentsDistribution', 'calendarMonth', 'calendarYear', 'monthEvents', 'monthBirthdays', 'branches', 'currentBranchId', 'isConsolidated')
         ));
     }
 

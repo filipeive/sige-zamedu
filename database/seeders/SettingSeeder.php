@@ -50,7 +50,7 @@ class SettingSeeder extends Seeder
             ['key' => 'max_unexcused_absences', 'value' => '15', 'group' => 'grading'],
 
             // Sistema & Contas Demo
-            ['key' => 'demo_email', 'value' => 'demo@zamedu.co.mz', 'group' => 'system'],
+            ['key' => 'demo_email', 'value' => 'dono@visionarios.co.mz', 'group' => 'system'],
         ];
 
         foreach ($defaultSettings as $item) {
@@ -60,22 +60,35 @@ class SettingSeeder extends Seeder
             );
         }
 
-        // Garantir Licença Ativa Ilimitada no Sistema
+        // Garantir Licença Ativa Ilimitada no Sistema para as filiais da Escola dos Visionários
         $licenseSchoolId = \App\Models\School::where('code', 'VIS-QUE')->value('id') ?? \App\Models\School::value('id');
         if (!$licenseSchoolId) {
             return;
         }
 
         \App\Models\License::withoutGlobalScopes()->updateOrCreate(
-            ['id' => 1],
+            ['school_id' => $licenseSchoolId],
             [
-                'school_id' => $licenseSchoolId,
-                'client_name' => 'Escola dos Visionários',
+                'client_name' => 'Escola dos Visionários — Quelimane (Sede)',
                 'license_key' => 'VISIONARIOS-ENTERPRISE-UNLIMITED',
                 'status' => 'active',
                 'expires_at' => null,
                 'plan' => 'enterprise',
             ]
         );
+
+        $molocueSchoolId = \App\Models\School::where('code', 'VIS-MOL')->value('id');
+        if ($molocueSchoolId) {
+            \App\Models\License::withoutGlobalScopes()->updateOrCreate(
+                ['school_id' => $molocueSchoolId],
+                [
+                    'client_name' => 'Escola dos Visionários — Alto Molócuè (Filial)',
+                    'license_key' => 'VISIONARIOS-MOLOCUE-ENTERPRISE',
+                    'status' => 'active',
+                    'expires_at' => null,
+                    'plan' => 'enterprise',
+                ]
+            );
+        }
     }
 }
