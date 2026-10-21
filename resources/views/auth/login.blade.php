@@ -523,8 +523,8 @@
                     <i class="fas fa-graduation-cap"></i>
                 </div>
                 <div class="banner-brand-text">
-                    <h1>ZamEdu</h1>
-                    <span>Sistema Inteligente de Gestão Escolar</span>
+                    <h1>Escola dos Visionários</h1>
+                    <span>Rede de Ensino · Quelimane & Alto Molócuè</span>
                 </div>
             </div>
 
@@ -532,36 +532,36 @@
             <div class="banner-center-content">
                 <div class="banner-badge">
                     <i class="fas fa-star"></i>
-                    <span>Gestão e monitoria educacional</span>
+                    <span>Ensino Privado de Excelência</span>
                 </div>
 
                 <h2 class="banner-headline">
-                    Gestão escolar e <span class="highlight">monitoria territorial.</span>
+                    Excelência pedagógica e <span class="highlight">gestão inteligente.</span>
                 </h2>
 
                 <p class="banner-description">
-                    Da operação diária em cada escola aos indicadores agregados por ZIP, distrito e província.
+                    Plataforma oficial da Escola dos Visionários para as filiais de Quelimane e Alto Molócuè. Gestão unificada para direcção, tesouraria, professores e encarregados de educação.
                 </p>
 
                 <div class="banner-features">
                     <div class="banner-feature-item">
                         <i class="fas fa-check"></i>
-                        <span>Gestão académica, administrativa e financeira</span>
+                        <span>Controlo de propinas, multas diárias e M-Pesa / eMola</span>
                     </div>
                     <div class="banner-feature-item">
                         <i class="fas fa-check"></i>
-                        <span>Monitoria de escolas por ZIP, distrito e província</span>
+                        <span>Pautas oficiais e boletins de notas (SNE - Lei 18/2018)</span>
                     </div>
                     <div class="banner-feature-item">
                         <i class="fas fa-check"></i>
-                        <span>Indicadores consolidados com análise por nível</span>
+                        <span>Portal do encarregado com acompanhamento em tempo real</span>
                     </div>
                 </div>
             </div>
 
             <!-- Footer Bottom -->
             <div class="banner-footer">
-                &copy; {{ date('Y') }} <strong>ZamEdu</strong>. Desenvolvido por <strong>FDS Software</strong>.
+                &copy; {{ date('Y') }} <strong>Escola dos Visionários</strong> · ZAMEDU - SIGE.
             </div>
         </div>
 
@@ -574,7 +574,7 @@
                     <div class="mobile-brand-icon">
                         <i class="fas fa-graduation-cap"></i>
                     </div>
-                    <span class="mobile-brand-title">ZamEdu</span>
+                    <span class="mobile-brand-title">Escola dos Visionários</span>
                 </a>
 
                 <a href="{{ route('welcome') }}" class="btn-back-home">
@@ -586,11 +586,13 @@
             <div class="form-container">
 
                 <div class="form-header">
-                    <div>
-                        <img src="{{ asset('images/emblema-mocambique.png') }}" onerror="this.onerror=null; this.src='{{ asset('images/emblem.png') }}';" alt="Emblema da República de Moçambique" class="auth-emblem">
+                    <div class="d-flex align-items-center justify-content-center gap-2 mb-2">
+                        <div style="width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, #047857 0%, #065F46 100%); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 12px rgba(4, 120, 87, 0.25);">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
                     </div>
-                    <h2>Aceder ao sistema</h2>
-                    <p>O seu perfil determina a área de gestão disponível.</p>
+                    <h2>Aceder ao Sistema</h2>
+                    <p><strong>Escola dos Visionários</strong> · Quelimane & Alto Molócuè</p>
                 </div>
 
                 <!-- Session Status -->
@@ -684,28 +686,30 @@
                 </form>
 
                 <!-- Atalhos de Acessos Rápidos (Flexibilidade de Demonstração e Testes) -->
-                <details class="demo-shortcuts-box">
+                <details open class="demo-shortcuts-box">
                     <summary class="demo-shortcuts-title">
-                        <i class="fas fa-users text-amber-500"></i> Perfis de demonstração
+                        <i class="fas fa-users text-amber-500"></i> Perfis de Demonstração (1-Clique)
                     </summary>
+
                     <div class="demo-role-group">
-                        <h3 class="demo-role-heading ce">Administração territorial</h3>
+                        <h3 class="demo-role-heading">Escola dos Visionários (Quelimane & Alto Molócuè)</h3>
                         <div class="demo-badges-grid">
-                            <button type="button" class="demo-pill-btn" onclick="fillDemo('superadmin@visionarios.co.mz', 'superadmin123')"><i class="fas fa-crown text-amber-500"></i> Super Admin</button>
+                            <button type="button" class="demo-pill-btn" onclick="fillDemo('superadmin@visionarios.co.mz', 'superadmin123')"><i class="fas fa-crown text-amber-500"></i> Dono / Mantenedor</button>
+                            <button type="button" class="demo-pill-btn" onclick="fillDemo('admin@visionarios.co.mz', 'admin123')"><i class="fas fa-school text-emerald-700"></i> Director Geral</button>
+                            <button type="button" class="demo-pill-btn" onclick="fillDemo('secretaria@visionarios.co.mz', 'secretaria123')"><i class="fas fa-coins text-amber-600"></i> Tesouraria / Propinas</button>
+                            <button type="button" class="demo-pill-btn" onclick="fillDemo('pedagogia@visionarios.co.mz', 'pedagogia123')"><i class="fas fa-book-open-reader text-emerald-600"></i> Pedagógico</button>
+                            <button type="button" class="demo-pill-btn" onclick="fillDemo('professor@visionarios.co.mz', 'professor123')"><i class="fas fa-chalkboard-user text-blue-600"></i> Professor</button>
+                            <button type="button" class="demo-pill-btn" onclick="fillDemo('pai@visionarios.co.mz', 'pai123')"><i class="fas fa-users text-teal-600"></i> Encarregado</button>
+                            <button type="button" class="demo-pill-btn" onclick="fillDemo('aluno@visionarios.co.mz', 'aluno123')"><i class="fas fa-user-graduate text-cyan-600"></i> Aluno</button>
+                        </div>
+                    </div>
+
+                    <div class="demo-role-group" style="margin-top: 10px; opacity: 0.85;">
+                        <h3 class="demo-role-heading">Supervisão Territorial (MINEDH)</h3>
+                        <div class="demo-badges-grid">
                             <button type="button" class="demo-pill-btn" onclick="fillDemo('inspector.zambezia@minedh.gov.mz', 'provincia123')"><i class="fas fa-building-columns text-sky-600"></i> Insp. Provincial</button>
                             <button type="button" class="demo-pill-btn" onclick="fillDemo('director.namacurra@minedh.gov.mz', 'distrito123')"><i class="fas fa-map-location-dot text-indigo-600"></i> Dir. Distrital</button>
                             <button type="button" class="demo-pill-btn" onclick="fillDemo('zip.namacurra@minedh.gov.mz', 'zip123')"><i class="fas fa-sitemap text-teal-600"></i> Coord. ZIP</button>
-                        </div>
-                    </div>
-                    <div class="demo-role-group">
-                        <h3 class="demo-role-heading">Escola e comunidade</h3>
-                        <div class="demo-badges-grid">
-                            <button type="button" class="demo-pill-btn" onclick="fillDemo('admin@visionarios.co.mz', 'admin123')"><i class="fas fa-school text-emerald-700"></i> Dir. Escola</button>
-                            <button type="button" class="demo-pill-btn" onclick="fillDemo('pedagogia@visionarios.co.mz', 'pedagogia123')"><i class="fas fa-book-open-reader text-emerald-600"></i> Pedagógico</button>
-                            <button type="button" class="demo-pill-btn" onclick="fillDemo('professor@visionarios.co.mz', 'professor123')"><i class="fas fa-chalkboard-user text-blue-600"></i> Professor</button>
-                            <button type="button" class="demo-pill-btn" onclick="fillDemo('secretaria@visionarios.co.mz', 'secretaria123')"><i class="fas fa-id-card text-purple-600"></i> Secretaria</button>
-                            <button type="button" class="demo-pill-btn" onclick="fillDemo('pai@visionarios.co.mz', 'pai123')"><i class="fas fa-users text-teal-600"></i> Encarregado</button>
-                            <button type="button" class="demo-pill-btn" onclick="fillDemo('aluno@visionarios.co.mz', 'aluno123')"><i class="fas fa-user-graduate text-cyan-600"></i> Aluno</button>
                         </div>
                     </div>
                 </details>
@@ -713,7 +717,7 @@
             </div>
 
             <div class="form-footer">
-                &copy; {{ date('Y') }} ZamEdu — Zambézia, Moçambique
+                &copy; {{ date('Y') }} Escola dos Visionários — Quelimane & Alto Molócuè, Zambézia
             </div>
 
         </div>

@@ -233,6 +233,15 @@ class PermissionSeeder extends Seeder
             'view_events', 'view_basic_reports',
         ]);
 
+        // 6b. ALUNO
+        $studentRole = $createRole('student');
+        $studentRole->syncPermissions([
+            'access_dashboard',
+            'view_own_grades',
+            'view_events',
+            'view_basic_reports',
+        ]);
+
         // 7. SEGURANÇA / PORTARIA
         $securityRole = $createRole('security');
         $securityRole->syncPermissions([
@@ -276,7 +285,10 @@ class PermissionSeeder extends Seeder
 
         // ========== CRIAR USUÁRIOS DE EXEMPLO SE NÃO EXISTIREM ==========
 
-        $createUser = function ($data, $role) {
+        $visSchoolId = \App\Models\School::where('code', 'VIS-QUE')->value('id')
+            ?? \App\Models\School::value('id');
+
+        $createUser = function ($data, $role) use ($visSchoolId) {
             $user = User::firstOrCreate(
                 ['email' => $data['email']],
                 [
@@ -284,6 +296,7 @@ class PermissionSeeder extends Seeder
                     'password' => Hash::make($data['password']),
                     'status' => 'active',
                     'email_verified_at' => now(),
+                    'school_id' => $data['school_id'] ?? $visSchoolId,
                     'province_id' => $data['province_id'] ?? null,
                     'district_id' => $data['district_id'] ?? null,
                     'zip_id' => $data['zip_id'] ?? null,
@@ -293,14 +306,14 @@ class PermissionSeeder extends Seeder
             return $user;
         };
 
-        $createUser(['name' => 'Super Administrador', 'email' => 'superadmin@visionarios.co.mz', 'password' => 'superadmin123'], 'super_admin');
-        $createUser(['name' => 'Administrador do Sistema', 'email' => 'admin@visionarios.co.mz', 'password' => 'admin123'], 'admin');
-        $createUser(['name' => 'Secretaria Escolar', 'email' => 'secretaria@visionarios.co.mz', 'password' => 'secretaria123'], 'secretary');
-        $createUser(['name' => 'Coordenador Pedagógico', 'email' => 'pedagogia@visionarios.co.mz', 'password' => 'pedagogia123'], 'pedagogy');
-        $demoTeacherUser = $createUser(['name' => 'Professor Exemplo', 'email' => 'professor@visionarios.co.mz', 'password' => 'professor123'], 'teacher');
+        $createUser(['name' => 'Super Administrador', 'email' => 'superadmin@visionarios.co.mz', 'password' => 'superadmin123', 'school_id' => null], 'super_admin');
+        $createUser(['name' => 'Director Geral', 'email' => 'admin@visionarios.co.mz', 'password' => 'admin123', 'school_id' => $visSchoolId], 'admin');
+        $createUser(['name' => 'Secretaria & Tesouraria', 'email' => 'secretaria@visionarios.co.mz', 'password' => 'secretaria123', 'school_id' => $visSchoolId], 'secretary');
+        $createUser(['name' => 'Director Pedagógico', 'email' => 'pedagogia@visionarios.co.mz', 'password' => 'pedagogia123', 'school_id' => $visSchoolId], 'pedagogy');
+        $demoTeacherUser = $createUser(['name' => 'Professor Exemplo', 'email' => 'professor@visionarios.co.mz', 'password' => 'professor123', 'school_id' => $visSchoolId], 'teacher');
         
         // Escolas só existem depois do seed demo; em BD vazia (testes/1º deploy) não cria o Teacher.
-        $demoSchoolId = $demoTeacherUser->school_id ?: 1;
+        $demoSchoolId = $demoTeacherUser->school_id ?: ($visSchoolId ?: 1);
         $demoTeacher = \App\Models\School::whereKey($demoSchoolId)->exists()
             ? \App\Models\Teacher::firstOrCreate(
                 ['user_id' => $demoTeacherUser->id],
@@ -341,8 +354,9 @@ class PermissionSeeder extends Seeder
             }
         }
 
-        $createUser(['name' => 'Encarregado de Educação', 'email' => 'pai@visionarios.co.mz', 'password' => 'pai123'], 'parent');
-        $createUser(['name' => 'Segurança / Portaria', 'email' => 'seguranca@visionarios.co.mz', 'password' => 'seguranca123'], 'security');
+        $createUser(['name' => 'Encarregado de Educação', 'email' => 'pai@visionarios.co.mz', 'password' => 'pai123', 'school_id' => $visSchoolId], 'parent');
+        $createUser(['name' => 'Aluno Exemplo', 'email' => 'aluno@visionarios.co.mz', 'password' => 'aluno123', 'school_id' => $visSchoolId], 'student');
+        $createUser(['name' => 'Segurança / Portaria', 'email' => 'seguranca@visionarios.co.mz', 'password' => 'seguranca123', 'school_id' => $visSchoolId], 'security');
 
         // Usuários Territoriais
         $createUser(['name' => 'Inspector Provincial Zambézia', 'email' => 'inspector.zambezia@minedh.gov.mz', 'password' => 'provincia123'], 'province_inspector');

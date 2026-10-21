@@ -18,6 +18,49 @@ Formato de cada entrada:
 **Próximo passo recomendado:** ...
 ```
 
+## [2026-10-21] — Transição de Identidade: Escola dos Visionários (Quelimane & Alto Molócuè) — Antigravity AI Agent
+
+**Feito:**
+- **TerritorialSeeder & Redefinição das Escolas Primárias**:
+  - Adicionado o distrito de Alto Molócuè (`ZAM-MOL`) na Zambézia.
+  - Registadas as duas filiais privadas da Escola dos Visionários:
+    - `VIS-QUE`: Escola dos Visionários — Quelimane (Sede, tipo privada)
+    - `VIS-MOL`: Escola dos Visionários — Alto Molócuè (Filial, tipo privada)
+  - Mantidas escolas de referência pública (`ESG-NAM`, `ESG-PAZ`, `EPC-NAM`) para garantia de 100% de retrocompatibilidade de testes.
+- **DatabaseSeeder & DemoDataSeeder**:
+  - Contexto de escola demo alterado para `VIS-QUE` (Escola dos Visionários — Quelimane).
+  - Execução dos seeders demo habilitada sem bloqueio indevido por ambiente.
+  - Alunos, turmas e professores associados à Escola dos Visionários.
+  - Pagamentos e mensalidades gerados com prefixo `VIS-MAT-` e `VIS-MENS-`, incluindo propinas pagas, pendentes e vencidas com multas diárias calculadas.
+  - Criado utilizador demo `aluno@visionarios.co.mz` (`aluno123`) com a role `student` e vinculado encarregado `pai@visionarios.co.mz`.
+- **SettingSeeder**:
+  - `school_name`: "Escola dos Visionários"
+  - `school_short_name`: "Visionários"
+  - `system_name`: "Visionários School System"
+  - `email`: "contacto@visionarios.co.mz"
+  - `phone`: "+258 84 300 1000"
+  - `address`: "Quelimane & Alto Molócuè, Zambézia, Moçambique"
+- **Páginas Welcome e Login (`welcome.blade.php`, `login.blade.php`)**:
+  - Redesenhada a página de boas-vindas com foco comercial e institucional na **Escola dos Visionários**, destacando as duas filiais (Quelimane e Alto Molócuè), controlo de propinas e multas, portal dos pais e pautas oficiais SNE.
+  - Redenhada a página de login com branding da Escola dos Visionários e atalhos 1-clique para Dono/Mantenedor, Director Geral, Tesouraria/Propinas, Pedagógico, Professor, Encarregado e Aluno.
+- **Script de Deploy (`deploy-zamedu.sh`)**:
+  - Atualizado para executar `php artisan migrate:fresh --force --seed` para zerar a base de dados em produção e popular com os dados da Escola dos Visionários.
+
+**Testado:**
+- Testes automatizados executados com sucesso:
+  - `DatabaseSeederTest` (42 asserções)
+  - `MultiTenantSchoolNameTest`
+  - `SchoolIdNotNullTest`
+  - `SchoolAllocationAndWelcomeTest`
+  - `GradeBatchCreateTest` & `TeacherPortalDashboardTest` (100% aprovados).
+
+**Não feito / bloqueado:**
+- Deploy final no servidor e inspeção no Chrome DevTools (a ser executado em seguida).
+
+**Próximo passo recomendado:**
+- Executar commit, push nos dois repositórios remotos e correr o script de deploy em produção.
+
+
 ## [2026-10-21] — Deploy Produção & Sincronização Multi-Repo — Antigravity AI Agent
 
 **Feito:**

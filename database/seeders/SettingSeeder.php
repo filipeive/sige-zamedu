@@ -14,18 +14,19 @@ class SettingSeeder extends Seeder
     {
         $defaultSettings = [
             // Identidade da Instituição
-            ['key' => 'school_name', 'value' => 'ZamEdu', 'group' => 'identity'],
-            ['key' => 'school_short_name', 'value' => 'ZamEdu', 'group' => 'identity'],
+            ['key' => 'school_name', 'value' => 'Escola dos Visionários', 'group' => 'identity'],
+            ['key' => 'school_short_name', 'value' => 'Visionários', 'group' => 'identity'],
+            ['key' => 'system_name', 'value' => 'Visionários School System', 'group' => 'identity'],
             ['key' => 'logo_url', 'value' => '/images/logo.png', 'group' => 'identity'],
-            ['key' => 'primary_color', 'value' => '#1B5E20', 'group' => 'identity'],
-            ['key' => 'secondary_color', 'value' => '#FFB300', 'group' => 'identity'],
+            ['key' => 'primary_color', 'value' => '#0F766E', 'group' => 'identity'],
+            ['key' => 'secondary_color', 'value' => '#F59E0B', 'group' => 'identity'],
             ['key' => 'institution_type', 'value' => 'escola_privada', 'group' => 'identity'],
             ['key' => 'grading_scale', 'value' => '0_20', 'group' => 'academic'],
             
             // Contactos & Localização
-            ['key' => 'phone', 'value' => '+258 84 000 0000', 'group' => 'contact'],
-            ['key' => 'email', 'value' => 'contacto@zamedu.co.mz', 'group' => 'contact'],
-            ['key' => 'address', 'value' => 'Maputo, Moçambique', 'group' => 'contact'],
+            ['key' => 'phone', 'value' => '+258 84 300 1000', 'group' => 'contact'],
+            ['key' => 'email', 'value' => 'contacto@visionarios.co.mz', 'group' => 'contact'],
+            ['key' => 'address', 'value' => 'Quelimane & Alto Molócuè, Zambézia, Moçambique', 'group' => 'contact'],
             
             // Académico
             ['key' => 'current_academic_year', 'value' => '2025', 'group' => 'academic'],
@@ -59,7 +60,7 @@ class SettingSeeder extends Seeder
         }
 
         // Garantir Licença Ativa Ilimitada no Sistema
-        $licenseSchoolId = \App\Models\School::value('id');
+        $licenseSchoolId = \App\Models\School::where('code', 'VIS-QUE')->value('id') ?? \App\Models\School::value('id');
         if (!$licenseSchoolId) {
             return;
         }
@@ -68,8 +69,8 @@ class SettingSeeder extends Seeder
             ['id' => 1],
             [
                 'school_id' => $licenseSchoolId,
-                'client_name' => 'ZamEdu School',
-                'license_key' => 'UNLIMITED-ZAMEDU-KEY',
+                'client_name' => 'Escola dos Visionários',
+                'license_key' => 'VISIONARIOS-ENTERPRISE-UNLIMITED',
                 'status' => 'active',
                 'expires_at' => null,
                 'plan' => 'enterprise',

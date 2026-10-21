@@ -21,10 +21,12 @@ class DatabaseSeeder extends Seeder
             FinancialCategorySeeder::class,
         ]);
 
-        // Dados Demo (Apenas em desenvolvimento/demonstração)
-        if (app()->environment('local', 'testing', 'demo')) {
-            $demoSchoolId = \App\Models\School::where('code', 'ESG-NAM')->value('id')
-                ?? \App\Models\School::value('id');
+        // Dados Operacionais e Demo (Escola dos Visionários)
+        $demoSchoolId = \App\Models\School::where('code', 'VIS-QUE')->value('id')
+            ?? \App\Models\School::where('code', 'ESG-NAM')->value('id')
+            ?? \App\Models\School::value('id');
+
+        if ($demoSchoolId) {
             \App\Services\SchoolContext::setSchoolId($demoSchoolId);
 
             $this->call([

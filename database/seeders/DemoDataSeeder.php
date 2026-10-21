@@ -58,16 +58,16 @@ class DemoDataSeeder extends Seeder
     private function createTeachers()
     {
         $teacherSpecs = [
-            ['name' => 'Maria Santos Silva', 'email' => 'maria.silva@zamedu.co.mz', 'qualification' => 'Mestrado em Educação', 'specialization' => 'Português'],
-            ['name' => 'João Carlos Mendes', 'email' => 'joao.mendes@zamedu.co.mz', 'qualification' => 'Licenciatura em Matemática', 'specialization' => 'Matemática'],
-            ['name' => 'Ana Paula Costa', 'email' => 'ana.costa@zamedu.co.mz', 'qualification' => 'Licenciatura em Física', 'specialization' => 'Física'],
-            ['name' => 'Carlos Alberto Nunes', 'email' => 'carlos.nunes@zamedu.co.mz', 'qualification' => 'Licenciatura em Química', 'specialization' => 'Química'],
-            ['name' => 'Fernanda Lima', 'email' => 'fernanda.lima@zamedu.co.mz', 'qualification' => 'Licenciatura em Educação Física', 'specialization' => 'Educação Física'],
-            ['name' => 'Roberto Afonso', 'email' => 'roberto.afonso@zamedu.co.mz', 'qualification' => 'Licenciatura em História', 'specialization' => 'História'],
-            ['name' => 'Teresa Baloi', 'email' => 'teresa.baloi@zamedu.co.mz', 'qualification' => 'Licenciatura em Geografia', 'specialization' => 'Geografia'],
-            ['name' => 'Élia Muthemba', 'email' => 'elia.muthemba@zamedu.co.mz', 'qualification' => 'Licenciatura em Biologia', 'specialization' => 'Biologia'],
-            ['name' => 'Samuel Macamo', 'email' => 'samuel.macamo@zamedu.co.mz', 'qualification' => 'Licenciatura em Inglês', 'specialization' => 'Inglês'],
-            ['name' => 'Lucinda Nguenha', 'email' => 'lucinda.nguenha@zamedu.co.mz', 'qualification' => 'Licenciatura em Filosofia', 'specialization' => 'Filosofia'],
+            ['name' => 'Maria Santos Silva', 'email' => 'maria.silva@visionarios.co.mz', 'qualification' => 'Mestrado em Educação', 'specialization' => 'Português'],
+            ['name' => 'João Carlos Mendes', 'email' => 'joao.mendes@visionarios.co.mz', 'qualification' => 'Licenciatura em Matemática', 'specialization' => 'Matemática'],
+            ['name' => 'Ana Paula Costa', 'email' => 'ana.costa@visionarios.co.mz', 'qualification' => 'Licenciatura em Física', 'specialization' => 'Física'],
+            ['name' => 'Carlos Alberto Nunes', 'email' => 'carlos.nunes@visionarios.co.mz', 'qualification' => 'Licenciatura em Química', 'specialization' => 'Química'],
+            ['name' => 'Fernanda Lima', 'email' => 'fernanda.lima@visionarios.co.mz', 'qualification' => 'Licenciatura em Educação Física', 'specialization' => 'Educação Física'],
+            ['name' => 'Roberto Afonso', 'email' => 'roberto.afonso@visionarios.co.mz', 'qualification' => 'Licenciatura em História', 'specialization' => 'História'],
+            ['name' => 'Teresa Baloi', 'email' => 'teresa.baloi@visionarios.co.mz', 'qualification' => 'Licenciatura em Geografia', 'specialization' => 'Geografia'],
+            ['name' => 'Élia Muthemba', 'email' => 'elia.muthemba@visionarios.co.mz', 'qualification' => 'Licenciatura em Biologia', 'specialization' => 'Biologia'],
+            ['name' => 'Samuel Macamo', 'email' => 'samuel.macamo@visionarios.co.mz', 'qualification' => 'Licenciatura em Inglês', 'specialization' => 'Inglês'],
+            ['name' => 'Lucinda Nguenha', 'email' => 'lucinda.nguenha@visionarios.co.mz', 'qualification' => 'Licenciatura em Filosofia', 'specialization' => 'Filosofia'],
         ];
 
         $teachers = collect();
@@ -184,6 +184,29 @@ class DemoDataSeeder extends Seeder
             $parents->push($parent);
         }
 
+        // Garantir que o Pai Demo (pai@visionarios.co.mz) existe na colecção de encarregados
+        $demoParentUser = User::where('email', 'pai@visionarios.co.mz')->first();
+        if ($demoParentUser) {
+            $demoParent = ParentModel::updateOrCreate(
+                ['user_id' => $demoParentUser->id],
+                [
+                    'first_name' => 'Manuel',
+                    'last_name' => 'dos Santos',
+                    'phone' => '+258 84 311 2233',
+                    'email' => 'pai@visionarios.co.mz',
+                    'address' => 'Bairro Central, Quelimane',
+                    'relationship' => 'Father',
+                    'profession' => 'Engenheiro Agrónomo',
+                    'workplace' => 'Quelimane',
+                    'emergency_contact' => 'Esposa',
+                    'emergency_phone' => '+258 82 311 2244',
+                    'bi_number' => '100234567M',
+                    'birth_date' => now()->subYears(42),
+                ]
+            );
+            $parents->prepend($demoParent);
+        }
+
         return $parents;
     }
 
@@ -194,16 +217,17 @@ class DemoDataSeeder extends Seeder
 
         $students = collect();
         $studentIndex = (Student::max('id') ?? 0) + 1;
+        $demoStudentUser = User::where('email', 'aluno@visionarios.co.mz')->first();
 
-        foreach ($parents as $parent) {
+        foreach ($parents as $pIdx => $parent) {
             $numChildren = rand(1, 3);
 
             for ($c = 0; $c < $numChildren; $c++) {
-                $firstName = $firstNames[array_rand($firstNames)];
+                $firstName = ($pIdx === 0 && $c === 0 && $demoStudentUser) ? 'Visionário' : $firstNames[array_rand($firstNames)];
                 $lastName = $parent->last_name ?: $lastNames[array_rand($lastNames)];
-                $age = rand(6, 17);
+                $age = rand(7, 16);
 
-                $studentNumber = 'ZAM' . date('Y') . str_pad($studentIndex, 4, '0', STR_PAD_LEFT);
+                $studentNumber = 'VIS' . date('Y') . str_pad($studentIndex, 4, '0', STR_PAD_LEFT);
 
                 $student = Student::create([
                     'student_number' => $studentNumber,
@@ -211,11 +235,11 @@ class DemoDataSeeder extends Seeder
                     'last_name' => $lastName,
                     'gender' => rand(0, 1) ? 'male' : 'female',
                     'birthdate' => now()->subYears($age)->subDays(rand(0, 350)),
-                    'birth_place' => 'Maputo',
+                    'birth_place' => 'Quelimane',
                     'registration_date' => now()->startOfYear()->addDays(rand(1, 20)),
-                    'monthly_fee' => 2300.00,
+                    'monthly_fee' => 2500.00,
                     'parent_id' => $parent->user_id,
-                    'address' => $parent->address ?? 'Maputo, Moçambique',
+                    'address' => $parent->address ?? 'Quelimane, Moçambique',
                     'emergency_contact' => $parent->first_name . ' ' . $parent->last_name,
                     'emergency_phone' => $parent->phone,
                     'status' => 'active',
@@ -378,7 +402,7 @@ class DemoDataSeeder extends Seeder
         foreach ($enrollments as $enrollment) {
             // Pagamento de Matrícula
             Payment::create([
-                'reference_number' => 'ZAM-MAT-' . $enrollment->student_id . '-' . $year . '-' . rand(100, 999),
+                'reference_number' => 'VIS-MAT-' . $enrollment->student_id . '-' . $year . '-' . rand(100, 999),
                 'student_id' => $enrollment->student_id,
                 'enrollment_id' => $enrollment->id,
                 'type' => 'matricula',
@@ -405,11 +429,11 @@ class DemoDataSeeder extends Seeder
                     } elseif ($randStatus <= 92) {
                         $status = 'paid';
                         $paymentDate = $dueDate->copy()->addDays(rand(3, 15));
-                        $penalty = 230.00; // 10% multa
+                        $penalty = 250.00; // 10% multa
                     } else {
                         $status = 'overdue';
                         $paymentDate = null;
-                        $penalty = 230.00;
+                        $penalty = 250.00;
                     }
                 } else {
                     $status = rand(1, 100) <= 30 ? 'paid' : 'pending';
@@ -418,11 +442,11 @@ class DemoDataSeeder extends Seeder
                 }
 
                 Payment::create([
-                    'reference_number' => 'ZAM-MENS-' . $enrollment->student_id . '-' . sprintf('%02d', $m) . '-' . $year . '-' . rand(100, 999),
+                    'reference_number' => 'VIS-MENS-' . $enrollment->student_id . '-' . sprintf('%02d', $m) . '-' . $year . '-' . rand(100, 999),
                     'student_id' => $enrollment->student_id,
                     'enrollment_id' => $enrollment->id,
                     'type' => 'mensalidade',
-                    'amount' => $enrollment->monthly_fee ?? 2300.00,
+                    'amount' => $enrollment->monthly_fee ?? 2500.00,
                     'month' => $m,
                     'year' => $year,
                     'due_date' => $dueDate,

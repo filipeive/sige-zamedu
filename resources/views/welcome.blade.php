@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>ZAMEDU - SIGE — Sistema Integrado de Gestão Escolar de Moçambique</title>
+    <title>Escola dos Visionários — Quelimane & Alto Molócuè · ZAMEDU - SIGE</title>
 
     <!-- Favicon Icons -->
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
@@ -518,11 +518,13 @@
     <header class="top-bar">
         <div class="container">
             <div class="brand d-flex align-items-center gap-3">
-                <img src="{{ asset('images/emblem.png') }}" alt="Emblema da República de Moçambique" style="height: 52px; width: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));" class="brand-logo-emblem">
+                <div class="brand-logo-icon" style="background: linear-gradient(135deg, #047857 0%, #065F46 100%);">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
                 <div class="brand-text">
-                    <span class="text-xs font-bold uppercase tracking-wider text-emerald-800 d-block" style="font-size: 10px; color: #007A3D; font-weight: 800;">REPÚBLICA DE MOÇAMBIQUE · MINEDH</span>
-                    <h1>ZAMEDU - SIGE</h1>
-                    <span>Sistema Integrado de Gestão Escolar</span>
+                    <span class="text-xs font-bold uppercase tracking-wider text-emerald-800 d-block" style="font-size: 10px; color: #007A3D; font-weight: 800;">REDE ESCOLAR PRIVADA · REPÚBLICA DE MOÇAMBIQUE · MINEDH · ZAMEDU - SIGE</span>
+                    <h1>ESCOLA DOS VISIONÁRIOS</h1>
+                    <span>Ensino de Excelência · Quelimane & Alto Molócuè</span>
                 </div>
             </div>
 
@@ -534,10 +536,10 @@
                     <i class="fas fa-chart-pie"></i> Vagas 2027
                 </a>
                 <a href="{{ route('public.pre-enrollment') }}" class="btn-pre-enrollment">
-                    <i class="fas fa-user-plus"></i> Pré-Inscrição por Região
+                    <i class="fas fa-user-plus"></i> Inscrições Online
                 </a>
                 <a href="{{ route('login') }}" class="btn-login">
-                    <i class="fas fa-right-to-bracket"></i> Aceder ao Sistema
+                    <i class="fas fa-right-to-bracket"></i> Aceder ao Portal
                 </a>
             </div>
         </div>
@@ -551,30 +553,33 @@
             <div class="hero-grid">
                 <div>
                     <div class="hero-badge">
-                        <img src="{{ asset('images/emblem.png') }}" alt="Emblema Oficial" style="height: 22px; width: auto;" class="me-1">
-                        REPÚBLICA DE MOÇAMBIQUE · MINEDH
+                        <i class="fas fa-award text-yellow-400 me-1"></i>
+                        ESCOLA DOS VISIONÁRIOS · QUELIMANE & ALTO MOLÓCUÈ
                     </div>
                     <h1 class="hero-title">
-                        Gestão Escolar Oficial <span>Sem Filas e Sem Congestionamento</span>
+                        Educação de Excelência, <span>Rigor e Futuro</span>
                     </h1>
                     <p class="hero-desc">
-                        Plataforma oficial ZAMEDU - SIGE para modernizar a gestão académica de Escolas Públicas e Privadas de Moçambique. Emissão de Pautas, Boletins e Certificados em total conformidade com o Sistema Nacional de Educação (SNE - Lei 18/2018).
+                        Plataforma oficial da Escola dos Visionários para modernizar a gestão académica, pedagógica e financeira. Acompanhamento em tempo real para pais, pautas oficiais e controlo automatizado de propinas e multas para as filiais de Quelimane e Alto Molócuè.
                     </p>
                     <div class="hero-buttons">
-                        <a href="{{ route('public.allocations') }}" class="btn-hero-primary">
+                        <a href="{{ route('login') }}" class="btn-hero-primary">
+                            <i class="fas fa-right-to-bracket"></i> Entrar no Portal
+                        </a>
+                        <a href="{{ route('public.pre-enrollment') }}" class="btn-hero-secondary">
+                            <i class="fas fa-user-plus"></i> Inscrições Online
+                        </a>
+                        <a href="{{ route('public.allocations') }}" class="btn-hero-secondary">
                             <i class="fas fa-map-location-dot"></i> Afetações 2027
                         </a>
                         <a href="{{ route('public.vacancies') }}" class="btn-hero-secondary">
                             <i class="fas fa-chart-pie"></i> Vagas 2027
                         </a>
-                        <a href="{{ route('public.pre-enrollment') }}" class="btn-hero-secondary">
-                            <i class="fas fa-user-plus"></i> Pré-Inscrição por Região
-                        </a>
                     </div>
 
                     <!-- Níveis SNE -->
                     <div class="mt-6 pt-4 border-t border-white/20 flex flex-wrap items-center gap-2">
-                        <span class="text-xs font-bold text-yellow-400 uppercase tracking-wider">Níveis SNE:</span>
+                        <span class="text-xs font-bold text-yellow-400 uppercase tracking-wider">Homologação Oficial (SNE Lei 18/2018):</span>
                         <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-white/15 text-white border border-white/25">Escola Local</span>
                         <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-white/15 text-white border border-white/25">ZIP (Micro-Rede)</span>
                         <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-white/15 text-white border border-white/25">Distrito (SDEJT)</span>
@@ -584,45 +589,50 @@
 
                 <div class="hero-card">
                     <div class="hero-card-header d-flex align-items-center gap-3">
-                        <img src="{{ asset('images/emblem.png') }}" alt="Emblema da República" style="height: 48px; width: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));">
+                        <div class="hero-card-header-icon" style="background: linear-gradient(135deg, #059669 0%, #047857 100%);">
+                            <i class="fas fa-school"></i>
+                        </div>
                         <div>
-                            <h3 class="mb-0">MINEDH Moçambique</h3>
-                            <span class="text-xs text-slate-500 font-semibold">Sistema Nacional de Educação (SNE)</span>
+                            <h3 class="mb-0">Rede de Filiais Visionários</h3>
+                            <span class="text-xs text-slate-500 font-semibold">Província da Zambézia · Gestão Unificada</span>
                         </div>
                     </div>
 
                     <div class="space-y-3">
                         <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-3">
                             <div class="w-8 h-8 rounded-lg bg-emerald-700 text-white flex items-center justify-center font-bold">
-                                <i class="fas fa-users-slash"></i>
+                                <i class="fas fa-city"></i>
                             </div>
                             <div>
-                                <h4 class="text-xs font-bold text-slate-800">Secretaria Digital Sem Filas</h4>
-                                <p class="text-[11px] text-slate-600">Submissão remota de pré-candidaturas e documentos.</p>
+                                <h4 class="text-xs font-bold text-slate-800">Filial Quelimane (Sede)</h4>
+                                <p class="text-[11px] text-slate-600">Av. Samora Machel, Bairro Central · Ensino Primário e Secundário.</p>
                             </div>
                         </div>
 
                         <div class="p-3 rounded-xl bg-blue-50 border border-blue-200 flex items-center gap-3">
                             <div class="w-8 h-8 rounded-lg bg-blue-700 text-white flex items-center justify-center font-bold">
-                                <i class="fas fa-award"></i>
+                                <i class="fas fa-location-dot"></i>
                             </div>
                             <div>
-                                <h4 class="text-xs font-bold text-slate-800">Certificados & Pautas Oficiais</h4>
-                                <p class="text-[11px] text-slate-600">Geração automática de boletins e certidões MINEDH.</p>
+                                <h4 class="text-xs font-bold text-slate-800">Filial Alto Molócuè</h4>
+                                <p class="text-[11px] text-slate-600">Av. Eduardo Mondlane · Rigor pedagógico e acompanhamento contínuo.</p>
                             </div>
                         </div>
 
                         <div class="p-3 rounded-xl bg-amber-50 border border-amber-200 flex items-center gap-3">
                             <div class="w-8 h-8 rounded-lg bg-amber-700 text-white flex items-center justify-center font-bold">
-                                <i class="fas fa-sliders"></i>
+                                <i class="fas fa-receipt"></i>
                             </div>
                             <div>
-                                <h4 class="text-xs font-bold text-slate-800">Modo Escola Pública ou Privada</h4>
-                                <p class="text-[11px] text-slate-600">Onboarding parametrizável de acordo com o regime institucional.</p>
+                                <h4 class="text-xs font-bold text-slate-800">Tesouraria Digital & Propinas</h4>
+                                <p class="text-[11px] text-slate-600">Emissão de faturas, cálculo automático de multas e M-Pesa/eMola.</p>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </section>
             </div>
         </div>
     </section>
@@ -705,10 +715,10 @@
                         <div class="footer-brand-icon">
                             <i class="fas fa-graduation-cap"></i>
                         </div>
-                        <h4>ZAMEDU - SIGE</h4>
+                        <h4>Escola dos Visionários</h4>
                     </div>
                     <p class="text-xs text-slate-400 max-w-sm mb-3">
-                        Sistema Integrado de Gestão Escolar de Moçambique. Desenvolvido sob os padrões pedagógicos e institucionais do MINEDH.
+                        Rede Escolar de Excelência · Filiais em Quelimane e Alto Molócuè. Sistema de Gestão Escolar (ZAMEDU - SIGE) em plena conformidade com o MINEDH e a Lei 18/2018.
                     </p>
                     <div class="footer-dev-badge">
                         Desenvolvido por <a href="http://146.235.224.99/" target="_blank">Filipe dos Santos</a>
@@ -716,24 +726,26 @@
                 </div>
 
                 <div>
-                    <h4 class="text-white text-xs font-bold uppercase tracking-wider mb-3">Localização Oficial</h4>
+                    <h4 class="text-white text-xs font-bold uppercase tracking-wider mb-3">Nossas Filiais</h4>
                     <ul class="text-xs space-y-2 text-slate-400">
-                        <li><i class="fas fa-map-marker-alt me-2 text-emerald-500"></i>{{ setting('school_district', setting('district', 'Namacurra')) }}, {{ setting('school_province', setting('province', 'Zambézia')) }}</li>
-                        <li><i class="fas fa-globe me-2 text-emerald-500"></i>Moçambique</li>
+                        <li><i class="fas fa-map-marker-alt me-2 text-emerald-500"></i><strong>Quelimane:</strong> Av. Samora Machel, Bairro Central</li>
+                        <li><i class="fas fa-map-marker-alt me-2 text-emerald-500"></i><strong>Alto Molócuè:</strong> Av. Eduardo Mondlane</li>
+                        <li><i class="fas fa-globe me-2 text-emerald-500"></i>Zambézia, Moçambique</li>
                     </ul>
                 </div>
 
                 <div>
-                    <h4 class="text-white text-xs font-bold uppercase tracking-wider mb-3">Suporte Técnico</h4>
+                    <h4 class="text-white text-xs font-bold uppercase tracking-wider mb-3">Contactos & Atendimento</h4>
                     <ul class="text-xs space-y-2 text-slate-400">
-                        <li><i class="fas fa-envelope me-2 text-emerald-500"></i><a href="mailto:{{ setting('school_email', 'contacto@visionarios.co.mz') }}" class="hover:text-white">{{ setting('school_email', 'contacto@visionarios.co.mz') }}</a></li>
-                        <li><i class="fas fa-phone me-2 text-emerald-500"></i>{{ setting('school_phone', '+258 84 123 4567') }}</li>
+                        <li><i class="fas fa-envelope me-2 text-emerald-500"></i><a href="mailto:quelimane@visionarios.co.mz" class="hover:text-white">quelimane@visionarios.co.mz</a></li>
+                        <li><i class="fas fa-envelope me-2 text-emerald-500"></i><a href="mailto:molocue@visionarios.co.mz" class="hover:text-white">molocue@visionarios.co.mz</a></li>
+                        <li><i class="fas fa-phone me-2 text-emerald-500"></i>+258 84 300 1000 / +258 84 300 2000</li>
                     </ul>
                 </div>
             </div>
 
             <div class="footer-bottom">
-                &copy; {{ date('Y') }} <strong>ZAMEDU - SIGE</strong> · Todos os direitos reservados. · Desenvolvido por <a href="http://146.235.224.99/" target="_blank" class="text-emerald-400 font-bold hover:underline">Filipe dos Santos</a>
+                &copy; {{ date('Y') }} <strong>Escola dos Visionários</strong> · Plataforma ZAMEDU - SIGE · Todos os direitos reservados. · Desenvolvido por <a href="http://146.235.224.99/" target="_blank" class="text-emerald-400 font-bold hover:underline">Filipe dos Santos</a>
             </div>
         </div>
     </footer>

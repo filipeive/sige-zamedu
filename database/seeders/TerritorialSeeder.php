@@ -49,18 +49,43 @@ class TerritorialSeeder extends Seeder
             ['province_id' => $zambezia->id, 'name' => 'Quelimane', 'is_active' => true]
         );
 
+        $altoMolocue = District::updateOrCreate(
+            ['code' => 'ZAM-MOL'],
+            ['province_id' => $zambezia->id, 'name' => 'Alto Molócuè', 'is_active' => true]
+        );
+
         $mocuba = District::updateOrCreate(
             ['code' => 'ZAM-MOC'],
             ['province_id' => $zambezia->id, 'name' => 'Mocuba', 'is_active' => true]
         );
 
-        // 3. ZIPs (Zonas de Influência Pedagógica) de Namacurra
+        // 3. ZIPs (Zonas de Influência Pedagógica)
         $zipSede = Zip::updateOrCreate(
             ['code' => 'ZIP-01-NAM'],
             [
                 'district_id' => $namacurra->id,
                 'name' => 'ZIP Nº 01 - Namacurra Sede',
                 'headquarters' => 'Escola Secundária de Namacurra',
+                'is_active' => true,
+            ]
+        );
+
+        $zipQuelimane = Zip::updateOrCreate(
+            ['code' => 'ZIP-01-QUE'],
+            [
+                'district_id' => $quelimane->id,
+                'name' => 'ZIP Central de Quelimane',
+                'headquarters' => 'Escola dos Visionários — Quelimane',
+                'is_active' => true,
+            ]
+        );
+
+        $zipMolocue = Zip::updateOrCreate(
+            ['code' => 'ZIP-01-MOL'],
+            [
+                'district_id' => $altoMolocue->id,
+                'name' => 'ZIP Central de Alto Molócuè',
+                'headquarters' => 'Escola dos Visionários — Alto Molócuè',
                 'is_active' => true,
             ]
         );
@@ -85,7 +110,40 @@ class TerritorialSeeder extends Seeder
             ]
         );
 
-        // 4. Escolas Piloto
+        // 4. Escolas Principais da Rede Privada Visionários
+        School::updateOrCreate(
+            ['code' => 'VIS-QUE'],
+            [
+                'province_id' => $zambezia->id,
+                'district_id' => $quelimane->id,
+                'zip_id' => $zipQuelimane->id,
+                'name' => 'Escola dos Visionários — Quelimane',
+                'type' => 'private',
+                'address' => 'Av. Samora Machel, Bairro Central, Quelimane',
+                'phone' => '+258 84 300 1000',
+                'email' => 'quelimane@visionarios.co.mz',
+                'principal_name' => 'Director Geral Filipe dos Santos',
+                'is_active' => true,
+            ]
+        );
+
+        School::updateOrCreate(
+            ['code' => 'VIS-MOL'],
+            [
+                'province_id' => $zambezia->id,
+                'district_id' => $altoMolocue->id,
+                'zip_id' => $zipMolocue->id,
+                'name' => 'Escola dos Visionários — Alto Molócuè',
+                'type' => 'private',
+                'address' => 'Av. Eduardo Mondlane, Alto Molócuè',
+                'phone' => '+258 84 300 2000',
+                'email' => 'molocue@visionarios.co.mz',
+                'principal_name' => 'Director de Filial Manuel Cossa',
+                'is_active' => true,
+            ]
+        );
+
+        // 5. Escolas de Referência Pública (compatibilidade de testes e SNE)
         School::updateOrCreate(
             ['code' => 'ESG-NAM'],
             [

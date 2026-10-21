@@ -70,7 +70,7 @@ composer install --no-dev --optimize-autoloader --no-interaction
 # Criar ou atualizar ficheiro .env para produção
 echo "⚙️ Configurando .env para produção..."
 cat > .env << 'ENVEOF'
-APP_NAME="ZamEdu - SIGE"
+APP_NAME="Escola dos Visionários"
 APP_ENV=production
 APP_KEY=base64:3WAeZowb2U8CefDgtdfbzeD0TIvaUrphK94tbxIblhc=
 APP_DEBUG=false
@@ -95,12 +95,9 @@ SESSION_DRIVER=file
 SESSION_LIFETIME=120
 ENVEOF
 
-# Executar migrations e seeders de dados iniciais
-echo "🗄️ Executando migrações da base de dados..."
-php artisan migrate --force
-
-echo "🌱 Executando povoamento inicial da base de dados..."
-php artisan db:seed --force
+# Executar migrations e seeders de dados iniciais (Zerar e recriar com a Escola dos Visionários)
+echo "🗄️ Zerando e recriando a base de dados para a Escola dos Visionários (Quelimane & Alto Molócuè)..."
+php artisan migrate:fresh --force --seed
 
 # Otimizar caches Laravel
 echo "⚡ Otimizando caches..."
