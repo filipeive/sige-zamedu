@@ -18,6 +18,42 @@ Formato de cada entrada:
 **Próximo passo recomendado:** ...
 ```
 
+## [2026-10-22] — Varredura Geral e Modernização de Views para Tailwind CSS — Antigravity AI Agent
+
+**Feito:**
+- **Varredura e Eliminação Completa de Bootstrap em `resources/views/`**:
+  - `resources/views/reports/financial.blade.php`: Redesenhado de raiz com padrão Tailwind esmeralda/ardósia, 4 KPI cards executivos com bordas acentuadas (`border-l-4`), barra de navegação financeira rápida, tendências mensais e tabela de transações.
+  - `resources/views/students/attendance.blade.php`: Redesenhado de raiz em Tailwind com cartões KPI (Taxa, Presenças, Faltas, Atrasos), filtros de período e gráfico interativo.
+  - `resources/views/profile/edit.blade.php`, `resources/views/profile/partials/update-profile-information-form.blade.php`, `resources/views/profile/partials/update-password-form.blade.php`: Convertidos formulários e inputs para Tailwind com ícones integrados e botões esmeralda/âmbar.
+  - `resources/views/enrollments/applications/index.blade.php`: Tabela moderna com filtros rápidos por estado (Pendentes, Novos Ingressos, Renovações) e badges com cores semânticas.
+  - `resources/views/enrollments/applications/show.blade.php`: Painel dividido em 2 colunas com Hero executivo, dados do candidato/encarregado, documentos digitalizados, gestão de estado e validação de pagamento.
+  - `resources/views/enrollments/applications/renewal.blade.php`: Fluxo moderno de renovação de matrícula com verificação de dívidas anteriores, taxas de renovação e termos escolares.
+  - `resources/views/students/support/index.blade.php`: Modais de saída do aluno e envio de SMS convertidos para grid Tailwind e inputs estilizados.
+  - `resources/views/teacher-portal/profile.blade.php`: Perfil do docente redesenhado com Hero executivo, avatar gradiente, cartões de turmas/experiência e formulário de dados.
+  - `resources/views/teacher-portal/class-detail.blade.php`: Visão detalhada da turma com barra de progresso de capacidade, pauta de alunos com assiduidade em tempo real, disciplinas e atalhos rápidos.
+  - `resources/views/teacher-portal/gradebook.blade.php`: Caderno de notas redesenhado mantendo as regras estritas de cálculo MINEDH (ACS1-3, ACP, ACF, MT), badges interativos, modal de lançamento individual e cartões KPI de aproveitamento.
+  - `resources/views/teacher-portal/attendance.blade.php`: Interface de chamada diária moderna com seletores tipo radio com destaque ativo, contadores dinâmicos (Presentes, Ausentes, Atrasados) e botão de preenchimento rápido.
+  - `resources/views/teacher-portal/pending-grades.blade.php`: Painel de avaliações pendentes com cartões KPI, secção de avaliações vencidas e próximas avaliações com barras de progresso.
+  - `resources/views/teacher-portal/leave-requests.blade.php`: Gestão de licenças com 4 cartões KPI e tabela histórica.
+  - `resources/views/teacher-portal/class-students.blade.php`: Pauta nominal de alunos da turma com avatar e atalhos rápidos.
+  - `resources/views/teacher-portal/create-profile.blade.php`: Formulário de primeiro acesso do docente com layout limpo.
+  - `resources/views/teacher-portal/communications.blade.php`: Feed de comunicados com barras de prioridade coloridas e anexos para download.
+  - `resources/views/public/material-lists.blade.php` e `resources/views/public/announcements.blade.php`: Páginas públicas modernizadas com cartões esmeralda.
+  - `resources/views/partials/admin-calendar.blade.php`: Calendário escolar reimplementado em Tailwind com eventos e aniversariantes do dia.
+- **Padrão Estético Consolidado**:
+  - Tons esmeralda e ardósia escuro (`#007A3D`, `bg-emerald-600`, `from-slate-900 to-emerald-950`).
+  - Sem emojis: ícones FontAwesome em todos os elementos visuais.
+  - Terminologia e formulários 100% em língua portuguesa.
+  - Testes e integridade do motor de notas preservados.
+
+**Testado:**
+- Linting de sintaxe PHP (`php -l`) aprovado em todos os 18 ficheiros Blade modificados.
+- Build de assets com Vite (`npm run build`) concluído com sucesso em 2.23s.
+- `vendor/bin/phpunit tests/Feature/TeacherPortalDashboardTest.php tests/Feature/GradeBatchCreateTest.php tests/Feature/ProfileTest.php tests/Feature/GradePautaCalculationTest.php` (8 testes, 48 asserções, 100% OK).
+
+**Próximo passo recomendado:**
+- Realizar deploy para o servidor (`146.235.224.99`) através do script `./deployment/deploy-zamedu.sh`.
+
 ## [2026-10-21] — Gestão de Filiais, UI/UX de Pagamentos & Licenças, Redesenho de Notas e Eliminação de Emojis/MINEDH — Antigravity AI Agent
 
 **Feito:**

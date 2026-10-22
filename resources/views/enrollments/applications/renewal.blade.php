@@ -5,196 +5,230 @@
 @section('page-title-icon', 'fas fa-user-plus')
 
 @section('breadcrumbs')
-    <li class="breadcrumb-item">Applications</li>
+    <li class="breadcrumb-item text-slate-400">Matrículas</li>
     <li class="breadcrumb-item active text-slate-600 font-medium">Renovação de Matrícula</li>
 @endsection
 
 @section('content')
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="school-card shadow-lg border-0">
-                    <div class="school-card-header bg-primary-school text-white p-4">
-                        <h2 class="mb-0"><i class="fas fa-sync me-2"></i> Renovação de Matrícula - {{ $academicYear }}</h2>
-                        <p class="mb-0 mt-2 opacity-75">Confirme os dados para a renovação da matrícula de
-                            {{ $student->full_name }}.
-                        </p>
+<div class="max-w-4xl mx-auto space-y-6">
+
+    <!-- Hero Header -->
+    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-950 p-6 text-white shadow-xl">
+        <div class="flex items-center gap-3">
+            <span class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-emerald-300">
+                <i class="fas fa-sync text-lg"></i>
+            </span>
+            <div>
+                <h1 class="text-xl font-bold text-white">Renovação de Matrícula - Ano Letivo {{ $academicYear }}</h1>
+                <p class="text-xs text-slate-300 mt-0.5">Confirme e atualize os dados para a renovação de <strong>{{ $student->full_name }}</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Summary Card -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-2xs p-5">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+            <div>
+                <span class="text-slate-400 font-medium block">Nome do Aluno:</span>
+                <span class="font-bold text-slate-800 text-sm">{{ $student->full_name }}</span>
+            </div>
+            <div>
+                <span class="text-slate-400 font-medium block">Nº de Matrícula:</span>
+                <span class="font-bold font-mono text-emerald-700 text-sm">{{ $student->student_number }}</span>
+            </div>
+            <div>
+                <span class="text-slate-400 font-medium block">Classe Atual:</span>
+                <span class="font-bold text-slate-800 text-sm">{{ $student->current_class->name ?? 'N/A' }}</span>
+            </div>
+        </div>
+    </div>
+
+    <form action="{{ route('parent.student-renewal.store', $student->id) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+        @csrf
+
+        <!-- Contact & Address Section -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+                <h2 class="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
+                    <span class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                        <i class="fas fa-address-book text-xs"></i>
+                    </span>
+                    Atualização de Contactos e Endereço
+                </h2>
+            </div>
+
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Telefone / WhatsApp <span class="text-rose-500">*</span></label>
+                    <input type="text" name="parent[phone]" value="{{ old('parent.phone', $student->parent->phone ?? '') }}" required class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white text-slate-800">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Email do Encarregado</label>
+                    <input type="email" name="parent[email]" value="{{ old('parent.email', $student->parent->user->email ?? '') }}" class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white text-slate-800">
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Endereço Residencial <span class="text-rose-500">*</span></label>
+                    <textarea name="student[address]" rows="2" required class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white text-slate-800">{{ old('student.address', $student->address) }}</textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Nome do Contacto de Emergência <span class="text-rose-500">*</span></label>
+                    <input type="text" name="student[emergency_contact]" value="{{ old('student.emergency_contact', $student->emergency_contact) }}" required class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white text-slate-800">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Telefone de Emergência <span class="text-rose-500">*</span></label>
+                    <input type="text" name="student[emergency_phone]" value="{{ old('student.emergency_phone', $student->emergency_phone) }}" required class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white text-slate-800">
+                </div>
+            </div>
+        </div>
+
+        <!-- Medical Info & Documents -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+                <h2 class="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
+                    <span class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                        <i class="fas fa-heartbeat text-xs"></i>
+                    </span>
+                    Informações Médicas e Documentos
+                </h2>
+            </div>
+
+            <div class="p-6 space-y-5">
+                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                    <label class="inline-flex items-center gap-2.5 cursor-pointer">
+                        <input type="checkbox" name="student[has_special_needs]" value="1" id="special_needs" {{ $student->has_special_needs ? 'checked' : '' }} class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 w-4 h-4">
+                        <span class="text-xs font-semibold text-slate-800">O aluno possui necessidades educativas especiais ou restrições de saúde?</span>
+                    </label>
+                    <div id="special_needs_desc_wrapper" class="{{ $student->has_special_needs ? '' : 'hidden' }} mt-3">
+                        <textarea name="student[special_needs_description]" id="special_needs_desc" rows="2" class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white text-slate-800" placeholder="Descreva as condições específicas ou cuidados recomendados...">{{ $student->special_needs_description }}</textarea>
                     </div>
-                    <div class="school-card-body p-5">
-                        <form action="{{ route('parent.student-renewal.store', $student->id) }}" method="POST">
-                            @csrf
+                </div>
 
-                            <h4 class="border-bottom pb-2 mb-4 text-primary-school">Dados do Aluno</h4>
-                            <div class="row g-3 mb-4">
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted">Nome Completo</label>
-                                    <p class="fw-bold">{{ $student->full_name }}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted">Número de Matrícula</label>
-                                    <p class="fw-bold">{{ $student->student_number }}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted">Classe Atual</label>
-                                    <p class="fw-bold">{{ $student->current_class->name ?? 'N/A' }}</p>
-                                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Atestado Médico Atualizado (PDF / JPG)</label>
+                        <input type="file" name="medical_certificate" class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer">
+                        @if($student->medical_certificate)
+                            <div class="mt-1 text-[11px] text-emerald-600 font-medium flex items-center gap-1">
+                                <i class="fas fa-check-circle"></i> Documento já arquivado no sistema
                             </div>
+                        @endif
+                    </div>
 
-                            <h4 class="border-bottom pb-2 mb-4 text-primary-school">Atualização de Contactos e Endereço</h4>
-                            <div class="row g-3 mb-4">
-                                <div class="col-md-6">
-                                    <label class="form-label">Telefone / WhatsApp <span class="text-danger">*</span></label>
-                                    <input type="text" name="parent[phone]" class="form-control"
-                                        value="{{ $student->parent->phone ?? '' }}" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">E-mail</label>
-                                    <input type="email" name="parent[email]" class="form-control"
-                                        value="{{ $student->parent->user->email ?? '' }}">
-                                </div>
-                                <div class="col-12">
-                                    <label class="form-label">Endereço Residencial <span
-                                            class="text-danger">*</span></label>
-                                    <textarea name="student[address]" class="form-control" rows="2"
-                                        required>{{ $student->address }}</textarea>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Contacto de Emergência <span
-                                            class="text-danger">*</span></label>
-                                    <input type="text" name="student[emergency_contact]" class="form-control"
-                                        value="{{ $student->emergency_contact }}" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Telefone de Emergência <span
-                                            class="text-danger">*</span></label>
-                                    <input type="text" name="student[emergency_phone]" class="form-control"
-                                        value="{{ $student->emergency_phone }}" required>
-                                </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Fotografia tipo Passe (JPG / PNG)</label>
+                        <input type="file" name="passport_photo" class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer">
+                        @if($student->passport_photo)
+                            <div class="mt-1 text-[11px] text-emerald-600 font-medium flex items-center gap-1">
+                                <i class="fas fa-check-circle"></i> Foto já cadastrada no sistema
                             </div>
-
-                            <h4 class="border-bottom pb-2 mb-4 text-primary-school">Informações Médicas e Documentação</h4>
-                            <div class="row g-3 mb-4">
-                                <div class="col-12">
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input" type="checkbox" name="student[has_special_needs]"
-                                            value="1" id="special_needs" {{ $student->has_special_needs ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="special_needs">
-                                            O aluno possui necessidades educativas especiais?
-                                        </label>
-                                    </div>
-                                    <textarea name="student[special_needs_description]" id="special_needs_desc"
-                                        class="form-control {{ $student->has_special_needs ? '' : 'd-none' }}"
-                                        placeholder="Descreva as necessidades..."
-                                        rows="2">{{ $student->special_needs_description }}</textarea>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Atestado Médico (PDF/JPG)</label>
-                                    <input type="file" name="medical_certificate" class="form-control">
-                                    @if($student->medical_certificate)
-                                        <small class="text-success"><i class="fas fa-check"></i> Já possui documento
-                                            enviado</small>
-                                    @endif
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Foto tipo Passe (JPG/PNG)</label>
-                                    <input type="file" name="passport_photo" class="form-control">
-                                    @if($student->passport_photo)
-                                        <small class="text-success"><i class="fas fa-check"></i> Já possui foto enviada</small>
-                                    @endif
-                                </div>
-                            </div>
-
-                            @if($pendingDebts->count() > 0)
-                                <div class="card border-danger mb-4">
-                                    <div class="card-header bg-danger text-white">
-                                        <i class="fas fa-exclamation-circle me-2"></i> Dívidas Pendentes (Anos Anteriores)
-                                    </div>
-                                    <div class="card-body">
-                                        <ul class="list-group list-group-flush">
-                                            @php $debtTotal = 0; @endphp
-                                            @foreach($pendingDebts as $debt)
-                                                <li
-                                                    class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
-                                                    <div>
-                                                        <span class="fw-bold">{{ $debt->month_name }} / {{ $debt->year }}</span>
-                                                        <br><small class="text-muted">{{ $debt->type }}</small>
-                                                    </div>
-                                                    <span
-                                                        class="text-danger fw-bold">{{ number_format($debt->total_amount, 2, ',', '.') }}
-                                                        MT</span>
-                                                </li>
-                                                @php $debtTotal += $debt->total_amount; @endphp
-                                            @endforeach
-                                        </ul>
-                                        <div class="mt-3 text-end">
-                                            <h5 class="text-danger fw-bold">Total em Dívida:
-                                                {{ number_format($debtTotal, 2, ',', '.') }} MT
-                                            </h5>
-                                            <p class="small text-muted mb-0">Estas dívidas devem ser regularizadas juntamente
-                                                com a renovação.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endif
-
-                            <div class="card bg-light mb-4">
-                                <div class="card-body">
-                                    <h5 class="card-title">Taxas de Renovação</h5>
-                                    <ul class="list-group list-group-flush">
-                                        @php $total = 0; @endphp
-                                        @foreach($fees as $fee)
-                                            @if(!$fee->grade_level || $fee->grade_level === $student->grade_level)
-                                                <li
-                                                    class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
-                                                    {{ $fee->name }}
-                                                    <span>{{ number_format($fee->amount, 2, ',', '.') }} MT</span>
-                                                </li>
-                                                @php $total += $fee->amount; @endphp
-                                            @endif
-                                        @endforeach
-                                    </ul>
-                                    <div class="mt-3 text-end">
-                                        <h4 class="fw-bold">Total a Pagar: {{ number_format($total, 2, ',', '.') }} MT</h4>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="mb-4">
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" name="terms_accepted" required
-                                        id="terms">
-                                    <label class="form-check-label" for="terms">
-                                        Confirmo que os dados estão corretos e aceito os termos do novo ano letivo.
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div class="alert alert-warning">
-                                <i class="fas fa-info-circle me-2"></i>
-                                A renovação só será efetivada após a confirmação do pagamento na secretaria.
-                            </div>
-
-                            <div class="mt-5 d-flex justify-content-between">
-                                <a href="{{ route('parent.dashboard') }}" class="btn btn-secondary px-4">Cancelar</a>
-                                <button type="submit" class="btn btn-primary-school px-5">Submeter Renovação</button>
-                            </div>
-                        </form>
+                        @endif
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+
+        <!-- Pending Debts (if any) -->
+        @if(isset($pendingDebts) && $pendingDebts->count() > 0)
+            <div class="bg-rose-50 rounded-2xl border border-rose-200 p-5 shadow-2xs space-y-3">
+                <div class="flex items-center gap-2 text-rose-800 font-bold text-sm">
+                    <i class="fas fa-exclamation-circle text-base"></i>
+                    <span>Dívidas Pendentes de Anos Anteriores</span>
+                </div>
+                <div class="divide-y divide-rose-200/60 text-xs">
+                    @php $debtTotal = 0; @endphp
+                    @foreach($pendingDebts as $debt)
+                        <div class="py-2 flex items-center justify-between">
+                            <div>
+                                <span class="font-bold text-slate-800">{{ $debt->month_name }} / {{ $debt->year }}</span>
+                                <span class="text-slate-500 ml-2 font-normal">({{ $debt->type }})</span>
+                            </div>
+                            <span class="font-bold font-mono text-rose-600">{{ number_format($debt->total_amount, 2, ',', '.') }} MT</span>
+                        </div>
+                        @php $debtTotal += $debt->total_amount; @endphp
+                    @endforeach
+                </div>
+                <div class="pt-3 border-t border-rose-200 flex items-center justify-between text-xs">
+                    <span class="font-bold text-rose-900">Total em Dívida Anterior:</span>
+                    <span class="text-base font-bold font-mono text-rose-700">{{ number_format($debtTotal, 2, ',', '.') }} MT</span>
+                </div>
+                <p class="text-[11px] text-rose-600">Estas dívidas devem ser liquidadas juntamente com a taxa de renovação.</p>
+            </div>
+        @endif
+
+        <!-- Renewal Fees Breakdown -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-2xs p-5">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 mb-3 flex items-center gap-2">
+                <i class="fas fa-receipt text-emerald-600"></i>
+                Taxas de Renovação para o Novo Ano Letivo
+            </h3>
+            <div class="divide-y divide-slate-100 text-xs">
+                @php $total = 0; @endphp
+                @foreach($fees as $fee)
+                    @if(!$fee->grade_level || $fee->grade_level === $student->grade_level)
+                        <div class="py-2.5 flex items-center justify-between">
+                            <span class="text-slate-700">{{ $fee->name }}</span>
+                            <span class="font-mono font-semibold text-slate-800">{{ number_format($fee->amount, 2, ',', '.') }} MT</span>
+                        </div>
+                        @php $total += $fee->amount; @endphp
+                    @endif
+                @endforeach
+            </div>
+            <div class="pt-4 mt-2 border-t border-slate-200 flex items-center justify-between">
+                <span class="font-bold text-slate-800 text-sm">Total da Renovação:</span>
+                <span class="text-xl font-bold font-mono text-emerald-700">{{ number_format($total, 2, ',', '.') }} MT</span>
+            </div>
+        </div>
+
+        <!-- Terms and Conditions Acceptance -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+            <label class="inline-flex items-start gap-2.5 cursor-pointer">
+                <input type="checkbox" name="terms_accepted" required id="terms" class="mt-0.5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 w-4 h-4">
+                <span class="text-xs text-slate-700 leading-relaxed">
+                    Confirmo a veracidade das informações prestadas e concordo com os termos e o regulamento escolar para o novo ano letivo.
+                </span>
+            </label>
+        </div>
+
+        <!-- Notice Alert -->
+        <div class="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 flex items-center gap-3 text-xs">
+            <i class="fas fa-info-circle text-amber-600 text-base flex-shrink-0"></i>
+            <span>A renovação só será formalmente confirmada após a validação e comprovativo do pagamento na secretaria da escola.</span>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center justify-between pt-2">
+            <a href="{{ route('parent.dashboard') }}" class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold transition-colors">
+                Cancelar
+            </a>
+            <button type="submit" class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-2">
+                <i class="fas fa-check-circle"></i>
+                Submeter Renovação
+            </button>
+        </div>
+
+    </form>
+
+</div>
 @endsection
 
 @push('scripts')
-    <script>
-        document.getElementById('special_needs').addEventListener('change', function () {
-            const desc = document.getElementById('special_needs_desc');
-            if (this.checked) {
-                desc.classList.remove('d-none');
-            } else {
-                desc.classList.add('d-none');
-            }
-        });
-    </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const check = document.getElementById('special_needs');
+        const wrapper = document.getElementById('special_needs_desc_wrapper');
+        if (check && wrapper) {
+            check.addEventListener('change', function () {
+                if (this.checked) {
+                    wrapper.classList.remove('hidden');
+                } else {
+                    wrapper.classList.add('hidden');
+                }
+            });
+        }
+    });
+</script>
 @endpush

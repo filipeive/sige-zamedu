@@ -298,60 +298,54 @@
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
                         </div>
                         <div class="modal-body p-4 text-start">
-                            <div class="alert alert-warning border-0 rounded-xl mb-4 d-flex align-items-start gap-3" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);">
-                                <i class="fas fa-exclamation-triangle mt-1 text-amber-600 fs-4"></i>
-                                <div class="text-sm">
-                                    <strong class="d-block mb-1">Ação Irreversível</strong>
+                            <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 mb-4 flex items-start gap-3">
+                                <i class="fas fa-exclamation-triangle mt-1 text-amber-600 text-base"></i>
+                                <div class="text-xs text-amber-900">
+                                    <strong class="block mb-0.5">Ação Irreversível</strong>
                                     Esta ação é <strong>permanente</strong>. O aluno será movido para <strong>Alunos Arquivados</strong> e o motivo será registado no histórico de ocorrências.
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Aluno</label>
-                                <input type="text" class="form-control rounded-xl bg-slate-50 border-slate-200 text-sm" value="{{ $student->full_name }}" disabled>
+                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Aluno</label>
+                                <input type="text" class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-800" value="{{ $student->full_name }}" disabled>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Tipo de Saída <span class="text-rose-600">*</span></label>
-                                <select name="exit_status" class="form-select rounded-xl border-slate-200 shadow-sm focus:border-rose-400 focus:ring-rose-400" required>
+                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Tipo de Saída <span class="text-rose-600">*</span></label>
+                                <select name="exit_status" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500 bg-white text-slate-800" required>
                                     <option value="">Selecionar tipo de saída...</option>
-                                    <option value="inactive">
-                                        <i class="fas fa-user-slash me-2 text-rose-600"></i> Desistente (abandono / desistência)
-                                    </option>
-                                    <option value="transferred">
-                                        <i class="fas fa-exchange-alt me-2 text-blue-600"></i> Transferido (mudou de escola)
-                                    </option>
-                                    <option value="graduated">
-                                        <i class="fas fa-graduation-cap me-2 text-emerald-600"></i> Formado (concluiu o ciclo)
-                                    </option>
+                                    <option value="inactive">Desistente (abandono / desistência)</option>
+                                    <option value="transferred">Transferido (mudou de escola)</option>
+                                    <option value="graduated">Formado (concluiu o ciclo)</option>
                                 </select>
                             </div>
 
-                            <div class="row g-3 mb-3">
-                                <div class="col-md-6">
-                                    <label class="form-label text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Data da Saída <span class="text-rose-600">*</span></label>
-                                    <input type="date" name="exit_date" class="form-control rounded-xl border-slate-200 shadow-sm focus:border-rose-400 focus:ring-rose-400"
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Data da Saída <span class="text-rose-600">*</span></label>
+                                    <input type="date" name="exit_date" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500 bg-white text-slate-800"
                                         value="{{ now()->toDateString() }}" required max="{{ now()->toDateString() }}">
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Ano Letivo <span class="text-rose-600">*</span></label>
-                                    <input type="text" class="form-control rounded-xl bg-slate-50 border-slate-200 text-sm" value="{{ date('Y', strtotime(now()->toDateString())) }}" disabled>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Ano Letivo <span class="text-rose-600">*</span></label>
+                                    <input type="text" class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-800" value="{{ date('Y', strtotime(now()->toDateString())) }}" disabled>
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Motivo / Observações <span class="text-rose-600">*</span></label>
-                                <textarea name="exit_reason" class="form-control rounded-xl border-slate-200 shadow-sm focus:border-rose-400 focus:ring-rose-400" rows="4"
+                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Motivo / Observações <span class="text-rose-600">*</span></label>
+                                <textarea name="exit_reason" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500 bg-white text-slate-800" rows="3"
                                     placeholder="Descreva detalhadamente o motivo da saída (será arquivado no histórico do aluno)..." required></textarea>
-                                <div class="form-text text-slate-500">Mínimo 10 caracteres. Esta informação ficará registada permanentemente.</div>
+                                <div class="text-[10px] text-slate-400 mt-1">Mínimo 10 caracteres. Esta informação ficará registada permanentemente.</div>
                             </div>
                         </div>
-                        <div class="modal-footer bg-slate-50 py-3 px-4" style="border-radius:0 0 1rem 1rem;">
-                            <button type="button" class="btn btn-outline-secondary btn-sm rounded-xl px-4" data-bs-dismiss="modal">
-                                <i class="fas fa-times me-1"></i> Cancelar
+                        <div class="modal-footer bg-slate-50 py-3 px-4 flex items-center justify-end gap-2" style="border-radius:0 0 1rem 1rem;">
+                            <button type="button" class="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 transition" data-bs-dismiss="modal">
+                                <i class="fas fa-times mr-1"></i> Cancelar
                             </button>
-                            <button type="submit" class="btn btn-rose btn-sm rounded-xl font-semibold text-white px-4" style="background-color:#e11d48;">
-                                <i class="fas fa-check me-1"></i> Confirmar Saída
+                            <button type="submit" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-xs font-semibold text-white shadow-xs transition">
+                                <i class="fas fa-check mr-1"></i> Confirmar Saída
                             </button>
                         </div>
                     </form>
@@ -375,20 +369,20 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
                 <div class="modal-body p-4 text-start">
-                    <div class="alert alert-info border-0 rounded-xl mb-4 d-flex align-items-center gap-3" style="background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);">
-                        <i class="fas fa-user text-sky-600 fs-4"></i>
+                    <div class="p-3.5 rounded-xl bg-sky-50 border border-sky-200 mb-4 flex items-center gap-3">
+                        <i class="fas fa-user text-sky-600 text-lg"></i>
                         <div>
-                            <strong class="d-block mb-1">{{ $student->parent->first_name }} {{ $student->parent->last_name }}</strong>
-                            <span class="font-mono text-sm text-sky-700">{{ $student->parent->phone }}</span>
+                            <strong class="block text-xs font-bold text-slate-800">{{ $student->parent->first_name }} {{ $student->parent->last_name }}</strong>
+                            <span class="font-mono text-xs text-sky-700 font-semibold">{{ $student->parent->phone }}</span>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Mensagem <span class="text-sky-600">*</span></label>
-                        <textarea id="smsMsgSupport" name="message" rows="5" required maxlength="480" class="form-control rounded-xl border-slate-200 shadow-sm focus:border-sky-400 focus:ring-sky-400"
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Mensagem <span class="text-sky-600">*</span></label>
+                        <textarea id="smsMsgSupport" name="message" rows="4" required maxlength="480" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 bg-white text-slate-800"
                             placeholder="Use {aluno} para o nome do aluno, {escola} para o nome da escola..."></textarea>
-                        <small class="text-slate-500 text-[11px]">Máx. 480 caracteres. Enviado via httpSMS.</small>
+                        <small class="text-slate-400 text-[10px] mt-1 block">Máx. 480 caracteres. Enviado via httpSMS.</small>
                     </div>
-                    <div class="d-flex flex-wrap gap-2">
+                    <div class="flex flex-wrap gap-1.5">
                         @php
                             $templates = [
                                 "Bom dia. Gostaríamos de informar que {aluno} faltou hoje às aulas. Pedimos contacto com a secretaria.",
@@ -399,19 +393,19 @@
                             ];
                         @endphp
                         @foreach ($templates as $tpl)
-                            <button type="button" class="badge bg-slate-100 text-slate-700 border border-slate-200 px-3 py-2 cursor-pointer hover:bg-slate-200 hover:border-slate-300 transition text-[11px]"
+                            <button type="button" class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 text-[10px] font-medium border border-slate-200 transition"
                                 onclick="document.getElementById('smsMsgSupport').value = @js($tpl);">
                                 {{ mb_substr($tpl, 0, 40) }}…
                             </button>
                         @endforeach
                     </div>
                 </div>
-                <div class="modal-footer bg-slate-50 py-3 px-4" style="border-radius:0 0 1rem 1rem;">
-                    <button type="button" class="btn btn-outline-secondary btn-sm rounded-xl px-4" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-1"></i> Cancelar
+                <div class="modal-footer bg-slate-50 py-3 px-4 flex items-center justify-end gap-2" style="border-radius:0 0 1rem 1rem;">
+                    <button type="button" class="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 transition" data-bs-dismiss="modal">
+                        <i class="fas fa-times mr-1"></i> Cancelar
                     </button>
-                    <button type="submit" class="btn btn-sky-600 btn-sm rounded-xl font-semibold text-white px-4" style="background-color:#0284c7;">
-                        <i class="fas fa-paper-plane me-1"></i> Enviar SMS
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-xs font-semibold text-white shadow-xs transition">
+                        <i class="fas fa-paper-plane mr-1"></i> Enviar SMS
                     </button>
                 </div>
             </form>
